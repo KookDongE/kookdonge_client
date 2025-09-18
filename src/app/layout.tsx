@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ReactNode } from "react";
 import "@/styles/globals.css";
+import { QueryProvider } from "@/components/providers/query-provider";
 
 export const metadata: Metadata = {
   title: "국동이",
@@ -14,7 +15,9 @@ interface Props {
 export default function RootLayout({ children }: Props) {
   return (
     <html lang="ko">
-      <body>{children}</body>
+      <body>
+        <QueryProvider>{children}</QueryProvider>
+      </body>
     </html>
   );
 }
