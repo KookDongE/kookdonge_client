@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { useMutation } from "@tanstack/react-query";
 import registerUser from "@/app/register/register-info/_api/registerUser";
 import { toast } from "sonner";
+import {Toaster} from "@/components/ui/sonner";
 
 export function RegisterInfoForm({
   className,
@@ -41,13 +42,13 @@ export function RegisterInfoForm({
       alert("구글 로그인에 문제가 발생했습니다.");
       return;
     } else if (department == null || department == "") {
-      toast("전공을 입력해 주세요");
+      toast.error("전공을 입력해 주세요");
       return;
     } else if (studentId == null || studentId == "") {
-      toast("학번을 입력해 주세요");
+      toast.error("학번을 입력해 주세요");
       return;
     } else if (phoneNumber == null || phoneNumber == "") {
-      toast("전화번호를 입력해 주세요");
+      toast.error("전화번호를 입력해 주세요");
       return;
     }
 
@@ -61,6 +62,7 @@ export function RegisterInfoForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
+      <Toaster/>
       <form>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col items-center gap-2">
