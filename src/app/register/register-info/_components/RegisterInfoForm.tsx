@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMutation } from "@tanstack/react-query";
-import registerUser from "@/app/register/register-info/_api/registerUser";
+import registerUser, {RegisterUserRes} from "@/app/register/register-info/_api/registerUser";
 import { toast } from "sonner";
-import {Toaster} from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/sonner";
 
 export function RegisterInfoForm({
   className,
@@ -25,8 +25,12 @@ export function RegisterInfoForm({
   const [studentId, setStudentId] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
 
-  const successRegisterUser = () => {
+  const successRegisterUser = (res: RegisterUserRes) => {
     toast("환영합니다");
+
+    localStorage.setItem("kde_accessToken", res.accessToken);
+    localStorage.setItem("kde_refreshToken", res.refreshToken);
+
     router.push("/");
   };
 
@@ -62,7 +66,7 @@ export function RegisterInfoForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Toaster/>
+      <Toaster />
       <form>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col items-center gap-2">

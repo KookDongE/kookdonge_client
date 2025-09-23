@@ -9,7 +9,15 @@ interface RegisterUserReq {
   phoneNumber: string;
 }
 
-interface RegisterUserRes {}
+export interface RegisterUserRes {
+  externalUserId: string;
+  email: string;
+  studentId: string;
+  phoneNumber: string;
+  department: string;
+  accessToken: string;
+  refreshToken: string;
+}
 
 export default async function registerUser({
   googleGrantCode,
