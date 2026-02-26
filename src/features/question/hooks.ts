@@ -53,6 +53,14 @@ export function usePendingQuestions(clubId: number, pageable: Pageable) {
   });
 }
 
+/** 내가 쓴 질문 목록 (전체 동아리). API 연동 전까지 빈 목록 반환. */
+export function useMyQuestions(pageable: Pageable = { page: 0, size: 20 }) {
+  return useQuery({
+    queryKey: ['questions', 'my', pageable],
+    queryFn: () => questionApi.getMyQuestions(pageable),
+  });
+}
+
 export function useDeleteQuestion(clubId: number) {
   const queryClient = useQueryClient();
 

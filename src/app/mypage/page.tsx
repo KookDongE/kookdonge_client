@@ -19,7 +19,7 @@ import { useAuthStore } from '@/features/auth/store';
 import { useMyWaitingList } from '@/features/waiting-list/hooks';
 import { useInterestedStore } from '@/features/club/interested-store';
 import { useManagedClubs, useLikedClubs, useMyApplications } from '@/features/club/hooks';
-import { usePendingQuestions, useQuestions } from '@/features/question/hooks';
+import { useMyQuestions, usePendingQuestions, useQuestions } from '@/features/question/hooks';
 
 const TYPE_LABEL: Record<ClubType, string> = {
   CENTRAL: '중앙동아리',
@@ -439,19 +439,16 @@ function PendingQuestionsSection() {
   );
 }
 
-/** 질문 목록 (관리 중인 동아리의 전체 Q&A) */
+/** 질문 목록 (내가 쓴 질문 전체 - 모든 동아리). API 연동 전까지 빈 목록 표시. */
 function QuestionsListSection() {
-  const { data: managedClubs } = useManagedClubs();
   const router = useRouter();
-  const firstManagedClubId = managedClubs?.[0]?.id;
-  const { data: questionsData, isLoading } = useQuestions(firstManagedClubId || 0, {
-    page: 0,
-    size: 5,
-  });
-
-  if (!firstManagedClubId) return null;
-
+  const { data: questionsData, isLoading } = useMyQuestions({ page: 0, size: 5 });
   const list = questionsData?.content ?? [];
+  // API 연동 시 응답에 clubId가 있으면 해당 동아리 Q&A로 이동
+  const getItemHref = (qna: (typeof list)[0] & { clubId?: number }) =>
+    qna.clubId
+      ? `/mypage/clubs/${qna.clubId}/manage?tab=qna&questionId=${qna.id}`
+      : '/mypage/questions';
 
   return (
     <div className="px-4 py-5">
@@ -478,11 +475,7 @@ function QuestionsListSection() {
             <button
               type="button"
               key={qna.id}
-              onClick={() =>
-                router.push(
-                  `/mypage/clubs/${firstManagedClubId}/manage?tab=qna&questionId=${qna.id}`
-                )
-              }
+              onClick={() => router.push(getItemHref(qna))}
               className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700/80"
             >
               <div className="flex items-start gap-3">
