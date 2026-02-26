@@ -1,14 +1,25 @@
+import type { NotificationListRes, UnreadCountRes } from '@/types/api';
 import { apiClient } from '@/lib/api';
-import {
-  NotificationListRes,
-  UnreadCountRes,
-} from '@/types/api';
+
+/** 서버가 notifications 또는 content(Spring Page) 등 다른 키로 보낼 수 있음 */
+type NotificationsRaw = NotificationListRes & { content?: NotificationListRes['notifications'] };
 
 export const notificationApi = {
   getNotifications: async (page = 0, size = 20): Promise<NotificationListRes> => {
-    return apiClient<NotificationListRes>('/api/notifications', {
+    const raw = await apiClient<NotificationsRaw>('/api/notifications', {
       params: { page, size },
     });
+    const list = Array.isArray(raw?.notifications)
+      ? raw.notifications
+      : Array.isArray(raw?.content)
+        ? raw.content
+        : [];
+    return {
+      notifications: list,
+      hasNext: raw?.hasNext ?? false,
+      page: raw?.page ?? page,
+      size: raw?.size ?? size,
+    };
   },
 
   getUnreadCount: async (): Promise<number> => {

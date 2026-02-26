@@ -3,11 +3,7 @@
 import { useRouter } from 'next/navigation';
 
 import type { NotificationRes } from '@/types/api';
-import {
-  useMarkAllAsRead,
-  useMarkAsRead,
-  useNotifications,
-} from '@/features/notifications/hooks';
+import { useMarkAllAsRead, useMarkAsRead, useNotifications } from '@/features/notifications/hooks';
 
 function typeLabel(type: string): string {
   const labels: Record<string, string> = {
@@ -96,6 +92,9 @@ export default function NotificationsPage() {
           <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-16 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
             <span className="mb-2 text-4xl">🔔</span>
             <p>알림이 없습니다.</p>
+            <p className="mt-1 text-center text-sm">
+              동아리 승인/거절, Q&A 답변, 관심 동아리 모집 알림이 여기에 표시됩니다.
+            </p>
           </div>
         ) : (
           list.map((item) => (

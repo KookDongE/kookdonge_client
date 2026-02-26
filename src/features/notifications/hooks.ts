@@ -12,11 +12,13 @@ export const notificationKeys = {
   unreadCount: () => [...notificationKeys.all, 'unread-count'] as const,
 };
 
-/** 알림 목록 조회 (페이지네이션) */
+/** 알림 목록 조회 (페이지네이션) - 로그인 시에만 호출 */
 export function useNotifications(page = 0, size = 20) {
+  const accessToken = useAuthStore((s) => s.accessToken);
   return useQuery({
     queryKey: notificationKeys.list(page, size),
     queryFn: () => notificationApi.getNotifications(page, size),
+    enabled: !!accessToken,
   });
 }
 
