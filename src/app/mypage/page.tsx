@@ -19,7 +19,7 @@ import { useAuthStore } from '@/features/auth/store';
 import { useMyWaitingList } from '@/features/waiting-list/hooks';
 import { useInterestedStore } from '@/features/club/interested-store';
 import { useManagedClubs, useLikedClubs, useMyApplications } from '@/features/club/hooks';
-import { usePendingQuestions } from '@/features/question/hooks';
+import { usePendingQuestions, useQuestions } from '@/features/question/hooks';
 
 const TYPE_LABEL: Record<ClubType, string> = {
   CENTRAL: '중앙동아리',
@@ -367,7 +367,6 @@ function PendingQuestionsSection() {
   const { data: managedClubs } = useManagedClubs();
   const router = useRouter();
 
-  // 관리 중인 첫 번째 동아리의 질문 대기 목록 표시
   const firstManagedClubId = managedClubs?.[0]?.id;
   const { data: pendingQuestions, isLoading } = usePendingQuestions(
     firstManagedClubId || 0,
@@ -430,6 +429,158 @@ function PendingQuestionsSection() {
                     strokeWidth={2}
                     d="M9 5l7 7-7 7"
                   />
+                </svg>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** 질문 목록 (관리 중인 동아리의 전체 Q&A) */
+function QuestionsListSection() {
+  const { data: managedClubs } = useManagedClubs();
+  const router = useRouter();
+  const firstManagedClubId = managedClubs?.[0]?.id;
+  const { data: questionsData, isLoading } = useQuestions(firstManagedClubId || 0, {
+    page: 0,
+    size: 5,
+  });
+
+  if (!firstManagedClubId) return null;
+
+  const list = questionsData?.content ?? [];
+
+  return (
+    <div className="px-4 py-5">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">질문 목록</h3>
+        <Link
+          href="/mypage/questions"
+          className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+        >
+          전체보기
+        </Link>
+      </div>
+      {isLoading ? (
+        <div className="flex justify-center py-8">
+          <Spinner />
+        </div>
+      ) : list.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-12 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
+          <p>등록된 질문이 없습니다.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {list.slice(0, PREVIEW_LIMIT).map((qna) => (
+            <button
+              type="button"
+              key={qna.id}
+              onClick={() =>
+                router.push(
+                  `/mypage/clubs/${firstManagedClubId}/manage?tab=qna&questionId=${qna.id}`
+                )
+              }
+              className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700/80"
+            >
+              <div className="flex items-start gap-3">
+                <Chip size="sm" color="accent" variant="soft" className="shrink-0">
+                  Q
+                </Chip>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 line-clamp-2">
+                    {qna.question}
+                  </p>
+                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                    {new Date(qna.createdAt).toLocaleDateString()}
+                    {qna.answer ? ' · 답변완료' : ' · 대기중'}
+                  </p>
+                </div>
+                <svg
+                  className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** 답변 목록 (답변 완료된 Q&A) */
+function AnsweredListSection() {
+  const { data: managedClubs } = useManagedClubs();
+  const router = useRouter();
+  const firstManagedClubId = managedClubs?.[0]?.id;
+  const { data: questionsData, isLoading } = useQuestions(firstManagedClubId || 0, {
+    page: 0,
+    size: 20,
+  });
+
+  if (!firstManagedClubId) return null;
+
+  const answered = (questionsData?.content ?? []).filter((q) => q.answer);
+
+  return (
+    <div className="px-4 py-5">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">답변 목록</h3>
+        <Link
+          href="/mypage/questions"
+          className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+        >
+          전체보기
+        </Link>
+      </div>
+      {isLoading ? (
+        <div className="flex justify-center py-8">
+          <Spinner />
+        </div>
+      ) : answered.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-12 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
+          <p>답변한 질문이 없습니다.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {answered.slice(0, PREVIEW_LIMIT).map((qna) => (
+            <button
+              type="button"
+              key={qna.id}
+              onClick={() =>
+                router.push(
+                  `/mypage/clubs/${firstManagedClubId}/manage?tab=qna&questionId=${qna.id}`
+                )
+              }
+              className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700/80"
+            >
+              <div className="flex items-start gap-3">
+                <Chip size="sm" color="success" variant="soft" className="shrink-0">
+                  A
+                </Chip>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 line-clamp-1">
+                    {qna.question}
+                  </p>
+                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                    {qna.answeredBy && `${qna.answeredBy} · `}
+                    {new Date(qna.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+                <svg
+                  className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </div>
             </button>
@@ -718,11 +869,13 @@ export default function MyPage() {
   return (
     <div className="pb-6">
       <ProfileSection />
+      <AdminSection />
+      <QuestionsListSection />
+      <AnsweredListSection />
       <PendingQuestionsSection />
       <WaitingListSection />
       <LikedClubsSection />
       <InterestedClubsSection />
-      <AdminSection />
       <MyApplicationsSection />
       <ClubApplyButton />
     </div>
