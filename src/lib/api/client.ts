@@ -63,7 +63,12 @@ export async function apiClient<T>(endpoint: string, options: RequestOptions = {
   const json: ResponseDTO<T> = await response.json();
 
   if (json.status !== 200) {
-    toast.error(json.message || '오류가 발생했습니다');
+    const isUnauthorized = response.status === 401 || json.status === 401;
+    if (isUnauthorized && !token) {
+      // 스플래시·로그인 등 토큰 없을 때 401은 예상됨. 토스트 생략
+    } else {
+      toast.error(json.message || '오류가 발생했습니다');
+    }
     throw new Error(`${json.status}: ${json.message}`);
   }
 

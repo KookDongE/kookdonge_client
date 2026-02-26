@@ -32,9 +32,11 @@ export const authKeys = {
 };
 
 export function useMyProfile() {
+  const accessToken = useAuthStore((state) => state.accessToken);
   return useQuery({
     queryKey: authKeys.profile(),
     queryFn: authApi.getMyProfile,
+    enabled: !!accessToken,
   });
 }
 
