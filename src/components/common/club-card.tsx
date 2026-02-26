@@ -6,7 +6,6 @@ import Link from 'next/link';
 
 import { motion } from 'framer-motion';
 
-import { DEFAULT_CLUB_IMAGE } from '@/constants/club';
 import { ClubCategory, ClubListRes, ClubType, RecruitmentStatus } from '@/types/api';
 
 const CATEGORY_LABEL: Record<ClubCategory, string> = {
@@ -93,13 +92,9 @@ export function ClubCard({
                 />
               </>
             ) : (
-              <Image
-                src={DEFAULT_CLUB_IMAGE}
-                alt={club.name}
-                fill
-                className="object-cover"
-                sizes="112px"
-              />
+              <div className="flex h-full w-full items-center justify-center bg-zinc-200 dark:bg-zinc-700">
+                <span className="text-3xl" aria-hidden>🏠</span>
+              </div>
             )}
           </div>
 

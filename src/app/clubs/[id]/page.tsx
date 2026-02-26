@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import { Button, Chip, Spinner, Tabs, TextArea } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
 
-import { DEFAULT_CLUB_IMAGE } from '@/constants/club';
 import { ClubCategory, ClubType, RecruitmentStatus } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
 import { useInterestedStore } from '@/features/club/interested-store';
@@ -97,13 +96,13 @@ function ClubHeader({ clubId }: { clubId: number }) {
     <div className="bg-white px-4 py-6 dark:bg-zinc-900">
       <div className="flex gap-4">
         <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-zinc-100 shadow-sm dark:bg-zinc-800">
-          <Image
-            src={club.image || DEFAULT_CLUB_IMAGE}
-            alt={club.name}
-            fill
-            className="object-cover"
-            sizes="112px"
-          />
+          {club.image ? (
+            <Image src={club.image} alt={club.name} fill className="object-cover" sizes="112px" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-zinc-200 dark:bg-zinc-700">
+              <span className="text-4xl" aria-hidden>🏠</span>
+            </div>
+          )}
         </div>
         <div className="flex flex-1 flex-col justify-center">
           <div className="flex items-center gap-2">

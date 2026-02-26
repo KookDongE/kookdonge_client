@@ -8,7 +8,6 @@ import { Button, Spinner } from '@heroui/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
 
-import { DEFAULT_CLUB_IMAGE } from '@/constants/club';
 import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
@@ -126,16 +125,22 @@ function RankingSection() {
                       {!imageLoaded[club.id] && (
                         <div className="skeleton absolute inset-0 rounded-full" />
                       )}
-                      <Image
-                        src={club.logoImage || DEFAULT_CLUB_IMAGE}
-                        alt={club.name}
-                        fill
-                        className={`object-cover transition-opacity duration-300 ${
-                          imageLoaded[club.id] ? 'opacity-100' : 'opacity-0'
-                        }`}
-                        sizes="56px"
-                        onLoad={() => setImageLoaded((prev) => ({ ...prev, [club.id]: true }))}
-                      />
+                      {club.logoImage ? (
+                        <Image
+                          src={club.logoImage}
+                          alt={club.name}
+                          fill
+                          className={`object-cover transition-opacity duration-300 ${
+                            imageLoaded[club.id] ? 'opacity-100' : 'opacity-0'
+                          }`}
+                          sizes="56px"
+                          onLoad={() => setImageLoaded((prev) => ({ ...prev, [club.id]: true }))}
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-zinc-200 dark:bg-zinc-700 rounded-full">
+                          <span className="text-2xl" aria-hidden>🏠</span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Name */}

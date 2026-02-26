@@ -72,15 +72,7 @@ export default function NotificationsPage() {
 
   return (
     <div className="pb-6">
-      <div className="flex items-center justify-between gap-2 px-4 py-3">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-        >
-          <span className="inline-block h-4 w-4">←</span>
-          <span>뒤로</span>
-        </button>
+      <div className="flex items-center justify-end gap-2 px-4 py-3">
         {list.some((n) => !n.isRead) && (
           <button
             type="button"
@@ -94,9 +86,6 @@ export default function NotificationsPage() {
       </div>
       <div className="px-4">
         <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">알림</h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          새 질문, 답변, 동아리 승인/거절, 관심 동아리 모집 알림을 확인하세요.
-        </p>
       </div>
       <div className="mt-4 flex flex-col gap-4 px-4">
         {isLoading ? (
