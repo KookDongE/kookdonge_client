@@ -92,16 +92,25 @@ export const feedApi = {
       const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
       const allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
       if (!allowed.includes(ext)) throw new Error(`지원하지 않는 확장자: ${ext}`);
-      const { uuid, presignedUrl, fileUrl } = await feedApi.getPresignedUrl(
+      const res = await feedApi.getPresignedUrl(
         clubId,
         file.name,
         file.type || 'image/jpeg'
       );
-      await fetch(presignedUrl, {
+      const uuid = res.uuid;
+      const fileUrl = res.fileUrl;
+      const presignedUrl =
+        res.presignedUrl ?? (res as { presigned_url?: string }).presigned_url;
+      if (!presignedUrl) throw new Error('Presigned URL을 받지 못했습니다.');
+      const contentType = file.type || 'image/jpeg';
+      const putRes = await fetch(presignedUrl, {
         method: 'PUT',
         body: file,
-        headers: { 'Content-Type': file.type || 'image/jpeg' },
+        headers: { 'Content-Type': contentType },
       });
+      if (!putRes.ok) {
+        throw new Error(`S3 업로드 실패: ${putRes.status}`);
+      }
       await feedApi.registerUploadComplete(clubId, {
         uuid,
         fileName: file.name,

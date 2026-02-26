@@ -1,9 +1,9 @@
 'use client';
 
-import { use, useEffect } from 'react';
+import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Chip, Spinner } from '@heroui/react';
+import { Button, Chip, Spinner, TextArea } from '@heroui/react';
 
 import type { ClubCategory, ClubType } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
@@ -83,13 +83,20 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
     });
   };
 
-  const handleReject = () => {
-    rejectApplication.mutate(applicationId, {
-      onSuccess: () => {
-        alert('신청이 거절되었습니다.');
-        router.push('/admin');
-      },
-    });
+  const handleRejectClick = () => {
+    setShowRejectInput(true);
+  };
+
+  const handleRejectSubmit = () => {
+    rejectApplication.mutate(
+      { applicationId, reason: rejectReason.trim() || '사유 없음' },
+      {
+        onSuccess: () => {
+          alert('신청이 거절되었습니다.');
+          router.push('/admin');
+        },
+      }
+    );
   };
 
   const labelClass = 'mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300';
@@ -159,23 +166,59 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
         </div>
 
         {isPending && (
-          <div className="flex gap-3 pt-2">
-            <Button
-              variant="danger-soft"
-              className="flex-1 bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300"
-              onPress={handleReject}
-              isPending={rejectApplication.isPending}
-            >
-              거절
-            </Button>
-            <Button
-              variant="primary"
-              className="flex-1 bg-blue-500 text-white"
-              onPress={handleApprove}
-              isPending={approveApplication.isPending}
-            >
-              수락
-            </Button>
+          <div className="space-y-4 pt-2">
+            {showRejectInput ? (
+              <div className="space-y-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
+                <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                  거절 사유 (선택)
+                </label>
+                <TextArea
+                  placeholder="거절 사유를 입력하세요. 신청자에게 전달됩니다."
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  minRows={3}
+                  className="w-full"
+                />
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    className="flex-1"
+                    onPress={() => {
+                      setShowRejectInput(false);
+                      setRejectReason('');
+                    }}
+                  >
+                    취소
+                  </Button>
+                  <Button
+                    variant="danger-soft"
+                    className="flex-1 bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300"
+                    onPress={handleRejectSubmit}
+                    isPending={rejectApplication.isPending}
+                  >
+                    거절하기
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex gap-3">
+                <Button
+                  variant="danger-soft"
+                  className="flex-1 bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300"
+                  onPress={handleRejectClick}
+                >
+                  거절
+                </Button>
+                <Button
+                  variant="primary"
+                  className="flex-1 bg-blue-500 text-white"
+                  onPress={handleApprove}
+                  isPending={approveApplication.isPending}
+                >
+                  수락
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>

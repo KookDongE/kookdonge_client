@@ -7,17 +7,13 @@ import { useRouter } from 'next/navigation';
 import { Button, Chip, Spinner, Tabs, TextArea } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
 
+import { DEFAULT_CLUB_IMAGE } from '@/constants/club';
 import { ClubCategory, ClubType, RecruitmentStatus } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
 import { useInterestedStore } from '@/features/club/interested-store';
 import { useClubDetail, useLikeClub, useUnlikeClub } from '@/features/club/hooks';
 import { useClubFeeds } from '@/features/feed/hooks';
 import { useCreateQuestion, useQuestions } from '@/features/question/hooks';
-import {
-  useAddToWaitingList,
-  useMyWaitingList,
-  useRemoveFromWaitingList,
-} from '@/features/waiting-list/hooks';
 import { FeedList } from '@/components/feed/feed-list';
 
 const CATEGORY_LABEL: Record<ClubCategory, string> = {
@@ -101,13 +97,13 @@ function ClubHeader({ clubId }: { clubId: number }) {
     <div className="bg-white px-4 py-6 dark:bg-zinc-900">
       <div className="flex gap-4">
         <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-zinc-100 shadow-sm dark:bg-zinc-800">
-          {club.image ? (
-            <Image src={club.image} alt={club.name} fill className="object-cover" sizes="112px" />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-3xl text-zinc-400 dark:text-zinc-500">
-              🏠
-            </div>
-          )}
+          <Image
+            src={club.image || DEFAULT_CLUB_IMAGE}
+            alt={club.name}
+            fill
+            className="object-cover"
+            sizes="112px"
+          />
         </div>
         <div className="flex flex-1 flex-col justify-center">
           <div className="flex items-center gap-2">
@@ -130,16 +126,16 @@ function ClubHeader({ clubId }: { clubId: number }) {
           onClick={handleLikeToggle}
           disabled={isLiking}
           className={`flex-1 rounded-xl py-3 text-center transition-colors ${
-            club.isLikedByMe ? 'bg-red-500 dark:bg-red-600' : 'bg-red-50 dark:bg-red-950/30'
+            club.isLikedByMe ? 'bg-red-200 dark:bg-red-900/50' : 'bg-red-50 dark:bg-red-950/30'
           }`}
         >
           <div
-            className={`text-xl font-bold ${club.isLikedByMe ? 'text-white' : 'text-red-500 dark:text-red-400'}`}
+            className={`text-xl font-bold ${club.isLikedByMe ? 'text-red-600 dark:text-red-300' : 'text-red-500 dark:text-red-400'}`}
           >
             {club.totalLikeCount}
           </div>
           <div
-            className={`text-xs ${club.isLikedByMe ? 'text-red-100' : 'text-zinc-500 dark:text-zinc-400'}`}
+            className={`text-xs ${club.isLikedByMe ? 'text-red-600/80 dark:text-red-300/80' : 'text-zinc-500 dark:text-zinc-400'}`}
           >
             좋아요
           </div>
@@ -148,17 +144,17 @@ function ClubHeader({ clubId }: { clubId: number }) {
           type="button"
           onClick={handleInterestedToggle}
           className={`flex-1 rounded-xl py-3 text-center transition-colors ${
-            isInterestedByMe ? 'bg-amber-500 dark:bg-amber-600' : 'bg-amber-50 dark:bg-amber-950/30'
+            isInterestedByMe ? 'bg-amber-200 dark:bg-amber-900/50' : 'bg-amber-50 dark:bg-amber-950/30'
           }`}
           title="관심 동아리"
         >
           <div
-            className={`text-xl font-bold ${isInterestedByMe ? 'text-white' : 'text-amber-600 dark:text-amber-400'}`}
+            className={`text-xl font-bold ${isInterestedByMe ? 'text-amber-700 dark:text-amber-300' : 'text-amber-600 dark:text-amber-400'}`}
           >
             {isInterestedByMe ? '★' : '☆'}
           </div>
           <div
-            className={`text-xs ${isInterestedByMe ? 'text-amber-100' : 'text-zinc-500 dark:text-zinc-400'}`}
+            className={`text-xs ${isInterestedByMe ? 'text-amber-700/80 dark:text-amber-300/80' : 'text-zinc-500 dark:text-zinc-400'}`}
           >
             관심
           </div>
@@ -187,8 +183,7 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
     { label: '대상', value: club.targetGraduate },
     { label: '동아리장', value: club.leaderName },
     { label: '활동 장소', value: club.location },
-    { label: '주간 활동', value: `${club.weeklyActiveFrequency}회` },
-    { label: '휴학생 가입', value: club.allowLeaveOfAbsence ? '가능' : '불가능' },
+    { label: '주간 활동', value: club.weeklyActivity ?? (club.weeklyActiveFrequency != null ? `${club.weeklyActiveFrequency}회` : '-') },
   ];
 
   return (
@@ -367,68 +362,26 @@ function ClubQnaTab({ clubId }: { clubId: number }) {
 
 function ClubCTA({ clubId }: { clubId: number }) {
   const { data: club } = useClubDetail(clubId);
-  const { data: waitingList } = useMyWaitingList();
-  const addToWaiting = useAddToWaitingList();
-  const removeFromWaiting = useRemoveFromWaitingList();
 
-  if (!club) return null;
-
-  const isInWaitingList = waitingList?.some((item) => item.clubId === clubId) ?? false;
-  const isLoading = addToWaiting.isPending || removeFromWaiting.isPending;
-
-  const handleWaitingToggle = () => {
-    if (isLoading) return;
-    if (isInWaitingList) {
-      removeFromWaiting.mutate(clubId);
-    } else {
-      addToWaiting.mutate(clubId);
-    }
-  };
+  if (!club || !club.recruitmentUrl) return null;
 
   const ctaBottom = 'calc(72px + env(safe-area-inset-bottom))';
+  const handleApplyClick = () => {
+    window.open(club.recruitmentUrl!, '_blank');
+  };
 
-  // 모집중 & 지원 링크가 있을 때는 지원하기 버튼
-  if (club.recruitmentStatus === 'RECRUITING' && club.recruitmentUrl) {
-    const handleApplyClick = () => {
-      window.open(club.recruitmentUrl!, '_blank');
-    };
-
-    return (
-      <div
-        className="glass fixed left-1/2 z-50 w-full max-w-md -translate-x-1/2 rounded-t-2xl border-t-0 p-4"
-        style={{ bottom: ctaBottom }}
-      >
-        <Button
-          className="w-full py-3 text-base font-semibold"
-          variant="primary"
-          onPress={handleApplyClick}
-        >
-          동아리 지원
-        </Button>
-      </div>
-    );
-  }
-
-  // 그 외 상태에서는 알림 신청 버튼
   return (
     <div
       className="glass fixed left-1/2 z-50 w-full max-w-md -translate-x-1/2 rounded-t-2xl border-t-0 p-4"
       style={{ bottom: ctaBottom }}
     >
       <Button
-        variant="ghost"
         className="w-full py-3 text-base font-semibold"
-        onPress={handleWaitingToggle}
-        isDisabled={isLoading}
-        isPending={isLoading}
+        variant="primary"
+        onPress={handleApplyClick}
       >
-        {isInWaitingList ? '✓ 알림 신청됨' : '모집 알림 받기'}
+        동아리 지원
       </Button>
-      {isInWaitingList && (
-        <p className="mt-2 text-center text-xs text-zinc-500 dark:text-zinc-400">
-          모집이 시작되면 알림을 받을 수 있어요. 탭하여 취소할 수 있습니다.
-        </p>
-      )}
     </div>
   );
 }

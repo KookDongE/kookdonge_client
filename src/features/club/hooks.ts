@@ -266,7 +266,8 @@ export function useRejectApplication() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (applicationId: number) => clubApi.rejectApplication(applicationId),
+    mutationFn: ({ applicationId, reason }: { applicationId: number; reason: string }) =>
+      clubApi.rejectApplication(applicationId, reason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [...clubKeys.all, 'admin', 'applications'] });
     },

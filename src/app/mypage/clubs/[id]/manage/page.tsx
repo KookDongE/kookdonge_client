@@ -11,7 +11,6 @@ import {
   ListBox,
   Select,
   Spinner,
-  Switch,
   Tabs,
   TextArea,
 } from '@heroui/react';
@@ -446,11 +445,6 @@ function AdminManageSection({ clubId, onClose }: { clubId: number; onClose: () =
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <Button size="sm" variant="ghost" onPress={onClose}>
-          닫기
-        </Button>
-      </div>
       <div>
         <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
           관리자 추가
@@ -630,8 +624,7 @@ function ClubInfoTab({
     { label: '대상', value: club.targetGraduate },
     { label: '동아리장', value: club.leaderName },
     { label: '활동 장소', value: club.location },
-    { label: '주간 활동', value: `${club.weeklyActiveFrequency}회` },
-    { label: '휴학생 가입', value: club.allowLeaveOfAbsence ? '가능' : '불가능' },
+    { label: '주간 활동', value: club.weeklyActivity ?? (club.weeklyActiveFrequency != null ? `${club.weeklyActiveFrequency}회` : '-') },
   ];
 
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -851,17 +844,6 @@ function ClubInfoTab({
                   onChange={(e) => setWeeklyActiveFrequency(parseInt(e.target.value) || 0)}
                   className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
                 />
-              </div>
-              <div className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-600 dark:bg-zinc-800">
-                <div className="flex-1">
-                  <label className="text-sm font-medium text-gray-700 dark:text-zinc-300">
-                    휴학생 가입 허용
-                  </label>
-                  <p className="mt-1 text-xs text-gray-500 dark:text-zinc-400">
-                    휴학생도 동아리에 가입할 수 있도록 허용합니다
-                  </p>
-                </div>
-                <Switch isSelected={allowLeaveOfAbsence} onChange={setAllowLeaveOfAbsence} />
               </div>
             </div>
           )}
