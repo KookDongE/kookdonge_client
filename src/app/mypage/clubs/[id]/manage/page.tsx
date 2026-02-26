@@ -1,32 +1,27 @@
 'use client';
 
-import { Suspense, use, useState, useEffect } from 'react';
+import { Suspense, use, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
-import {
-  Button,
-  Chip,
-  Input,
-  ListBox,
-  Select,
-  Spinner,
-  Tabs,
-  TextArea,
-} from '@heroui/react';
+import { Button, Chip, ListBox, Select, Spinner, Tabs, TextArea } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
 
-import { ClubCategory, RecruitmentStatus, ClubType } from '@/types/api';
+import { ClubCategory, ClubDetailRes, ClubType, RecruitmentStatus } from '@/types/api';
 import {
-  useClubDetail,
-  useUpdateClubDetail,
-  useClubAdmins,
   useAddClubAdmin,
+  useClubAdmins,
+  useClubDetail,
   useRemoveClubAdmin,
+  useUpdateClubDetail,
 } from '@/features/club/hooks';
-import { usePendingQuestions, useCreateAnswer, useDeleteQuestion } from '@/features/question/hooks';
-import { useQuestions } from '@/features/question/hooks';
-import { useClubFeeds, useDeleteFeed, useUploadFeedFiles } from '@/features/feed/hooks';
+import { useClubFeeds, useUploadFeedFiles } from '@/features/feed/hooks';
+import {
+  useCreateAnswer,
+  useDeleteQuestion,
+  usePendingQuestions,
+  useQuestions,
+} from '@/features/question/hooks';
 
 const CATEGORY_LABEL: Record<ClubCategory, string> = {
   PERFORMING_ARTS: '공연예술',
@@ -118,28 +113,29 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   // Q&A 답변 상태
   const [answerTexts, setAnswerTexts] = useState<Record<number, string>>({});
 
-  // 데이터 로드 시 폼 초기화
+  // 데이터 로드 시 폼 초기화 (동아리 변경 시 폼 리셋)
+  /* eslint-disable react-hooks/set-state-in-effect -- 폼 초기값을 서버 데이터와 동기화 */
   useEffect(() => {
-    if (club && !isLoading) {
-      setName(club.name || '');
-      setImage(club.image || '');
-      setSummary(club.summary || '');
-      setCategory(club.category);
-      setType(club.type);
-      setTargetGraduate(club.targetGraduate || '');
-      setLeaderName(club.leaderName || '');
-      setLocation(club.location || '');
-      setWeeklyActiveFrequency(club.weeklyActiveFrequency || 1);
-      setAllowLeaveOfAbsence(club.allowLeaveOfAbsence || false);
-      setContent(club.content || '');
-      setDescription(club.description || '');
-      setDescriptionImages(club.descriptionImages || []);
-      setRecruitmentStatus(club.recruitmentStatus);
-      setRecruitmentStartDate(club.recruitmentStartDate.split('T')[0]);
-      setRecruitmentEndDate(club.recruitmentEndDate.split('T')[0]);
-      setRecruitmentUrl(club.recruitmentUrl || '');
-    }
+    if (!club || isLoading) return;
+    setName(club.name || '');
+    setImage(club.image || '');
+    setSummary(club.summary || '');
+    setCategory(club.category);
+    setType(club.type);
+    setTargetGraduate(club.targetGraduate || '');
+    setLeaderName(club.leaderName || '');
+    setLocation(club.location || '');
+    setWeeklyActiveFrequency(club.weeklyActiveFrequency ?? 1);
+    setAllowLeaveOfAbsence(club.allowLeaveOfAbsence ?? false);
+    setContent(club.content || '');
+    setDescription(club.description || '');
+    setDescriptionImages(club.descriptionImages || []);
+    setRecruitmentStatus(club.recruitmentStatus);
+    setRecruitmentStartDate(club.recruitmentStartDate.split('T')[0]);
+    setRecruitmentEndDate(club.recruitmentEndDate.split('T')[0]);
+    setRecruitmentUrl(club.recruitmentUrl || '');
   }, [club, isLoading]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   if (isLoading || !club) {
     return (
@@ -220,7 +216,9 @@ function ClubManageContent({ clubId }: { clubId: number }) {
         clubId,
         data: {
           recruitmentStatus,
-          recruitmentStartDate: recruitmentStartDate ? `${recruitmentStartDate}T00:00:00` : undefined,
+          recruitmentStartDate: recruitmentStartDate
+            ? `${recruitmentStartDate}T00:00:00`
+            : undefined,
           recruitmentEndDate: recruitmentEndDate ? `${recruitmentEndDate}T23:59:59` : undefined,
           recruitmentUrl: recruitmentUrl || undefined,
         },
@@ -253,11 +251,11 @@ function ClubManageContent({ clubId }: { clubId: number }) {
       {/* 헤더 */}
       <div className="bg-white px-4 py-6 dark:bg-zinc-900">
         <div className="flex gap-4">
-          <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-zinc-100 shadow-sm dark:bg-zinc-800">
+          <div className="club-logo-wrap relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-zinc-100 shadow-sm dark:bg-zinc-800">
             {club.image ? (
               <Image src={club.image} alt={club.name} fill className="object-cover" sizes="112px" />
             ) : (
-              <div className="h-full w-full bg-zinc-200 dark:bg-zinc-700" />
+              <div className="club-logo-placeholder h-full w-full bg-zinc-200 dark:bg-zinc-700" />
             )}
           </div>
           <div className="flex flex-1 flex-col justify-center">
@@ -266,7 +264,9 @@ function ClubManageContent({ clubId }: { clubId: number }) {
                 {status.label}
               </Chip>
             </div>
-            <h1 className="mt-1.5 text-xl font-bold text-zinc-900 dark:text-zinc-100">{club.name}</h1>
+            <h1 className="mt-1.5 text-xl font-bold text-zinc-900 dark:text-zinc-100">
+              {club.name}
+            </h1>
             {club.summary && (
               <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{club.summary}</p>
             )}
@@ -408,7 +408,13 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   );
 }
 
-function AdminManageSection({ clubId, onClose }: { clubId: number; onClose: () => void }) {
+function AdminManageSection({
+  clubId,
+  onClose: _onClose,
+}: {
+  clubId: number;
+  onClose: () => void;
+}) {
   const { data: admins, isLoading } = useClubAdmins(clubId);
   const addAdmin = useAddClubAdmin();
   const removeAdmin = useRemoveClubAdmin();
@@ -469,15 +475,15 @@ function AdminManageSection({ clubId, onClose }: { clubId: number; onClose: () =
             <Spinner size="sm" />
           </div>
         ) : !admins || admins.length === 0 ? (
-          <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
+          <div className="club-manage-admin-empty rounded-lg border border-zinc-200 bg-zinc-50 p-4 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
             관리자가 없습니다.
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="club-manage-admin-list space-y-2">
             {admins.map((email) => (
               <div
                 key={email}
-                className="flex items-center justify-between rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-800"
+                className="club-manage-admin-item flex items-center justify-between rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-800"
               >
                 <span className="text-sm text-zinc-900 dark:text-zinc-100">{email}</span>
                 <Button
@@ -534,12 +540,12 @@ function ClubInfoTab({
   setLocation,
   weeklyActiveFrequency,
   setWeeklyActiveFrequency,
-  allowLeaveOfAbsence,
-  setAllowLeaveOfAbsence,
+  allowLeaveOfAbsence: _allowLeaveOfAbsence,
+  setAllowLeaveOfAbsence: _setAllowLeaveOfAbsence,
   content,
   setContent,
-  description,
-  setDescription,
+  description: _description,
+  setDescription: _setDescription,
   descriptionImages,
   setDescriptionImages,
   onDescriptionImagesUpload,
@@ -559,7 +565,7 @@ function ClubInfoTab({
   isUploading,
   isSaving,
 }: {
-  club: any;
+  club: ClubDetailRes;
   clubId: number;
   isEditingBasic: boolean;
   isEditingContent: boolean;
@@ -622,7 +628,12 @@ function ClubInfoTab({
     { label: '대상', value: club.targetGraduate },
     { label: '동아리장', value: club.leaderName },
     { label: '활동 장소', value: club.location },
-    { label: '주간 활동', value: club.weeklyActivity ?? (club.weeklyActiveFrequency != null ? `${club.weeklyActiveFrequency}회` : '-') },
+    {
+      label: '주간 활동',
+      value:
+        club.weeklyActivity ??
+        (club.weeklyActiveFrequency != null ? `${club.weeklyActiveFrequency}회` : '-'),
+    },
   ];
 
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -640,7 +651,7 @@ function ClubInfoTab({
   };
 
   const cardClass =
-    'rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800';
+    'club-manage-card rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800';
 
   return (
     <div className="space-y-4 p-4">
@@ -648,232 +659,250 @@ function ClubInfoTab({
       <div className={cardClass}>
         <div className="mb-3 flex items-center justify-between">
           <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">기본 정보</h3>
-            {!isEditingBasic ? (
+          {!isEditingBasic ? (
             <button
               type="button"
               onClick={onEditBasic}
               className="flex h-8 w-8 items-center justify-center rounded-lg text-blue-500 transition-colors hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950/30"
               aria-label="수정"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-4 w-4"
+              >
                 <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
                 <path d="m15 5 4 4" />
               </svg>
             </button>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Button size="sm" variant="ghost" onPress={onCancelBasic}>
-                  취소
-                </Button>
-                <Button size="sm" variant="primary" onPress={onSaveBasic} isDisabled={isSaving}>
-                  {isSaving ? '저장 중...' : '저장'}
-                </Button>
-              </div>
-            )}
-          </div>
-          {!isEditingBasic ? (
-            <div className="space-y-3">
-              {infoItems.map((item) => (
-                <div key={item.label} className="flex justify-between text-sm">
-                  <span className="text-zinc-500 dark:text-zinc-400">{item.label}</span>
-                  <span className="font-medium text-zinc-900 dark:text-zinc-100">{item.value}</span>
-                </div>
-              ))}
-            </div>
           ) : (
-            <div className="space-y-5">
-              <div>
-                <label className="mb-3 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-                  프로필 사진
-                </label>
-                <div className="flex items-center gap-4">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageFileChange}
-                    className="hidden"
-                    id="profile-image-upload"
-                    disabled={isUploading}
-                  />
-                  <label htmlFor="profile-image-upload" className="cursor-pointer">
-                    <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full bg-gray-100 dark:bg-zinc-700">
-                      {image ? (
-                        <Image src={image} alt="프로필" fill className="object-cover" sizes="96px" />
-                      ) : (
-                        <div className="h-full w-full bg-zinc-200 dark:bg-zinc-700" />
-                      )}
-                      <div className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full bg-blue-500 text-white shadow-md">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                          className="h-4 w-4"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-1.135.175 2.31 2.31 0 01-1.64 1.055l-.822 1.316z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                  </label>
-                  {isUploading && (
-                    <div className="text-sm text-gray-500 dark:text-zinc-400">업로드 중...</div>
-                  )}
-                </div>
-              </div>
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-                  동아리 이름 <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
-                />
-              </div>
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-                  한 줄 소개
-                </label>
-                <input
-                  type="text"
-                  value={summary}
-                  onChange={(e) => setSummary(e.target.value)}
-                  className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
-                />
-              </div>
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-                  카테고리
-                </label>
-                <Select
-                  value={category}
-                  onChange={(value) => value && setCategory(value as ClubCategory)}
-                >
-                  <Select.Trigger className="rounded-xl border border-zinc-200 bg-white dark:border-zinc-600 dark:bg-zinc-800">
-                    <Select.Value />
-                    <Select.Indicator />
-                  </Select.Trigger>
-                  <Select.Popover>
-                    <ListBox>
-                      {CATEGORY_OPTIONS.map((opt) => (
-                        <ListBox.Item key={opt.value} id={opt.value} textValue={opt.label}>
-                          {opt.label}
-                        </ListBox.Item>
-                      ))}
-                    </ListBox>
-                  </Select.Popover>
-                </Select>
-              </div>
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-                  동아리 타입
-                </label>
-                <Select value={type} onChange={(value) => value && setType(value as ClubType)}>
-                  <Select.Trigger className="rounded-xl border border-zinc-200 bg-white dark:border-zinc-600 dark:bg-zinc-800">
-                    <Select.Value />
-                    <Select.Indicator />
-                  </Select.Trigger>
-                  <Select.Popover>
-                    <ListBox>
-                      {TYPE_OPTIONS.map((opt) => (
-                        <ListBox.Item key={opt.value} id={opt.value} textValue={opt.label}>
-                          {opt.label}
-                        </ListBox.Item>
-                      ))}
-                    </ListBox>
-                  </Select.Popover>
-                </Select>
-              </div>
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-                  동아리장
-                </label>
-                <input
-                  type="text"
-                  value={leaderName}
-                  onChange={(e) => setLeaderName(e.target.value)}
-                  className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
-                />
-              </div>
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-                  대상
-                </label>
-                <input
-                  type="text"
-                  value={targetGraduate}
-                  onChange={(e) => setTargetGraduate(e.target.value)}
-                  placeholder="예: 전학년, 컴퓨터공학부 재학생"
-                  className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
-                />
-              </div>
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-                  활동 장소
-                </label>
-                <input
-                  type="text"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
-                />
-              </div>
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-                  주간 활동 횟수
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  max="7"
-                  value={weeklyActiveFrequency.toString()}
-                  onChange={(e) => setWeeklyActiveFrequency(parseInt(e.target.value) || 0)}
-                  className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
-                />
-              </div>
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="ghost" onPress={onCancelBasic}>
+                취소
+              </Button>
+              <Button size="sm" variant="primary" onPress={onSaveBasic} isDisabled={isSaving}>
+                {isSaving ? '저장 중...' : '저장'}
+              </Button>
             </div>
           )}
         </div>
-
-        {/* 동아리 소개 */}
-        <div className={cardClass}>
-          <div className="mb-3 flex items-center justify-between">
-            <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">동아리 소개</h3>
-            {!isEditingContent ? (
-              <button
-                type="button"
-                onClick={onEditContent}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-blue-500 transition-colors hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950/30"
-                aria-label="수정"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-                  <path d="m15 5 4 4" />
-                </svg>
-              </button>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Button size="sm" variant="ghost" onPress={onCancelContent}>
-                  취소
-                </Button>
-                <Button size="sm" variant="primary" onPress={onSaveContent} isDisabled={isSaving}>
-                  {isSaving ? '저장 중...' : '저장'}
-                </Button>
+        {!isEditingBasic ? (
+          <div className="space-y-3">
+            {infoItems.map((item) => (
+              <div key={item.label} className="flex justify-between text-sm">
+                <span className="text-zinc-500 dark:text-zinc-400">{item.label}</span>
+                <span className="font-medium text-zinc-900 dark:text-zinc-100">{item.value}</span>
               </div>
-            )}
+            ))}
           </div>
+        ) : (
+          <div className="space-y-5">
+            <div>
+              <label className="mb-3 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                프로필 사진
+              </label>
+              <div className="flex items-center gap-4">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageFileChange}
+                  className="hidden"
+                  id="profile-image-upload"
+                  disabled={isUploading}
+                />
+                <label htmlFor="profile-image-upload" className="cursor-pointer">
+                  <div className="club-profile-upload-wrap relative h-24 w-24 shrink-0 overflow-hidden rounded-full bg-gray-100 dark:bg-zinc-700">
+                    {image ? (
+                      <Image src={image} alt="프로필" fill className="object-cover" sizes="96px" />
+                    ) : (
+                      <div className="club-profile-upload-placeholder h-full w-full bg-zinc-200 dark:bg-zinc-700" />
+                    )}
+                    <div className="absolute right-0 bottom-0 flex h-7 w-7 items-center justify-center rounded-full bg-blue-500 text-white shadow-md">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        className="h-4 w-4"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-1.135.175 2.31 2.31 0 01-1.64 1.055l-.822 1.316z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </label>
+                {isUploading && (
+                  <div className="text-sm text-gray-500 dark:text-zinc-400">업로드 중...</div>
+                )}
+              </div>
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                동아리 이름 <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+              />
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                한 줄 소개
+              </label>
+              <input
+                type="text"
+                value={summary}
+                onChange={(e) => setSummary(e.target.value)}
+                className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+              />
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                카테고리
+              </label>
+              <Select
+                value={category}
+                onChange={(value) => value && setCategory(value as ClubCategory)}
+              >
+                <Select.Trigger className="rounded-xl border border-zinc-200 bg-white [color-scheme:light] dark:border-zinc-600 dark:bg-zinc-800">
+                  <Select.Value />
+                  <Select.Indicator />
+                </Select.Trigger>
+                <Select.Popover>
+                  <ListBox>
+                    {CATEGORY_OPTIONS.map((opt) => (
+                      <ListBox.Item key={opt.value} id={opt.value} textValue={opt.label}>
+                        {opt.label}
+                      </ListBox.Item>
+                    ))}
+                  </ListBox>
+                </Select.Popover>
+              </Select>
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                동아리 타입
+              </label>
+              <Select value={type} onChange={(value) => value && setType(value as ClubType)}>
+                <Select.Trigger className="rounded-xl border border-zinc-200 bg-white [color-scheme:light] dark:border-zinc-600 dark:bg-zinc-800">
+                  <Select.Value />
+                  <Select.Indicator />
+                </Select.Trigger>
+                <Select.Popover>
+                  <ListBox>
+                    {TYPE_OPTIONS.map((opt) => (
+                      <ListBox.Item key={opt.value} id={opt.value} textValue={opt.label}>
+                        {opt.label}
+                      </ListBox.Item>
+                    ))}
+                  </ListBox>
+                </Select.Popover>
+              </Select>
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                동아리장
+              </label>
+              <input
+                type="text"
+                value={leaderName}
+                onChange={(e) => setLeaderName(e.target.value)}
+                className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+              />
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                대상
+              </label>
+              <input
+                type="text"
+                value={targetGraduate}
+                onChange={(e) => setTargetGraduate(e.target.value)}
+                placeholder="예: 전학년, 컴퓨터공학부 재학생"
+                className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+              />
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                활동 장소
+              </label>
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+              />
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                주간 활동 횟수
+              </label>
+              <input
+                type="number"
+                min="0"
+                max="7"
+                value={weeklyActiveFrequency.toString()}
+                onChange={(e) => setWeeklyActiveFrequency(parseInt(e.target.value) || 0)}
+                className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 동아리 소개 */}
+      <div className={cardClass}>
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">동아리 소개</h3>
+          {!isEditingContent ? (
+            <button
+              type="button"
+              onClick={onEditContent}
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-blue-500 transition-colors hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950/30"
+              aria-label="수정"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-4 w-4"
+              >
+                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                <path d="m15 5 4 4" />
+              </svg>
+            </button>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="ghost" onPress={onCancelContent}>
+                취소
+              </Button>
+              <Button size="sm" variant="primary" onPress={onSaveContent} isDisabled={isSaving}>
+                {isSaving ? '저장 중...' : '저장'}
+              </Button>
+            </div>
+          )}
+        </div>
         {!isEditingContent ? (
           <>
             <p className="text-sm leading-relaxed whitespace-pre-wrap text-zinc-700 dark:text-zinc-300">
@@ -945,7 +974,9 @@ function ClubInfoTab({
                             d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"
                           />
                         </svg>
-                        <span className="text-sm font-medium text-gray-600 dark:text-zinc-400">이미지 추가</span>
+                        <span className="text-sm font-medium text-gray-600 dark:text-zinc-400">
+                          이미지 추가
+                        </span>
                       </div>
                     )}
                   </div>
@@ -953,12 +984,17 @@ function ClubInfoTab({
               ) : (
                 <div className="flex flex-wrap gap-3">
                   {descriptionImages.map((url, index) => (
-                    <div key={index} className="relative aspect-square w-24 overflow-hidden rounded-xl">
+                    <div
+                      key={index}
+                      className="relative aspect-square w-24 overflow-hidden rounded-xl"
+                    >
                       <Image src={url} alt="" fill className="object-cover" sizes="96px" />
                       <button
                         type="button"
-                        onClick={() => setDescriptionImages(descriptionImages.filter((_, i) => i !== index))}
-                        className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
+                        onClick={() =>
+                          setDescriptionImages(descriptionImages.filter((_, i) => i !== index))
+                        }
+                        className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -968,7 +1004,11 @@ function ClubInfoTab({
                           strokeWidth={2.5}
                           className="h-4 w-4"
                         >
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M6 18L18 6M6 6l12 12"
+                          />
                         </svg>
                       </button>
                     </div>
@@ -996,9 +1036,9 @@ function ClubInfoTab({
             </div>
           </div>
         )}
-        </div>
+      </div>
 
-        {/* 모집 정보 */}
+      {/* 모집 정보 */}
       <div className={cardClass}>
         <div className="mb-3 flex items-center justify-between">
           <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">모집 정보</h3>
@@ -1009,7 +1049,16 @@ function ClubInfoTab({
               className="flex h-8 w-8 items-center justify-center rounded-lg text-blue-500 transition-colors hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950/30"
               aria-label="수정"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-4 w-4"
+              >
                 <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
                 <path d="m15 5 4 4" />
               </svg>
@@ -1029,7 +1078,11 @@ function ClubInfoTab({
           <div className="space-y-3">
             <div className="flex justify-between text-sm">
               <span className="text-zinc-500 dark:text-zinc-400">모집 상태</span>
-              <Chip size="sm" color={STATUS_CONFIG[club.recruitmentStatus as RecruitmentStatus].color} variant="soft">
+              <Chip
+                size="sm"
+                color={STATUS_CONFIG[club.recruitmentStatus as RecruitmentStatus].color}
+                variant="soft"
+              >
                 {STATUS_CONFIG[club.recruitmentStatus as RecruitmentStatus].label}
               </Chip>
             </div>
@@ -1063,7 +1116,7 @@ function ClubInfoTab({
                 value={recruitmentStatus}
                 onChange={(value) => value && setRecruitmentStatus(value as RecruitmentStatus)}
               >
-                <Select.Trigger className="rounded-xl border border-zinc-200 bg-white dark:border-zinc-600 dark:bg-zinc-800">
+                <Select.Trigger className="rounded-xl border border-zinc-200 bg-white [color-scheme:light] dark:border-zinc-600 dark:bg-zinc-800">
                   <Select.Value />
                   <Select.Indicator />
                 </Select.Trigger>
@@ -1112,7 +1165,7 @@ function ClubInfoTab({
                 className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-400"
               />
               <p className="mt-2 text-xs text-gray-500 dark:text-zinc-400">
-                지원 링크를 입력하면 동아리 상세 페이지에 '동아리 지원' 버튼이 표시됩니다.
+                지원 링크를 입력하면 동아리 상세 페이지에 &apos;동아리 지원&apos; 버튼이 표시됩니다.
               </p>
             </div>
           </div>
@@ -1130,7 +1183,16 @@ function ClubInfoTab({
               className="flex h-8 w-8 items-center justify-center rounded-lg text-blue-500 transition-colors hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950/30"
               aria-label="수정"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-4 w-4"
+              >
                 <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
                 <path d="m15 5 4 4" />
               </svg>
@@ -1357,7 +1419,7 @@ function ClubQnaTab({
                         onChange={(e) =>
                           setAnswerTexts((prev) => ({ ...prev, [qna.id]: e.target.value }))
                         }
-                        className="w-full min-h-[4.5rem] resize-none"
+                        className="min-h-[4.5rem] w-full resize-none"
                       />
                       <Button
                         size="sm"

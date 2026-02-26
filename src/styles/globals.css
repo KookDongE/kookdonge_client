@@ -51,9 +51,9 @@
 html:not(.dark) input,
 html:not(.dark) textarea,
 html:not(.dark) select,
-html:not(.dark) [data-slot="input"],
-html:not(.dark) [data-slot="textarea"],
-html:not(.dark) button[role="combobox"] {
+html:not(.dark) [data-slot='input'],
+html:not(.dark) [data-slot='textarea'],
+html:not(.dark) button[role='combobox'] {
   color-scheme: light;
   background-color: #ffffff !important;
   color: #09090b;
@@ -64,11 +64,66 @@ html:not(.dark) textarea::placeholder {
   color: #9ca3af;
 }
 
+/* 라이트 모드: 드롭다운(Select) 트리거·팝오버·리스트 박스 항상 밝게 */
+html:not(.dark) [data-slot='trigger'][role='combobox'],
+html:not(.dark) [data-slot='listbox'],
+html:not(.dark) [data-slot='popover'],
+html:not(.dark) [role='listbox'] {
+  color-scheme: light;
+  background-color: #ffffff !important;
+  color: #09090b;
+  border-color: #e4e4e7;
+}
+
+html:not(.dark) [data-slot='listbox'] [data-slot='listbox-item'],
+html:not(.dark) [role='listbox'] [role='option'] {
+  background-color: transparent;
+  color: #09090b;
+}
+
+html:not(.dark) [data-slot='listbox'] [data-slot='listbox-item']:hover,
+html:not(.dark) [role='listbox'] [role='option']:hover {
+  background-color: #f4f4f5;
+}
+
+/* 라이트 모드: 동아리 관리자 리스트·카드 영역 밝게 */
+html:not(.dark) .club-manage-card,
+html:not(.dark) .club-manage-admin-list,
+html:not(.dark) .club-manage-admin-item {
+  background-color: #ffffff !important;
+  border-color: #e4e4e7 !important;
+  color: #09090b;
+}
+
+html:not(.dark) .club-manage-admin-empty {
+  background-color: #f4f4f5 !important;
+  border-color: #e4e4e7 !important;
+  color: #71717a;
+}
+
+/* 라이트 모드: 동아리 로고/프로필 이미지 영역·플레이스홀더 밝게 (인기/조회수, 마이페이지, 동아리 정보 수정) */
+html:not(.dark) .club-logo-wrap {
+  background-color: #f4f4f5 !important;
+}
+
+html:not(.dark) .club-logo-placeholder {
+  background-color: #e4e4e7 !important;
+}
+
+/* 라이트 모드: 동아리 기본 로고 수정(프로필 사진) 업로드 영역 */
+html:not(.dark) .club-profile-upload-wrap {
+  background-color: #f3f4f6 !important;
+}
+
+html:not(.dark) .club-profile-upload-placeholder {
+  background-color: #e4e4e7 !important;
+}
+
 .dark input,
 .dark textarea,
 .dark select,
-.dark [data-slot="input"],
-.dark [data-slot="textarea"] {
+.dark [data-slot='input'],
+.dark [data-slot='textarea'] {
   color-scheme: dark;
   background-color: var(--card);
   color: var(--card-foreground);

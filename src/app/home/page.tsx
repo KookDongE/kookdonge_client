@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, useMemo, useEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -11,9 +11,15 @@ import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
 import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
-import { useClubList, useTopWeeklyLike, useTopWeeklyView, useDeleteClub, useToggleClubVisibility } from '@/features/club/hooks';
-import { ClubCard, ClubCardSkeleton } from '@/components/common/club-card';
+import {
+  useClubList,
+  useDeleteClub,
+  useToggleClubVisibility,
+  useTopWeeklyLike,
+  useTopWeeklyView,
+} from '@/features/club/hooks';
 import { AdminClubCard } from '@/components/common/admin-club-card';
+import { ClubCard, ClubCardSkeleton } from '@/components/common/club-card';
 import { SearchFilterBar } from '@/components/common/search-filter-bar';
 
 type RankingTab = 'view' | 'like';
@@ -114,7 +120,7 @@ function RankingSection() {
                 <Link href={`/clubs/${club.id}`}>
                   <motion.div
                     whileTap={{ scale: 0.95 }}
-                    className="relative flex w-24 shrink-0 flex-col items-center rounded-2xl bg-zinc-100 p-3 dark:bg-zinc-800"
+                    className="club-logo-wrap relative flex w-24 shrink-0 flex-col items-center rounded-2xl bg-zinc-100 p-3 dark:bg-zinc-800"
                   >
                     {/* Rank Badge */}
                     <div className="absolute -top-1 -left-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white dark:bg-lime-400 dark:text-zinc-900">
@@ -122,7 +128,7 @@ function RankingSection() {
                     </div>
 
                     {/* Avatar - 이미지 없거나 로드 실패 시 아이콘 */}
-                    <div className="relative mb-2 h-14 w-14 overflow-hidden rounded-full bg-zinc-200 ring-2 ring-blue-400/30 dark:bg-zinc-700 dark:ring-lime-400/30">
+                    <div className="club-logo-placeholder relative mb-2 h-14 w-14 overflow-hidden rounded-full bg-zinc-200 ring-2 ring-blue-400/30 dark:bg-zinc-700 dark:ring-lime-400/30">
                       {club.logoImage && !imageError[club.id] ? (
                         <>
                           {!imageLoaded[club.id] && (
@@ -187,7 +193,7 @@ function ClubListSection() {
       return;
     }
     setPage(0);
-  }, [category, status, clubType, college, sort, query]);
+  }, [category, status, clubType, college, sort, query, setPage]);
 
   const { data, isLoading } = useClubList({
     category: category && category !== 'ALL' ? (category as ClubCategory) : undefined,
@@ -327,13 +333,24 @@ function ClubListSection() {
       {deleteModalClubId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-800">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-zinc-100">동아리 삭제</h3>
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-zinc-100">
+              동아리 삭제
+            </h3>
             <p className="mb-6 text-sm text-gray-600 dark:text-zinc-400">
               정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
             </p>
             <div className="flex gap-3">
-              <Button variant="ghost" className="flex-1" onPress={() => setDeleteModalClubId(null)}>취소</Button>
-              <Button variant="danger" className="flex-1" onPress={handleDeleteConfirm} isPending={deleteClub.isPending}>삭제</Button>
+              <Button variant="ghost" className="flex-1" onPress={() => setDeleteModalClubId(null)}>
+                취소
+              </Button>
+              <Button
+                variant="danger"
+                className="flex-1"
+                onPress={handleDeleteConfirm}
+                isPending={deleteClub.isPending}
+              >
+                삭제
+              </Button>
             </div>
           </div>
         </div>

@@ -48,15 +48,15 @@ type ClubCardProps = {
   dragConstraints?: { left?: number; right?: number; top?: number; bottom?: number };
   dragElastic?: number;
   onDragStart?: () => void;
-  onDrag?: (event: any, info: any) => void;
-  onDragEnd?: (event: any, info: any) => void;
+  onDrag?: (event: unknown, info: { offset: { x: number } }) => void;
+  onDragEnd?: (event: unknown, info: { offset: { x: number } }) => void;
   style?: React.CSSProperties & { x?: number };
-  animate?: any;
+  animate?: object;
 };
 
-export function ClubCard({ 
-  club, 
-  index = 0, 
+export function ClubCard({
+  club,
+  index = 0,
   disableLink = false,
   drag,
   dragConstraints,
@@ -75,65 +75,63 @@ export function ClubCard({
       whileTap={disableLink ? undefined : { scale: 0.98 }}
       className={`flex overflow-hidden rounded-2xl border border-zinc-100 bg-[var(--card)] dark:border-zinc-800 ${!disableLink ? 'card-hover' : ''}`}
     >
-          {/* Image Section */}
-          <div className="relative h-28 w-28 shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800">
-            {club.logoImage ? (
-              <>
-                {!imageLoaded && <div className="skeleton absolute inset-0" />}
-                <Image
-                  src={club.logoImage}
-                  alt={club.name}
-                  fill
-                  className={`object-cover transition-opacity duration-500 ${
-                    imageLoaded ? 'opacity-100' : 'opacity-0'
-                  }`}
-                  sizes="112px"
-                  onLoad={() => setImageLoaded(true)}
-                />
-              </>
-            ) : (
-              <div className="h-full w-full bg-zinc-200 dark:bg-zinc-700" />
-            )}
-          </div>
+      {/* Image Section */}
+      <div className="club-logo-wrap relative h-28 w-28 shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800">
+        {club.logoImage ? (
+          <>
+            {!imageLoaded && <div className="skeleton absolute inset-0" />}
+            <Image
+              src={club.logoImage}
+              alt={club.name}
+              fill
+              className={`object-cover transition-opacity duration-500 ${
+                imageLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+              sizes="112px"
+              onLoad={() => setImageLoaded(true)}
+            />
+          </>
+        ) : (
+          <div className="club-logo-placeholder h-full w-full bg-zinc-200 dark:bg-zinc-700" />
+        )}
+      </div>
 
-          {/* Content Section */}
-          <div className="flex min-w-0 flex-1 flex-col justify-center p-3">
-            <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
-              <span
-                className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider ${status.className}`}
-              >
-                {status.label}
-              </span>
-              {club.dday > 0 && club.recruitmentStatus === 'RECRUITING' && (
-                <span className="inline-flex items-center rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-bold text-white">
-                  D-{club.dday}
-                </span>
-              )}
-              <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
-                {TYPE_LABEL[club.type]}
-              </span>
-              <span className="rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-                {CATEGORY_LABEL[club.category]}
-              </span>
-            </div>
+      {/* Content Section */}
+      <div className="flex min-w-0 flex-1 flex-col justify-center p-3">
+        <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
+          <span
+            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider ${status.className}`}
+          >
+            {status.label}
+          </span>
+          {club.dday > 0 && club.recruitmentStatus === 'RECRUITING' && (
+            <span className="inline-flex items-center rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-bold text-white">
+              D-{club.dday}
+            </span>
+          )}
+          <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+            {TYPE_LABEL[club.type]}
+          </span>
+          <span className="rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+            {CATEGORY_LABEL[club.category]}
+          </span>
+        </div>
 
-            <h3 className="mb-1 truncate text-base font-bold text-zinc-900 dark:text-zinc-100">
-              {club.name}
-            </h3>
+        <h3 className="mb-1 truncate text-base font-bold text-zinc-900 dark:text-zinc-100">
+          {club.name}
+        </h3>
 
-            <p className="line-clamp-2 text-xs text-zinc-500 dark:text-zinc-400">
-              {club.introduction}
-            </p>
-          </div>
-        </motion.div>
+        <p className="line-clamp-2 text-xs text-zinc-500 dark:text-zinc-400">{club.introduction}</p>
+      </div>
+    </motion.div>
   );
 
   // style에 x가 있으면 드래그 모드 (스와이프 기능)
   const isDragMode = drag && style && 'x' in style;
-  
-  const motionProps: any = {
+
+  const motionProps: Record<string, unknown> = {
     initial: isDragMode ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 },
-    animate: isDragMode ? { opacity: 1, y: 0 } : (animate || { opacity: 1, y: 0 }),
+    animate: isDragMode ? { opacity: 1, y: 0 } : animate || { opacity: 1, y: 0 },
     transition: { delay: index * 0.05, duration: 0.3 },
   };
 

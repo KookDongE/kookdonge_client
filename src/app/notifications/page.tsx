@@ -92,8 +92,9 @@ export default function NotificationsPage() {
           <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-16 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
             <span className="mb-2 text-4xl">🔔</span>
             <p>알림이 없습니다.</p>
-            <p className="mt-1 text-center text-sm">
-              동아리 승인/거절, Q&A 답변, 관심 동아리 모집 알림이 여기에 표시됩니다.
+            <p className="mt-1 max-w-[280px] text-center text-sm">
+              동아리 생성 승인·거절, Q&A 답변, 관심 동아리 모집 시작·마감 알림이 여기에 표시됩니다.
+              승인했는데도 보이지 않으면 서버에 알림이 저장되는지 확인이 필요합니다.
             </p>
           </div>
         ) : (
