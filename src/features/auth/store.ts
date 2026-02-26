@@ -3,9 +3,25 @@ import { persist } from 'zustand/middleware';
 
 import { UserProfileRes } from '@/types/api';
 
-const AUTH_STORAGE_KEY = 'auth-storage';
+export const AUTH_STORAGE_KEY = 'auth-storage';
 
 type PersistedAuth = { state: { accessToken: string | null; refreshToken: string | null }; version?: number };
+
+/** localStorage에 저장된 토큰을 읽습니다. 재수화 전 AuthGuard 등에서 사용 */
+export function getStoredTokens(): { accessToken: string; refreshToken: string } | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as PersistedAuth;
+    const accessToken = parsed?.state?.accessToken;
+    const refreshToken = parsed?.state?.refreshToken;
+    if (accessToken && refreshToken) return { accessToken, refreshToken };
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 /** 재수화 전에 persist가 빈 상태를 써서 토큰을 덮어쓰는 것을 방지합니다. */
 function createAuthStorage() {
