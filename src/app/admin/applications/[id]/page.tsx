@@ -1,7 +1,6 @@
 'use client';
 
 import { use, useEffect } from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 import { Button, Chip, Spinner } from '@heroui/react';
@@ -119,21 +118,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
           </Chip>
         </div>
 
-        {/* 1. 첨부 사진 (1:1) */}
-        <div>
-          <label className={labelClass}>첨부 사진</label>
-          <div className="relative aspect-square w-full max-w-sm overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-zinc-600 dark:bg-zinc-800">
-            {application.image ? (
-              <Image src={application.image} alt={application.name} fill className="object-cover" sizes="100vw" />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-4xl text-zinc-400 dark:text-zinc-500">
-                🏠
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* 2. 동아리 이름 */}
+        {/* 1. 동아리 이름 */}
         <div>
           <label className={labelClass}>동아리 이름</label>
           <div className={valueBoxClass}>{application.name}</div>
@@ -145,18 +130,18 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
           <div className={valueBoxClass}>{application.applicantEmail}</div>
         </div>
 
-        {/* 3. 분야 · 4. 단과대 (가로 배치 - 폼과 동일) */}
+        {/* 동아리유형 · 분야 (가로 배치 - 폼과 동일) */}
         <div className="flex flex-wrap items-start gap-4">
+          <div className="min-w-0 flex-1">
+            <label className={labelClass}>동아리유형</label>
+            <div className={valueBoxClass}>
+              {application.type ? TYPE_LABELS[application.type] : '미기재'}
+            </div>
+          </div>
           <div className="min-w-0 flex-1">
             <label className={labelClass}>분야</label>
             <div className={valueBoxClass}>
               {application.category ? CATEGORY_LABELS[application.category] : '미기재'}
-            </div>
-          </div>
-          <div className="min-w-0 flex-1">
-            <label className={labelClass}>단과대</label>
-            <div className={valueBoxClass}>
-              {application.type ? TYPE_LABELS[application.type] : '미기재'}
             </div>
           </div>
         </div>

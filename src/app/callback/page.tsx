@@ -13,8 +13,6 @@ import { getOrCreateDeviceId } from '@/features/device/device-id';
 import { deviceApi } from '@/features/device/api';
 import { getRedirectUri, OAUTH_STATE_KEY } from '@/lib/google-oauth';
 
-const WELCOME_SEEN_KEY = 'kookdonge-welcome-seen';
-
 function registerDeviceAfterLogin() {
   const deviceId = getOrCreateDeviceId();
   if (!deviceId) return;
@@ -100,10 +98,7 @@ function CallbackContent() {
                 }
                 queryClient.invalidateQueries({ queryKey: authKeys.profile() });
                 registerDeviceAfterLogin();
-                const isFirstLogin =
-                  typeof window !== 'undefined' && !localStorage.getItem(WELCOME_SEEN_KEY);
-                const path = isFirstLogin ? '/welcome' : '/home';
-                setTimeout(() => router.replace(path), 200);
+                setTimeout(() => router.replace('/welcome'), 200);
               } else {
                 setStatus('error');
               }
@@ -126,11 +121,7 @@ function CallbackContent() {
           }
           queryClient.invalidateQueries({ queryKey: authKeys.profile() });
           registerDeviceAfterLogin();
-
-          const isFirstLogin =
-            typeof window !== 'undefined' && !localStorage.getItem(WELCOME_SEEN_KEY);
-          const path = isFirstLogin ? '/welcome' : '/home';
-          setTimeout(() => router.replace(path), 200);
+          setTimeout(() => router.replace('/welcome'), 200);
         }
       })
       .catch(() => {

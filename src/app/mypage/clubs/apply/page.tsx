@@ -3,13 +3,35 @@
 import { Suspense, useState } from 'react';
 import type { Key } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 
 import { ListBox, Select, Spinner } from '@heroui/react';
 
-import { ClubCategory, ClubType } from '@/types/api';
+import { ClubCategory, ClubType, College } from '@/types/api';
 import { useApplyClub } from '@/features/club/hooks';
-import { useUploadFeedFiles } from '@/features/feed/hooks';
+
+const TYPE_OPTIONS: { value: ClubType; label: string }[] = [
+  { value: 'CENTRAL', label: '중앙동아리' },
+  { value: 'DEPARTMENTAL', label: '학과동아리' },
+  { value: 'ACADEMIC_SOCIETY', label: '학회' },
+  { value: 'CLUB', label: '소모임' },
+];
+
+const COLLEGE_OPTIONS: { value: College; label: string }[] = [
+  { value: 'GLOBAL_HUMANITIES', label: '글로벌인문대학' },
+  { value: 'SOCIAL_SCIENCE', label: '사회과학대학' },
+  { value: 'LAW', label: '법과대학' },
+  { value: 'ECONOMICS', label: '경제대학' },
+  { value: 'BUSINESS', label: '경영대학' },
+  { value: 'INDEPENDENT', label: '자유전공' },
+  { value: 'ENGINEERING', label: '공과대학' },
+  { value: 'SOFTWARE', label: '소프트웨어융합대학' },
+  { value: 'AUTOMOTIVE', label: '자동차융합대학' },
+  { value: 'SCIENCE', label: '과학기술대학' },
+  { value: 'ARCHITECTURE', label: '건축대학' },
+  { value: 'DESIGN', label: '디자인대학' },
+  { value: 'ARTS', label: '예술대학' },
+  { value: 'PHYSICAL_EDUCATION', label: '체육대학' },
+];
 
 const CATEGORY_OPTIONS: { value: ClubCategory; label: string }[] = [
   { value: 'PERFORMING_ARTS', label: '공연' },
@@ -21,58 +43,34 @@ const CATEGORY_OPTIONS: { value: ClubCategory; label: string }[] = [
   { value: 'ACADEMIC', label: '학술' },
 ];
 
-const TYPE_OPTIONS: { value: ClubType; label: string }[] = [
-  { value: 'CENTRAL', label: '중앙동아리' },
-  { value: 'DEPARTMENTAL', label: '학과동아리' },
-];
-
 function ClubApplyContent() {
   const router = useRouter();
   const applyClub = useApplyClub();
-  const uploadFeedFiles = useUploadFeedFiles(0); // 동아리 신청용 clubId 임시 0
   const [name, setName] = useState('');
-  const [image, setImage] = useState<string | null>(null);
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState<ClubCategory | ''>('');
   const [clubType, setClubType] = useState<ClubType | ''>('');
-  const [isUploading, setIsUploading] = useState(false);
-
-  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsUploading(true);
-    try {
-      const result = await uploadFeedFiles.mutateAsync([file]);
-      const fileUrl = result[0]?.fileUrl;
-      if (fileUrl) setImage(fileUrl);
-    } catch (error) {
-      alert('이미지 업로드에 실패했습니다.');
-      console.error(error);
-    } finally {
-      setIsUploading(false);
-    }
-  };
+  const [college, setCollege] = useState<College | ''>('');
+  const [category, setCategory] = useState<ClubCategory | ''>('');
 
   const handleSubmit = async () => {
     if (!name.trim()) {
       alert('동아리 이름을 입력해주세요.');
       return;
     }
-    if (!image) {
-      alert('첨부 사진을 업로드해주세요.');
-      return;
-    }
     if (!description.trim()) {
       alert('신청 사유를 입력해주세요.');
       return;
     }
-    if (!category) {
-      alert('분야를 선택해주세요.');
+    if (!clubType) {
+      alert('동아리유형을 선택해주세요.');
       return;
     }
-    if (!clubType) {
-      alert('단과대를 선택해주세요.');
+    if (!college) {
+      alert('과를 선택해주세요.');
+      return;
+    }
+    if (!category) {
+      alert('분야를 선택해주세요.');
       return;
     }
 
@@ -81,8 +79,8 @@ function ClubApplyContent() {
         clubName: name.trim(),
         clubType: clubType as ClubType,
         category: category as ClubCategory,
+        college: college || undefined,
         description: description.trim(),
-        image: image ?? undefined,
       },
       {
         onSuccess: () => {
@@ -112,7 +110,7 @@ function ClubApplyContent() {
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={!name.trim() || !image || !description.trim() || !category || !clubType || applyClub.isPending}
+            disabled={!name.trim() || !description.trim() || !clubType || !college || !category || applyClub.isPending}
             className="text-base font-semibold text-blue-500 disabled:opacity-50 dark:text-blue-400"
           >
             {applyClub.isPending ? '신청 중...' : '신청'}
@@ -135,75 +133,72 @@ function ClubApplyContent() {
           />
         </div>
 
-        {/* 첨부 사진 */}
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-            첨부 사진 <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageFileChange}
-            className="hidden"
-            id="club-image-upload"
-            disabled={isUploading}
-          />
-          {!image ? (
-            <label htmlFor="club-image-upload">
-              <div className="flex h-48 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-white transition-colors hover:border-gray-400 hover:bg-gray-50 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500">
-                {isUploading ? (
-                  <Spinner size="sm" />
-                ) : (
-                  <div className="flex flex-col items-center gap-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                      className="h-12 w-12 text-gray-400 dark:text-zinc-500"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-1.135.175 2.31 2.31 0 01-1.64 1.055l-.822 1.316z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"
-                      />
-                    </svg>
-                    <span className="text-sm font-medium text-gray-600 dark:text-zinc-400">사진 추가</span>
-                  </div>
-                )}
-              </div>
-            </label>
-          ) : (
-            <div className="relative aspect-video w-full overflow-hidden rounded-xl">
-              <Image src={image} alt="동아리 사진" fill className="object-cover" sizes="100vw" />
-              <button
-                type="button"
-                onClick={() => setImage(null)}
-                className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2.5}
-                  className="h-5 w-5"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* 분야 · 단과대 (가로 배치) */}
+        {/* 동아리유형 · 과 · 분야 */}
         <div className="flex flex-wrap items-end gap-4">
+          <div className="min-w-0 flex-1">
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+              동아리유형 <span className="text-red-500">*</span>
+            </label>
+            <Select
+              placeholder="동아리유형 선택"
+              value={clubType || undefined}
+              onChange={(value: Key | null) => {
+                setClubType((value as ClubType) || '');
+              }}
+              className="w-full"
+            >
+              <Select.Trigger className="rounded-xl border border-gray-200 bg-white text-sm text-gray-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
+                <Select.Value />
+                <Select.Indicator />
+              </Select.Trigger>
+              <Select.Popover>
+                <ListBox>
+                  {TYPE_OPTIONS.map((opt) => (
+                    <ListBox.Item
+                      key={opt.value}
+                      id={opt.value}
+                      textValue={opt.label}
+                      className="!text-zinc-600 dark:!text-zinc-200"
+                    >
+                      {opt.label}
+                    </ListBox.Item>
+                  ))}
+                </ListBox>
+              </Select.Popover>
+            </Select>
+          </div>
+          <div className="min-w-0 flex-1">
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+              과 <span className="text-red-500">*</span>
+            </label>
+            <Select
+              placeholder="과 선택"
+              value={college || undefined}
+              onChange={(value: Key | null) => {
+                setCollege((value as College) || '');
+              }}
+              className="w-full"
+            >
+              <Select.Trigger className="rounded-xl border border-gray-200 bg-white text-sm text-gray-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
+                <Select.Value />
+                <Select.Indicator />
+              </Select.Trigger>
+              <Select.Popover>
+                <ListBox>
+                  {COLLEGE_OPTIONS.map((opt) => (
+                    <ListBox.Item
+                      key={opt.value}
+                      id={opt.value}
+                      textValue={opt.label}
+                      className="!text-zinc-600 dark:!text-zinc-200"
+                    >
+                      {opt.label}
+                    </ListBox.Item>
+                  ))}
+                </ListBox>
+              </Select.Popover>
+            </Select>
+          </div>
           <div className="min-w-0 flex-1">
             <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
               분야 <span className="text-red-500">*</span>
@@ -223,38 +218,6 @@ function ClubApplyContent() {
               <Select.Popover>
                 <ListBox>
                   {CATEGORY_OPTIONS.map((opt) => (
-                    <ListBox.Item
-                      key={opt.value}
-                      id={opt.value}
-                      textValue={opt.label}
-                      className="!text-zinc-600 dark:!text-zinc-200"
-                    >
-                      {opt.label}
-                    </ListBox.Item>
-                  ))}
-                </ListBox>
-              </Select.Popover>
-            </Select>
-          </div>
-          <div className="min-w-0 flex-1">
-            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-              단과대 <span className="text-red-500">*</span>
-            </label>
-            <Select
-              placeholder="단과대 선택"
-              value={clubType || undefined}
-              onChange={(value: Key | null) => {
-                setClubType((value as ClubType) || '');
-              }}
-              className="w-full"
-            >
-              <Select.Trigger className="rounded-xl border border-gray-200 bg-white text-sm text-gray-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
-                <Select.Value />
-                <Select.Indicator />
-              </Select.Trigger>
-              <Select.Popover>
-                <ListBox>
-                  {TYPE_OPTIONS.map((opt) => (
                     <ListBox.Item
                       key={opt.value}
                       id={opt.value}
