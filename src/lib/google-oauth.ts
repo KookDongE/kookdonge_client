@@ -16,10 +16,10 @@ function getClientId(): string {
   return process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '';
 }
 
-/** 앱의 Google OAuth 콜백 URL (로그인 후 돌아올 주소) */
+/** 앱의 Google OAuth 콜백 URL. Google Cloud Console·백엔드와 동일해야 함 (예: https://kookdonge.vercel.app/callback) */
 export function getRedirectUri(): string {
   if (typeof window !== 'undefined') {
-    return `${window.location.origin}/login/callback`;
+    return `${window.location.origin}/callback`;
   }
   return '';
 }

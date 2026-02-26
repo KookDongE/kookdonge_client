@@ -12,7 +12,9 @@ import { Header } from '@/components/common/header';
 
 import '@/styles/globals.css';
 
-const appBase = (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_APP_URL)?.replace(/\/$/, '') ?? '';
+const appUrl =
+  typeof process !== 'undefined' ? process.env.NEXT_PUBLIC_APP_URL : undefined;
+const appBase = typeof appUrl === 'string' ? appUrl.replace(/\/$/, '') : '';
 const iconBase = appBase || '';
 
 export const metadata: Metadata = {
