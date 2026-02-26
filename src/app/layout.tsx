@@ -12,6 +12,9 @@ import { Header } from '@/components/common/header';
 
 import '@/styles/globals.css';
 
+const appBase = (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_APP_URL)?.replace(/\/$/, '') ?? '';
+const iconBase = appBase || '';
+
 export const metadata: Metadata = {
   title: 'KookDongE',
   description: '국민대 동아리 정보 모음이',
@@ -23,11 +26,11 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+      { url: `${iconBase}/icons/icon-192.png`, sizes: '192x192', type: 'image/png' },
+      { url: `${iconBase}/icons/icon-512.png`, sizes: '512x512', type: 'image/png' },
     ],
     apple: [
-      { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: `${iconBase}/icons/icon-192.png`, sizes: '192x192', type: 'image/png' },
     ],
   },
   themeColor: '#3B82F6',

@@ -9,6 +9,7 @@ import { Button, Chip, Input, Spinner, Tabs } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
 
 import { useMyProfile } from '@/features/auth/hooks';
+import { isSystemAdmin } from '@/features/auth/permissions';
 import { useAdminApplications } from '@/features/club/hooks';
 import { SearchFilterBar } from '@/components/common/search-filter-bar';
 
@@ -203,7 +204,7 @@ function AdminPageContent() {
 
   useEffect(() => {
     if (profileLoading) return;
-    if (profile && profile.role !== 'ADMIN') {
+    if (profile && !isSystemAdmin(profile)) {
       router.replace('/home');
     }
   }, [profile, profileLoading, router]);
@@ -231,7 +232,7 @@ function AdminPageContent() {
     isStickyVisible ? 'translate-y-0' : '-translate-y-full opacity-0'
   }`;
 
-  if (profileLoading || (profile && profile.role !== 'ADMIN')) {
+  if (profileLoading || (profile && !isSystemAdmin(profile))) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Spinner />

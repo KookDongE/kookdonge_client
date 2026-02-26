@@ -8,6 +8,7 @@ import { Button, Chip, Spinner } from '@heroui/react';
 
 import type { ClubCategory, ClubType } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
+import { isSystemAdmin } from '@/features/auth/permissions';
 import { useAdminApplication, useApproveApplication, useRejectApplication } from '@/features/club/hooks';
 
 const CATEGORY_LABELS: Record<ClubCategory, string> = {
@@ -40,12 +41,12 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
 
   useEffect(() => {
     if (profileLoading) return;
-    if (profile && profile.role !== 'ADMIN') {
+    if (profile && !isSystemAdmin(profile)) {
       router.replace('/home');
     }
   }, [profile, profileLoading, router]);
 
-  if (profileLoading || (profile && profile.role !== 'ADMIN')) {
+  if (profileLoading || (profile && !isSystemAdmin(profile))) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-zinc-900">
         <Spinner />

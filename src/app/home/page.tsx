@@ -10,6 +10,7 @@ import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
 
 import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
+import { isSystemAdmin } from '@/features/auth/permissions';
 import { useClubList, useTopWeeklyLike, useTopWeeklyView, useDeleteClub, useToggleClubVisibility } from '@/features/club/hooks';
 import { ClubCard, ClubCardSkeleton } from '@/components/common/club-card';
 import { AdminClubCard } from '@/components/common/admin-club-card';
@@ -201,7 +202,8 @@ function ClubListSection() {
   });
 
   const { data: profile } = useMyProfile();
-  const isAdmin = profile?.role === 'ADMIN';
+  /** 시스템 관리자(ADMIN)만 홈 검색 결과 카드에서 스와이프(숨기기/삭제) 노출. 리더(managedClubIds)는 동아리 상세·관리 페이지에서만 사용 */
+  const isAdmin = isSystemAdmin(profile);
 
   const toggleVisibility = useToggleClubVisibility();
   const deleteClub = useDeleteClub();

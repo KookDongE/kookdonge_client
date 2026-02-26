@@ -6,8 +6,7 @@ import { usePathname } from 'next/navigation';
 
 import { motion } from 'framer-motion';
 
-import { useMyProfile } from '@/features/auth/hooks';
-import { useAuthStore } from '@/features/auth/store';
+import { isSystemAdmin, useAuthStore, useMyProfile } from '@/features/auth';
 
 type NavItem = {
   href: string;
@@ -80,7 +79,7 @@ export function BottomNav() {
   const [indicatorLeft, setIndicatorLeft] = useState(0);
   const accessToken = useAuthStore((state) => state.accessToken);
   const { data: profile } = useMyProfile();
-  const isAdmin = profile?.role === 'ADMIN';
+  const isAdmin = isSystemAdmin(profile);
 
   const isHidden =
     pathname === '/' ||

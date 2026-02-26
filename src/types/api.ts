@@ -103,6 +103,11 @@ export type LogoutReq = { refreshToken: string };
 
 export type UserRole = 'USER' | 'ADMIN';
 
+/**
+ * GET /api/users/me 응답 (스웨거 UserProfileRes 기준).
+ * - managedClubIds: 동아리장/임원인 동아리 ID 목록 → 해당 동아리 (Leader) API 호출 가능
+ * - role: 스웨거 스키마에는 없으나, 백엔드가 시스템 관리자(동아리 생성 승인 등) 구분을 위해 제공할 수 있음
+ */
 export type UserProfileRes = {
   externalUserId?: string;
   name?: string;
@@ -111,9 +116,9 @@ export type UserProfileRes = {
   phoneNumber?: string;
   department?: string;
   clubId?: number;
-  /** 관리 권한이 있는 동아리 ID 목록 */
+  /** 관리 권한이 있는 동아리 ID 목록 (동아리장/임원). 스웨거: managedClubIds */
   managedClubIds?: number[];
-  /** 시스템 관리자 여부 (ADMIN만 관리자 페이지·동아리 삭제/숨기기 가능) */
+  /** 시스템 관리자 여부. 스웨거 스키마에는 없음. ADMIN이면 관리자 페이지·동아리 카드 스와이프(숨기기/삭제) 가능 */
   role?: UserRole;
 };
 
