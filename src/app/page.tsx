@@ -8,6 +8,8 @@ import { motion } from 'framer-motion';
 import { useAuthStore } from '@/features/auth/store';
 
 const SPLASH_DURATION_MS = 1800;
+/** 재수화(토큰 복원)가 끝날 때까지 기다렸다가 로그인 여부 판단 (새로고침 시 로그인 유지) */
+const REHYDRATE_WAIT_MS = 600;
 
 export default function SplashPage() {
   const router = useRouter();
@@ -16,13 +18,20 @@ export default function SplashPage() {
 
   useEffect(() => {
     if (!isInitialized) return;
-    // 로그인 상태면 스플래시 없이 바로 홈으로 (새로고침 시 로그인 페이지로 가지 않도록)
+    // 로그인 상태면 스플래시 없이 바로 홈으로
     if (accessToken) {
       router.replace('/home');
       return;
     }
-    // 비로그인 시에만 스플래시 표시 후 로그인 페이지로
-    const timer = setTimeout(() => router.replace('/login'), SPLASH_DURATION_MS);
+    // 비로그인일 수 있으나, 재수화가 아직 안 끝났을 수 있음 → 잠시 후 한 번 더 확인
+    const timer = setTimeout(() => {
+      const token = useAuthStore.getState().accessToken;
+      if (token) {
+        router.replace('/home');
+      } else {
+        router.replace('/login');
+      }
+    }, REHYDRATE_WAIT_MS + SPLASH_DURATION_MS);
     return () => clearTimeout(timer);
   }, [isInitialized, accessToken, router]);
 

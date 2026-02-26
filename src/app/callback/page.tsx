@@ -70,20 +70,40 @@ function CallbackContent() {
       .authenticate({ googleGrantCode: code, redirectUri: redirectUri || undefined })
       .then((res) => {
         if (res.newUser && res.registrationToken) {
-          try {
-            sessionStorage.setItem(
-              'kookdonge-registration',
-              JSON.stringify({
-                registrationToken: res.registrationToken,
-                email: res.email ?? '',
-              })
-            );
-          } catch {
-            setStatus('error');
-            return;
-          }
-          setTimeout(() => router.replace('/welcome/register'), 200);
-          return;
+          const name = res.email ? res.email.replace(/@.*$/, '').trim() || '사용자' : '사용자';
+          return authApi
+            .completeRegistration({
+              registrationToken: res.registrationToken,
+              name,
+              department: '-',
+              studentId: '00000000',
+              phoneNumber: '010-00000000',
+            })
+            .then((regRes) => {
+              if (regRes.accessToken && regRes.refreshToken) {
+                setTokens(regRes.accessToken, regRes.refreshToken);
+                try {
+                  localStorage.setItem(
+                    'auth-storage',
+                    JSON.stringify({
+                      state: {
+                        accessToken: regRes.accessToken,
+                        refreshToken: regRes.refreshToken,
+                      },
+                      version: 1,
+                    })
+                  );
+                } catch {
+                  // ignore
+                }
+                queryClient.invalidateQueries({ queryKey: authKeys.profile() });
+                registerDeviceAfterLogin();
+                setTimeout(() => router.replace('/welcome'), 200);
+              } else {
+                setStatus('error');
+              }
+            })
+            .catch(() => setStatus('error'));
         }
 
         if (res.accessToken && res.refreshToken) {
@@ -101,7 +121,7 @@ function CallbackContent() {
           }
           queryClient.invalidateQueries({ queryKey: authKeys.profile() });
           registerDeviceAfterLogin();
-          setTimeout(() => router.replace('/welcome'), 200);
+          setTimeout(() => router.replace('/home'), 200);
         }
       })
       .catch(() => {
