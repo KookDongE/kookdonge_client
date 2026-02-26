@@ -38,7 +38,6 @@ yarn-error.log*
 # env (시크릿 포함, 반드시 제외. Vercel 등에서는 대시보드에서 설정)
 .env
 .env.*
-!.env.template
 
 # vercel
 .vercel
