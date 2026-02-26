@@ -72,10 +72,43 @@ function CallbackContent() {
       .authenticate({ googleGrantCode: code, redirectUri: redirectUri || undefined })
       .then((res) => {
         if (res.newUser && res.registrationToken) {
-          sessionStorage.setItem('kookdonge-registration-token', res.registrationToken);
-          if (res.email) sessionStorage.setItem('kookdonge-registration-email', res.email);
-          router.replace('/register');
-          return;
+          const name = res.email ? res.email.replace(/@.*$/, '').trim() || '사용자' : '사용자';
+          return authApi
+            .completeRegistration({
+              registrationToken: res.registrationToken,
+              name,
+              department: '-',
+              studentId: '00000000',
+              phoneNumber: '010-00000000',
+            })
+            .then((regRes) => {
+              if (regRes.accessToken && regRes.refreshToken) {
+                setTokens(regRes.accessToken, regRes.refreshToken);
+                try {
+                  localStorage.setItem(
+                    'auth-storage',
+                    JSON.stringify({
+                      state: {
+                        accessToken: regRes.accessToken,
+                        refreshToken: regRes.refreshToken,
+                      },
+                      version: 1,
+                    })
+                  );
+                } catch {
+                  // ignore
+                }
+                queryClient.invalidateQueries({ queryKey: authKeys.profile() });
+                registerDeviceAfterLogin();
+                const isFirstLogin =
+                  typeof window !== 'undefined' && !localStorage.getItem(WELCOME_SEEN_KEY);
+                const path = isFirstLogin ? '/welcome' : '/home';
+                setTimeout(() => router.replace(path), 200);
+              } else {
+                setStatus('error');
+              }
+            })
+            .catch(() => setStatus('error'));
         }
 
         if (res.accessToken && res.refreshToken) {
