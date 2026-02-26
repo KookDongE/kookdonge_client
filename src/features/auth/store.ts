@@ -38,16 +38,10 @@ function createAuthStorage() {
     setItem: (name: string, value: PersistedAuth): void => {
       if (typeof window === 'undefined') return;
       try {
-        const nextToken = value?.state?.accessToken;
-        const currentRaw = localStorage.getItem(name);
-        if (currentRaw && !nextToken) {
-          const current = JSON.parse(currentRaw) as PersistedAuth;
-          if (current?.state?.accessToken) return; // 기존 토큰을 빈 값으로 덮어쓰지 않음
-        }
+        localStorage.setItem(name, JSON.stringify(value));
       } catch {
         // ignore
       }
-      localStorage.setItem(name, JSON.stringify(value));
     },
     removeItem: (name: string): void => {
       if (typeof window === 'undefined') return;
@@ -87,7 +81,16 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       setAccessToken: (accessToken) => set({ accessToken }),
       setUser: (user) => set({ user }),
       setInitialized: (isInitialized) => set({ isInitialized }),
-      clearAuth: () => set({ ...DEFAULT_STATE, isInitialized: true }),
+      clearAuth: () => {
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.removeItem(AUTH_STORAGE_KEY);
+          } catch {
+            // ignore
+          }
+        }
+        set({ ...DEFAULT_STATE, isInitialized: true });
+      },
     }),
     {
       name: AUTH_STORAGE_KEY,

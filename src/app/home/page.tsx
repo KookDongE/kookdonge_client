@@ -23,6 +23,7 @@ function RankingSection() {
   const { data: viewRankings, isLoading: viewLoading } = useTopWeeklyView();
   const { data: likeRankings, isLoading: likeLoading } = useTopWeeklyLike();
   const [imageLoaded, setImageLoaded] = useState<Record<number, boolean>>({});
+  const [imageError, setImageError] = useState<Record<number, boolean>>({});
 
   const isLoading = activeTab === 'view' ? viewLoading : likeLoading;
   const rawRankings = activeTab === 'view' ? viewRankings : likeRankings;
@@ -120,22 +121,25 @@ function RankingSection() {
                       {index + 1}
                     </div>
 
-                    {/* Avatar */}
+                    {/* Avatar - 이미지 없거나 로드 실패 시 아이콘 */}
                     <div className="relative mb-2 h-14 w-14 overflow-hidden rounded-full bg-zinc-200 ring-2 ring-blue-400/30 dark:bg-zinc-700 dark:ring-lime-400/30">
-                      {!imageLoaded[club.id] && (
-                        <div className="skeleton absolute inset-0 rounded-full" />
-                      )}
-                      {club.logoImage ? (
-                        <Image
-                          src={club.logoImage}
-                          alt={club.name}
-                          fill
-                          className={`object-cover transition-opacity duration-300 ${
-                            imageLoaded[club.id] ? 'opacity-100' : 'opacity-0'
-                          }`}
-                          sizes="56px"
-                          onLoad={() => setImageLoaded((prev) => ({ ...prev, [club.id]: true }))}
-                        />
+                      {club.logoImage && !imageError[club.id] ? (
+                        <>
+                          {!imageLoaded[club.id] && (
+                            <div className="skeleton absolute inset-0 rounded-full" />
+                          )}
+                          <Image
+                            src={club.logoImage}
+                            alt={club.name}
+                            fill
+                            className={`object-cover transition-opacity duration-300 ${
+                              imageLoaded[club.id] ? 'opacity-100' : 'opacity-0'
+                            }`}
+                            sizes="56px"
+                            onLoad={() => setImageLoaded((prev) => ({ ...prev, [club.id]: true }))}
+                            onError={() => setImageError((prev) => ({ ...prev, [club.id]: true }))}
+                          />
+                        </>
                       ) : (
                         <div className="flex h-full w-full items-center justify-center bg-zinc-200 dark:bg-zinc-700 rounded-full">
                           <span className="text-2xl" aria-hidden>🏠</span>
