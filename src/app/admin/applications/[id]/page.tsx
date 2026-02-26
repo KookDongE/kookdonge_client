@@ -37,6 +37,8 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
   const { data: application, isLoading } = useAdminApplication(applicationId);
   const approveApplication = useApproveApplication();
   const rejectApplication = useRejectApplication();
+  const [rejectReason, setRejectReason] = useState('');
+  const [showRejectInput, setShowRejectInput] = useState(false);
 
   useEffect(() => {
     if (profileLoading) return;
@@ -176,8 +178,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
                   placeholder="거절 사유를 입력하세요. 신청자에게 전달됩니다."
                   value={rejectReason}
                   onChange={(e) => setRejectReason(e.target.value)}
-                  minRows={3}
-                  className="w-full"
+                  className="min-h-[80px] w-full resize-y"
                 />
                 <div className="flex gap-2">
                   <Button
