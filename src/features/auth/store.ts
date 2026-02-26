@@ -23,22 +23,17 @@ export function getStoredTokens(): { accessToken: string; refreshToken: string }
   }
 }
 
-/** 재수화 전에 persist가 빈 상태를 써서 토큰을 덮어쓰는 것을 방지합니다. */
+/** zustand persist 스토리지 규약: getItem은 string | null, setItem은 이미 직렬화된 string을 받음 */
 function createAuthStorage() {
   return {
-    getItem: (name: string): PersistedAuth | null => {
+    getItem: (name: string): string | null => {
       if (typeof window === 'undefined') return null;
-      try {
-        const raw = localStorage.getItem(name);
-        return raw ? (JSON.parse(raw) as PersistedAuth) : null;
-      } catch {
-        return null;
-      }
+      return localStorage.getItem(name);
     },
-    setItem: (name: string, value: PersistedAuth): void => {
+    setItem: (name: string, value: string): void => {
       if (typeof window === 'undefined') return;
       try {
-        localStorage.setItem(name, JSON.stringify(value));
+        localStorage.setItem(name, value);
       } catch {
         // ignore
       }
