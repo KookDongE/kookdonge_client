@@ -5,14 +5,11 @@ import { useRouter } from 'next/navigation';
 
 import { motion } from 'framer-motion';
 
-import { useLogin } from '@/features/auth/hooks';
 import { useAuthStore } from '@/features/auth/store';
-
-const WELCOME_SEEN_KEY = 'kookdonge-welcome-seen';
+import { getGoogleAuthUrl, isGoogleOAuthConfigured } from '@/lib/google-oauth';
 
 export default function LoginPage() {
   const router = useRouter();
-  const login = useLogin();
   const accessToken = useAuthStore((s) => s.accessToken);
 
   useEffect(() => {
@@ -20,22 +17,16 @@ export default function LoginPage() {
   }, [accessToken, router]);
 
   const handleGoogleLogin = () => {
-    login.mutate(
-      { googleGrantCode: 'demo' },
-      {
-        onSuccess: (res) => {
-          if (res.newUser && res.registrationToken) {
-            sessionStorage.setItem('kookdonge-registration-token', res.registrationToken);
-            if (res.email) sessionStorage.setItem('kookdonge-registration-email', res.email);
-            router.replace('/register');
-            return;
-          }
-          const isFirstLogin = typeof window !== 'undefined' && !localStorage.getItem(WELCOME_SEEN_KEY);
-          router.replace(isFirstLogin ? '/welcome' : '/home');
-        },
-        onError: () => alert('로그인에 실패했습니다. 다시 시도해 주세요.'),
-      }
-    );
+    if (!isGoogleOAuthConfigured()) {
+      alert('Google 로그인이 설정되지 않았습니다. NEXT_PUBLIC_GOOGLE_CLIENT_ID를 확인해 주세요.');
+      return;
+    }
+    const url = getGoogleAuthUrl();
+    if (url) {
+      window.location.href = url;
+    } else {
+      alert('Google 로그인 URL을 생성할 수 없습니다.');
+    }
   };
 
   return (
@@ -50,7 +41,7 @@ export default function LoginPage() {
           KookDongE
         </h1>
         <p className="mb-8 text-sm text-zinc-500 dark:text-zinc-400">
-          국민대학교 동아리 정보 플랫폼에
+          국민대 동아리 정보 모음이에
           <br />
           로그인하여 이용해 주세요.
         </p>
@@ -58,7 +49,6 @@ export default function LoginPage() {
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={handleGoogleLogin}
-          disabled={login.isPending}
           className="touch-btn flex w-full items-center justify-center gap-3 rounded-2xl border border-zinc-300 bg-white px-6 py-4 font-semibold text-zinc-800 shadow-sm transition-all hover:bg-zinc-50 disabled:opacity-70 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -79,7 +69,7 @@ export default function LoginPage() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
             />
           </svg>
-          {login.isPending ? '로그인 중...' : 'Google로 로그인'}
+          Google로 로그인
         </motion.button>
       </motion.div>
     </div>

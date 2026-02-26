@@ -11,6 +11,9 @@ import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
 
 import { ClubType } from '@/types/api';
+import { deviceApi } from '@/features/device/api';
+import { getOrCreateDeviceId } from '@/features/device/device-id';
+import { authApi } from '@/features/auth/api';
 import { useMyProfile } from '@/features/auth/hooks';
 import { useAuthStore } from '@/features/auth/store';
 import { useMyWaitingList } from '@/features/waiting-list/hooks';
@@ -111,12 +114,21 @@ function ProfileSection() {
     }
   }, [settingsOpen]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setSettingsOpen(false);
-    if (confirm('로그아웃 하시겠습니까?')) {
-      clearAuth();
-      router.replace('/');
+    if (!confirm('로그아웃 하시겠습니까?')) return;
+    const refreshToken = useAuthStore.getState().refreshToken;
+    const deviceId = typeof window !== 'undefined' ? getOrCreateDeviceId() : '';
+    try {
+      if (refreshToken) await authApi.logout({ refreshToken });
+    } catch {
+      // 서버 오류 시에도 로컬 로그아웃 진행
     }
+    if (deviceId) {
+      deviceApi.deleteDevice(deviceId).catch(() => {});
+    }
+    clearAuth();
+    router.replace('/');
   };
 
   const handleWithdraw = () => {

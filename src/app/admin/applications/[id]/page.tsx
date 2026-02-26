@@ -1,12 +1,13 @@
 'use client';
 
-import { use } from 'react';
+import { use, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 import { Button, Chip, Spinner } from '@heroui/react';
 
 import type { ClubCategory, ClubType } from '@/types/api';
+import { useMyProfile } from '@/features/auth/hooks';
 import { useAdminApplication, useApproveApplication, useRejectApplication } from '@/features/club/hooks';
 
 const CATEGORY_LABELS: Record<ClubCategory, string> = {
@@ -32,9 +33,25 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
   const { id } = use(params);
   const applicationId = parseInt(id, 10);
   const router = useRouter();
+  const { data: profile, isLoading: profileLoading } = useMyProfile();
   const { data: application, isLoading } = useAdminApplication(applicationId);
   const approveApplication = useApproveApplication();
   const rejectApplication = useRejectApplication();
+
+  useEffect(() => {
+    if (profileLoading) return;
+    if (profile && profile.role !== 'ADMIN') {
+      router.replace('/home');
+    }
+  }, [profile, profileLoading, router]);
+
+  if (profileLoading || (profile && profile.role !== 'ADMIN')) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-zinc-900">
+        <Spinner />
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

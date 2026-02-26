@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 
 import { motion } from 'framer-motion';
 
+import { useMyProfile } from '@/features/auth/hooks';
 import { useAuthStore } from '@/features/auth/store';
 
 type NavItem = {
@@ -78,9 +79,8 @@ export function BottomNav() {
   const linkRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const [indicatorLeft, setIndicatorLeft] = useState(0);
   const accessToken = useAuthStore((state) => state.accessToken);
-  
-  // 임시: 관리자 권한 체크 (실제로는 서버에서 받아온 user.role === 'ADMIN' 등으로 확인)
-  const isAdmin = true; // TODO: 실제 권한 체크로 교체
+  const { data: profile } = useMyProfile();
+  const isAdmin = profile?.role === 'ADMIN';
 
   const isHidden =
     pathname === '/' ||

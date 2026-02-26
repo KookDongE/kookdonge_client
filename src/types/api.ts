@@ -101,6 +101,8 @@ export type CompleteRegistrationReq = {
 
 export type LogoutReq = { refreshToken: string };
 
+export type UserRole = 'USER' | 'ADMIN';
+
 export type UserProfileRes = {
   externalUserId?: string;
   name?: string;
@@ -111,6 +113,8 @@ export type UserProfileRes = {
   clubId?: number;
   /** 관리 권한이 있는 동아리 ID 목록 */
   managedClubIds?: number[];
+  /** 시스템 관리자 여부 (ADMIN만 관리자 페이지·동아리 삭제/숨기기 가능) */
+  role?: UserRole;
 };
 
 export type ClubListRes = {

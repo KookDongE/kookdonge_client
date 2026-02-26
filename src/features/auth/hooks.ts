@@ -8,8 +8,23 @@ import {
   ReissueAccessTokenReq,
 } from '@/types/api';
 
+import { getOrCreateDeviceId } from '@/features/device/device-id';
+import { deviceApi } from '@/features/device/api';
+
 import { authApi } from './api';
 import { useAuthStore } from './store';
+
+function registerDeviceAfterLogin() {
+  const deviceId = getOrCreateDeviceId();
+  if (!deviceId) return;
+  deviceApi
+    .registerDevice({
+      deviceId,
+      fcmToken: 'web-pending',
+      platform: 'WEB',
+    })
+    .catch(() => {});
+}
 
 export const authKeys = {
   all: ['auth'] as const,
@@ -34,6 +49,7 @@ export function useLogin() {
       if (res.accessToken && res.refreshToken) {
         setTokens(res.accessToken, res.refreshToken);
         queryClient.invalidateQueries({ queryKey: authKeys.profile() });
+        registerDeviceAfterLogin();
       }
     },
   });
@@ -50,6 +66,7 @@ export function useRegister() {
       if (res.accessToken && res.refreshToken) {
         setTokens(res.accessToken, res.refreshToken);
         queryClient.invalidateQueries({ queryKey: authKeys.profile() });
+        registerDeviceAfterLogin();
       }
     },
   });

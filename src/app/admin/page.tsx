@@ -3,10 +3,12 @@
 import { Suspense, useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import { Button, Chip, Input, Spinner, Tabs } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
 
+import { useMyProfile } from '@/features/auth/hooks';
 import { useAdminApplications } from '@/features/club/hooks';
 import { SearchFilterBar } from '@/components/common/search-filter-bar';
 
@@ -107,11 +109,7 @@ function ApplicationManagementTab({
 }
 
 function AdminSettingsTab() {
-  // 시스템 관리자 목록 (더미 데이터)
-  const [systemAdmins, setSystemAdmins] = useState<string[]>([
-    'admin@kookmin.ac.kr',
-    'superadmin@kookmin.ac.kr',
-  ]);
+  const [systemAdmins, setSystemAdmins] = useState<string[]>([]);
   const [newAdminEmail, setNewAdminEmail] = useState('');
 
   const handleAddAdmin = () => {
@@ -197,9 +195,18 @@ function AdminSettingsTab() {
 }
 
 function AdminPageContent() {
+  const router = useRouter();
+  const { data: profile, isLoading: profileLoading } = useMyProfile();
   const [tab, setTab] = useQueryState('tab', parseAsString.withDefault('applications'));
   const [isStickyVisible, setIsStickyVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    if (profileLoading) return;
+    if (profile && profile.role !== 'ADMIN') {
+      router.replace('/home');
+    }
+  }, [profile, profileLoading, router]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -223,6 +230,14 @@ function AdminPageContent() {
   const stickyTransitionClass = `transition-transform duration-300 ${
     isStickyVisible ? 'translate-y-0' : '-translate-y-full opacity-0'
   }`;
+
+  if (profileLoading || (profile && profile.role !== 'ADMIN')) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white pb-20 dark:bg-zinc-900">

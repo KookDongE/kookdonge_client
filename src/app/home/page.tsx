@@ -9,6 +9,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
 
 import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api';
+import { useMyProfile } from '@/features/auth/hooks';
 import { useClubList, useTopWeeklyLike, useTopWeeklyView, useDeleteClub, useToggleClubVisibility } from '@/features/club/hooks';
 import { ClubCard, ClubCardSkeleton } from '@/components/common/club-card';
 import { AdminClubCard } from '@/components/common/admin-club-card';
@@ -199,8 +200,8 @@ function ClubListSection() {
     size: 20,
   });
 
-  // 임시: 관리자 권한 체크 (지금은 모든 사용자가 가능)
-  const isAdmin = true; // TODO: 실제 권한 체크로 교체
+  const { data: profile } = useMyProfile();
+  const isAdmin = profile?.role === 'ADMIN';
 
   const toggleVisibility = useToggleClubVisibility();
   const deleteClub = useDeleteClub();

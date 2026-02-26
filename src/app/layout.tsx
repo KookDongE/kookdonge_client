@@ -14,7 +14,23 @@ import '@/styles/globals.css';
 
 export const metadata: Metadata = {
   title: 'KookDongE',
-  description: '국민대학교 동아리 정보 플랫폼',
+  description: '국민대 동아리 정보 모음이',
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'KookDongE',
+  },
+  icons: {
+    icon: [
+      { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+  },
+  themeColor: '#3B82F6',
 };
 
 export const viewport: Viewport = {
@@ -23,6 +39,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: 'cover',
+  themeColor: '#3B82F6',
 };
 
 export default function RootLayout({

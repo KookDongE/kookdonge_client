@@ -39,7 +39,7 @@ export default function SplashPage() {
           KookDongE
         </h1>
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          국민대학교 동아리 정보 플랫폼
+          국민대 동아리 정보 모음이
         </p>
       </motion.div>
       <motion.div
