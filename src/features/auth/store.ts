@@ -87,6 +87,8 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       onRehydrateStorage: () => (state) => {
         state?.setInitialized(true);
       },
+      /** SSR 시 자동 재수화 비활성화. 클라이언트에서 AuthProvider가 rehydrate() 호출 */
+      skipHydration: true,
     }
   )
 );
