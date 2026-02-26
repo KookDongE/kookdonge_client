@@ -155,9 +155,21 @@ function ProfileSection() {
   return (
     <div className="px-4 py-8">
       <div className="flex items-center justify-between gap-4">
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           {profile ? (
-            <h2 className="text-lg font-bold text-zinc-800 dark:text-zinc-100">{profile.email}</h2>
+            <div className="space-y-1">
+              <h2 className="text-lg font-bold text-zinc-800 dark:text-zinc-100 truncate">
+                {profile.name || profile.email}
+              </h2>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400 truncate">{profile.email}</p>
+              {[profile.department, profile.studentId, profile.phoneNumber].some(Boolean) && (
+                <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+                  {profile.department && <span>{profile.department}</span>}
+                  {profile.studentId && <span>학번 {profile.studentId}</span>}
+                  {profile.phoneNumber && <span>{profile.phoneNumber}</span>}
+                </div>
+              )}
+            </div>
           ) : (
             <>
               <h2 className="text-lg font-bold text-zinc-800 dark:text-zinc-100">게스트</h2>
