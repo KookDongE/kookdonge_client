@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type Key } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { Button, Input, Select, SelectItem, Spinner } from '@heroui/react';
+import { Button, Input, ListBox, Select, Spinner } from '@heroui/react';
 
 import { authApi } from '@/features/auth/api';
 import { authKeys } from '@/features/auth/hooks';
@@ -165,47 +165,82 @@ export default function WelcomeRegisterPage() {
       </p>
 
       <div className="flex flex-col gap-4">
-        <Input
-          label="이름"
-          value={name}
-          onValueChange={setName}
-          placeholder="이름"
-          isRequired
-          maxLength={50}
-        />
-        <Select
-          label="학과"
-          placeholder="학과 선택"
-          selectedKey={department || null}
-          onSelectionChange={(key) => setDepartment((key as string) ?? '')}
-          isRequired
-        >
-          {DEPARTMENT_OPTIONS.map((opt) => (
-            <SelectItem key={opt.value}>{opt.label}</SelectItem>
-          ))}
-        </Select>
-        <Input
-          label="학번"
-          value={studentId}
-          onValueChange={(v) => setStudentId(v.replace(/\D/g, '').slice(0, 8))}
-          placeholder="8자리 숫자"
-          isRequired
-          maxLength={8}
-        />
-        <Input
-          label="전화번호"
-          value={phoneNumber}
-          onValueChange={setPhoneNumber}
-          placeholder="010-1234-5678"
-          isRequired
-        />
+        <div>
+          <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            이름 <span className="text-red-500">*</span>
+          </label>
+          <Input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="이름"
+            maxLength={50}
+            className="w-full"
+          />
+        </div>
+        <div>
+          <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            학과 <span className="text-red-500">*</span>
+          </label>
+          <Select
+            placeholder="학과 선택"
+            value={department || undefined}
+            onChange={(value: Key | null) => setDepartment((value as string) ?? '')}
+            className="w-full"
+          >
+            <Select.Trigger className="rounded-xl border border-zinc-200 bg-white text-sm dark:border-zinc-600 dark:bg-zinc-800">
+              <Select.Value />
+              <Select.Indicator />
+            </Select.Trigger>
+            <Select.Popover>
+              <ListBox>
+                {DEPARTMENT_OPTIONS.map((opt) => (
+                  <ListBox.Item
+                    key={opt.value}
+                    id={opt.value}
+                    textValue={opt.label}
+                    className="!text-zinc-600 dark:!text-zinc-200"
+                  >
+                    {opt.label}
+                  </ListBox.Item>
+                ))}
+              </ListBox>
+            </Select.Popover>
+          </Select>
+        </div>
+        <div>
+          <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            학번 <span className="text-red-500">*</span>
+          </label>
+          <Input
+            type="text"
+            inputMode="numeric"
+            value={studentId}
+            onChange={(e) => setStudentId(e.target.value.replace(/\D/g, '').slice(0, 8))}
+            placeholder="8자리 숫자"
+            maxLength={8}
+            className="w-full"
+          />
+        </div>
+        <div>
+          <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            전화번호 <span className="text-red-500">*</span>
+          </label>
+          <Input
+            type="tel"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            placeholder="010-1234-5678"
+            className="w-full"
+          />
+        </div>
         {error && (
           <p className="text-sm text-red-500 dark:text-red-400">{error}</p>
         )}
         <Button
-          color="primary"
+          variant="primary"
           onPress={handleSubmit}
-          isLoading={submitting}
+          isPending={submitting}
           isDisabled={
             submitting ||
             !name.trim() ||
