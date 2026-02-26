@@ -195,8 +195,9 @@ export const clubApi = {
     // 스웨거에 해당 API 없음
   },
 
-  deleteClub: async (_clubId: number): Promise<void> => {
-    // 스웨거에 해당 API 없음
+  /** 관리자 전용 동아리 삭제 (Soft Delete). 권한: ADMIN */
+  deleteClub: async (clubId: number): Promise<void> => {
+    return apiClient<void>(`/api/admin/clubs/${clubId}`, { method: 'DELETE' });
   },
 
   getApplications: async (): Promise<AdminApplicationItem[]> => {
