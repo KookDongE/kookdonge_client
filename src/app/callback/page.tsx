@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { useQueryClient } from '@tanstack/react-query';
@@ -11,7 +11,7 @@ import { authKeys } from '@/features/auth/hooks';
 import { useAuthStore } from '@/features/auth/store';
 import { getOrCreateDeviceId } from '@/features/device/device-id';
 import { deviceApi } from '@/features/device/api';
-import { OAUTH_STATE_KEY } from '@/lib/google-oauth';
+import { getRedirectUri, OAUTH_STATE_KEY } from '@/lib/google-oauth';
 
 const WELCOME_SEEN_KEY = 'kookdonge-welcome-seen';
 
@@ -33,6 +33,8 @@ function CallbackContent() {
   const queryClient = useQueryClient();
   const setTokens = useAuthStore((s) => s.setTokens);
   const [status, setStatus] = useState<'loading' | 'error'>('loading');
+  /** StrictMode 등으로 useEffect가 두 번 실행되어 POST /api/auth 중복 호출 방지 */
+  const authSentRef = useRef(false);
 
   useEffect(() => {
     const code = searchParams.get('code');
@@ -62,8 +64,12 @@ function CallbackContent() {
       return;
     }
 
+    if (authSentRef.current) return;
+    authSentRef.current = true;
+
+    const redirectUri = getRedirectUri();
     authApi
-      .authenticate({ googleGrantCode: code })
+      .authenticate({ googleGrantCode: code, redirectUri: redirectUri || undefined })
       .then((res) => {
         if (res.accessToken && res.refreshToken) {
           setTokens(res.accessToken, res.refreshToken);

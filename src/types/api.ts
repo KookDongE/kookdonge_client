@@ -43,6 +43,8 @@ export type RecruitmentStatus = 'RECRUITING' | 'SCHEDULED' | 'CLOSED';
 
 export type LoginReq = {
   googleGrantCode: string;
+  /** Google 토큰 교환 시 사용할 redirect_uri. 프론트에서 code 발급 시 쓴 값과 동일해야 함(필수). */
+  redirectUri?: string;
 };
 
 export type LoginRes = {

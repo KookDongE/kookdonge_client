@@ -14,7 +14,10 @@ export const authApi = {
   authenticate: async (data: LoginReq): Promise<OAuthRes> => {
     return apiClient<OAuthRes>('/api/auth', {
       method: 'POST',
-      body: { googleGrantCode: data.googleGrantCode },
+      body: {
+        googleGrantCode: data.googleGrantCode,
+        ...(data.redirectUri != null && { redirectUri: data.redirectUri }),
+      },
     });
   },
 
