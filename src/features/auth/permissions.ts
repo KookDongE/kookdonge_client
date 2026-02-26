@@ -1,14 +1,17 @@
 import type { UserProfileRes } from '@/types/api';
 
 /**
- * 스웨거 기준 권한:
- * - GET /api/users/me → managedClubIds: 동아리장/임원인 동아리 ID 목록 (리더 권한)
- * - role: 스웨거 스키마에는 없으나, 백엔드가 시스템 관리자 구분을 위해 'ADMIN'을 줄 수 있음
+ * GET /api/users/me 기준 (스웨거 UserProfileRes):
+ * - isAdmin: 관리자 여부 (우선 사용)
+ * - role / roles: 레거시 fallback. snake_case is_admin 응답도 fallback 지원
  */
 
 /** 시스템 관리자(ADMIN) 여부. 관리자 페이지·하단 탭·동아리 카드 스와이프(숨기기/삭제)에 사용 */
 export function isSystemAdmin(profile: UserProfileRes | null | undefined): boolean {
   if (!profile) return false;
+  if (profile.isAdmin === true) return true;
+  const p = profile as { is_admin?: boolean };
+  if (p.is_admin === true) return true;
   const role = (profile as { role?: string; roles?: string[] }).role;
   const roles = (profile as { role?: string; roles?: string[] }).roles;
   const roleUpper = typeof role === 'string' ? role.toUpperCase() : '';
