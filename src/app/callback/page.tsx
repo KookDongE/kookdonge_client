@@ -68,6 +68,12 @@ function CallbackContent() {
     authSentRef.current = true;
 
     const redirectUri = getRedirectUri();
+    // 백엔드/Google invalid_grant 디버깅용: 브라우저 콘솔에서 전송값 확인
+    console.log('[OAuth] POST /api/auth 전송', {
+      redirectUri: redirectUri || undefined,
+      codeLength: code?.length,
+      codePrefix: code?.slice(0, 20) + (code && code.length > 20 ? '...' : ''),
+    });
     authApi
       .authenticate({ googleGrantCode: code, redirectUri: redirectUri || undefined })
       .then((res) => {
