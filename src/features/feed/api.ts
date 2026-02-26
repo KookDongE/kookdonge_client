@@ -80,37 +80,55 @@ export const feedApi = {
   },
 
   /**
-   * 파일들을 Presigned URL로 S3 업로드 후 서버에 등록하고, uuid와 fileUrl 목록을 반환합니다.
-   * 피드 생성 시 fileUuids로 사용하고, fileUrl은 미리보기 표시용입니다.
+   * 스웨거 흐름: Presigned URL 발급 → S3 PUT → POST /files 업로드 완료 등록.
+   * 반환된 uuid는 피드 생성 시 fileUuids로, fileUrl은 미리보기 표시용.
    */
   uploadFeedFiles: async (
     clubId: number,
     files: File[]
   ): Promise<Array<{ uuid: string; fileUrl: string }>> => {
+    const allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'] as const;
+    const contentTypeToExt: Record<string, (typeof allowed)[number]> = {
+      'image/jpeg': 'jpeg',
+      'image/jpg': 'jpg',
+      'image/png': 'png',
+      'image/gif': 'gif',
+      'image/webp': 'webp',
+    };
+
     const result: Array<{ uuid: string; fileUrl: string }> = [];
     for (const file of files) {
-      const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
-      const allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-      if (!allowed.includes(ext)) throw new Error(`지원하지 않는 확장자: ${ext}`);
-      const res = await feedApi.getPresignedUrl(
-        clubId,
-        file.name,
-        file.type || 'image/jpeg'
-      );
-      const uuid = res.uuid;
-      const fileUrl = res.fileUrl;
-      const presignedUrl =
-        res.presignedUrl ?? (res as { presigned_url?: string }).presigned_url;
-      if (!presignedUrl) throw new Error('Presigned URL을 받지 못했습니다.');
+      let ext = file.name.split('.').pop()?.toLowerCase() ?? '';
+      if (!allowed.includes(ext as (typeof allowed)[number])) {
+        ext = contentTypeToExt[file.type || 'image/jpeg'] ?? 'jpeg';
+      }
       const contentType = file.type || 'image/jpeg';
+
+      // 1. GET presigned-url (fileName, contentType 쿼리)
+      const res = await feedApi.getPresignedUrl(clubId, file.name, contentType);
+      const raw = res as PresignedUrlResponse & {
+        presigned_url?: string;
+        file_url?: string;
+      };
+      const uuid = raw.uuid;
+      const fileUrl = raw.fileUrl ?? raw.file_url ?? '';
+      const presignedUrl = raw.presignedUrl ?? raw.presigned_url;
+      if (!uuid || !presignedUrl) {
+        throw new Error('Presigned URL 응답에 uuid 또는 presignedUrl이 없습니다.');
+      }
+
+      // 2. S3에 PUT 업로드
       const putRes = await fetch(presignedUrl, {
         method: 'PUT',
         body: file,
         headers: { 'Content-Type': contentType },
       });
       if (!putRes.ok) {
-        throw new Error(`S3 업로드 실패: ${putRes.status}`);
+        const text = await putRes.text();
+        throw new Error(`S3 업로드 실패: ${putRes.status} ${text}`);
       }
+
+      // 3. POST /api/clubs/{clubId}/files 로 업로드 완료 등록 (uuid, fileName, fileSize, extension)
       await feedApi.registerUploadComplete(clubId, {
         uuid,
         fileName: file.name,
