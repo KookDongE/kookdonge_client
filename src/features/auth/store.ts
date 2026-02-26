@@ -5,27 +5,33 @@ import { UserProfileRes } from '@/types/api';
 
 const AUTH_STORAGE_KEY = 'auth-storage';
 
+type PersistedAuth = { state: { accessToken: string | null; refreshToken: string | null }; version?: number };
+
 /** 재수화 전에 persist가 빈 상태를 써서 토큰을 덮어쓰는 것을 방지합니다. */
 function createAuthStorage() {
   return {
-    getItem: (name: string): string | null => {
+    getItem: (name: string): PersistedAuth | null => {
       if (typeof window === 'undefined') return null;
-      return localStorage.getItem(name);
+      try {
+        const raw = localStorage.getItem(name);
+        return raw ? (JSON.parse(raw) as PersistedAuth) : null;
+      } catch {
+        return null;
+      }
     },
-    setItem: (name: string, value: string): void => {
+    setItem: (name: string, value: PersistedAuth): void => {
       if (typeof window === 'undefined') return;
       try {
-        const next = JSON.parse(value) as { state?: { accessToken?: string | null; refreshToken?: string | null } };
-        const nextToken = next?.state?.accessToken;
+        const nextToken = value?.state?.accessToken;
         const currentRaw = localStorage.getItem(name);
         if (currentRaw && !nextToken) {
-          const current = JSON.parse(currentRaw) as { state?: { accessToken?: string | null } };
+          const current = JSON.parse(currentRaw) as PersistedAuth;
           if (current?.state?.accessToken) return; // 기존 토큰을 빈 값으로 덮어쓰지 않음
         }
       } catch {
         // ignore
       }
-      localStorage.setItem(name, value);
+      localStorage.setItem(name, JSON.stringify(value));
     },
     removeItem: (name: string): void => {
       if (typeof window === 'undefined') return;
