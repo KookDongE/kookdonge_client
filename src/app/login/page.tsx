@@ -11,10 +11,13 @@ import { getGoogleAuthUrl, isGoogleOAuthConfigured } from '@/lib/google-oauth';
 export default function LoginPage() {
   const router = useRouter();
   const accessToken = useAuthStore((s) => s.accessToken);
+  const isInitialized = useAuthStore((s) => s.isInitialized);
 
+  // 재수화 완료 후 판단: 로그인 상태면 홈으로 (새로고침 시 스플래시→로그인 방지)
   useEffect(() => {
+    if (!isInitialized) return;
     if (accessToken) router.replace('/home');
-  }, [accessToken, router]);
+  }, [isInitialized, accessToken, router]);
 
   const handleGoogleLogin = () => {
     if (!isGoogleOAuthConfigured()) {
@@ -41,9 +44,7 @@ export default function LoginPage() {
           KookDongE
         </h1>
         <p className="mb-8 text-sm text-zinc-500 dark:text-zinc-400">
-          국민대 동아리 정보 모음이에
-          <br />
-          로그인하여 이용해 주세요.
+          국동이에서 국민대의 모든 동아리 정보를 확인해보세요!
         </p>
 
         <motion.button

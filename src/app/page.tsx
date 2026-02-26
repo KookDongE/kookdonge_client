@@ -16,13 +16,13 @@ export default function SplashPage() {
 
   useEffect(() => {
     if (!isInitialized) return;
-    const timer = setTimeout(() => {
-      if (accessToken) {
-        router.replace('/home');
-      } else {
-        router.replace('/login');
-      }
-    }, SPLASH_DURATION_MS);
+    // 로그인 상태면 스플래시 없이 바로 홈으로 (새로고침 시 로그인 페이지로 가지 않도록)
+    if (accessToken) {
+      router.replace('/home');
+      return;
+    }
+    // 비로그인 시에만 스플래시 표시 후 로그인 페이지로
+    const timer = setTimeout(() => router.replace('/login'), SPLASH_DURATION_MS);
     return () => clearTimeout(timer);
   }, [isInitialized, accessToken, router]);
 

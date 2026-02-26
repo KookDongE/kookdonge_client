@@ -12,22 +12,26 @@ const WELCOME_SEEN_KEY = 'kookdonge-welcome-seen';
 export default function WelcomePage() {
   const router = useRouter();
   const accessToken = useAuthStore((s) => s.accessToken);
+  const isInitialized = useAuthStore((s) => s.isInitialized);
 
+  // 로그인 상태면 회원가입 완료 화면 건너뛰고 홈으로
   useEffect(() => {
-    if (!accessToken) {
-      router.replace('/');
+    if (!isInitialized) return;
+    if (accessToken) {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(WELCOME_SEEN_KEY, 'true');
+      }
+      router.replace('/home');
       return;
     }
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(WELCOME_SEEN_KEY, 'true');
-    }
-  }, [accessToken, router]);
+    router.replace('/');
+  }, [isInitialized, accessToken, router]);
 
   const handleConfirm = () => {
     router.replace('/home');
   };
 
-  if (!accessToken) return null;
+  if (!isInitialized || !accessToken) return null;
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center bg-[var(--background)] px-6">
