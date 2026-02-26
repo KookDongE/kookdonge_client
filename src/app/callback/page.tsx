@@ -75,9 +75,6 @@ function CallbackContent() {
             .completeRegistration({
               registrationToken: res.registrationToken,
               name,
-              department: '-',
-              studentId: '00000000',
-              phoneNumber: '010-00000000',
             })
             .then((regRes) => {
               if (regRes.accessToken && regRes.refreshToken) {

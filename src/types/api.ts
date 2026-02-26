@@ -92,13 +92,10 @@ export type OAuthRes = {
   refreshToken?: string;
 };
 
-/** 회원가입 완료 요청 (추가 정보) */
+/** 회원가입 완료 요청 (추가 정보). 스웨거 CompleteRegistrationReq: 필수 입력은 이름만 */
 export type CompleteRegistrationReq = {
   registrationToken: string;
   name: string;
-  department: string;
-  studentId: string;
-  phoneNumber: string;
 };
 
 export type LogoutReq = { refreshToken: string };
