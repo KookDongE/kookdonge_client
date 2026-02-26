@@ -131,13 +131,16 @@ function ProfileSection() {
     router.replace('/');
   };
 
-  const handleWithdraw = () => {
+  const handleWithdraw = async () => {
     setSettingsOpen(false);
-    if (confirm('정말 회원탈퇴를 하시겠습니까?\n탈퇴 후 모든 데이터가 삭제되며 복구할 수 없습니다.')) {
-      // TODO: 회원탈퇴 API 호출
+    if (!confirm('정말 회원탈퇴를 하시겠습니까?\n탈퇴 후 모든 데이터가 삭제되며 복구할 수 없습니다.')) return;
+    try {
+      await authApi.withdraw();
       clearAuth();
       router.replace('/');
       alert('회원탈퇴가 완료되었습니다.');
+    } catch {
+      // apiClient에서 toast.error로 서버 메시지 표시 (유일한 관리자인 동아리 있으면 탈퇴 불가 등)
     }
   };
 
