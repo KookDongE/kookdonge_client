@@ -3,8 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { useMotionValue } from 'framer-motion';
-
 import { AdminClubListItem, ClubListRes } from '@/types/api';
 import { ClubCard } from './club-card';
 
@@ -17,7 +15,7 @@ type AdminClubCardProps = {
 
 export function AdminClubCard({ club, index = 0, onToggleVisibility, onDelete }: AdminClubCardProps) {
   const router = useRouter();
-  const x = useMotionValue(0);
+  const [dragX, setDragX] = useState(0);
   const SWIPE_THRESHOLD = -80;
   const [isSwiped, setIsSwiped] = useState(false);
   const [hasDragged, setHasDragged] = useState(false);
@@ -28,21 +26,22 @@ export function AdminClubCard({ club, index = 0, onToggleVisibility, onDelete }:
     setHasDragged(false);
   };
 
-  const handleDrag = (_event: any, info: any) => {
+  const handleDrag = (_event: unknown, info: { offset: { x: number } }) => {
     const currentX = info.offset.x;
     setIsSwiped(currentX < SWIPE_THRESHOLD);
+    setDragX(currentX);
     if (Math.abs(info.offset.x) > 10) {
       setHasDragged(true);
     }
   };
 
-  const handleDragEnd = (_event: any, info: any) => {
+  const handleDragEnd = (_event: unknown, info: { offset: { x: number } }) => {
     const currentX = info.offset.x;
     if (currentX < SWIPE_THRESHOLD) {
-      x.set(-120);
+      setDragX(-120);
       setIsSwiped(true);
     } else {
-      x.set(0);
+      setDragX(0);
       setIsSwiped(false);
     }
     // 드래그가 끝난 후 약간의 딜레이를 두고 상태 리셋
@@ -79,7 +78,7 @@ export function AdminClubCard({ club, index = 0, onToggleVisibility, onDelete }:
     e.preventDefault();
     e.stopPropagation();
     onToggleVisibility(club.id, club.isHidden);
-    x.set(0);
+    setDragX(0);
     setIsSwiped(false);
   };
 
@@ -87,7 +86,7 @@ export function AdminClubCard({ club, index = 0, onToggleVisibility, onDelete }:
     e.preventDefault();
     e.stopPropagation();
     onDelete(club.id);
-    x.set(0);
+    setDragX(0);
     setIsSwiped(false);
   };
 
@@ -118,7 +117,7 @@ export function AdminClubCard({ club, index = 0, onToggleVisibility, onDelete }:
           onDragStart={handleDragStart}
           onDrag={handleDrag}
           onDragEnd={handleDragEnd}
-          style={{ x }}
+          style={{ x: dragX }}
         />
       </div>
 

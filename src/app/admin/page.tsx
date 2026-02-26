@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { Suspense, useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -159,7 +159,7 @@ function AdminSettingsTab() {
               }
             }}
           />
-          <Button color="primary" onPress={handleAddAdmin}>
+          <Button variant="primary" onPress={handleAddAdmin}>
             추가
           </Button>
         </div>
@@ -182,8 +182,7 @@ function AdminSettingsTab() {
                 <span className="text-sm font-medium text-gray-900 dark:text-zinc-100">{email}</span>
                 <Button
                   size="sm"
-                  color="danger"
-                  variant="light"
+                  variant="ghost"
                   onPress={() => handleRemoveAdmin(email)}
                 >
                   제거
@@ -197,7 +196,7 @@ function AdminSettingsTab() {
   );
 }
 
-export default function AdminPage() {
+function AdminPageContent() {
   const [tab, setTab] = useQueryState('tab', parseAsString.withDefault('applications'));
   const [isStickyVisible, setIsStickyVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -263,5 +262,13 @@ export default function AdminPage() {
         </Tabs.Panel>
       </Tabs>
     </div>
+  );
+}
+
+export default function AdminPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center"><Spinner /></div>}>
+      <AdminPageContent />
+    </Suspense>
   );
 }

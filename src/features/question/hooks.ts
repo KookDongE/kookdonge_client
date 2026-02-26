@@ -37,7 +37,7 @@ export function useCreateAnswer() {
 
   return useMutation({
     mutationFn: ({ questionId, data }: { questionId: number; data: AnswerCreateReq }) =>
-      questionApi.createAnswer(questionId, data),
+      questionApi.registerAnswer(questionId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: questionKeys.lists() });
       queryClient.invalidateQueries({ queryKey: ['questions', 'pending'] });

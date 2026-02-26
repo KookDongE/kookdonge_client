@@ -21,6 +21,8 @@ const CATEGORY_LABEL: Record<ClubCategory, string> = {
 const TYPE_LABEL: Record<ClubType, string> = {
   CENTRAL: '중앙',
   DEPARTMENTAL: '학과',
+  ACADEMIC_SOCIETY: '학술동아리',
+  CLUB: '동아리',
 };
 
 const STATUS_CONFIG: Record<RecruitmentStatus, { label: string; className: string }> = {
@@ -48,7 +50,7 @@ type ClubCardProps = {
   onDragStart?: () => void;
   onDrag?: (event: any, info: any) => void;
   onDragEnd?: (event: any, info: any) => void;
-  style?: React.CSSProperties;
+  style?: React.CSSProperties & { x?: number };
   animate?: any;
 };
 
@@ -131,7 +133,7 @@ export function ClubCard({
   );
 
   // style에 x가 있으면 드래그 모드 (스와이프 기능)
-  const isDragMode = drag && style && style.x;
+  const isDragMode = drag && style && 'x' in style;
   
   const motionProps: any = {
     initial: isDragMode ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 },

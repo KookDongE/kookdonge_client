@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { Chip, Spinner } from '@heroui/react';
@@ -8,7 +9,7 @@ import { parseAsString, useQueryState } from 'nuqs';
 import { useMyWaitingList } from '@/features/waiting-list/hooks';
 import { SearchFilterBar } from '@/components/common/search-filter-bar';
 
-export default function WaitingListPage() {
+function WaitingListContent() {
   const [q] = useQueryState('q', parseAsString.withDefault(''));
   const router = useRouter();
   const { data: waitingList, isLoading } = useMyWaitingList();
@@ -75,5 +76,13 @@ export default function WaitingListPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function WaitingListPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center py-12"><Spinner size="lg" /></div>}>
+      <WaitingListContent />
+    </Suspense>
   );
 }

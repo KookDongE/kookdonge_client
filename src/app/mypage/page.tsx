@@ -21,6 +21,8 @@ import { usePendingQuestions } from '@/features/question/hooks';
 const TYPE_LABEL: Record<ClubType, string> = {
   CENTRAL: '중앙동아리',
   DEPARTMENTAL: '학과동아리',
+  ACADEMIC_SOCIETY: '학술동아리',
+  CLUB: '동아리',
 };
 
 /** 마이페이지 목록 미리보기 최대 개수 (이상은 전체보기에서만 표시) */

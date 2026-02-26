@@ -9,8 +9,7 @@ import { ListBox, Select, Spinner } from '@heroui/react';
 
 import { ClubCategory, ClubType } from '@/types/api';
 import { useApplyClub } from '@/features/club/hooks';
-import { useGetPresignedUrls } from '@/features/feed/hooks';
-import { uploadFile } from '@/lib/utils/upload';
+import { useUploadFeedFiles } from '@/features/feed/hooks';
 
 const CATEGORY_OPTIONS: { value: ClubCategory; label: string }[] = [
   { value: 'PERFORMING_ARTS', label: '공연' },
@@ -30,7 +29,7 @@ const TYPE_OPTIONS: { value: ClubType; label: string }[] = [
 function ClubApplyContent() {
   const router = useRouter();
   const applyClub = useApplyClub();
-  const getPresignedUrls = useGetPresignedUrls(0); // clubId는 임시로 0 사용
+  const uploadFeedFiles = useUploadFeedFiles(0); // 동아리 신청용 clubId 임시 0
   const [name, setName] = useState('');
   const [image, setImage] = useState<string | null>(null);
   const [description, setDescription] = useState('');
@@ -44,8 +43,9 @@ function ClubApplyContent() {
 
     setIsUploading(true);
     try {
-      const url = await uploadFile(file, (data) => getPresignedUrls.mutateAsync(data));
-      setImage(url);
+      const result = await uploadFeedFiles.mutateAsync([file]);
+      const fileUrl = result[0]?.fileUrl;
+      if (fileUrl) setImage(fileUrl);
     } catch (error) {
       alert('이미지 업로드에 실패했습니다.');
       console.error(error);
@@ -78,9 +78,11 @@ function ClubApplyContent() {
 
     applyClub.mutate(
       {
-        name: name.trim(),
-        image,
+        clubName: name.trim(),
+        clubType: clubType as ClubType,
+        category: category as ClubCategory,
         description: description.trim(),
+        image: image ?? undefined,
       },
       {
         onSuccess: () => {

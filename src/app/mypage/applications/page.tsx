@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import Image from 'next/image';
 
 import { Chip, Spinner } from '@heroui/react';
@@ -8,7 +9,7 @@ import { parseAsString, useQueryState } from 'nuqs';
 import { useMyApplications } from '@/features/club/hooks';
 import { SearchFilterBar } from '@/components/common/search-filter-bar';
 
-export default function MyApplicationsListPage() {
+function MyApplicationsListContent() {
   const [q] = useQueryState('q', parseAsString.withDefault(''));
   const { data: applications, isLoading } = useMyApplications();
 
@@ -87,5 +88,13 @@ export default function MyApplicationsListPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function MyApplicationsListPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center py-12"><Spinner size="lg" /></div>}>
+      <MyApplicationsListContent />
+    </Suspense>
   );
 }

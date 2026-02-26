@@ -327,8 +327,8 @@ function ClubListSection() {
               정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
             </p>
             <div className="flex gap-3">
-              <Button variant="light" className="flex-1" onPress={() => setDeleteModalClubId(null)}>취소</Button>
-              <Button color="danger" className="flex-1" onPress={handleDeleteConfirm} isPending={deleteClub.isPending}>삭제</Button>
+              <Button variant="ghost" className="flex-1" onPress={() => setDeleteModalClubId(null)}>취소</Button>
+              <Button variant="danger" className="flex-1" onPress={handleDeleteConfirm} isPending={deleteClub.isPending}>삭제</Button>
             </div>
           </div>
         </div>

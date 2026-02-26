@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -13,9 +14,11 @@ import { SearchFilterBar } from '@/components/common/search-filter-bar';
 const TYPE_LABEL: Record<ClubType, string> = {
   CENTRAL: '중앙동아리',
   DEPARTMENTAL: '학과동아리',
+  ACADEMIC_SOCIETY: '학술동아리',
+  CLUB: '동아리',
 };
 
-export default function InterestedClubsPage() {
+function InterestedClubsContent() {
   const [q] = useQueryState('q', parseAsString.withDefault(''));
   const [clubType] = useQueryState('clubType', parseAsString.withDefault(''));
   const clubs = useInterestedStore((s) => s.getList());
@@ -85,5 +88,13 @@ export default function InterestedClubsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function InterestedClubsPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center py-12"><Spinner /></div>}>
+      <InterestedClubsContent />
+    </Suspense>
   );
 }

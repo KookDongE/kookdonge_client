@@ -381,6 +381,7 @@ export type ClubCreationReq = {
   category: ClubCategory;
   college?: string;
   description?: string;
+  image?: string;
 };
 
 /** 동아리 생성 신청 응답 */

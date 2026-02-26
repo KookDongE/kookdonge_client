@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { ClubCategory, ClubListParams, ClubType, Pageable, RecruitmentStatus } from '@/types/api';
+import { ClubCategory, ClubCreationReq, ClubListParams, ClubType, Pageable, RecruitmentStatus } from '@/types/api';
 
 import { clubApi } from './api';
 
@@ -34,14 +34,14 @@ export function useClubDetail(clubId: number) {
 export function useTopWeeklyView(pageable?: Pageable) {
   return useQuery({
     queryKey: clubKeys.topWeeklyView(),
-    queryFn: () => clubApi.getTopWeeklyView(pageable),
+    queryFn: () => clubApi.getTopWeeklyView(),
   });
 }
 
 export function useTopWeeklyLike(pageable?: Pageable) {
   return useQuery({
     queryKey: clubKeys.topWeeklyLike(),
-    queryFn: () => clubApi.getTopWeeklyLike(pageable),
+    queryFn: () => clubApi.getTopWeeklyLike(),
   });
 }
 
@@ -127,6 +127,7 @@ export function useUpdateClubDetail() {
         name?: string;
         image?: string;
         summary?: string;
+        profileFileUuid?: string;
         category?: ClubCategory;
         type?: ClubType;
         targetGraduate?: string;
@@ -193,7 +194,7 @@ export function useApplyClub() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { name: string; image: string; description: string }) => clubApi.applyClub(data),
+    mutationFn: (data: ClubCreationReq) => clubApi.applyClub(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: clubKeys.all });
     },

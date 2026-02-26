@@ -22,6 +22,8 @@ const CATEGORY_LABELS: Record<ClubCategory, string> = {
 const TYPE_LABELS: Record<ClubType, string> = {
   CENTRAL: '중앙동아리',
   DEPARTMENTAL: '학과동아리',
+  ACADEMIC_SOCIETY: '학술동아리',
+  CLUB: '동아리',
 };
 
 type PageProps = { params: Promise<{ id: string }> };
@@ -46,7 +48,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-4 dark:bg-zinc-900">
         <p className="text-gray-500 dark:text-zinc-400">신청을 찾을 수 없습니다.</p>
-        <Button className="mt-4" variant="light" onPress={() => router.push('/admin')}>
+        <Button className="mt-4" variant="ghost" onPress={() => router.push('/admin')}>
           목록으로
         </Button>
       </div>
@@ -156,8 +158,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
         {isPending && (
           <div className="flex gap-3 pt-2">
             <Button
-              color="danger"
-              variant="flat"
+              variant="danger-soft"
               className="flex-1 bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300"
               onPress={handleReject}
               isPending={rejectApplication.isPending}
@@ -165,7 +166,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
               거절
             </Button>
             <Button
-              color="primary"
+              variant="primary"
               className="flex-1 bg-blue-500 text-white"
               onPress={handleApprove}
               isPending={approveApplication.isPending}

@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { Chip, Spinner } from '@heroui/react';
@@ -9,7 +10,7 @@ import { useManagedClubs } from '@/features/club/hooks';
 import { usePendingQuestions } from '@/features/question/hooks';
 import { SearchFilterBar } from '@/components/common/search-filter-bar';
 
-export default function PendingQuestionsListPage() {
+function PendingQuestionsListContent() {
   const [q] = useQueryState('q', parseAsString.withDefault(''));
   const router = useRouter();
   const { data: managedClubs } = useManagedClubs();
@@ -96,5 +97,13 @@ export default function PendingQuestionsListPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function PendingQuestionsListPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center py-12"><Spinner size="lg" /></div>}>
+      <PendingQuestionsListContent />
+    </Suspense>
   );
 }

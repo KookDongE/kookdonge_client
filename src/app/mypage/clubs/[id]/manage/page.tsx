@@ -447,7 +447,7 @@ function AdminManageSection({ clubId, onClose }: { clubId: number; onClose: () =
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <Button size="sm" variant="light" onPress={onClose}>
+        <Button size="sm" variant="ghost" onPress={onClose}>
           닫기
         </Button>
       </div>
@@ -463,7 +463,7 @@ function AdminManageSection({ clubId, onClose }: { clubId: number; onClose: () =
             onChange={(e) => setNewAdminEmail(e.target.value)}
             className="flex-1 rounded-xl border-0 bg-gray-50 p-4 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-zinc-700 dark:text-zinc-100 dark:placeholder-zinc-400"
           />
-          <Button color="primary" onPress={handleAddAdmin} isPending={addAdmin.isPending}>
+          <Button variant="primary" onPress={handleAddAdmin} isPending={addAdmin.isPending}>
             추가
           </Button>
         </div>
@@ -490,8 +490,7 @@ function AdminManageSection({ clubId, onClose }: { clubId: number; onClose: () =
                 <span className="text-sm text-zinc-900 dark:text-zinc-100">{email}</span>
                 <Button
                   size="sm"
-                  color="danger"
-                  variant="light"
+                  variant="ghost"
                   onPress={() => handleRemoveAdmin(email)}
                   isPending={removeAdmin.isPending}
                 >
@@ -672,10 +671,10 @@ function ClubInfoTab({
             </button>
             ) : (
               <div className="flex items-center gap-2">
-                <Button size="sm" variant="light" onPress={onCancelBasic}>
+                <Button size="sm" variant="ghost" onPress={onCancelBasic}>
                   취소
                 </Button>
-                <Button size="sm" color="primary" onPress={onSaveBasic} isDisabled={isSaving}>
+                <Button size="sm" variant="primary" onPress={onSaveBasic} isDisabled={isSaving}>
                   {isSaving ? '저장 중...' : '저장'}
                 </Button>
               </div>
@@ -862,7 +861,7 @@ function ClubInfoTab({
                     휴학생도 동아리에 가입할 수 있도록 허용합니다
                   </p>
                 </div>
-                <Switch isSelected={allowLeaveOfAbsence} onValueChange={setAllowLeaveOfAbsence} />
+                <Switch isSelected={allowLeaveOfAbsence} onChange={setAllowLeaveOfAbsence} />
               </div>
             </div>
           )}
@@ -886,10 +885,10 @@ function ClubInfoTab({
               </button>
             ) : (
               <div className="flex items-center gap-2">
-                <Button size="sm" variant="light" onPress={onCancelContent}>
+                <Button size="sm" variant="ghost" onPress={onCancelContent}>
                   취소
                 </Button>
-                <Button size="sm" color="primary" onPress={onSaveContent} isDisabled={isSaving}>
+                <Button size="sm" variant="primary" onPress={onSaveContent} isDisabled={isSaving}>
                   {isSaving ? '저장 중...' : '저장'}
                 </Button>
               </div>
@@ -1037,10 +1036,10 @@ function ClubInfoTab({
             </button>
           ) : (
             <div className="flex items-center gap-2">
-              <Button size="sm" variant="light" onPress={onCancelRecruitment}>
+              <Button size="sm" variant="ghost" onPress={onCancelRecruitment}>
                 취소
               </Button>
-              <Button size="sm" color="primary" onPress={onSaveRecruitment} isDisabled={isSaving}>
+              <Button size="sm" variant="primary" onPress={onSaveRecruitment} isDisabled={isSaving}>
                 {isSaving ? '저장 중...' : '저장'}
               </Button>
             </div>
@@ -1050,8 +1049,8 @@ function ClubInfoTab({
           <div className="space-y-3">
             <div className="flex justify-between text-sm">
               <span className="text-zinc-500 dark:text-zinc-400">모집 상태</span>
-              <Chip size="sm" color={STATUS_CONFIG[club.recruitmentStatus].color} variant="soft">
-                {STATUS_CONFIG[club.recruitmentStatus].label}
+              <Chip size="sm" color={STATUS_CONFIG[club.recruitmentStatus as RecruitmentStatus].color} variant="soft">
+                {STATUS_CONFIG[club.recruitmentStatus as RecruitmentStatus].label}
               </Chip>
             </div>
             <div className="flex justify-between text-sm">
@@ -1158,10 +1157,10 @@ function ClubInfoTab({
             </button>
           ) : (
             <div className="flex items-center gap-2">
-              <Button size="sm" variant="light" onPress={onCloseAdmins}>
+              <Button size="sm" variant="ghost" onPress={onCloseAdmins}>
                 취소
               </Button>
-              <Button size="sm" color="primary" onPress={onCloseAdmins}>
+              <Button size="sm" variant="primary" onPress={onCloseAdmins}>
                 저장
               </Button>
             </div>
@@ -1363,8 +1362,7 @@ function ClubQnaTab({
                     </button>
                     <Button
                       size="sm"
-                      color="danger"
-                      variant="light"
+                      variant="ghost"
                       onPress={() => handleDeleteClick(qna.id)}
                       isPending={deleteQuestion.isPending}
                     >
@@ -1379,12 +1377,11 @@ function ClubQnaTab({
                         onChange={(e) =>
                           setAnswerTexts((prev) => ({ ...prev, [qna.id]: e.target.value }))
                         }
-                        className="w-full resize-none"
-                        minRows={3}
+                        className="w-full min-h-[4.5rem] resize-none"
                       />
                       <Button
                         size="sm"
-                        color="primary"
+                        variant="primary"
                         onPress={() => handleAnswerSubmit(qna.id)}
                         isPending={createAnswer.isPending}
                         className="w-full"
@@ -1425,8 +1422,7 @@ function ClubQnaTab({
                   </div>
                   <Button
                     size="sm"
-                    color="danger"
-                    variant="light"
+                    variant="ghost"
                     onPress={() => handleDeleteClick(qna.id)}
                     isPending={deleteQuestion.isPending}
                   >
@@ -1470,14 +1466,14 @@ function ClubQnaTab({
             </p>
             <div className="mt-6 flex gap-3">
               <Button
-                variant="light"
+                variant="ghost"
                 className="flex-1"
                 onPress={() => setDeleteModalQuestionId(null)}
               >
                 취소
               </Button>
               <Button
-                color="danger"
+                variant="danger"
                 className="flex-1"
                 onPress={handleDeleteConfirm}
                 isPending={deleteQuestion.isPending}

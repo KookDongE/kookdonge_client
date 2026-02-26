@@ -33,6 +33,8 @@ const CATEGORY_LABEL: Record<ClubCategory, string> = {
 const TYPE_LABEL: Record<ClubType, string> = {
   CENTRAL: '중앙동아리',
   DEPARTMENTAL: '학과동아리',
+  ACADEMIC_SOCIETY: '학술동아리',
+  CLUB: '동아리',
 };
 
 const STATUS_CONFIG: Record<
@@ -398,7 +400,7 @@ function ClubCTA({ clubId }: { clubId: number }) {
       >
         <Button
           className="w-full py-3 text-base font-semibold"
-          color="primary"
+          variant="primary"
           onPress={handleApplyClick}
         >
           동아리 지원
