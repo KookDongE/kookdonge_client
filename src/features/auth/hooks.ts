@@ -8,22 +8,13 @@ import {
   ReissueAccessTokenReq,
 } from '@/types/api';
 
-import { getOrCreateDeviceId } from '@/features/device/device-id';
-import { deviceApi } from '@/features/device/api';
+import { registerDeviceWithBackend } from '@/features/device/register-device';
 
 import { authApi } from './api';
 import { useAuthStore } from './store';
 
 function registerDeviceAfterLogin() {
-  const deviceId = getOrCreateDeviceId();
-  if (!deviceId) return;
-  deviceApi
-    .registerDevice({
-      deviceId,
-      fcmToken: 'web-pending',
-      platform: 'WEB',
-    })
-    .catch(() => {});
+  registerDeviceWithBackend().catch(() => {});
 }
 
 export const authKeys = {
