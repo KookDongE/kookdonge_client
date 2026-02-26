@@ -3,6 +3,37 @@ import { persist } from 'zustand/middleware';
 
 import { UserProfileRes } from '@/types/api';
 
+const AUTH_STORAGE_KEY = 'auth-storage';
+
+/** 재수화 전에 persist가 빈 상태를 써서 토큰을 덮어쓰는 것을 방지합니다. */
+function createAuthStorage() {
+  return {
+    getItem: (name: string): string | null => {
+      if (typeof window === 'undefined') return null;
+      return localStorage.getItem(name);
+    },
+    setItem: (name: string, value: string): void => {
+      if (typeof window === 'undefined') return;
+      try {
+        const next = JSON.parse(value) as { state?: { accessToken?: string | null; refreshToken?: string | null } };
+        const nextToken = next?.state?.accessToken;
+        const currentRaw = localStorage.getItem(name);
+        if (currentRaw && !nextToken) {
+          const current = JSON.parse(currentRaw) as { state?: { accessToken?: string | null } };
+          if (current?.state?.accessToken) return; // 기존 토큰을 빈 값으로 덮어쓰지 않음
+        }
+      } catch {
+        // ignore
+      }
+      localStorage.setItem(name, value);
+    },
+    removeItem: (name: string): void => {
+      if (typeof window === 'undefined') return;
+      localStorage.removeItem(name);
+    },
+  };
+}
+
 /** 로그인 여부는 accessToken 존재 여부로 판단합니다. AuthGuard·API 클라이언트 모두 이 값을 사용합니다. */
 interface AuthState {
   accessToken: string | null;
@@ -37,7 +68,8 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       clearAuth: () => set({ ...DEFAULT_STATE, isInitialized: true }),
     }),
     {
-      name: 'auth-storage',
+      name: AUTH_STORAGE_KEY,
+      storage: createAuthStorage(),
       partialize: (state) => ({
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
