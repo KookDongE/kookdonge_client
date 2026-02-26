@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 
 import { useAuthStore } from './store';
 
-const PUBLIC_PATHS = ['/', '/login', '/welcome', '/callback'];
+const PUBLIC_PATHS = ['/', '/login', '/welcome', '/callback', '/register'];
 
 export function AuthGuard({ children }: { children: ReactNode }) {
   const pathname = usePathname();

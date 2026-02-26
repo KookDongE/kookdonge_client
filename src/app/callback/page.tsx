@@ -68,21 +68,9 @@ function CallbackContent() {
     authSentRef.current = true;
 
     const redirectUri = getRedirectUri();
-    // 백엔드/Google invalid_grant 디버깅용: 브라우저 콘솔에서 전송값 확인
-    console.log('[OAuth] POST /api/auth 전송', {
-      redirectUri: redirectUri || undefined,
-      codeLength: code?.length,
-      codePrefix: code?.slice(0, 20) + (code && code.length > 20 ? '...' : ''),
-    });
     authApi
       .authenticate({ googleGrantCode: code, redirectUri: redirectUri || undefined })
       .then((res) => {
-        if (res.accessToken && res.refreshToken) {
-          setTokens(res.accessToken, res.refreshToken);
-          queryClient.invalidateQueries({ queryKey: authKeys.profile() });
-          registerDeviceAfterLogin();
-        }
-
         if (res.newUser && res.registrationToken) {
           sessionStorage.setItem('kookdonge-registration-token', res.registrationToken);
           if (res.email) sessionStorage.setItem('kookdonge-registration-email', res.email);
@@ -90,12 +78,27 @@ function CallbackContent() {
           return;
         }
 
-        const isFirstLogin =
-          typeof window !== 'undefined' && !localStorage.getItem(WELCOME_SEEN_KEY);
-        const path = isFirstLogin ? '/welcome' : '/home';
-        requestAnimationFrame(() => {
-          router.replace(path);
-        });
+        if (res.accessToken && res.refreshToken) {
+          setTokens(res.accessToken, res.refreshToken);
+          try {
+            localStorage.setItem(
+              'auth-storage',
+              JSON.stringify({
+                state: { accessToken: res.accessToken, refreshToken: res.refreshToken },
+                version: 1,
+              })
+            );
+          } catch {
+            // ignore
+          }
+          queryClient.invalidateQueries({ queryKey: authKeys.profile() });
+          registerDeviceAfterLogin();
+
+          const isFirstLogin =
+            typeof window !== 'undefined' && !localStorage.getItem(WELCOME_SEEN_KEY);
+          const path = isFirstLogin ? '/welcome' : '/home';
+          setTimeout(() => router.replace(path), 200);
+        }
       })
       .catch(() => {
         setStatus('error');

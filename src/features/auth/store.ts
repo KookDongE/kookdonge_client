@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 
 import { UserProfileRes } from '@/types/api';
 
+/** 로그인 여부는 accessToken 존재 여부로 판단합니다. AuthGuard·API 클라이언트 모두 이 값을 사용합니다. */
 interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
