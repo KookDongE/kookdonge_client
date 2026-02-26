@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { useQueryClient } from '@tanstack/react-query';
@@ -27,7 +27,7 @@ function registerDeviceAfterLogin() {
     .catch(() => {});
 }
 
-export default function LoginCallbackPage() {
+function LoginCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
@@ -111,5 +111,22 @@ export default function LoginCallbackPage() {
       <Spinner size="lg" />
       <p className="text-sm text-zinc-500 dark:text-zinc-400">로그인 처리 중...</p>
     </div>
+  );
+}
+
+function CallbackFallback() {
+  return (
+    <div className="flex min-h-dvh flex-col items-center justify-center gap-4">
+      <Spinner size="lg" />
+      <p className="text-sm text-zinc-500 dark:text-zinc-400">로그인 처리 중...</p>
+    </div>
+  );
+}
+
+export default function LoginCallbackPage() {
+  return (
+    <Suspense fallback={<CallbackFallback />}>
+      <LoginCallbackContent />
+    </Suspense>
   );
 }
