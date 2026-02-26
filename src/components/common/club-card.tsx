@@ -92,9 +92,7 @@ export function ClubCard({
                 />
               </>
             ) : (
-              <div className="flex h-full w-full items-center justify-center bg-zinc-200 dark:bg-zinc-700">
-                <span className="text-3xl" aria-hidden>🏠</span>
-              </div>
+              <div className="h-full w-full bg-zinc-200 dark:bg-zinc-700" />
             )}
           </div>
 

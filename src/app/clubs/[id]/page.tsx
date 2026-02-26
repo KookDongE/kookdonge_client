@@ -99,9 +99,7 @@ function ClubHeader({ clubId }: { clubId: number }) {
           {club.image ? (
             <Image src={club.image} alt={club.name} fill className="object-cover" sizes="112px" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-zinc-200 dark:bg-zinc-700">
-              <span className="text-4xl" aria-hidden>🏠</span>
-            </div>
+            <div className="h-full w-full bg-zinc-200 dark:bg-zinc-700" />
           )}
         </div>
         <div className="flex flex-1 flex-col justify-center">

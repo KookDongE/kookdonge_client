@@ -59,9 +59,7 @@ function InterestedClubsContent() {
                       sizes="56px"
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center">
-                      <span className="text-2xl" aria-hidden>🏠</span>
-                    </div>
+                    <div className="h-full w-full bg-zinc-200 dark:bg-zinc-700" />
                   )}
                 </div>
                 <div className="min-w-0 flex-1">

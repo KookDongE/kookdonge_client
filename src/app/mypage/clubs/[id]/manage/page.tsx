@@ -257,9 +257,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
             {club.image ? (
               <Image src={club.image} alt={club.name} fill className="object-cover" sizes="112px" />
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-3xl text-zinc-400 dark:text-zinc-500">
-                🏠
-              </div>
+              <div className="h-full w-full bg-zinc-200 dark:bg-zinc-700" />
             )}
           </div>
           <div className="flex flex-1 flex-col justify-center">
@@ -702,7 +700,7 @@ function ClubInfoTab({
                       {image ? (
                         <Image src={image} alt="프로필" fill className="object-cover" sizes="96px" />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center text-3xl">🏠</div>
+                        <div className="h-full w-full bg-zinc-200 dark:bg-zinc-700" />
                       )}
                       <div className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full bg-blue-500 text-white shadow-md">
                         <svg

@@ -23,17 +23,24 @@ export function getStoredTokens(): { accessToken: string; refreshToken: string }
   }
 }
 
-/** zustand persist 스토리지 규약: getItem은 string | null, setItem은 이미 직렬화된 string을 받음 */
-function createAuthStorage() {
+type PersistedState = { accessToken: string | null; refreshToken: string | null };
+
+/** Zustand v5 PersistStorage: getItem은 StorageValue 객체 반환, setItem은 객체 수신 후 직렬화 저장 */
+function createAuthStorage(): import('zustand/middleware').PersistStorage<PersistedState> {
   return {
-    getItem: (name: string): string | null => {
+    getItem: (name: string): PersistedAuth | null => {
       if (typeof window === 'undefined') return null;
-      return localStorage.getItem(name);
+      try {
+        const raw = localStorage.getItem(name);
+        return raw ? (JSON.parse(raw) as PersistedAuth) : null;
+      } catch {
+        return null;
+      }
     },
-    setItem: (name: string, value: string): void => {
+    setItem: (name: string, value: PersistedAuth): void => {
       if (typeof window === 'undefined') return;
       try {
-        localStorage.setItem(name, value);
+        localStorage.setItem(name, JSON.stringify(value));
       } catch {
         // ignore
       }

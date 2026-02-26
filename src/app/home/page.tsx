@@ -141,9 +141,7 @@ function RankingSection() {
                           />
                         </>
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-zinc-200 dark:bg-zinc-700 rounded-full">
-                          <span className="text-2xl" aria-hidden>🏠</span>
-                        </div>
+                        <div className="h-full w-full rounded-full bg-zinc-200 dark:bg-zinc-700" />
                       )}
                     </div>
 
