@@ -12,8 +12,10 @@ const SPLASH_DURATION_MS = 1800;
 export default function SplashPage() {
   const router = useRouter();
   const accessToken = useAuthStore((s) => s.accessToken);
+  const isInitialized = useAuthStore((s) => s.isInitialized);
 
   useEffect(() => {
+    if (!isInitialized) return;
     const timer = setTimeout(() => {
       if (accessToken) {
         router.replace('/home');
@@ -22,7 +24,7 @@ export default function SplashPage() {
       }
     }, SPLASH_DURATION_MS);
     return () => clearTimeout(timer);
-  }, [accessToken, router]);
+  }, [isInitialized, accessToken, router]);
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center bg-[var(--background)]">
