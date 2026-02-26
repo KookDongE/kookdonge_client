@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { FeedCreatedReq, PresignedUrlListReq } from '@/types/api';
+import { FeedCreatedReq } from '@/types/api';
 
 import { feedApi } from './api';
 
@@ -12,10 +12,10 @@ export const feedKeys = {
   list: (clubId: number) => [...feedKeys.lists(), clubId] as const,
 };
 
-export function useClubFeeds(clubId: number) {
+export function useClubFeeds(clubId: number, page = 0, size = 10) {
   return useQuery({
     queryKey: feedKeys.list(clubId),
-    queryFn: () => feedApi.getClubFeeds(clubId),
+    queryFn: () => feedApi.getClubFeeds(clubId, page, size),
     enabled: !!clubId,
   });
 }
@@ -31,9 +31,10 @@ export function useCreateFeed(clubId: number) {
   });
 }
 
-export function useGetPresignedUrls(clubId: number) {
+/** 피드용 이미지 업로드 (S3 + 등록) 후 uuid/fileUrl 목록 반환 */
+export function useUploadFeedFiles(clubId: number) {
   return useMutation({
-    mutationFn: (data: PresignedUrlListReq) => feedApi.getPresignedUrls(clubId, data),
+    mutationFn: (files: File[]) => feedApi.uploadFeedFiles(clubId, files),
   });
 }
 

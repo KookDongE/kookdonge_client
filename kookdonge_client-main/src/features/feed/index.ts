@@ -1,2 +1,2 @@
 export { feedApi } from './api';
-export { feedKeys, useClubFeeds, useCreateFeed, useGetPresignedUrls } from './hooks';
+export { feedKeys, useClubFeeds, useCreateFeed, useUploadFeedFiles, useDeleteFeed } from './hooks';

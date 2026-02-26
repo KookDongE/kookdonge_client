@@ -27,8 +27,7 @@ import {
 } from '@/features/club/hooks';
 import { usePendingQuestions, useCreateAnswer, useDeleteQuestion } from '@/features/question/hooks';
 import { useQuestions } from '@/features/question/hooks';
-import { useClubFeeds, useDeleteFeed, useGetPresignedUrls } from '@/features/feed/hooks';
-import { uploadFile, uploadFiles } from '@/lib/utils/upload';
+import { useClubFeeds, useDeleteFeed, useUploadFeedFiles } from '@/features/feed/hooks';
 
 const CATEGORY_LABEL: Record<ClubCategory, string> = {
   PERFORMING_ARTS: '공연예술',
@@ -43,6 +42,8 @@ const CATEGORY_LABEL: Record<ClubCategory, string> = {
 const TYPE_LABEL: Record<ClubType, string> = {
   CENTRAL: '중앙동아리',
   DEPARTMENTAL: '학과동아리',
+  ACADEMIC_SOCIETY: '학회',
+  CLUB: '소모임',
 };
 
 const STATUS_CONFIG: Record<
@@ -92,8 +93,9 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   const [isEditingRecruitment, setIsEditingRecruitment] = useState(false);
   const [adminSectionExpanded, setAdminSectionExpanded] = useState(false);
 
-  // 파일 업로드 관련
-  const getPresignedUrls = useGetPresignedUrls(clubId);
+  // 파일 업로드 (프로필/설명 이미지)
+  const uploadFeedFiles = useUploadFeedFiles(clubId);
+  const [profileFileUuid, setProfileFileUuid] = useState<string | null>(null);
 
   // 폼 상태
   const [name, setName] = useState('');
@@ -163,6 +165,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
           location,
           weeklyActiveFrequency,
           allowLeaveOfAbsence,
+          profileFileUuid: profileFileUuid ?? undefined,
         },
       },
       {
@@ -176,8 +179,11 @@ function ClubManageContent({ clubId }: { clubId: number }) {
 
   const handleImageUpload = async (file: File) => {
     try {
-      const url = await uploadFile(file, (data) => getPresignedUrls.mutateAsync(data));
-      setImage(url);
+      const result = await uploadFeedFiles.mutateAsync([file]);
+      if (result[0]) {
+        setImage(result[0].fileUrl);
+        setProfileFileUuid(result[0].uuid);
+      }
     } catch (error) {
       alert('이미지 업로드에 실패했습니다.');
       console.error(error);
@@ -201,8 +207,8 @@ function ClubManageContent({ clubId }: { clubId: number }) {
 
   const handleDescriptionImagesUpload = async (files: File[]) => {
     try {
-      const urls = await uploadFiles(files, (data) => getPresignedUrls.mutateAsync(data));
-      setDescriptionImages([...descriptionImages, ...urls]);
+      const result = await uploadFeedFiles.mutateAsync(files);
+      setDescriptionImages([...descriptionImages, ...result.map((r) => r.fileUrl)]);
     } catch (error) {
       alert('이미지 업로드에 실패했습니다.');
       console.error(error);
@@ -376,7 +382,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
             onManageAdmins={() => setAdminSectionExpanded(true)}
             onCloseAdmins={() => setAdminSectionExpanded(false)}
             // 업로드 상태
-            isUploading={getPresignedUrls.isPending}
+            isUploading={uploadFeedFiles.isPending}
             // 업데이트 상태
             isSaving={updateClub.isPending}
           />

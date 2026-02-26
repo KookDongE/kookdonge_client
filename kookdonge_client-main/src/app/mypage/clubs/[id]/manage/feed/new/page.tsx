@@ -6,39 +6,35 @@ import Image from 'next/image';
 
 import { Spinner } from '@heroui/react';
 
-import { useCreateFeed, useGetPresignedUrls } from '@/features/feed/hooks';
-import { uploadFiles } from '@/lib/utils/upload';
+import { useCreateFeed, useUploadFeedFiles } from '@/features/feed/hooks';
 
 type PageProps = {
   params: Promise<{ id: string }>;
 };
 
+type UploadedFile = { uuid: string; fileUrl: string };
+
 function NewFeedContent({ clubId }: { clubId: number }) {
   const router = useRouter();
   const createFeed = useCreateFeed(clubId);
-  const getPresignedUrls = useGetPresignedUrls(clubId);
+  const uploadFeedFiles = useUploadFeedFiles(clubId);
   const [content, setContent] = useState('');
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
 
   const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
-
-    setIsUploading(true);
     try {
-      const urls = await uploadFiles(files, (data) => getPresignedUrls.mutateAsync(data));
-      setImageUrls([...imageUrls, ...urls]);
+      const result = await uploadFeedFiles.mutateAsync(files);
+      setUploadedFiles((prev) => [...prev, ...result]);
     } catch (error) {
       alert('이미지 업로드에 실패했습니다.');
       console.error(error);
-    } finally {
-      setIsUploading(false);
     }
   };
 
   const handleRemoveImage = (index: number) => {
-    setImageUrls(imageUrls.filter((_, i) => i !== index));
+    setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = () => {
@@ -46,11 +42,11 @@ function NewFeedContent({ clubId }: { clubId: number }) {
       alert('피드 내용을 입력해주세요.');
       return;
     }
-
+    const fileUuids = uploadedFiles.map((f) => f.uuid);
     createFeed.mutate(
       {
         content: content.trim(),
-        postUrls: imageUrls.map((url) => ({ postUrl: url })),
+        fileUuids,
       },
       {
         onSuccess: () => {
@@ -93,12 +89,12 @@ function NewFeedContent({ clubId }: { clubId: number }) {
           onChange={handleImageFileChange}
           className="hidden"
           id="feed-images-upload"
-          disabled={isUploading}
+          disabled={uploadFeedFiles.isPending}
         />
-        {imageUrls.length === 0 ? (
+        {uploadedFiles.length === 0 ? (
           <label htmlFor="feed-images-upload" className="block w-full cursor-pointer">
             <span className="flex aspect-square w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 text-gray-600 transition-colors hover:border-gray-400 hover:bg-gray-100 dark:border-zinc-400 dark:bg-zinc-100 dark:text-zinc-600 dark:hover:border-zinc-500 dark:hover:bg-zinc-200">
-              {isUploading ? (
+              {uploadFeedFiles.isPending ? (
                 <Spinner size="sm" />
               ) : (
                 <>
@@ -119,9 +115,9 @@ function NewFeedContent({ clubId }: { clubId: number }) {
           </label>
         ) : (
           <div className="flex flex-wrap items-center gap-3">
-            {imageUrls.map((url, index) => (
-              <div key={index} className="relative aspect-square w-24 overflow-hidden rounded-xl">
-                <Image src={url} alt="" fill className="object-cover" sizes="96px" />
+            {uploadedFiles.map((f, index) => (
+              <div key={f.uuid} className="relative aspect-square w-24 overflow-hidden rounded-xl">
+                <Image src={f.fileUrl} alt="" fill className="object-cover" sizes="96px" />
                 <button
                   type="button"
                   onClick={() => handleRemoveImage(index)}
@@ -142,7 +138,7 @@ function NewFeedContent({ clubId }: { clubId: number }) {
             ))}
             <label htmlFor="feed-images-upload">
               <span className="inline-flex cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-4 transition-colors hover:border-gray-400 hover:bg-gray-100 dark:border-zinc-300 dark:bg-zinc-100 dark:hover:border-zinc-400 dark:hover:bg-zinc-200">
-                {isUploading ? <Spinner size="sm" /> : <span className="text-2xl text-gray-400 dark:text-zinc-500">+</span>}
+                {uploadFeedFiles.isPending ? <Spinner size="sm" /> : <span className="text-2xl text-gray-400 dark:text-zinc-500">+</span>}
               </span>
             </label>
           </div>

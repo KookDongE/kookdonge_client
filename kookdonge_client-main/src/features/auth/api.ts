@@ -1,52 +1,50 @@
+import { apiClient } from '@/lib/api';
 import {
+  CompleteRegistrationReq,
   LoginReq,
-  LoginRes,
-  RegisterUserReq,
-  RegisterUserRes,
+  LogoutReq,
+  OAuthRes,
   ReissueAccessTokenReq,
   ReissueAccessTokenRes,
   UserProfileRes,
 } from '@/types/api';
 
-const DUMMY_PROFILE: UserProfileRes = {
-  externalUserId: 'dummy-user-id',
-  email: 'dummy@kookmin.ac.kr',
-  studentId: '20230001',
-  phoneNumber: '010-0000-0000',
-  department: '컴퓨터공학부',
-  clubId: 1,
-};
-
 export const authApi = {
-  login: async (_data: LoginReq): Promise<LoginRes> => {
-    return {
-      externalUserId: DUMMY_PROFILE.externalUserId,
-      email: DUMMY_PROFILE.email,
-      studentId: DUMMY_PROFILE.studentId,
-      phoneNumber: DUMMY_PROFILE.phoneNumber,
-      department: DUMMY_PROFILE.department,
-      accessToken: 'dummy-access-token',
-      refreshToken: 'dummy-refresh-token',
-    };
+  /** OAuth 인증 (Google Grant Code) - 신규 사용자면 newUser + registrationToken, 기존 사용자면 accessToken + refreshToken */
+  authenticate: async (data: LoginReq): Promise<OAuthRes> => {
+    return apiClient<OAuthRes>('/api/auth', {
+      method: 'POST',
+      body: { googleGrantCode: data.googleGrantCode },
+    });
   },
 
-  register: async (_data: RegisterUserReq): Promise<RegisterUserRes> => {
-    return {
-      externalUserId: DUMMY_PROFILE.externalUserId,
-      email: DUMMY_PROFILE.email,
-      studentId: DUMMY_PROFILE.studentId,
-      phoneNumber: DUMMY_PROFILE.phoneNumber,
-      department: DUMMY_PROFILE.department,
-      accessToken: 'dummy-access-token',
-      refreshToken: 'dummy-refresh-token',
-    };
+  /** 회원가입 완료 (추가 정보 입력) - registrationToken 필수 */
+  completeRegistration: async (data: CompleteRegistrationReq): Promise<OAuthRes> => {
+    return apiClient<OAuthRes>('/api/auth/register', {
+      method: 'POST',
+      body: data,
+    });
   },
 
-  reissueToken: async (_data: ReissueAccessTokenReq): Promise<ReissueAccessTokenRes> => {
-    return { accessToken: 'dummy-access-token' };
+  reissueToken: async (data: ReissueAccessTokenReq): Promise<ReissueAccessTokenRes> => {
+    return apiClient<ReissueAccessTokenRes>('/api/auth/reissue', {
+      method: 'POST',
+      body: data,
+    });
+  },
+
+  logout: async (data: LogoutReq): Promise<void> => {
+    return apiClient<void>('/api/auth/logout', {
+      method: 'POST',
+      body: data,
+    });
   },
 
   getMyProfile: async (): Promise<UserProfileRes> => {
-    return DUMMY_PROFILE;
+    return apiClient<UserProfileRes>('/api/users/me');
+  },
+
+  withdraw: async (): Promise<void> => {
+    return apiClient<void>('/api/users/me', { method: 'DELETE' });
   },
 };

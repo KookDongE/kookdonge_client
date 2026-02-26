@@ -48,7 +48,7 @@ function ApplicationManagementTab({
       </div>
       <div className="space-y-4 p-4">
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-gray-200 bg-white py-12 text-gray-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-white py-12 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
           <p>{q?.trim() ? '검색 결과가 없습니다.' : '대기 중인 신청이 없습니다.'}</p>
         </div>
       ) : (
@@ -169,7 +169,7 @@ function AdminSettingsTab() {
           현재 시스템 관리자 목록
         </label>
         {systemAdmins.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-xl border border-gray-200 bg-white py-12 text-gray-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
+          <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-white py-12 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
             <p>시스템 관리자가 없습니다.</p>
           </div>
         ) : (
@@ -177,7 +177,7 @@ function AdminSettingsTab() {
             {systemAdmins.map((email) => (
               <div
                 key={email}
-                className="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
+                className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
               >
                 <span className="text-sm font-medium text-gray-900 dark:text-zinc-100">{email}</span>
                 <Button
@@ -226,7 +226,7 @@ export default function AdminPage() {
   }`;
 
   return (
-    <div className="bg-white dark:bg-white min-h-screen pb-20">
+    <div className="min-h-screen bg-white pb-20 dark:bg-zinc-900">
       <Tabs
         selectedKey={tab || 'applications'}
         onSelectionChange={(key) => setTab(key as string)}

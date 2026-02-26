@@ -14,6 +14,7 @@ import { ClubType } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
 import { useAuthStore } from '@/features/auth/store';
 import { useMyWaitingList } from '@/features/waiting-list/hooks';
+import { useInterestedStore } from '@/features/club/interested-store';
 import { useManagedClubs, useLikedClubs, useMyApplications } from '@/features/club/hooks';
 import { usePendingQuestions } from '@/features/question/hooks';
 
@@ -498,6 +499,78 @@ function LikedClubsSection() {
   );
 }
 
+function InterestedClubsSection() {
+  const interestedClubs = useInterestedStore((s) => s.getList());
+
+  return (
+    <div className="px-4 py-5">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">관심 동아리</h3>
+        <Link
+          href="/mypage/interested"
+          className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+        >
+          전체보기
+        </Link>
+      </div>
+      {interestedClubs.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-12 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
+          <p>관심 동아리가 없습니다.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {interestedClubs.slice(0, PREVIEW_LIMIT).map((club) => (
+            <Link
+              key={club.id}
+              href={`/clubs/${club.id}`}
+              className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
+            >
+              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
+                {club.logoImage ? (
+                  <Image
+                    src={club.logoImage}
+                    alt={club.name}
+                    fill
+                    className="object-cover"
+                    sizes="56px"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-2xl text-zinc-400 dark:text-zinc-500">
+                    🏠
+                  </div>
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
+                  {club.name}
+                </h4>
+                <div className="mt-1 flex items-center gap-2">
+                  <Chip size="sm" color="accent" variant="soft">
+                    {TYPE_LABEL[club.type]}
+                  </Chip>
+                </div>
+              </div>
+              <svg
+                className="h-5 w-5 text-zinc-400 dark:text-zinc-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ClubApplyButton() {
   const router = useRouter();
 
@@ -631,6 +704,7 @@ export default function MyPage() {
       <PendingQuestionsSection />
       <WaitingListSection />
       <LikedClubsSection />
+      <InterestedClubsSection />
       <AdminSection />
       <MyApplicationsSection />
       <ClubApplyButton />

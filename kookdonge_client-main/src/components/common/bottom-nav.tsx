@@ -8,8 +8,6 @@ import { motion } from 'framer-motion';
 
 import { useAuthStore } from '@/features/auth/store';
 
-const HIDDEN_PATHS = ['/login', '/register'];
-
 type NavItem = {
   href: string;
   label: string;
@@ -20,16 +18,11 @@ const HomeIcon = ({ active }: { active: boolean }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
-    fill={active ? 'currentColor' : 'none'}
-    stroke="currentColor"
-    strokeWidth={active ? 0 : 1.5}
+    fill="currentColor"
     className="h-6 w-6"
   >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
-    />
+    {/* 집 형태 단일 경로 (지붕+몸통 채움) */}
+    <path d="M12 2L2 12h3v10h6v-6h2v6h6V12h3L12 2z" />
   </svg>
 );
 
@@ -69,7 +62,7 @@ const AdminIcon = ({ active }: { active: boolean }) => (
 
 const NAV_ITEMS: NavItem[] = [
   {
-    href: '/',
+    href: '/home',
     label: '홈',
     icon: (active) => <HomeIcon active={active} />,
   },
@@ -89,12 +82,15 @@ export function BottomNav() {
   // 임시: 관리자 권한 체크 (실제로는 서버에서 받아온 user.role === 'ADMIN' 등으로 확인)
   const isAdmin = true; // TODO: 실제 권한 체크로 교체
 
-  if (HIDDEN_PATHS.some((path) => pathname === path || pathname.startsWith(path))) {
-    return null;
-  }
+  const isHidden =
+    pathname === '/' ||
+    pathname === '/login' ||
+    pathname.startsWith('/login/') ||
+    pathname === '/welcome' ||
+    pathname.startsWith('/welcome/');
 
   const isActive = (href: string) => {
-    if (href === '/') return pathname === '/';
+    if (href === '/home') return pathname === '/home';
     if (href.includes('?')) return false;
     return pathname.startsWith(href);
   };
@@ -113,8 +109,9 @@ export function BottomNav() {
       : []),
   ];
 
-  // 활성 링크의 위치 계산
+  // 활성 링크의 위치 계산 (훅은 조건부 return 이전에 항상 호출)
   useEffect(() => {
+    if (isHidden) return;
     const activeIndex = allNavItems.findIndex((item) => isActive(item.href));
     if (activeIndex !== -1 && linkRefs.current[activeIndex]) {
       const linkElement = linkRefs.current[activeIndex];
@@ -128,7 +125,9 @@ export function BottomNav() {
         }
       }
     }
-  }, [pathname, isAdmin]);
+  }, [pathname, isAdmin, isHidden]);
+
+  if (isHidden) return null;
 
   // 피드 페이지에서는 더 선명한 네비게이션 바
   const isFeedPage = pathname.includes('/feed');

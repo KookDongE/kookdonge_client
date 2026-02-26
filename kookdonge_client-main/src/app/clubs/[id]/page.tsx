@@ -9,6 +9,7 @@ import { parseAsString, useQueryState } from 'nuqs';
 
 import { ClubCategory, ClubType, RecruitmentStatus } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
+import { useInterestedStore } from '@/features/club/interested-store';
 import { useClubDetail, useLikeClub, useUnlikeClub } from '@/features/club/hooks';
 import { useClubFeeds } from '@/features/feed/hooks';
 import { useCreateQuestion, useQuestions } from '@/features/question/hooks';
@@ -55,6 +56,11 @@ function ClubHeader({ clubId }: { clubId: number }) {
   const { data: club, isLoading } = useClubDetail(clubId);
   const likeClub = useLikeClub();
   const unlikeClub = useUnlikeClub();
+  const interestedClubs = useInterestedStore((s) => s.clubs);
+  const add = useInterestedStore((s) => s.add);
+  const remove = useInterestedStore((s) => s.remove);
+
+  const isInterestedByMe = interestedClubs.some((c) => c.id === clubId);
 
   if (isLoading || !club) {
     return (
@@ -73,6 +79,19 @@ function ClubHeader({ clubId }: { clubId: number }) {
       unlikeClub.mutate(clubId);
     } else {
       likeClub.mutate(clubId);
+    }
+  };
+
+  const handleInterestedToggle = () => {
+    if (isInterestedByMe) {
+      remove(clubId);
+    } else {
+      add({
+        id: club.id,
+        name: club.name,
+        logoImage: club.image ?? '',
+        type: club.type,
+      });
     }
   };
 
@@ -103,7 +122,7 @@ function ClubHeader({ clubId }: { clubId: number }) {
           </p>
         </div>
       </div>
-      <div className="mt-5 flex gap-3">
+      <div className="mt-5 flex gap-2">
         <button
           type="button"
           onClick={handleLikeToggle}
@@ -121,6 +140,25 @@ function ClubHeader({ clubId }: { clubId: number }) {
             className={`text-xs ${club.isLikedByMe ? 'text-red-100' : 'text-zinc-500 dark:text-zinc-400'}`}
           >
             좋아요
+          </div>
+        </button>
+        <button
+          type="button"
+          onClick={handleInterestedToggle}
+          className={`flex-1 rounded-xl py-3 text-center transition-colors ${
+            isInterestedByMe ? 'bg-amber-500 dark:bg-amber-600' : 'bg-amber-50 dark:bg-amber-950/30'
+          }`}
+          title="관심 동아리"
+        >
+          <div
+            className={`text-xl font-bold ${isInterestedByMe ? 'text-white' : 'text-amber-600 dark:text-amber-400'}`}
+          >
+            {isInterestedByMe ? '★' : '☆'}
+          </div>
+          <div
+            className={`text-xs ${isInterestedByMe ? 'text-amber-100' : 'text-zinc-500 dark:text-zinc-400'}`}
+          >
+            관심
           </div>
         </button>
         <div className="flex-1 rounded-xl bg-blue-50 py-3 text-center dark:bg-blue-950/30">

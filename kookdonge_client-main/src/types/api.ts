@@ -37,7 +37,7 @@ export type ClubCategory =
   | 'PHYSICAL_MARTIAL_ARTS'
   | 'ACADEMIC';
 
-export type ClubType = 'CENTRAL' | 'DEPARTMENTAL';
+export type ClubType = 'CENTRAL' | 'DEPARTMENTAL' | 'ACADEMIC_SOCIETY' | 'CLUB';
 
 export type RecruitmentStatus = 'RECRUITING' | 'SCHEDULED' | 'CLOSED';
 
@@ -78,15 +78,39 @@ export type ReissueAccessTokenReq = {
 
 export type ReissueAccessTokenRes = {
   accessToken: string;
+  refreshToken: string;
 };
 
-export type UserProfileRes = {
-  externalUserId: string;
-  email: string;
+/** OAuth 인증 응답 (로그인/회원가입 진입) */
+export type OAuthRes = {
+  newUser: boolean;
+  email?: string;
+  registrationToken?: string;
+  accessToken?: string;
+  refreshToken?: string;
+};
+
+/** 회원가입 완료 요청 (추가 정보) */
+export type CompleteRegistrationReq = {
+  registrationToken: string;
+  name: string;
+  department: string;
   studentId: string;
   phoneNumber: string;
-  department: string;
+};
+
+export type LogoutReq = { refreshToken: string };
+
+export type UserProfileRes = {
+  externalUserId?: string;
+  name?: string;
+  email: string;
+  studentId?: string;
+  phoneNumber?: string;
+  department?: string;
   clubId?: number;
+  /** 관리 권한이 있는 동아리 ID 목록 */
+  managedClubIds?: number[];
 };
 
 export type ClubListRes = {
@@ -111,7 +135,9 @@ export type ClubDetailRes = {
   targetGraduate: string;
   leaderName: string;
   location: string;
-  weeklyActiveFrequency: number;
+  /** API는 weeklyActivity(string), 호환용 number */
+  weeklyActiveFrequency?: number;
+  weeklyActivity?: string;
   recruitmentStatus: RecruitmentStatus;
   recruitmentStartDate: string;
   recruitmentEndDate: string;
@@ -120,11 +146,9 @@ export type ClubDetailRes = {
   isLikedByMe: boolean;
   description: string;
   content: string;
-  /** 상세 설명에 첨부된 이미지 URL 목록 */
   descriptionImages?: string[];
   category: ClubCategory;
   allowLeaveOfAbsence: boolean;
-  /** 동아리 지원 외부 링크 */
   recruitmentUrl?: string;
 };
 
@@ -142,14 +166,34 @@ export type ClubRankingRes = {
   dday: number;
 };
 
+export type College =
+  | 'GLOBAL_HUMANITIES'
+  | 'SOCIAL_SCIENCE'
+  | 'LAW'
+  | 'ECONOMICS'
+  | 'BUSINESS'
+  | 'INDEPENDENT'
+  | 'ENGINEERING'
+  | 'SOFTWARE'
+  | 'AUTOMOTIVE'
+  | 'SCIENCE'
+  | 'ARCHITECTURE'
+  | 'DESIGN'
+  | 'ARTS'
+  | 'PHYSICAL_EDUCATION';
+
 export type ClubListParams = {
   category?: ClubCategory;
   type?: ClubType;
+  college?: College;
   recruitmentStatus?: RecruitmentStatus;
   targetGraduate?: number;
-  weeklyActiveFrequency?: number;
+  isLeaveOfAbsenceActive?: boolean;
   query?: string;
-  pageable: Pageable;
+  page?: number;
+  size?: number;
+  sort?: string;
+  pageable?: Pageable;
 };
 
 export type ClubInWaitingListDto = {
@@ -168,11 +212,20 @@ export type ClubFeedRes = {
 
 export type ClubFeedListRes = {
   clubFeedList: ClubFeedRes[];
+  currentPage?: number;
+  totalPages?: number;
+  totalElements?: number;
+  hasNext?: boolean;
+};
+
+export type FeedUpdateReq = {
+  content: string;
+  fileUuids?: string[] | null;
 };
 
 export type FeedCreatedReq = {
   content: string;
-  postUrls: { postUrl: string }[];
+  fileUuids: string[];
 };
 
 export type PresignedUrlReq = {
@@ -184,9 +237,35 @@ export type PresignedUrlListReq = {
 };
 
 export type PresignedUrlRes = {
+  uuid?: string;
   presignedUrl: string;
   fileUrl: string;
   s3Key: string;
+};
+
+/** 단일 파일 Presigned URL 응답 (스웨거) */
+export type PresignedUrlResponse = {
+  uuid: string;
+  presignedUrl: string;
+  fileUrl: string;
+  s3Key: string;
+};
+
+export type FileUploadCompleteRequest = {
+  uuid: string;
+  fileName: string;
+  fileSize: number;
+  extension: string;
+};
+
+export type FileInfoResponse = {
+  fileId: number;
+  uuid: string;
+  fileName: string;
+  extension: string;
+  fileSize: number;
+  fileUrl: string;
+  domainType?: string;
 };
 
 export type PresignedUrlListRes = {
@@ -195,7 +274,6 @@ export type PresignedUrlListRes = {
 
 export type QuestionCreateReq = {
   question: string;
-  userName: string;
 };
 
 export type AnswerCreateReq = {
@@ -207,8 +285,9 @@ export type QuestionAnswerRes = {
   createdAt: string;
   question: string;
   answer?: string;
-  userId: number;
-  userName: string;
+  answeredBy?: string;
+  userId?: number;
+  userName?: string;
 };
 
 export type ClubApplyReq = {
@@ -259,4 +338,62 @@ export type MyApplicationItem = {
   createdAt: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   rejectionReason?: string;
+};
+
+/** 좋아요 토글 응답 */
+export type ClubLikeRes = { liked: boolean };
+
+/** 알림 단건 */
+export type NotificationRes = {
+  id: number;
+  type: string;
+  title: string;
+  message: string;
+  redirectUrl?: string;
+  clubId?: number;
+  isRead: boolean;
+  createdAt: string;
+};
+
+/** 알림 목록 응답 */
+export type NotificationListRes = {
+  notifications: NotificationRes[];
+  hasNext: boolean;
+  page: number;
+  size: number;
+};
+
+export type UnreadCountRes = { unreadCount: number };
+
+export type DeviceRegisterReq = {
+  deviceId: string;
+  fcmToken: string;
+  platform: 'WEB' | 'ANDROID' | 'IOS';
+};
+
+export type NotificationSettingReq = { notificationEnabled: boolean };
+export type NotificationSettingRes = { notificationEnabled: boolean };
+
+/** 동아리 생성 신청 요청 */
+export type ClubCreationReq = {
+  clubName: string;
+  clubType: ClubType;
+  category: ClubCategory;
+  college?: string;
+  description?: string;
+};
+
+/** 동아리 생성 신청 응답 */
+export type ClubCreationRequestRes = {
+  requestId: number;
+  userId?: number;
+  clubName: string;
+  clubType: ClubType;
+  category: ClubCategory;
+  college?: string;
+  description?: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  rejectionReason?: string;
+  createdAt: string;
+  updatedAt?: string;
 };

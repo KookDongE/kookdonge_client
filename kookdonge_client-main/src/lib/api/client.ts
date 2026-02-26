@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import { ResponseDTO } from '@/types/api';
 import { useAuthStore } from '@/features/auth/store';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.kookdonge.co.kr';
 
 type RequestOptions<TBody = unknown> = {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
