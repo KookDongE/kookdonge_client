@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { UserProfileRes } from '@/types/api';
 
@@ -23,33 +23,16 @@ export function getStoredTokens(): { accessToken: string; refreshToken: string }
   }
 }
 
-type PersistedState = { accessToken: string | null; refreshToken: string | null };
-
-/** Zustand v5 PersistStorage: getItem은 StorageValue 객체 반환, setItem은 객체 수신 후 직렬화 저장 */
-function createAuthStorage(): import('zustand/middleware').PersistStorage<PersistedState> {
-  return {
-    getItem: (name: string): PersistedAuth | null => {
-      if (typeof window === 'undefined') return null;
-      try {
-        const raw = localStorage.getItem(name);
-        return raw ? (JSON.parse(raw) as PersistedAuth) : null;
-      } catch {
-        return null;
-      }
-    },
-    setItem: (name: string, value: PersistedAuth): void => {
-      if (typeof window === 'undefined') return;
-      try {
-        localStorage.setItem(name, JSON.stringify(value));
-      } catch {
-        // ignore
-      }
-    },
-    removeItem: (name: string): void => {
-      if (typeof window === 'undefined') return;
-      localStorage.removeItem(name);
-    },
-  };
+/** SSR 시 localStorage 없음 처리. 클라이언트에서는 createJSONStorage가 직렬화/역직렬화 담당 */
+function getAuthStorage() {
+  if (typeof window === 'undefined') {
+    return {
+      getItem: () => null,
+      setItem: () => {},
+      removeItem: () => {},
+    };
+  }
+  return localStorage;
 }
 
 /** 로그인 여부는 accessToken 존재 여부로 판단합니다. AuthGuard·API 클라이언트 모두 이 값을 사용합니다. */
@@ -96,7 +79,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
     }),
     {
       name: AUTH_STORAGE_KEY,
-      storage: createAuthStorage(),
+      storage: createJSONStorage(getAuthStorage),
       partialize: (state) => ({
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
