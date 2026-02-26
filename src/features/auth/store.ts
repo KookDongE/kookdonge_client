@@ -41,6 +41,9 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
       }),
+      onRehydrateStorage: () => (state) => {
+        state?.setInitialized(true);
+      },
     }
   )
 );

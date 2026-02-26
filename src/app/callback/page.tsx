@@ -92,7 +92,10 @@ function CallbackContent() {
 
         const isFirstLogin =
           typeof window !== 'undefined' && !localStorage.getItem(WELCOME_SEEN_KEY);
-        router.replace(isFirstLogin ? '/welcome' : '/home');
+        const path = isFirstLogin ? '/welcome' : '/home';
+        requestAnimationFrame(() => {
+          router.replace(path);
+        });
       })
       .catch(() => {
         setStatus('error');
