@@ -16,12 +16,11 @@ function getClientId(): string {
   return process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '';
 }
 
-/** 앱의 Google OAuth 콜백 URL. Google Cloud Console·백엔드와 동일해야 함 (예: https://kookdonge.vercel.app/callback) */
+/** 앱의 Google OAuth 콜백 URL. Google Cloud Console·백엔드와 동일해야 함 (백엔드 등록: https://www.kookdonge.co.kr/callback) */
+const OAUTH_REDIRECT_URI = 'https://www.kookdonge.co.kr/callback';
+
 export function getRedirectUri(): string {
-  if (typeof window !== 'undefined') {
-    return `${window.location.origin}/callback`;
-  }
-  return '';
+  return OAUTH_REDIRECT_URI;
 }
 
 /** CSRF용 state 랜덤 문자열 생성 */
