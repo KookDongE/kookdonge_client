@@ -33,8 +33,9 @@ function RankingSection() {
   const [imageLoaded, setImageLoaded] = useState<Record<number, boolean>>({});
   const [imageError, setImageError] = useState<Record<number, boolean>>({});
 
-  // 데스크톱: 터치스크린처럼 드래그로 가로 스크롤
+  // 데스크톱: 터치스크린처럼 드래그로 가로 스크롤 (실제로 드래그했을 때만 링크 클릭 방지)
   const isDraggingRef = useRef(false);
+  const didMoveRef = useRef(false);
   const didDragThisSessionRef = useRef(false);
   const startXRef = useRef(0);
   const scrollLeftRef = useRef(0);
@@ -43,6 +44,7 @@ function RankingSection() {
     const el = rankingScrollRef.current;
     if (!el) return;
     isDraggingRef.current = true;
+    didMoveRef.current = false;
     startXRef.current = e.pageX;
     scrollLeftRef.current = el.scrollLeft;
     el.style.cursor = 'grabbing';
@@ -52,6 +54,7 @@ function RankingSection() {
   const onRankingMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = rankingScrollRef.current;
     if (!el || !isDraggingRef.current) return;
+    didMoveRef.current = true;
     e.preventDefault();
     const walk = e.pageX - startXRef.current;
     el.scrollLeft = scrollLeftRef.current - walk;
@@ -60,8 +63,9 @@ function RankingSection() {
   const onRankingMouseUpLeave = () => {
     const el = rankingScrollRef.current;
     if (!el) return;
-    if (isDraggingRef.current) didDragThisSessionRef.current = true;
+    if (didMoveRef.current) didDragThisSessionRef.current = true;
     isDraggingRef.current = false;
+    didMoveRef.current = false;
     el.style.cursor = 'grab';
     el.style.userSelect = '';
   };
