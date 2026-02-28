@@ -1,12 +1,12 @@
 'use client';
 
 import { Suspense, use, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 import { Spinner } from '@heroui/react';
 
-import { useCreateFeed, useUploadFeedFiles } from '@/features/feed/hooks';
+import { useCreateFeed, useImageUpload } from '@/features/feed/hooks';
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -17,7 +17,7 @@ type UploadedFile = { uuid: string; fileUrl: string };
 function NewFeedContent({ clubId }: { clubId: number }) {
   const router = useRouter();
   const createFeed = useCreateFeed(clubId);
-  const uploadFeedFiles = useUploadFeedFiles(clubId);
+  const { uploadImages, isLoading: isUploading, error: uploadError } = useImageUpload(clubId);
   const [content, setContent] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
 
@@ -25,10 +25,11 @@ function NewFeedContent({ clubId }: { clubId: number }) {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
     try {
-      const result = await uploadFeedFiles.mutateAsync(files);
+      const result = await uploadImages(files);
       setUploadedFiles((prev) => [...prev, ...result]);
     } catch (error) {
-      alert('이미지 업로드에 실패했습니다.');
+      const message = error instanceof Error ? error.message : '이미지 업로드에 실패했습니다.';
+      alert(message);
       console.error(error);
     }
   };
@@ -84,17 +85,22 @@ function NewFeedContent({ clubId }: { clubId: number }) {
         {/* 이미지 추가 버튼만 */}
         <input
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
           multiple
           onChange={handleImageFileChange}
           className="hidden"
           id="feed-images-upload"
-          disabled={uploadFeedFiles.isPending}
+          disabled={isUploading}
         />
+        {uploadError && (
+          <p className="text-sm text-red-600 dark:text-red-400">
+            {uploadError instanceof Error ? uploadError.message : '업로드 오류'}
+          </p>
+        )}
         {uploadedFiles.length === 0 ? (
           <label htmlFor="feed-images-upload" className="block w-full cursor-pointer">
             <span className="flex aspect-square w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 text-gray-600 transition-colors hover:border-gray-400 hover:bg-gray-100 dark:border-zinc-400 dark:bg-zinc-100 dark:text-zinc-600 dark:hover:border-zinc-500 dark:hover:bg-zinc-200">
-              {uploadFeedFiles.isPending ? (
+              {isUploading ? (
                 <Spinner size="sm" />
               ) : (
                 <>
@@ -121,7 +127,7 @@ function NewFeedContent({ clubId }: { clubId: number }) {
                 <button
                   type="button"
                   onClick={() => handleRemoveImage(index)}
-                  className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
+                  className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -138,7 +144,11 @@ function NewFeedContent({ clubId }: { clubId: number }) {
             ))}
             <label htmlFor="feed-images-upload">
               <span className="inline-flex cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-4 transition-colors hover:border-gray-400 hover:bg-gray-100 dark:border-zinc-300 dark:bg-zinc-100 dark:hover:border-zinc-400 dark:hover:bg-zinc-200">
-                {uploadFeedFiles.isPending ? <Spinner size="sm" /> : <span className="text-2xl text-gray-400 dark:text-zinc-500">+</span>}
+                {isUploading ? (
+                  <Spinner size="sm" />
+                ) : (
+                  <span className="text-2xl text-gray-400 dark:text-zinc-500">+</span>
+                )}
               </span>
             </label>
           </div>
@@ -150,7 +160,7 @@ function NewFeedContent({ clubId }: { clubId: number }) {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           rows={8}
-          className="w-full min-h-[150px] resize-none rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-200 dark:bg-white dark:text-zinc-900 dark:placeholder-zinc-500"
+          className="min-h-[150px] w-full resize-none rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-200 dark:bg-white dark:text-zinc-900 dark:placeholder-zinc-500"
         />
       </div>
     </div>

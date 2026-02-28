@@ -75,8 +75,8 @@ export function ClubCard({
       whileTap={disableLink ? undefined : { scale: 0.98 }}
       className={`flex overflow-hidden rounded-2xl border border-zinc-100 bg-[var(--card)] dark:border-zinc-800 ${!disableLink ? 'card-hover' : ''}`}
     >
-      {/* Image Section */}
-      <div className="club-logo-wrap relative h-28 w-28 shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800">
+      {/* Image Section - 앱 뷰 라이트 모드에서 밝게 보이도록 라이트 전용 */}
+      <div className="club-logo-wrap relative h-28 w-28 shrink-0 overflow-hidden bg-zinc-100">
         {club.logoImage ? (
           <>
             {!imageLoaded && <div className="skeleton absolute inset-0" />}
@@ -92,7 +92,7 @@ export function ClubCard({
             />
           </>
         ) : (
-          <div className="club-logo-placeholder h-full w-full bg-zinc-200 dark:bg-zinc-700" />
+          <div className="club-logo-placeholder h-full w-full bg-zinc-200" />
         )}
       </div>
 

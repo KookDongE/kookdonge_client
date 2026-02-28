@@ -127,8 +127,8 @@ function RankingSection() {
                       {index + 1}
                     </div>
 
-                    {/* Avatar */}
-                    <div className="club-logo-placeholder relative mb-2 h-14 w-14 overflow-hidden rounded-full bg-zinc-200 ring-2 ring-blue-400/30 dark:bg-zinc-700 dark:ring-lime-400/30">
+                    {/* Avatar - 앱 뷰 라이트 모드에서 밝게 보이도록 라이트 전용 */}
+                    <div className="club-logo-placeholder relative mb-2 h-14 w-14 overflow-hidden rounded-full bg-zinc-200 ring-2 ring-blue-400/30">
                       {club.logoImage && !imageError[club.id] ? (
                         <>
                           {!imageLoaded[club.id] && (
@@ -147,7 +147,7 @@ function RankingSection() {
                           />
                         </>
                       ) : (
-                        <div className="h-full w-full rounded-full bg-zinc-200 dark:bg-zinc-700" />
+                        <div className="h-full w-full rounded-full bg-zinc-200" />
                       )}
                     </div>
 

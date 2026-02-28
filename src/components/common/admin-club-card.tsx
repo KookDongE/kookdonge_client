@@ -123,7 +123,7 @@ export function AdminClubCard({
           disableLink={true}
           drag="x"
           dragConstraints={{ left: -120, right: 0 }}
-          dragElastic={0.1}
+          dragElastic={0}
           onDragStart={handleDragStart}
           onDrag={handleDrag}
           onDragEnd={handleDragEnd}
