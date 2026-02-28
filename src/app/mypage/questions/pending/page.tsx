@@ -1,7 +1,6 @@
 'use client';
 
 import { Suspense } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { Chip, Spinner } from '@heroui/react';
@@ -85,18 +84,6 @@ function PendingListContent() {
 function PendingPageContent() {
   return (
     <div className="pb-6">
-      <div className="flex items-center gap-2 px-4 pt-3 pb-1">
-        <Link
-          href="/mypage"
-          className="flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-        >
-          <span className="inline-block h-4 w-4">←</span>
-          <span>뒤로가기</span>
-        </Link>
-      </div>
-      <div className="px-4 py-4">
-        <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">답변 목록</h1>
-      </div>
       <div className="px-4">
         <PendingListContent />
       </div>

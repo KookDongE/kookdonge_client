@@ -128,7 +128,7 @@ export default function SettingsPage() {
 
       {/* WINK 푸터: 로고 + 주소·저작권 */}
       <footer className="mt-20 flex flex-col items-center justify-center px-4 pt-6 pb-8 text-center">
-        <div className="relative mb-4 h-10 w-32">
+        <div className="relative mb-4 h-[60px] w-48">
           <Image
             src="/images/wink-logo.png"
             alt="WINK"
