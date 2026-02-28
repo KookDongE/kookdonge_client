@@ -118,23 +118,41 @@ function RankingSection() {
         <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100">이번 주 인기</span>
         <div className="flex items-center gap-2">
           {/* Tab Buttons */}
-          <div className="flex gap-1 rounded-full bg-zinc-100 p-1 dark:bg-zinc-800">
+          <div
+            className="flex gap-1 rounded-full bg-zinc-100 p-1 dark:bg-zinc-800"
+            role="tablist"
+            aria-label="인기 순위 기준"
+          >
             <button
-              onClick={() => setActiveTab('view')}
-              className={`rounded-full px-3 py-1 text-xs font-semibold transition-all ${
+              type="button"
+              role="tab"
+              aria-pressed={activeTab === 'view'}
+              aria-selected={activeTab === 'view'}
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveTab('view');
+              }}
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition-all outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 ${
                 activeTab === 'view'
-                  ? 'bg-blue-500 text-white dark:bg-lime-400 dark:text-zinc-900'
-                  : 'text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200'
+                  ? '!bg-blue-500 !text-white dark:!bg-lime-400 dark:!text-zinc-900'
+                  : '!bg-transparent text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200'
               }`}
             >
               조회수
             </button>
             <button
-              onClick={() => setActiveTab('like')}
-              className={`rounded-full px-3 py-1 text-xs font-semibold transition-all ${
+              type="button"
+              role="tab"
+              aria-pressed={activeTab === 'like'}
+              aria-selected={activeTab === 'like'}
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveTab('like');
+              }}
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition-all outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 ${
                 activeTab === 'like'
-                  ? 'bg-blue-500 text-white dark:bg-lime-400 dark:text-zinc-900'
-                  : 'text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200'
+                  ? '!bg-blue-500 !text-white dark:!bg-lime-400 dark:!text-zinc-900'
+                  : '!bg-transparent text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200'
               }`}
             >
               좋아요

@@ -394,7 +394,7 @@ function ClubQnaTab({ clubId }: { clubId: number }) {
               </div>
             </div>
             {qna.answer && (
-              <div className="mt-3 flex items-start gap-3 border-t border-zinc-200 pt-3 dark:border-zinc-700">
+              <div className="mt-3 flex items-start gap-3 pt-3">
                 <Chip size="sm" color="success" variant="primary" className="shrink-0">
                   A
                 </Chip>

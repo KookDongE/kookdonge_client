@@ -1498,7 +1498,7 @@ function ClubQnaTab({
                     </div>
                   </div>
                   {isExpanded && (
-                    <div className="mt-3 space-y-2 border-t border-zinc-200 pt-3 dark:border-zinc-700">
+                    <div className="mt-3 space-y-2 pt-3">
                       <TextArea
                         placeholder="답변을 입력해주세요"
                         value={answerTexts[qna.id] || ''}
@@ -1558,7 +1558,7 @@ function ClubQnaTab({
                   </Button>
                 </div>
                 {qna.answer && (
-                  <div className="mt-3 flex items-start gap-3 border-t border-zinc-200 pt-3 dark:border-zinc-700">
+                  <div className="mt-3 flex items-start gap-3 pt-3">
                     <Chip size="sm" color="success" variant="primary" className="shrink-0">
                       A
                     </Chip>
