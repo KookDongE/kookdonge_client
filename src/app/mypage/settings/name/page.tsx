@@ -69,10 +69,10 @@ export default function NameChangePage() {
         />
         <Button
           type="submit"
-          color="primary"
+          variant="primary"
           className="w-full"
           isDisabled={updateProfile.isPending}
-          isLoading={updateProfile.isPending}
+          isPending={updateProfile.isPending}
         >
           저장
         </Button>
