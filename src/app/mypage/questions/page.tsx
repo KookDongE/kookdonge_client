@@ -180,11 +180,6 @@ function QuestionsPageContent() {
           selectedKey={tab}
           onSelectionChange={(key) => setTab(key as string)}
           className="w-full"
-          classNames={{
-            tabList: 'w-full rounded-xl bg-zinc-100 p-1 dark:bg-zinc-800',
-            cursor: 'rounded-lg bg-white shadow dark:bg-zinc-700',
-            tab: 'flex-1',
-          }}
         >
           <Tabs.Item key={TAB_QUESTIONS} title="질문 목록" aria-label="질문 목록">
             <QuestionsListContent />
