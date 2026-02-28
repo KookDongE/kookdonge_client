@@ -1459,18 +1459,28 @@ function ClubQnaTab({
                           {new Date(qna.createdAt).toLocaleDateString()}
                         </p>
                       </div>
-                      <span className="shrink-0 text-xs text-zinc-400 dark:text-zinc-500">
-                        {isExpanded ? '접기' : '답변하기'}
-                      </span>
                     </button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onPress={() => handleDeleteClick(qna.id)}
-                      isPending={deleteQuestion.isPending}
-                    >
-                      삭제
-                    </Button>
+                    <div className="flex shrink-0 items-center gap-1">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onPress={() =>
+                          setExpandedPendingQuestionId((prev) => (prev === qna.id ? null : qna.id))
+                        }
+                        className="min-w-0"
+                      >
+                        {isExpanded ? '접기' : '답변'}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onPress={() => handleDeleteClick(qna.id)}
+                        isPending={deleteQuestion.isPending}
+                        className="min-w-0"
+                      >
+                        삭제
+                      </Button>
+                    </div>
                   </div>
                   {isExpanded && (
                     <div className="mt-3 space-y-2 border-t border-zinc-200 pt-3 dark:border-zinc-700">
