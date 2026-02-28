@@ -69,25 +69,16 @@ export const questionApi = {
   },
 
   /**
-   * 내가 쓴 질문 목록 (전체 동아리).
-   * TODO: 백엔드 API 추가 후 연동 (예: GET /api/users/me/questions).
-   * 응답에 clubId가 있으면 항목 클릭 시 해당 동아리 Q&A로 이동 가능.
+   * 내가 쓴 질문 목록 (전체 동아리). GET /api/clubs/questions/me
+   * 응답: question, answer(없으면 null), clubName 등. 1번·2번(전체/답변완료) 질문 목록용.
    */
   getMyQuestions: async (pageable: Pageable = {}): Promise<PageResponse<QuestionAnswerRes>> => {
     const page = pageable.page ?? 0;
     const size = pageable.size ?? 20;
-    // API 없음 - 빈 목록 반환. API 연동 시 아래 주석 해제 및 수정.
-    // return apiClient<PageResponse<QuestionAnswerRes>>('/api/users/me/questions', { params: { page, size } });
-    return {
-      content: [],
-      totalPages: 0,
-      totalElements: 0,
-      size,
-      number: page,
-      numberOfElements: 0,
-      first: true,
-      last: true,
-      empty: true,
-    };
+    const sortParam = pageable.sort ?? ['createdAt,DESC'];
+    const sort = Array.isArray(sortParam) ? sortParam[0] : sortParam;
+    return apiClient<PageResponse<QuestionAnswerRes>>('/api/clubs/questions/me', {
+      params: { page, size, ...(sort ? { sort } : {}) },
+    });
   },
 };

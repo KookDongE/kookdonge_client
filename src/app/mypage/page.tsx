@@ -246,16 +246,13 @@ function PendingQuestionsSection() {
   );
 }
 
-/** 질문 목록 (내가 쓴 질문 전체 - 모든 동아리). API 연동 전까지 빈 목록 표시. */
+/** 질문 목록 (1·2번: 내가 단 질문 전체 + 답변완료 포함) - GET /api/clubs/questions/me */
 function QuestionsListSection() {
   const router = useRouter();
   const { data: questionsData, isLoading } = useMyQuestions({ page: 0, size: 5 });
   const list = questionsData?.content ?? [];
-  // API 연동 시 응답에 clubId가 있으면 해당 동아리 Q&A로 이동
-  const getItemHref = (qna: (typeof list)[0] & { clubId?: number }) =>
-    qna.clubId
-      ? `/mypage/clubs/${qna.clubId}/manage?tab=qna&questionId=${qna.id}`
-      : '/mypage/questions';
+  const getItemHref = (qna: (typeof list)[0]) =>
+    qna.clubId ? `/clubs/${qna.clubId}` : '/mypage/questions';
 
   return (
     <div className="px-4 py-5">
@@ -320,17 +317,11 @@ function QuestionsListSection() {
   );
 }
 
-/** 답변 목록 (답변 완료된 Q&A) - 기존 답변 대기 목록과 동일하게 섹션 항상 노출 */
+/** 답변 목록 (3번: 답변 대기 중인 질문) - GET /api/clubs/questions/me 후 answer 없는 것만 표시 */
 function AnsweredListSection() {
-  const { data: managedClubs } = useManagedClubs();
   const router = useRouter();
-  const firstManagedClubId = managedClubs?.[0]?.id;
-  const { data: questionsData, isLoading } = useQuestions(firstManagedClubId ?? 0, {
-    page: 0,
-    size: 20,
-  });
-
-  const answered = firstManagedClubId ? (questionsData?.content ?? []).filter((q) => q.answer) : [];
+  const { data: questionsData, isLoading } = useMyQuestions({ page: 0, size: 20 });
+  const pending = (questionsData?.content ?? []).filter((q) => !q.answer);
 
   return (
     <div className="px-4 py-5">
@@ -343,41 +334,35 @@ function AnsweredListSection() {
           전체보기
         </Link>
       </div>
-      {!firstManagedClubId ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-12 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
-          <p>답변한 질문이 없습니다.</p>
-        </div>
-      ) : isLoading ? (
+      {isLoading ? (
         <div className="flex justify-center py-8">
           <Spinner />
         </div>
-      ) : answered.length === 0 ? (
+      ) : pending.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-12 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
-          <p>답변한 질문이 없습니다.</p>
+          <p>답변 대기 중인 질문이 없습니다.</p>
         </div>
       ) : (
         <div className="space-y-3">
-          {answered.slice(0, PREVIEW_LIMIT).map((qna) => (
+          {pending.slice(0, PREVIEW_LIMIT).map((qna) => (
             <button
               type="button"
               key={qna.id}
-              onClick={() =>
-                router.push(
-                  `/mypage/clubs/${firstManagedClubId}/manage?tab=qna&questionId=${qna.id}`
-                )
-              }
+              onClick={() => router.push(qna.clubId ? `/clubs/${qna.clubId}` : '/mypage/questions')}
               className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700/80"
             >
               <div className="flex items-start gap-3">
-                <Chip size="sm" color="success" variant="soft" className="shrink-0">
-                  A
+                <Chip size="sm" color="accent" variant="primary" className="shrink-0">
+                  Q
                 </Chip>
                 <div className="min-w-0 flex-1">
                   <p className="line-clamp-1 text-sm font-medium text-zinc-900 dark:text-zinc-100">
                     {qna.question}
                   </p>
                   <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                    {qna.answeredBy && `${qna.answeredBy} · `}
+                    답변 대기중
+                    {qna.clubName ? ` · ${qna.clubName}` : ''}
+                    {' · '}
                     {new Date(qna.createdAt).toLocaleDateString()}
                   </p>
                 </div>

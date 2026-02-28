@@ -302,6 +302,9 @@ export type QuestionAnswerRes = {
   answeredBy?: string;
   userId?: number;
   userName?: string;
+  /** 내 질문 목록 API (GET /api/clubs/questions/me) 응답 시 포함 */
+  clubId?: number;
+  clubName?: string;
 };
 
 export type ClubApplyReq = {
