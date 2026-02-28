@@ -8,7 +8,9 @@ function getBaseUrl(): string {
 }
 
 /** Web App Manifest 스펙의 media(테마별 아이콘)는 지원하나 Next.js Icon 타입에 없어 단언 사용 */
-type ManifestIconWithMedia = MetadataRoute.Manifest['icons'][number] & { media?: string };
+type ManifestIconWithMedia = NonNullable<MetadataRoute.Manifest['icons']>[number] & {
+  media?: string;
+};
 
 export default function manifest(): MetadataRoute.Manifest {
   const base = getBaseUrl();
