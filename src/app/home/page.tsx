@@ -33,14 +33,36 @@ function RankingSection() {
   const [imageLoaded, setImageLoaded] = useState<Record<number, boolean>>({});
   const [imageError, setImageError] = useState<Record<number, boolean>>({});
 
-  // 데스크톱: 마우스 휠을 가로 스크롤로 전환
-  const handleRankingWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+  // 데스크톱: 터치스크린처럼 드래그로 가로 스크롤
+  const isDraggingRef = useRef(false);
+  const startXRef = useRef(0);
+  const scrollLeftRef = useRef(0);
+
+  const onRankingMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = rankingScrollRef.current;
     if (!el) return;
-    const { scrollWidth, clientWidth, scrollLeft } = el;
-    if (scrollWidth <= clientWidth) return;
+    isDraggingRef.current = true;
+    startXRef.current = e.pageX - el.offsetLeft;
+    scrollLeftRef.current = el.scrollLeft;
+    el.style.cursor = 'grabbing';
+    el.style.userSelect = 'none';
+  };
+
+  const onRankingMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = rankingScrollRef.current;
+    if (!el || !isDraggingRef.current) return;
     e.preventDefault();
-    el.scrollLeft += e.deltaY;
+    const x = e.pageX - el.offsetLeft;
+    const walk = (x - startXRef.current) * 1;
+    el.scrollLeft = scrollLeftRef.current - walk;
+  };
+
+  const onRankingMouseUpLeave = () => {
+    const el = rankingScrollRef.current;
+    if (!el) return;
+    isDraggingRef.current = false;
+    el.style.cursor = 'grab';
+    el.style.userSelect = '';
   };
 
   const isLoading = activeTab === 'view' ? viewLoading : likeLoading;

@@ -67,3 +67,14 @@ export function useReissueToken() {
     },
   });
 }
+
+export function useUpdateProfile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { name: string }) => authApi.updateProfile(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: authKeys.profile() });
+    },
+  });
+}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 import { Spinner, Switch } from '@heroui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -12,7 +12,6 @@ import { useNotification } from '@/features/device/use-notification';
 import { BellIcon } from '@/components/icons/notification-icon';
 
 export default function NotificationSettingsPage() {
-  const router = useRouter();
   const queryClient = useQueryClient();
   const deviceId = useMemo(() => (typeof window !== 'undefined' ? getOrCreateDeviceId() : ''), []);
   const {
@@ -42,14 +41,13 @@ export default function NotificationSettingsPage() {
   return (
     <div className="pb-6">
       <div className="flex items-center gap-2 px-4 pt-3 pb-1">
-        <button
-          type="button"
-          onClick={() => router.back()}
+        <Link
+          href="/mypage/settings"
           className="flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
         >
           <span className="inline-block h-4 w-4">←</span>
           <span>뒤로가기</span>
-        </button>
+        </Link>
       </div>
       <div className="px-4 py-4">
         <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">알림 설정</h1>

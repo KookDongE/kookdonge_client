@@ -1,4 +1,3 @@
-import { apiClient } from '@/lib/api';
 import {
   CompleteRegistrationReq,
   LoginReq,
@@ -8,6 +7,7 @@ import {
   ReissueAccessTokenRes,
   UserProfileRes,
 } from '@/types/api';
+import { apiClient } from '@/lib/api';
 
 export const authApi = {
   /** OAuth 인증 (Google Grant Code) - 신규 사용자면 newUser + registrationToken, 기존 사용자면 accessToken + refreshToken */
@@ -45,6 +45,14 @@ export const authApi = {
 
   getMyProfile: async (): Promise<UserProfileRes> => {
     return apiClient<UserProfileRes>('/api/users/me');
+  },
+
+  /** 프로필 이름 변경 */
+  updateProfile: async (data: { name: string }): Promise<UserProfileRes> => {
+    return apiClient<UserProfileRes>('/api/users/me', {
+      method: 'PATCH',
+      body: data,
+    });
   },
 
   withdraw: async (): Promise<void> => {

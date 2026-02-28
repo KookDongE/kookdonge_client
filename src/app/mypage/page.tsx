@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -10,13 +9,9 @@ import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
 
 import { ClubType } from '@/types/api';
-import { authApi } from '@/features/auth/api';
 import { useMyProfile } from '@/features/auth/hooks';
-import { useAuthStore } from '@/features/auth/store';
 import { useLikedClubs, useManagedClubs, useMyApplications } from '@/features/club/hooks';
 import { useInterestedStore } from '@/features/club/interested-store';
-import { deviceApi } from '@/features/device/api';
-import { getOrCreateDeviceId } from '@/features/device/device-id';
 import { useMyQuestions, usePendingQuestions, useQuestions } from '@/features/question/hooks';
 import { useMyWaitingList } from '@/features/waiting-list/hooks';
 import { DefaultClubImage } from '@/components/common/default-club-image';
@@ -67,104 +62,8 @@ function ThemeToggle() {
   );
 }
 
-function SettingsDropdown({
-  onClose,
-  onLogout,
-  onWithdraw,
-}: {
-  onClose: () => void;
-  onLogout: () => void;
-  onWithdraw: () => void;
-}) {
-  return (
-    <div
-      className="absolute top-full right-0 z-50 mt-2 w-48 rounded-xl border py-1 shadow-lg"
-      style={{ borderColor: 'var(--dropdown-border)', background: 'var(--dropdown-bg)' }}
-    >
-      <Link
-        href="/mypage/notification-settings"
-        onClick={onClose}
-        className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm transition-colors hover:bg-[var(--dropdown-hover)]"
-        style={{ color: 'var(--dropdown-text)' }}
-      >
-        알림 설정
-      </Link>
-      <button
-        type="button"
-        onClick={onLogout}
-        className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm transition-colors hover:bg-[var(--dropdown-hover)]"
-        style={{ color: 'var(--dropdown-text)' }}
-      >
-        로그아웃
-      </button>
-      <button
-        type="button"
-        onClick={onWithdraw}
-        className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-red-600 transition-colors hover:bg-[var(--dropdown-hover)] dark:text-red-400"
-      >
-        회원탈퇴
-      </button>
-    </div>
-  );
-}
-
 function ProfileSection() {
   const { data: profile, isLoading } = useMyProfile();
-  const router = useRouter();
-  const clearAuth = useAuthStore((state) => state.clearAuth);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // 외부 클릭 시 드롭다운 닫기
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setSettingsOpen(false);
-      }
-    }
-    if (settingsOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [settingsOpen]);
-
-  const handleLogout = async () => {
-    setSettingsOpen(false);
-    if (!confirm('로그아웃 하시겠습니까?')) return;
-    const refreshToken = useAuthStore.getState().refreshToken;
-    const deviceId = typeof window !== 'undefined' ? getOrCreateDeviceId() : '';
-    try {
-      if (refreshToken) await authApi.logout({ refreshToken });
-    } catch {
-      // 서버 오류 시에도 로컬 로그아웃 진행
-    }
-    // 토큰이 유효한 동안 해당 기기 삭제 (로그아웃 시 서버에서 FCM 토큰 정리)
-    if (deviceId) {
-      try {
-        await deviceApi.deleteDevice(deviceId);
-      } catch {
-        // 삭제 실패해도 로그아웃은 진행
-      }
-    }
-    clearAuth();
-    router.replace('/');
-  };
-
-  const handleWithdraw = async () => {
-    setSettingsOpen(false);
-    if (
-      !confirm('정말 회원탈퇴를 하시겠습니까?\n탈퇴 후 모든 데이터가 삭제되며 복구할 수 없습니다.')
-    )
-      return;
-    try {
-      await authApi.withdraw();
-      clearAuth();
-      router.replace('/');
-      alert('회원탈퇴가 완료되었습니다.');
-    } catch {
-      // apiClient에서 toast.error로 서버 메시지 표시 (유일한 관리자인 동아리 있으면 탈퇴 불가 등)
-    }
-  };
 
   if (isLoading) {
     return (
@@ -202,49 +101,32 @@ function ProfileSection() {
         <div className="flex items-center gap-2">
           {/* 다크모드 토글 */}
           <ThemeToggle />
-          {/* 설정 버튼 */}
-          <div className="relative" ref={dropdownRef}>
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setSettingsOpen((prev) => !prev);
-              }}
-              className={`flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100 text-zinc-600 transition-colors hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 ${
-                settingsOpen ? 'bg-zinc-200 dark:bg-zinc-700' : ''
-              }`}
-              aria-label="설정"
+          {/* 설정 버튼 → 설정 페이지로 이동 */}
+          <Link
+            href="/mypage/settings"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100 text-zinc-600 transition-colors hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
+            aria-label="설정"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              className="h-5 w-5"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                className="h-5 w-5"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-            </motion.button>
-            {/* 설정 버튼 클릭 시 로그아웃·회원탈퇴 드롭다운 표시 */}
-            {settingsOpen && (
-              <SettingsDropdown
-                onClose={() => setSettingsOpen(false)}
-                onLogout={handleLogout}
-                onWithdraw={handleWithdraw}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
               />
-            )}
-          </div>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+          </Link>
         </div>
       </div>
     </div>
