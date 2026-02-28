@@ -50,9 +50,9 @@ function LikedClubsListContent() {
               <Link
                 key={club.id}
                 href={`/clubs/${club.id}`}
-                className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md"
+                className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
               >
-                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100">
+                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
                   {club.logoImage ? (
                     <Image
                       src={club.logoImage}
@@ -62,11 +62,13 @@ function LikedClubsListContent() {
                       sizes="56px"
                     />
                   ) : (
-                    <div className="h-full w-full bg-zinc-200" />
+                    <div className="h-full w-full bg-zinc-200 dark:bg-zinc-700" />
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h4 className="truncate font-semibold text-zinc-800">{club.name}</h4>
+                  <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
+                    {club.name}
+                  </h4>
                   <div className="mt-1">
                     <Chip size="sm" color="accent" variant="soft">
                       {TYPE_LABEL[club.type]}
@@ -74,7 +76,7 @@ function LikedClubsListContent() {
                   </div>
                 </div>
                 <svg
-                  className="h-5 w-5 text-zinc-400"
+                  className="h-5 w-5 text-zinc-400 dark:text-zinc-500"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
