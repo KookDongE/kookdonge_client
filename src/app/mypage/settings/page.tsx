@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -124,6 +125,24 @@ export default function SettingsPage() {
           회원탈퇴
         </button>
       </div>
+
+      {/* WINK 푸터: 로고 + 주소·저작권 */}
+      <footer className="mt-12 flex flex-col items-center justify-center px-4 pt-6 pb-8 text-center">
+        <div className="relative mb-4 h-8 w-24">
+          <Image
+            src="/images/wink-logo.png"
+            alt="WINK"
+            fill
+            className="object-contain object-center dark:invert"
+          />
+        </div>
+        <p className="text-xs leading-relaxed text-zinc-500 dark:text-zinc-500">
+          서울특별시 성북구 정릉로 77 (국민대학교 미래관 605-1)
+        </p>
+        <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
+          © WINK 2025. All rights reserved.
+        </p>
+      </footer>
     </div>
   );
 }

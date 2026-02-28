@@ -181,12 +181,30 @@ function QuestionsPageContent() {
           onSelectionChange={(key) => setTab(key as string)}
           className="w-full"
         >
-          <Tabs.Item key={TAB_QUESTIONS} title="질문 목록" aria-label="질문 목록">
+          <Tabs.ListContainer className="bg-white dark:bg-zinc-900">
+            <Tabs.List aria-label="질문/답변 목록" className="flex w-full">
+              <Tabs.Tab
+                id={TAB_QUESTIONS}
+                className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
+              >
+                질문 목록
+                <Tabs.Indicator />
+              </Tabs.Tab>
+              <Tabs.Tab
+                id={TAB_PENDING}
+                className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
+              >
+                답변 목록
+                <Tabs.Indicator />
+              </Tabs.Tab>
+            </Tabs.List>
+          </Tabs.ListContainer>
+          <Tabs.Panel id={TAB_QUESTIONS}>
             <QuestionsListContent />
-          </Tabs.Item>
-          <Tabs.Item key={TAB_PENDING} title="답변 목록" aria-label="답변 목록">
+          </Tabs.Panel>
+          <Tabs.Panel id={TAB_PENDING}>
             <PendingListContent />
-          </Tabs.Item>
+          </Tabs.Panel>
         </Tabs>
       </div>
     </div>
