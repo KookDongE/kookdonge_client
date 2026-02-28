@@ -7,6 +7,9 @@ import { registerDeviceWithBackend } from '@/features/device/register-device';
 import { AuthGuard } from './auth-guard';
 import { useAuthStore } from './store';
 
+/** 네비게이션 시 AuthProvider 재마운트되어 rehydrate()가 두 번 호출되는 것 방지 */
+let hasRehydrateBeenCalled = false;
+
 /**
  * 재수화가 끝나기 전에는 자식을 렌더링하지 않고 로딩 상태를 보여줍니다.
  * rehydrate() 완료 → onRehydrateStorage에서 setInitialized(true) 호출 후에만 children을 그립니다.
@@ -27,6 +30,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isInitialized = useAuthStore((s) => s.isInitialized);
 
   useEffect(() => {
+    if (hasRehydrateBeenCalled) return;
+    hasRehydrateBeenCalled = true;
     useAuthStore.persist.rehydrate();
   }, []);
 

@@ -3,26 +3,38 @@
 import { ReactNode, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
-import { useAuthStore } from './store';
+import { getStoredTokens, useAuthStore } from './store';
 
 const PUBLIC_PATHS = ['/', '/login', '/welcome', '/callback'];
 
 /**
- * AuthProvider가 재수화 완료 후에만 마운트되므로, 여기서는 스토어 상태만 신뢰합니다.
- * setInitialized는 스토어에서 queueMicrotask로 지연되어 토큰 병합 후에만 Shield가 풀리므로
- * 이 컴포넌트가 마운트될 때는 이미 accessToken이 반영된 상태입니다.
+ * 보호된 라우트에서 accessToken이 null일 때, 한 프레임만 null인 경우를 위해
+ * getStoredTokens()로 복구 시도 후, 한 틱 뒤 다시 확인하고 그래도 없을 때만 / 로 보냅니다.
  */
 export function AuthGuard({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const accessToken = useAuthStore((s) => s.accessToken);
+  const setTokens = useAuthStore((s) => s.setTokens);
 
   useEffect(() => {
     const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'));
     if (isPublic) return;
     if (accessToken) return;
-    router.replace('/');
-  }, [accessToken, pathname, router]);
+
+    const stored = getStoredTokens();
+    if (stored) {
+      setTokens(stored.accessToken, stored.refreshToken);
+      return;
+    }
+
+    const id = requestAnimationFrame(() => {
+      const tokenNow = useAuthStore.getState().accessToken;
+      if (tokenNow) return;
+      router.replace('/');
+    });
+    return () => cancelAnimationFrame(id);
+  }, [accessToken, pathname, router, setTokens]);
 
   const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'));
   const shouldRedirect = !accessToken && !isPublic;
