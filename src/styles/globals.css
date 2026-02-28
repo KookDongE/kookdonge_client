@@ -86,6 +86,42 @@ html:not(.dark) [role='listbox'] [role='option']:hover {
   background-color: #f4f4f5;
 }
 
+/* 동아리 관리: 포탈로 뜨는 드롭다운 라이트 모드 강제 (폰에서 다크로 보이는 오류 방지) */
+html:not(.dark) .club-manage-select-trigger {
+  color-scheme: light;
+  background-color: #ffffff !important;
+  color: #09090b !important;
+  border-color: #e4e4e7 !important;
+}
+
+html:not(.dark) .club-manage-dropdown,
+html:not(.dark) .club-manage-dropdown-list,
+html:not(.dark) .club-manage-dropdown div,
+html:not(.dark) .club-manage-dropdown-list div {
+  color-scheme: light;
+  background-color: #ffffff !important;
+  border-color: #e4e4e7 !important;
+  color: #09090b !important;
+}
+
+html:not(.dark) .club-manage-dropdown [role='listbox'],
+html:not(.dark) .club-manage-dropdown-list [role='listbox'],
+html:not(.dark) .club-manage-dropdown [role='option'],
+html:not(.dark) .club-manage-dropdown-list [role='option'],
+html:not(.dark) .club-manage-dropdown [data-slot='listbox-item'],
+html:not(.dark) .club-manage-dropdown-list [data-slot='listbox-item'] {
+  background-color: #ffffff !important;
+  color: #09090b !important;
+}
+
+html:not(.dark) .club-manage-dropdown [role='option']:hover,
+html:not(.dark) .club-manage-dropdown-list [role='option']:hover,
+html:not(.dark) .club-manage-dropdown [data-slot='listbox-item']:hover,
+html:not(.dark) .club-manage-dropdown-list [data-slot='listbox-item']:hover {
+  background-color: #f4f4f5 !important;
+  color: #09090b !important;
+}
+
 /* 라이트 모드: 동아리 관리자 리스트·카드 영역 밝게 */
 html:not(.dark) .club-manage-card,
 html:not(.dark) .club-manage-admin-list,

@@ -781,12 +781,12 @@ function ClubInfoTab({
                 value={category}
                 onChange={(value) => value && setCategory(value as ClubCategory)}
               >
-                <Select.Trigger className="rounded-xl border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
+                <Select.Trigger className="club-manage-select-trigger rounded-xl border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
                   <Select.Value />
                   <Select.Indicator />
                 </Select.Trigger>
-                <Select.Popover className="bg-white dark:bg-zinc-800">
-                  <ListBox className="bg-white dark:bg-zinc-800">
+                <Select.Popover className="club-manage-dropdown bg-white dark:bg-zinc-800">
+                  <ListBox className="club-manage-dropdown-list bg-white dark:bg-zinc-800">
                     {CATEGORY_OPTIONS.map((opt) => (
                       <ListBox.Item
                         key={opt.value}
@@ -806,12 +806,12 @@ function ClubInfoTab({
                 동아리 타입
               </label>
               <Select value={type} onChange={(value) => value && setType(value as ClubType)}>
-                <Select.Trigger className="rounded-xl border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
+                <Select.Trigger className="club-manage-select-trigger rounded-xl border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
                   <Select.Value />
                   <Select.Indicator />
                 </Select.Trigger>
-                <Select.Popover className="bg-white dark:bg-zinc-800">
-                  <ListBox className="bg-white dark:bg-zinc-800">
+                <Select.Popover className="club-manage-dropdown bg-white dark:bg-zinc-800">
+                  <ListBox className="club-manage-dropdown-list bg-white dark:bg-zinc-800">
                     {TYPE_OPTIONS.map((opt) => (
                       <ListBox.Item
                         key={opt.value}
@@ -1126,12 +1126,12 @@ function ClubInfoTab({
                 value={recruitmentStatus}
                 onChange={(value) => value && setRecruitmentStatus(value as RecruitmentStatus)}
               >
-                <Select.Trigger className="rounded-xl border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
+                <Select.Trigger className="club-manage-select-trigger rounded-xl border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
                   <Select.Value />
                   <Select.Indicator />
                 </Select.Trigger>
-                <Select.Popover className="bg-white dark:bg-zinc-800">
-                  <ListBox className="bg-white dark:bg-zinc-800">
+                <Select.Popover className="club-manage-dropdown bg-white dark:bg-zinc-800">
+                  <ListBox className="club-manage-dropdown-list bg-white dark:bg-zinc-800">
                     {Object.entries(STATUS_CONFIG).map(([value, config]) => (
                       <ListBox.Item
                         key={value}
