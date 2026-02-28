@@ -328,7 +328,7 @@ function AnsweredListSection() {
       <div className="mb-4 flex items-center justify-between">
         <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">답변 목록</h3>
         <Link
-          href="/mypage/questions"
+          href="/mypage/questions?tab=pending"
           className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
         >
           전체보기
