@@ -16,8 +16,8 @@ function getClientId(): string {
   return process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '';
 }
 
-/** 앱의 Google OAuth 콜백 URL. Google Cloud Console·백엔드와 동일해야 함 (백엔드 등록: https://www.kookdonge.co.kr/callback) */
-const OAUTH_REDIRECT_URI = 'https://www.kookdonge.co.kr/callback';
+/** 앱의 Google OAuth 콜백 URL. Spring Security 기본값과 동일 (Google Cloud Console에도 동일 URI 등록 필요) */
+const OAUTH_REDIRECT_URI = 'https://www.kookdonge.co.kr/login/oauth2/code/google';
 
 export function getRedirectUri(): string {
   return OAUTH_REDIRECT_URI;
