@@ -1,8 +1,8 @@
 'use client';
 
-import { Suspense, use, useState } from 'react';
+import { Suspense, use, useEffect, useState } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { Button, Chip, Spinner, Tabs, TextArea } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
@@ -318,11 +318,27 @@ function ClubFeedTab({ clubId }: { clubId: number }) {
   );
 }
 
-function ClubQnaTab({ clubId }: { clubId: number }) {
+function ClubQnaTab({
+  clubId,
+  highlightQuestionId,
+}: {
+  clubId: number;
+  highlightQuestionId?: string | null;
+}) {
   const { data, isLoading } = useQuestions(clubId, { page: 0, size: 20 });
   const { data: profile } = useMyProfile();
   const createQuestion = useCreateQuestion(clubId);
   const [questionText, setQuestionText] = useState('');
+
+  const questions = data?.content || [];
+
+  useEffect(() => {
+    if (!highlightQuestionId || questions.length === 0) return;
+    const el = document.getElementById(`question-${highlightQuestionId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [highlightQuestionId, questions.length]);
 
   const handleSubmit = () => {
     if (!questionText.trim() || !profile) return;
@@ -343,8 +359,6 @@ function ClubQnaTab({ clubId }: { clubId: number }) {
       </div>
     );
   }
-
-  const questions = data?.content || [];
 
   return (
     <div className="space-y-4 p-4">
@@ -378,6 +392,7 @@ function ClubQnaTab({ clubId }: { clubId: number }) {
         questions.map((qna) => (
           <div
             key={qna.id}
+            id={`question-${qna.id}`}
             className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800"
           >
             <div className="flex items-start gap-3">
@@ -438,8 +453,14 @@ function ClubCTA({ clubId }: { clubId: number }) {
 }
 
 function ClubDetailContent({ clubId }: { clubId: number }) {
+  const searchParams = useSearchParams();
+  const questionId = searchParams.get('questionId');
   const [tab, setTab] = useQueryState('tab', parseAsString.withDefault('info'));
   const router = useRouter();
+
+  useEffect(() => {
+    if (questionId) setTab('qna');
+  }, [questionId, setTab]);
 
   return (
     <>
@@ -487,7 +508,7 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
           <ClubFeedTab clubId={clubId} />
         </Tabs.Panel>
         <Tabs.Panel id="qna">
-          <ClubQnaTab clubId={clubId} />
+          <ClubQnaTab clubId={clubId} highlightQuestionId={questionId} />
         </Tabs.Panel>
       </Tabs>
       {/* 하단 네비 + CTA 공간 확보 */}
