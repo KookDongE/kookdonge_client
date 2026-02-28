@@ -3,37 +3,28 @@
 import { ReactNode, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
-import { useAuthStore, getStoredTokens } from './store';
+import { useAuthStore } from './store';
 
 const PUBLIC_PATHS = ['/', '/login', '/welcome', '/callback'];
 
+/**
+ * AuthProvider가 재수화 완료 후에만 마운트되므로, 여기서는 스토어 상태만 신뢰합니다.
+ * localStorage 직접 참조 없이 accessToken 유무만으로 인증 여부를 판단합니다.
+ */
 export function AuthGuard({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const accessToken = useAuthStore((s) => s.accessToken);
-  const isInitialized = useAuthStore((s) => s.isInitialized);
-  const setTokens = useAuthStore((s) => s.setTokens);
 
   useEffect(() => {
-    if (!isInitialized) return;
-
     const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'));
     if (isPublic) return;
-
     if (accessToken) return;
-
-    // 스토어에는 아직 없지만 localStorage에 토큰이 있으면 복원 (재수화 타이밍 이슈 방지)
-    const stored = getStoredTokens();
-    if (stored) {
-      setTokens(stored.accessToken, stored.refreshToken);
-      return;
-    }
-
     router.replace('/');
-  }, [isInitialized, accessToken, pathname, router, setTokens]);
+  }, [accessToken, pathname, router]);
 
   const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'));
-  const shouldRedirect = isInitialized && !accessToken && !isPublic;
+  const shouldRedirect = !accessToken && !isPublic;
   if (shouldRedirect) {
     return null;
   }

@@ -10,7 +10,7 @@ type PersistedAuth = {
   version?: number;
 };
 
-/** localStorage에 저장된 토큰을 읽습니다. 재수화 전 AuthGuard 등에서 사용 */
+/** localStorage에 저장된 토큰을 읽습니다. (AuthGuard는 스토어만 신뢰하므로, 필요 시 스플래시 등 외부에서만 사용) */
 export function getStoredTokens(): { accessToken: string; refreshToken: string } | null {
   if (typeof window === 'undefined') return null;
   try {
@@ -70,20 +70,23 @@ function getAuthStorage(): Storage {
 }
 
 /** 로그인 여부는 accessToken 존재 여부로 판단합니다. AuthGuard·API 클라이언트 모두 이 값을 사용합니다. */
-interface AuthState {
+export interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   user: UserProfileRes | null;
   isInitialized: boolean;
 }
 
-interface AuthActions {
+export interface AuthActions {
   setTokens: (accessToken: string, refreshToken: string) => void;
   setAccessToken: (accessToken: string) => void;
   setUser: (user: UserProfileRes | null) => void;
   setInitialized: (initialized: boolean) => void;
   clearAuth: () => void;
 }
+
+/** persist partialize로 localStorage에 저장되는 필드만 정의 */
+type PersistedAuthState = Pick<AuthState, 'accessToken' | 'refreshToken'>;
 
 const DEFAULT_STATE: AuthState = {
   accessToken: null,
@@ -114,15 +117,16 @@ export const useAuthStore = create<AuthState & AuthActions>()(
     {
       name: AUTH_STORAGE_KEY,
       storage: createJSONStorage(getAuthStorage),
-      partialize: (state) => ({
+      partialize: (state): PersistedAuthState => ({
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
       }),
+      /** rehydrate()가 완료된 뒤에만 호출됨. 여기서 setInitialized(true)로 Hydration Shield 해제 */
       onRehydrateStorage: () => (state) => {
         hasRehydrated = true;
         state?.setInitialized(true);
       },
-      /** SSR 시 자동 재수화 비활성화. 클라이언트에서 AuthProvider가 rehydrate() 호출 */
+      /** SSR 시 자동 재수화 비활성화. 클라이언트에서 AuthProvider의 useEffect에서 rehydrate() 호출 */
       skipHydration: true,
     }
   )
