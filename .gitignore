@@ -39,6 +39,10 @@ yarn-error.log*
 .env
 .env.*
 
+# Firebase 서비스 계정 키 (백엔드/로컬용, 절대 커밋 금지)
+*-firebase-adminsdk-*.json
+firebase-service-account*.json
+
 # vercel
 .vercel
 

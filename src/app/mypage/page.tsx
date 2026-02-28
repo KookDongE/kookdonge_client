@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { Button, Chip, Spinner } from '@heroui/react';
+import { Chip, Spinner } from '@heroui/react';
 import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
 
@@ -68,14 +68,23 @@ function ThemeToggle() {
 }
 
 function SettingsDropdown({
+  onClose,
   onLogout,
   onWithdraw,
 }: {
+  onClose: () => void;
   onLogout: () => void;
   onWithdraw: () => void;
 }) {
   return (
     <div className="absolute top-full right-0 z-50 mt-2 w-48 rounded-xl border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
+      <Link
+        href="/mypage/notification-settings"
+        onClick={onClose}
+        className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-700"
+      >
+        알림 설정
+      </Link>
       <button
         type="button"
         onClick={onLogout}
@@ -224,7 +233,11 @@ function ProfileSection() {
             </motion.button>
             {/* 설정 버튼 클릭 시 로그아웃·회원탈퇴 드롭다운 표시 */}
             {settingsOpen && (
-              <SettingsDropdown onLogout={handleLogout} onWithdraw={handleWithdraw} />
+              <SettingsDropdown
+                onClose={() => setSettingsOpen(false)}
+                onLogout={handleLogout}
+                onWithdraw={handleWithdraw}
+              />
             )}
           </div>
         </div>
@@ -305,7 +318,6 @@ function WaitingListSection() {
 
 function AdminSection() {
   const { data: managedClubs, isLoading: clubsLoading } = useManagedClubs();
-  const { data: profile } = useMyProfile();
 
   // 관리 중인 동아리가 없으면 섹션을 표시하지 않음
   if (!managedClubs || managedClubs.length === 0) {

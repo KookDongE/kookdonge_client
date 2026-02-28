@@ -30,7 +30,6 @@ export function FeedList({ feeds, isLoading }: FeedListProps) {
   if (feeds.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-zinc-400 dark:text-zinc-500">
-        <span className="mb-2 text-4xl">📝</span>
         <p>아직 피드가 없습니다.</p>
       </div>
     );
