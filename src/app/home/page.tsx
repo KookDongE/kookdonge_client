@@ -54,7 +54,7 @@ function RankingSection() {
           <div className="skeleton h-8 w-20 rounded-full" />
           <div className="skeleton h-8 w-20 rounded-full" />
         </div>
-        <div className="no-scrollbar flex gap-3 overflow-x-auto pb-2">
+        <div className="no-scrollbar flex w-full min-w-0 [touch-action:pan-x] gap-3 overflow-x-auto overflow-y-hidden pb-2 [-webkit-overflow-scrolling:touch]">
           {[1, 2, 3].map((i) => (
             <div key={i} className="skeleton h-32 w-24 shrink-0 rounded-2xl" />
           ))}
@@ -109,7 +109,7 @@ function RankingSection() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -10 }}
             transition={{ duration: 0.2 }}
-            className="no-scrollbar flex gap-3 overflow-x-auto pt-2 pb-2 pl-2"
+            className="no-scrollbar flex w-full min-w-0 [touch-action:pan-x] gap-3 overflow-x-auto overflow-y-hidden pt-2 pb-2 pl-2 [-webkit-overflow-scrolling:touch]"
           >
             {top5.map((club, index) => (
               <motion.div
