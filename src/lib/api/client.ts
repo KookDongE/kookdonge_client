@@ -10,6 +10,8 @@ type RequestOptions<TBody = unknown> = {
   headers?: Record<string, string>;
   body?: TBody;
   params?: Record<string, string | number | boolean | undefined>;
+  /** false면 body를 { timestamp, data }로 감싸지 않고 그대로 전송 (일부 API용) */
+  wrapRequestBody?: boolean;
 };
 
 function buildUrl(
@@ -45,10 +47,11 @@ function wrapRequest<T>(body: T) {
 }
 
 export async function apiClient<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-  const { method = 'GET', headers = {}, body, params } = options;
+  const { method = 'GET', headers = {}, body, params, wrapRequestBody = true } = options;
   const token = getAuthToken();
 
-  const shouldWrapBody = body !== undefined && ['POST', 'PUT', 'PATCH'].includes(method);
+  const hasBody = body !== undefined && ['POST', 'PUT', 'PATCH'].includes(method);
+  const shouldWrapBody = hasBody && wrapRequestBody;
 
   const response = await fetch(buildUrl(endpoint, params), {
     method,
@@ -57,7 +60,7 @@ export async function apiClient<T>(endpoint: string, options: RequestOptions = {
       ...(token && { Authorization: `Bearer ${token}` }),
       ...headers,
     },
-    body: shouldWrapBody ? JSON.stringify(wrapRequest(body)) : undefined,
+    body: hasBody ? JSON.stringify(shouldWrapBody ? wrapRequest(body) : body) : undefined,
   });
 
   const json: ResponseDTO<T> = await response.json();

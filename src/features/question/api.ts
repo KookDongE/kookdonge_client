@@ -1,4 +1,3 @@
-import { apiClient } from '@/lib/api';
 import {
   AnswerCreateReq,
   Pageable,
@@ -6,6 +5,7 @@ import {
   QuestionAnswerRes,
   QuestionCreateReq,
 } from '@/types/api';
+import { apiClient } from '@/lib/api';
 
 export const questionApi = {
   getQuestions: async (
@@ -32,17 +32,12 @@ export const questionApi = {
     });
   },
 
-  registerAnswer: async (
-    questionId: number,
-    data: AnswerCreateReq
-  ): Promise<QuestionAnswerRes> => {
-    return apiClient<QuestionAnswerRes>(
-      `/api/clubs/questions/${questionId}/answer`,
-      {
-        method: 'PUT',
-        body: data,
-      }
-    );
+  registerAnswer: async (questionId: number, data: AnswerCreateReq): Promise<QuestionAnswerRes> => {
+    return apiClient<QuestionAnswerRes>(`/api/clubs/questions/${questionId}/answer`, {
+      method: 'PUT',
+      body: data,
+      wrapRequestBody: false,
+    });
   },
 
   deleteAnswer: async (questionId: number): Promise<void> => {
@@ -78,9 +73,7 @@ export const questionApi = {
    * TODO: 백엔드 API 추가 후 연동 (예: GET /api/users/me/questions).
    * 응답에 clubId가 있으면 항목 클릭 시 해당 동아리 Q&A로 이동 가능.
    */
-  getMyQuestions: async (
-    pageable: Pageable = {}
-  ): Promise<PageResponse<QuestionAnswerRes>> => {
+  getMyQuestions: async (pageable: Pageable = {}): Promise<PageResponse<QuestionAnswerRes>> => {
     const page = pageable.page ?? 0;
     const size = pageable.size ?? 20;
     // API 없음 - 빈 목록 반환. API 연동 시 아래 주석 해제 및 수정.

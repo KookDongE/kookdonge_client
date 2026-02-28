@@ -1,8 +1,16 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { ClubCategory, ClubCreationReq, ClubListParams, ClubType, Pageable, RecruitmentStatus } from '@/types/api';
+import {
+  ClubCategory,
+  ClubCreationReq,
+  ClubDetailRes,
+  ClubListParams,
+  ClubType,
+  Pageable,
+  RecruitmentStatus,
+} from '@/types/api';
 
 import { clubApi } from './api';
 
@@ -10,6 +18,8 @@ export const clubKeys = {
   all: ['clubs'] as const,
   lists: () => [...clubKeys.all, 'list'] as const,
   list: (params: ClubListParams) => [...clubKeys.lists(), params] as const,
+  infiniteList: (params: Omit<ClubListParams, 'page'>) =>
+    [...clubKeys.lists(), 'infinite', params] as const,
   details: () => [...clubKeys.all, 'detail'] as const,
   detail: (id: number) => [...clubKeys.details(), id] as const,
   topWeeklyView: () => [...clubKeys.all, 'top-weekly-view'] as const,
@@ -23,6 +33,21 @@ export function useClubList(params: ClubListParams) {
   });
 }
 
+/** 무한스크롤용 동아리 목록. 필터/정렬은 동일, page만 증가하며 다음 페이지를 가져옴 */
+export function useInfiniteClubList(params: Omit<ClubListParams, 'page'>) {
+  const size = params.size ?? 20;
+  return useInfiniteQuery({
+    queryKey: clubKeys.infiniteList({ ...params, size }),
+    queryFn: ({ pageParam }) => clubApi.getClubList({ ...params, page: pageParam as number, size }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.last ?? true) return undefined;
+      const num = lastPage.number ?? 0;
+      return num + 1;
+    },
+  });
+}
+
 export function useClubDetail(clubId: number) {
   return useQuery({
     queryKey: clubKeys.detail(clubId),
@@ -31,14 +56,14 @@ export function useClubDetail(clubId: number) {
   });
 }
 
-export function useTopWeeklyView(pageable?: Pageable) {
+export function useTopWeeklyView(_pageable?: Pageable) {
   return useQuery({
     queryKey: clubKeys.topWeeklyView(),
     queryFn: () => clubApi.getTopWeeklyView(),
   });
 }
 
-export function useTopWeeklyLike(pageable?: Pageable) {
+export function useTopWeeklyLike(_pageable?: Pageable) {
   return useQuery({
     queryKey: clubKeys.topWeeklyLike(),
     queryFn: () => clubApi.getTopWeeklyLike(),
@@ -54,7 +79,7 @@ export function useLikeClub() {
       // Optimistic update: 즉시 UI 업데이트
       await queryClient.cancelQueries({ queryKey: clubKeys.detail(clubId) });
       const previousData = queryClient.getQueryData(clubKeys.detail(clubId));
-      queryClient.setQueryData(clubKeys.detail(clubId), (old: any) => {
+      queryClient.setQueryData(clubKeys.detail(clubId), (old: ClubDetailRes | undefined) => {
         if (!old) return old;
         return {
           ...old,
@@ -85,7 +110,7 @@ export function useUnlikeClub() {
       // Optimistic update: 즉시 UI 업데이트
       await queryClient.cancelQueries({ queryKey: clubKeys.detail(clubId) });
       const previousData = queryClient.getQueryData(clubKeys.detail(clubId));
-      queryClient.setQueryData(clubKeys.detail(clubId), (old: any) => {
+      queryClient.setQueryData(clubKeys.detail(clubId), (old: ClubDetailRes | undefined) => {
         if (!old) return old;
         return {
           ...old,

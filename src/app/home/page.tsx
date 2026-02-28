@@ -6,14 +6,14 @@ import Link from 'next/link';
 
 import { Button, Spinner } from '@heroui/react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
+import { parseAsString, useQueryState } from 'nuqs';
 
 import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
 import {
-  useClubList,
   useDeleteClub,
+  useInfiniteClubList,
   useToggleClubVisibility,
   useTopWeeklyLike,
   useTopWeeklyView,
@@ -176,7 +176,6 @@ function ClubFilters() {
 }
 
 function ClubListSection() {
-  const [page, setPage] = useQueryState('page', parseAsInteger.withDefault(0));
   const [category] = useQueryState('category', parseAsString.withDefault(''));
   const [status] = useQueryState('status', parseAsString.withDefault(''));
   const [clubType] = useQueryState('clubType', parseAsString.withDefault(''));
@@ -184,18 +183,9 @@ function ClubListSection() {
   const [sort] = useQueryState('sort', parseAsString.withDefault('name,asc'));
   const [query] = useQueryState('q', parseAsString.withDefault(''));
   const [deleteModalClubId, setDeleteModalClubId] = useState<number | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  // 필터/정렬 변경 시 1페이지로 리셋 (백엔드에서 정렬·페이징 처리)
-  const isFirstMount = useRef(true);
-  useEffect(() => {
-    if (isFirstMount.current) {
-      isFirstMount.current = false;
-      return;
-    }
-    setPage(0);
-  }, [category, status, clubType, college, sort, query, setPage]);
-
-  const { data, isLoading } = useClubList({
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useInfiniteClubList({
     category: category && category !== 'ALL' ? (category as ClubCategory) : undefined,
     type: clubType && clubType !== 'ALL' ? (clubType as ClubType) : undefined,
     college:
@@ -205,9 +195,25 @@ function ClubListSection() {
     recruitmentStatus: status && status !== 'ALL' ? (status as RecruitmentStatus) : undefined,
     query: query || undefined,
     sort: sort || 'name,asc',
-    page,
     size: 20,
   });
+
+  const clubs = data?.pages.flatMap((p) => p.content) ?? [];
+  const totalElements = data?.pages[0]?.totalElements ?? 0;
+
+  useEffect(() => {
+    if (!hasNextPage || isFetchingNextPage) return;
+    const el = loadMoreRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) fetchNextPage();
+      },
+      { rootMargin: '100px', threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const { data: profile } = useMyProfile();
   /** 시스템 관리자(ADMIN)만 홈 검색 결과 카드에서 스와이프(숨기기/삭제) 노출. 리더(managedClubIds)는 동아리 상세·관리 페이지에서만 사용 */
@@ -241,7 +247,21 @@ function ClubListSection() {
     );
   }
 
-  if (!data || data.content.length === 0) {
+  if (!data && !isLoading) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col items-center justify-center py-20"
+      >
+        <span className="mb-3 text-5xl">🔍</span>
+        <p className="text-sm text-zinc-400">검색 결과가 없어요</p>
+        <p className="mt-1 text-xs text-zinc-300 dark:text-zinc-600">다른 키워드로 검색해보세요</p>
+      </motion.div>
+    );
+  }
+
+  if (!data || clubs.length === 0) {
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -261,15 +281,15 @@ function ClubListSection() {
         {/* Result Count */}
         <div className="mb-4 flex items-center justify-between">
           <span className="text-sm text-zinc-500 dark:text-zinc-400">
-            <span className="font-bold text-blue-500 dark:text-lime-400">{data.totalElements}</span>
+            <span className="font-bold text-blue-500 dark:text-lime-400">{totalElements}</span>
             개의 동아리
           </span>
         </div>
 
-        {/* Club Cards */}
+        {/* Club Cards (무한스크롤) */}
         <AnimatePresence mode="wait">
           <div className="space-y-4">
-            {data.content.map((club, index) => {
+            {clubs.map((club, index) => {
               if (isAdmin) {
                 // 관리자인 경우 AdminClubCard 사용 (스와이프 기능 포함)
                 const adminClubData = {
@@ -298,35 +318,11 @@ function ClubListSection() {
           </div>
         </AnimatePresence>
 
-        {/* Pagination */}
-        {data.totalPages > 1 && (
-          <div className="mt-8 flex items-center justify-center gap-4">
-            <motion.div whileTap={{ scale: 0.95 }}>
-              <Button
-                variant="secondary"
-                size="sm"
-                onPress={() => setPage(Math.max(0, page - 1))}
-                isDisabled={data.first}
-                className="touch-btn rounded-full"
-              >
-                이전
-              </Button>
-            </motion.div>
-            <span className="min-w-[60px] text-center text-sm font-medium text-zinc-500">
-              <span className="text-blue-500 dark:text-lime-400">{page + 1}</span> /{' '}
-              {data.totalPages}
-            </span>
-            <motion.div whileTap={{ scale: 0.95 }}>
-              <Button
-                variant="secondary"
-                size="sm"
-                onPress={() => setPage(page + 1)}
-                isDisabled={data.last}
-                className="touch-btn rounded-full"
-              >
-                다음
-              </Button>
-            </motion.div>
+        {/* 무한스크롤: 하단 감지 시 다음 페이지 로드 */}
+        <div ref={loadMoreRef} className="min-h-[24px] py-4" aria-hidden />
+        {isFetchingNextPage && (
+          <div className="flex justify-center py-4">
+            <Spinner size="sm" />
           </div>
         )}
       </div>

@@ -160,6 +160,9 @@ export type ClubDetailRes = {
   descriptionImages?: string[];
   category: ClubCategory;
   allowLeaveOfAbsence: boolean;
+  /** 지원 링크 (구글폼 등). 스웨거 applicationLink. 링크 있을 때만 하단 CTA 표시 */
+  applicationLink?: string;
+  /** 하위 호환 */
   recruitmentUrl?: string;
 };
 
@@ -399,6 +402,8 @@ export type ClubCreationReq = {
 export type ClubCreationRequestRes = {
   requestId: number;
   userId?: number;
+  applicantName?: string;
+  applicantEmail?: string;
   clubName: string;
   clubType: ClubType;
   category: ClubCategory;

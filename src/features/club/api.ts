@@ -1,4 +1,3 @@
-import { apiClient } from '@/lib/api';
 import {
   AdminApplicationItem,
   ClubCreationReq,
@@ -9,10 +8,13 @@ import {
   ClubRankingRes,
   PageResponse,
 } from '@/types/api';
+import { apiClient } from '@/lib/api';
 
 type PageClubListRes = PageResponse<ClubListRes>;
 
-function buildClubListParams(p: ClubListParams): Record<string, string | number | boolean | undefined> {
+function buildClubListParams(
+  p: ClubListParams
+): Record<string, string | number | boolean | undefined> {
   const page = p.page ?? p.pageable?.page ?? 0;
   const size = p.size ?? p.pageable?.size ?? 20;
   const params: Record<string, string | number | boolean | undefined> = {
@@ -160,10 +162,12 @@ export const clubApi = {
     return apiClient<void>(`/api/clubs/${clubId}/members/${userId}`, { method: 'DELETE' });
   },
 
-  getMembers: async (clubId: number): Promise<Array<{ userId: number; email: string; name?: string; department?: string }>> => {
-    const data = await apiClient<Array<{ userId: number; email: string; name?: string; department?: string }>>(
-      `/api/clubs/${clubId}/members`
-    );
+  getMembers: async (
+    clubId: number
+  ): Promise<Array<{ userId: number; email: string; name?: string; department?: string }>> => {
+    const data = await apiClient<
+      Array<{ userId: number; email: string; name?: string; department?: string }>
+    >(`/api/clubs/${clubId}/members`);
     return Array.isArray(data) ? data : [];
   },
 
@@ -181,8 +185,8 @@ export const clubApi = {
       name: r.clubName,
       image: '',
       description: r.description ?? '',
-      applicantEmail: '',
-      applicantName: '',
+      applicantEmail: r.applicantEmail ?? '',
+      applicantName: r.applicantName ?? '',
       createdAt: r.createdAt,
       status: r.status,
       rejectionReason: r.rejectionReason,
@@ -267,7 +271,11 @@ export const clubApi = {
   // ---------- (Leader) 모집 ----------
   updateRecruitmentInfo: async (
     clubId: number,
-    data: { recruitmentStartTime: string; recruitmentEndTime: string }
+    data: {
+      recruitmentStartTime: string;
+      recruitmentEndTime: string;
+      applicationLink?: string;
+    }
   ): Promise<void> => {
     return apiClient<void>(`/api/clubs/${clubId}/recruitment`, {
       method: 'PUT',
@@ -306,6 +314,25 @@ export const clubApi = {
       basic.isLeaveOfAbsenceActive = data.allowLeaveOfAbsence;
     if (Object.keys(basic).length > 0) {
       await clubApi.updateBasicInfo(clubId, basic as Parameters<typeof clubApi.updateBasicInfo>[1]);
+    }
+    if (
+      data.recruitmentStartDate !== undefined ||
+      data.recruitmentEndDate !== undefined ||
+      data.recruitmentUrl !== undefined
+    ) {
+      const start =
+        typeof data.recruitmentStartDate === 'string' ? data.recruitmentStartDate : undefined;
+      const end = typeof data.recruitmentEndDate === 'string' ? data.recruitmentEndDate : undefined;
+      if (start && end) {
+        await clubApi.updateRecruitmentInfo(clubId, {
+          recruitmentStartTime: start,
+          recruitmentEndTime: end,
+          applicationLink:
+            typeof data.recruitmentUrl === 'string' && data.recruitmentUrl
+              ? data.recruitmentUrl
+              : undefined,
+        });
+      }
     }
     return clubApi.getClubDetail(clubId);
   },

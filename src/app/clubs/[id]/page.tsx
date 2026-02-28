@@ -9,11 +9,10 @@ import { parseAsString, useQueryState } from 'nuqs';
 
 import { ClubCategory, ClubType, RecruitmentStatus } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
-import { useInterestedStore } from '@/features/club/interested-store';
 import { useClubDetail, useLikeClub, useUnlikeClub } from '@/features/club/hooks';
+import { useInterestedStore } from '@/features/club/interested-store';
 import { useClubFeeds } from '@/features/feed/hooks';
 import { useCreateQuestion, useQuestions } from '@/features/question/hooks';
-import { FeedList } from '@/components/feed/feed-list';
 
 const CATEGORY_LABEL: Record<ClubCategory, string> = {
   PERFORMING_ARTS: '공연예술',
@@ -141,7 +140,9 @@ function ClubHeader({ clubId }: { clubId: number }) {
           type="button"
           onClick={handleInterestedToggle}
           className={`flex-1 rounded-xl py-3 text-center transition-colors ${
-            isInterestedByMe ? 'bg-amber-200 dark:bg-amber-900/50' : 'bg-amber-50 dark:bg-amber-950/30'
+            isInterestedByMe
+              ? 'bg-amber-200 dark:bg-amber-900/50'
+              : 'bg-amber-50 dark:bg-amber-950/30'
           }`}
           title="관심 동아리"
         >
@@ -180,7 +181,12 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
     { label: '대상', value: club.targetGraduate },
     { label: '동아리장', value: club.leaderName },
     { label: '활동 장소', value: club.location },
-    { label: '주간 활동', value: club.weeklyActivity ?? (club.weeklyActiveFrequency != null ? `${club.weeklyActiveFrequency}회` : '-') },
+    {
+      label: '주간 활동',
+      value:
+        club.weeklyActivity ??
+        (club.weeklyActiveFrequency != null ? `${club.weeklyActiveFrequency}회` : '-'),
+    },
   ];
 
   return (
@@ -360,11 +366,12 @@ function ClubQnaTab({ clubId }: { clubId: number }) {
 function ClubCTA({ clubId }: { clubId: number }) {
   const { data: club } = useClubDetail(clubId);
 
-  if (!club || !club.recruitmentUrl) return null;
+  const applicationLink = club?.applicationLink || club?.recruitmentUrl;
+  if (!club || !applicationLink) return null;
 
   const ctaBottom = 'calc(72px + env(safe-area-inset-bottom))';
   const handleApplyClick = () => {
-    window.open(club.recruitmentUrl!, '_blank');
+    window.open(applicationLink, '_blank');
   };
 
   return (

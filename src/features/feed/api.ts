@@ -1,4 +1,3 @@
-import { apiClient } from '@/lib/api';
 import {
   ClubFeedListRes,
   ClubFeedRes,
@@ -8,13 +7,10 @@ import {
   FileUploadCompleteRequest,
   PresignedUrlResponse,
 } from '@/types/api';
+import { apiClient } from '@/lib/api';
 
 export const feedApi = {
-  getClubFeeds: async (
-    clubId: number,
-    page = 0,
-    size = 10
-  ): Promise<ClubFeedListRes> => {
+  getClubFeeds: async (clubId: number, page = 0, size = 10): Promise<ClubFeedListRes> => {
     return apiClient<ClubFeedListRes>(`/api/clubs/${clubId}/feeds`, {
       params: { page, size },
     });
@@ -31,11 +27,7 @@ export const feedApi = {
     });
   },
 
-  updateFeed: async (
-    clubId: number,
-    feedId: number,
-    data: FeedUpdateReq
-  ): Promise<void> => {
+  updateFeed: async (clubId: number, feedId: number, data: FeedUpdateReq): Promise<void> => {
     return apiClient<void>(`/api/clubs/${clubId}/feeds/${feedId}`, {
       method: 'PUT',
       body: data,
@@ -54,12 +46,9 @@ export const feedApi = {
     fileName: string,
     contentType: string
   ): Promise<PresignedUrlResponse> => {
-    return apiClient<PresignedUrlResponse>(
-      `/api/clubs/${clubId}/files/presigned-url`,
-      {
-        params: { fileName, contentType },
-      }
-    );
+    return apiClient<PresignedUrlResponse>(`/api/clubs/${clubId}/files/presigned-url`, {
+      params: { fileName, contentType },
+    });
   },
 
   /** S3 업로드 완료 후 파일 등록 */
@@ -98,11 +87,15 @@ export const feedApi = {
 
     const result: Array<{ uuid: string; fileUrl: string }> = [];
     for (const file of files) {
-      let ext = file.name.split('.').pop()?.toLowerCase() ?? '';
-      if (!allowed.includes(ext as (typeof allowed)[number])) {
+      let ext = (file.name.split('.').pop()?.toLowerCase() ?? '').replace(/[^a-z]/g, '');
+      if (!ext || !allowed.includes(ext as (typeof allowed)[number])) {
         ext = contentTypeToExt[file.type || 'image/jpeg'] ?? 'jpeg';
       }
       const contentType = file.type || 'image/jpeg';
+      const fileSize = Number(file.size) || 0;
+      if (fileSize <= 0) {
+        throw new Error(`파일 크기를 읽을 수 없습니다: ${file.name}`);
+      }
 
       // 1. GET presigned-url (fileName, contentType 쿼리)
       const res = await feedApi.getPresignedUrl(clubId, file.name, contentType);
@@ -132,7 +125,7 @@ export const feedApi = {
       await feedApi.registerUploadComplete(clubId, {
         uuid,
         fileName: file.name,
-        fileSize: file.size,
+        fileSize,
         extension: ext,
       });
       result.push({ uuid, fileUrl });
