@@ -35,6 +35,7 @@ function RankingSection() {
 
   // 데스크톱: 터치스크린처럼 드래그로 가로 스크롤
   const isDraggingRef = useRef(false);
+  const didDragThisSessionRef = useRef(false);
   const startXRef = useRef(0);
   const scrollLeftRef = useRef(0);
 
@@ -42,7 +43,7 @@ function RankingSection() {
     const el = rankingScrollRef.current;
     if (!el) return;
     isDraggingRef.current = true;
-    startXRef.current = e.pageX - el.offsetLeft;
+    startXRef.current = e.pageX;
     scrollLeftRef.current = el.scrollLeft;
     el.style.cursor = 'grabbing';
     el.style.userSelect = 'none';
@@ -52,17 +53,25 @@ function RankingSection() {
     const el = rankingScrollRef.current;
     if (!el || !isDraggingRef.current) return;
     e.preventDefault();
-    const x = e.pageX - el.offsetLeft;
-    const walk = (x - startXRef.current) * 1;
+    const walk = e.pageX - startXRef.current;
     el.scrollLeft = scrollLeftRef.current - walk;
   };
 
   const onRankingMouseUpLeave = () => {
     const el = rankingScrollRef.current;
     if (!el) return;
+    if (isDraggingRef.current) didDragThisSessionRef.current = true;
     isDraggingRef.current = false;
     el.style.cursor = 'grab';
     el.style.userSelect = '';
+  };
+
+  const onRankingClickCapture = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (didDragThisSessionRef.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      didDragThisSessionRef.current = false;
+    }
   };
 
   const isLoading = activeTab === 'view' ? viewLoading : likeLoading;
@@ -143,8 +152,14 @@ function RankingSection() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -10 }}
             transition={{ duration: 0.2 }}
-            onWheel={handleRankingWheel}
-            className="no-scrollbar flex w-full min-w-0 [touch-action:pan-x] gap-3 overflow-x-auto overflow-y-hidden pt-2 pb-2 pl-2 [-webkit-overflow-scrolling:touch]"
+            onMouseDown={onRankingMouseDown}
+            onMouseMove={onRankingMouseMove}
+            onMouseUp={onRankingMouseUpLeave}
+            onMouseLeave={onRankingMouseUpLeave}
+            onClickCapture={onRankingClickCapture}
+            role="region"
+            aria-label="인기 동아리 가로 스크롤"
+            className="no-scrollbar flex w-full min-w-0 cursor-grab [touch-action:pan-x] gap-3 overflow-x-auto overflow-y-hidden pt-2 pb-2 pl-2 [-webkit-overflow-scrolling:touch] active:cursor-grabbing"
           >
             {top5.map((club, index) => (
               <motion.div
