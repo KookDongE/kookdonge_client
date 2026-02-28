@@ -103,6 +103,21 @@ export default function SettingsPage() {
         >
           알림 설정
         </Link>
+        <button
+          type="button"
+          onClick={() => {
+            const message =
+              '브라우저에서 알림 권한을 해제하려면:\n\n' +
+              '1. 주소창 왼쪽 자물쇠(또는 정보) 아이콘을 클릭하세요.\n' +
+              '2. "사이트 설정" 또는 "알림"을 선택하세요.\n' +
+              '3. 알림을 "차단"으로 변경하세요.\n\n' +
+              '또는 브라우저 설정 → 개인정보 및 보안 → 사이트 설정 → 알림에서 이 사이트의 알림을 차단할 수 있습니다.';
+            alert(message);
+          }}
+          className="flex min-h-[56px] w-full items-center gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 text-left text-base font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700/80"
+        >
+          브라우저 알림 권한 해제
+        </button>
         <Link
           href="/mypage/settings/name"
           className="flex min-h-[56px] w-full items-center gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 text-left text-base font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700/80"
