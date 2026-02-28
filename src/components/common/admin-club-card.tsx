@@ -112,7 +112,7 @@ export function AdminClubCard({
   return (
     <div className="relative overflow-hidden">
       {/* ClubCard를 직접 드래그 가능하게 만들기 */}
-      <div onClick={handleCardClick} className="cursor-pointer">
+      <div onClick={handleCardClick} className="relative z-0 cursor-pointer">
         <ClubCard
           club={clubData}
           index={index}
@@ -127,9 +127,9 @@ export function AdminClubCard({
         />
       </div>
 
-      {/* 숨기기/삭제 버튼: 스와이프로 노출된 경우에만 클릭 가능 */}
+      {/* 숨기기/삭제 버튼: 스와이프로 노출된 경우에만 클릭 가능 (z-10으로 카드 위에 표시) */}
       <div
-        className={`absolute top-0 right-0 flex h-full flex-col justify-center gap-2 px-2 py-2 transition-opacity ${
+        className={`absolute top-0 right-0 z-10 flex h-full flex-col justify-center gap-2 px-2 py-2 transition-opacity ${
           isSwiped ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
         }`}
         style={{ width: '120px' }}

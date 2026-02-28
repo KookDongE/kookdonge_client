@@ -1154,7 +1154,7 @@ function ClubInfoTab({
                 type="date"
                 value={recruitmentStartDate}
                 onChange={(e) => setRecruitmentStartDate(e.target.value)}
-                className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                className="w-full max-w-[220px] rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
               />
             </div>
             <div>
@@ -1165,7 +1165,7 @@ function ClubInfoTab({
                 type="date"
                 value={recruitmentEndDate}
                 onChange={(e) => setRecruitmentEndDate(e.target.value)}
-                className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                className="w-full max-w-[220px] rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
               />
             </div>
             <div>

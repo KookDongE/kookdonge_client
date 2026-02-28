@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -18,10 +18,14 @@ const HomeIcon = ({ active }: { active: boolean }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
-    fill="currentColor"
+    fill={active ? 'currentColor' : 'none'}
+    stroke="currentColor"
+    strokeWidth={active ? 0 : 1.5}
+    strokeLinecap="round"
+    strokeLinejoin="round"
     className="h-6 w-6"
   >
-    {/* 집 형태 단일 경로 (지붕+몸통 채움) */}
+    {/* 집 형태: 선택 시 채움, 비선택 시 아웃라인 */}
     <path d="M12 2L2 12h3v10h6v-6h2v6h6V12h3L12 2z" />
   </svg>
 );
