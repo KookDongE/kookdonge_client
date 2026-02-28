@@ -35,9 +35,9 @@ function MyApplicationsListContent() {
             {filtered.map((app) => (
               <div
                 key={app.id}
-                className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800"
+                className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm"
               >
-                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
+                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100">
                   {app.image ? (
                     <Image
                       src={app.image}
@@ -47,15 +47,13 @@ function MyApplicationsListContent() {
                       sizes="56px"
                     />
                   ) : (
-                    <div className="h-full w-full bg-zinc-200 dark:bg-zinc-700" />
+                    <div className="h-full w-full bg-zinc-200" />
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
                     <div className="min-w-0 flex-1">
-                      <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
-                        {app.name}
-                      </h4>
+                      <h4 className="truncate font-semibold text-zinc-800">{app.name}</h4>
                       <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
                         신청일: {new Date(app.createdAt).toLocaleDateString()}
                       </div>
@@ -91,7 +89,13 @@ function MyApplicationsListContent() {
 
 export default function MyApplicationsListPage() {
   return (
-    <Suspense fallback={<div className="flex justify-center py-12"><Spinner size="lg" /></div>}>
+    <Suspense
+      fallback={
+        <div className="flex justify-center py-12">
+          <Spinner size="lg" />
+        </div>
+      }
+    >
       <MyApplicationsListContent />
     </Suspense>
   );

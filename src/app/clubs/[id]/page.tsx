@@ -92,13 +92,14 @@ function ClubHeader({ clubId }: { clubId: number }) {
   };
 
   return (
-    <div className="bg-white px-4 py-6 dark:bg-zinc-900">
+    <div className="bg-white px-4 py-6">
       <div className="flex gap-4">
-        <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-zinc-100 shadow-sm dark:bg-zinc-800">
+        {/* 동아리 이미지·좋아요·조회수 - 라이트 고정 (앱 뷰에서도 밝게) */}
+        <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-zinc-100 shadow-sm">
           {club.image ? (
             <Image src={club.image} alt={club.name} fill className="object-cover" sizes="112px" />
           ) : (
-            <div className="h-full w-full bg-zinc-200 dark:bg-zinc-700" />
+            <div className="h-full w-full bg-zinc-200" />
           )}
         </div>
         <div className="flex flex-1 flex-col justify-center">
@@ -122,17 +123,15 @@ function ClubHeader({ clubId }: { clubId: number }) {
           onClick={handleLikeToggle}
           disabled={isLiking}
           className={`flex-1 rounded-xl py-3 text-center transition-colors ${
-            club.isLikedByMe ? 'bg-red-200 dark:bg-red-900/50' : 'bg-red-50 dark:bg-red-950/30'
+            club.isLikedByMe ? 'bg-red-200' : 'bg-red-50'
           }`}
         >
           <div
-            className={`text-xl font-bold ${club.isLikedByMe ? 'text-red-600 dark:text-red-300' : 'text-red-500 dark:text-red-400'}`}
+            className={`text-xl font-bold ${club.isLikedByMe ? 'text-red-600' : 'text-red-500'}`}
           >
             {club.totalLikeCount}
           </div>
-          <div
-            className={`text-xs ${club.isLikedByMe ? 'text-red-600/80 dark:text-red-300/80' : 'text-zinc-500 dark:text-zinc-400'}`}
-          >
+          <div className={`text-xs ${club.isLikedByMe ? 'text-red-600/80' : 'text-zinc-500'}`}>
             좋아요
           </div>
         </button>
@@ -140,28 +139,22 @@ function ClubHeader({ clubId }: { clubId: number }) {
           type="button"
           onClick={handleInterestedToggle}
           className={`flex-1 rounded-xl py-3 text-center transition-colors ${
-            isInterestedByMe
-              ? 'bg-amber-200 dark:bg-amber-900/50'
-              : 'bg-amber-50 dark:bg-amber-950/30'
+            isInterestedByMe ? 'bg-amber-200' : 'bg-amber-50'
           }`}
           title="관심 동아리"
         >
           <div
-            className={`text-xl font-bold ${isInterestedByMe ? 'text-amber-700 dark:text-amber-300' : 'text-amber-600 dark:text-amber-400'}`}
+            className={`text-xl font-bold ${isInterestedByMe ? 'text-amber-700' : 'text-amber-600'}`}
           >
             {isInterestedByMe ? '★' : '☆'}
           </div>
-          <div
-            className={`text-xs ${isInterestedByMe ? 'text-amber-700/80 dark:text-amber-300/80' : 'text-zinc-500 dark:text-zinc-400'}`}
-          >
+          <div className={`text-xs ${isInterestedByMe ? 'text-amber-700/80' : 'text-zinc-500'}`}>
             관심
           </div>
         </button>
-        <div className="flex-1 rounded-xl bg-blue-50 py-3 text-center dark:bg-blue-950/30">
-          <div className="text-xl font-bold text-blue-500 dark:text-blue-400">
-            {club.totalViewCount}
-          </div>
-          <div className="text-xs text-zinc-500 dark:text-zinc-400">조회수</div>
+        <div className="flex-1 rounded-xl bg-blue-50 py-3 text-center">
+          <div className="text-xl font-bold text-blue-500">{club.totalViewCount}</div>
+          <div className="text-xs text-zinc-500">조회수</div>
         </div>
       </div>
     </div>

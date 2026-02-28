@@ -70,14 +70,14 @@ function RankingSection() {
       <div className="mb-4 flex items-center justify-between">
         <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100">이번 주 인기</span>
         <div className="flex items-center gap-2">
-          {/* Tab Buttons */}
-          <div className="flex gap-1 rounded-full bg-zinc-100 p-1 dark:bg-zinc-800">
+          {/* Tab Buttons - 라이트 고정 (앱 뷰에서도 밝게) */}
+          <div className="flex gap-1 rounded-full bg-zinc-100 p-1">
             <button
               onClick={() => setActiveTab('view')}
               className={`rounded-full px-3 py-1 text-xs font-semibold transition-all ${
                 activeTab === 'view'
-                  ? 'bg-blue-500 text-white dark:bg-lime-400 dark:text-zinc-900'
-                  : 'text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200'
+                  ? 'bg-blue-500 text-white'
+                  : 'text-zinc-500 hover:text-zinc-700'
               }`}
             >
               조회수
@@ -86,8 +86,8 @@ function RankingSection() {
               onClick={() => setActiveTab('like')}
               className={`rounded-full px-3 py-1 text-xs font-semibold transition-all ${
                 activeTab === 'like'
-                  ? 'bg-blue-500 text-white dark:bg-lime-400 dark:text-zinc-900'
-                  : 'text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200'
+                  ? 'bg-blue-500 text-white'
+                  : 'text-zinc-500 hover:text-zinc-700'
               }`}
             >
               좋아요
@@ -97,7 +97,7 @@ function RankingSection() {
       </div>
 
       {isEmpty ? (
-        <div className="flex h-36 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 text-sm text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
+        <div className="flex h-36 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 text-sm text-zinc-400">
           인기 동아리가 없습니다
         </div>
       ) : (
@@ -120,15 +120,15 @@ function RankingSection() {
                 <Link href={`/clubs/${club.id}`}>
                   <motion.div
                     whileTap={{ scale: 0.95 }}
-                    className="club-logo-wrap relative flex w-24 shrink-0 flex-col items-center rounded-2xl bg-zinc-100 p-3 dark:bg-zinc-800"
+                    className="club-logo-wrap relative flex w-24 shrink-0 flex-col items-center rounded-2xl bg-zinc-100 p-3"
                   >
                     {/* Rank Badge */}
-                    <div className="absolute -top-1 -left-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white dark:bg-lime-400 dark:text-zinc-900">
+                    <div className="absolute -top-1 -left-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white">
                       {index + 1}
                     </div>
 
-                    {/* Avatar - 이미지 없거나 로드 실패 시 아이콘 */}
-                    <div className="club-logo-placeholder relative mb-2 h-14 w-14 overflow-hidden rounded-full bg-zinc-200 ring-2 ring-blue-400/30 dark:bg-zinc-700 dark:ring-lime-400/30">
+                    {/* Avatar - 라이트 고정 (앱 뷰에서도 밝게) */}
+                    <div className="club-logo-placeholder relative mb-2 h-14 w-14 overflow-hidden rounded-full bg-zinc-200 ring-2 ring-blue-400/30">
                       {club.logoImage && !imageError[club.id] ? (
                         <>
                           {!imageLoaded[club.id] && (
@@ -147,17 +147,17 @@ function RankingSection() {
                           />
                         </>
                       ) : (
-                        <div className="h-full w-full rounded-full bg-zinc-200 dark:bg-zinc-700" />
+                        <div className="h-full w-full rounded-full bg-zinc-200" />
                       )}
                     </div>
 
                     {/* Name */}
-                    <span className="line-clamp-1 text-center text-[11px] font-semibold text-zinc-700 dark:text-zinc-300">
+                    <span className="line-clamp-1 text-center text-[11px] font-semibold text-zinc-700">
                       {club.name}
                     </span>
 
                     {/* Growth Badge */}
-                    <span className="mt-1 rounded-full bg-lime-400/20 px-2 py-0.5 text-[9px] font-medium text-lime-700 dark:bg-lime-400/30 dark:text-lime-300">
+                    <span className="mt-1 rounded-full bg-lime-400/20 px-2 py-0.5 text-[9px] font-medium text-lime-700">
                       +{activeTab === 'view' ? club.weeklyViewGrowth : club.weeklyLikeGrowth}
                     </span>
                   </motion.div>

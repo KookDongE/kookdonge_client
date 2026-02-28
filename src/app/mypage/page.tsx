@@ -6,20 +6,19 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { Button, Chip, Spinner } from '@heroui/react';
-
 import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
 
 import { ClubType } from '@/types/api';
-import { deviceApi } from '@/features/device/api';
-import { getOrCreateDeviceId } from '@/features/device/device-id';
 import { authApi } from '@/features/auth/api';
 import { useMyProfile } from '@/features/auth/hooks';
 import { useAuthStore } from '@/features/auth/store';
-import { useMyWaitingList } from '@/features/waiting-list/hooks';
+import { useLikedClubs, useManagedClubs, useMyApplications } from '@/features/club/hooks';
 import { useInterestedStore } from '@/features/club/interested-store';
-import { useManagedClubs, useLikedClubs, useMyApplications } from '@/features/club/hooks';
+import { deviceApi } from '@/features/device/api';
+import { getOrCreateDeviceId } from '@/features/device/device-id';
 import { useMyQuestions, usePendingQuestions, useQuestions } from '@/features/question/hooks';
+import { useMyWaitingList } from '@/features/waiting-list/hooks';
 
 const TYPE_LABEL: Record<ClubType, string> = {
   CENTRAL: '중앙동아리',
@@ -75,7 +74,7 @@ function SettingsDropdown({
   onWithdraw: () => void;
 }) {
   return (
-    <div className="absolute right-0 top-full z-50 mt-2 w-48 rounded-xl border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
+    <div className="absolute top-full right-0 z-50 mt-2 w-48 rounded-xl border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
       <button
         type="button"
         onClick={onLogout}
@@ -133,7 +132,10 @@ function ProfileSection() {
 
   const handleWithdraw = async () => {
     setSettingsOpen(false);
-    if (!confirm('정말 회원탈퇴를 하시겠습니까?\n탈퇴 후 모든 데이터가 삭제되며 복구할 수 없습니다.')) return;
+    if (
+      !confirm('정말 회원탈퇴를 하시겠습니까?\n탈퇴 후 모든 데이터가 삭제되며 복구할 수 없습니다.')
+    )
+      return;
     try {
       await authApi.withdraw();
       clearAuth();
@@ -155,13 +157,13 @@ function ProfileSection() {
   return (
     <div className="px-4 py-8">
       <div className="flex items-center justify-between gap-4">
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           {profile ? (
             <div className="space-y-1">
-              <h2 className="text-lg font-bold text-zinc-800 dark:text-zinc-100 truncate">
+              <h2 className="truncate text-lg font-bold text-zinc-800 dark:text-zinc-100">
                 {profile.name || profile.email}
               </h2>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400 truncate">{profile.email}</p>
+              <p className="truncate text-sm text-zinc-600 dark:text-zinc-400">{profile.email}</p>
               {[profile.department, profile.studentId, profile.phoneNumber].some(Boolean) && (
                 <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-zinc-500 dark:text-zinc-400">
                   {profile.department && <span>{profile.department}</span>}
@@ -207,7 +209,11 @@ function ProfileSection() {
                   strokeLinejoin="round"
                   d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
                 />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
               </svg>
             </motion.button>
             {/* 설정 버튼 클릭 시 로그아웃·회원탈퇴 드롭다운 표시 */}
@@ -267,9 +273,7 @@ function WaitingListSection() {
                   {club.clubName}
                 </p>
                 <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                  {club.createdAt
-                    ? new Date(club.createdAt).toLocaleDateString()
-                    : '-'}
+                  {club.createdAt ? new Date(club.createdAt).toLocaleDateString() : '-'}
                 </p>
               </div>
               <svg
@@ -378,10 +382,10 @@ function PendingQuestionsSection() {
   const router = useRouter();
 
   const firstManagedClubId = managedClubs?.[0]?.id;
-  const { data: pendingQuestions, isLoading } = usePendingQuestions(
-    firstManagedClubId || 0,
-    { page: 0, size: 5 }
-  );
+  const { data: pendingQuestions, isLoading } = usePendingQuestions(firstManagedClubId || 0, {
+    page: 0,
+    size: 5,
+  });
 
   if (!firstManagedClubId || !pendingQuestions || pendingQuestions.content.length === 0) {
     return null;
@@ -493,7 +497,7 @@ function QuestionsListSection() {
                   Q
                 </Chip>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 line-clamp-2">
+                  <p className="line-clamp-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
                     {qna.question}
                   </p>
                   <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
@@ -507,7 +511,12 @@ function QuestionsListSection() {
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
                 </svg>
               </div>
             </button>
@@ -569,7 +578,7 @@ function AnsweredListSection() {
                   A
                 </Chip>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 line-clamp-1">
+                  <p className="line-clamp-1 text-sm font-medium text-zinc-900 dark:text-zinc-100">
                     {qna.question}
                   </p>
                   <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
@@ -583,7 +592,12 @@ function AnsweredListSection() {
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
                 </svg>
               </div>
             </button>
@@ -622,9 +636,9 @@ function LikedClubsSection() {
             <Link
               key={club.id}
               href={`/clubs/${club.id}`}
-              className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
+              className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md"
             >
-              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
+              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100">
                 {club.logoImage ? (
                   <Image
                     src={club.logoImage}
@@ -634,13 +648,11 @@ function LikedClubsSection() {
                     sizes="56px"
                   />
                 ) : (
-                  <div className="h-full w-full bg-zinc-200 dark:bg-zinc-700" />
+                  <div className="h-full w-full bg-zinc-200" />
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
-                  {club.name}
-                </h4>
+                <h4 className="truncate font-semibold text-zinc-800">{club.name}</h4>
                 <div className="mt-1 flex items-center gap-2">
                   <Chip size="sm" color="accent" variant="soft">
                     {TYPE_LABEL[club.type]}
@@ -648,7 +660,7 @@ function LikedClubsSection() {
                 </div>
               </div>
               <svg
-                className="h-5 w-5 text-zinc-400 dark:text-zinc-500"
+                className="h-5 w-5 text-zinc-400"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -692,9 +704,9 @@ function InterestedClubsSection() {
             <Link
               key={club.id}
               href={`/clubs/${club.id}`}
-              className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
+              className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md"
             >
-              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
+              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100">
                 {club.logoImage ? (
                   <Image
                     src={club.logoImage}
@@ -704,13 +716,11 @@ function InterestedClubsSection() {
                     sizes="56px"
                   />
                 ) : (
-                  <div className="h-full w-full bg-zinc-200 dark:bg-zinc-700" />
+                  <div className="h-full w-full bg-zinc-200" />
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
-                  {club.name}
-                </h4>
+                <h4 className="truncate font-semibold text-zinc-800">{club.name}</h4>
                 <div className="mt-1 flex items-center gap-2">
                   <Chip size="sm" color="accent" variant="soft">
                     {TYPE_LABEL[club.type]}
@@ -718,7 +728,7 @@ function InterestedClubsSection() {
                 </div>
               </div>
               <svg
-                className="h-5 w-5 text-zinc-400 dark:text-zinc-500"
+                className="h-5 w-5 text-zinc-400"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -807,56 +817,58 @@ function MyApplicationsSection() {
           <p>신청한 동아리가 없습니다.</p>
         </div>
       ) : (
-      <div className="space-y-3">
-        {list.slice(0, PREVIEW_LIMIT).map((app) => (
-          <div
-            key={app.id}
-            className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
-          >
-            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
-              {app.image ? (
-                <Image
-                  src={app.image}
-                  alt={app.name}
-                  fill
-                  className="object-cover"
-                  sizes="56px"
-                />
-              ) : (
-                <div className="h-full w-full bg-zinc-200 dark:bg-zinc-700" />
-              )}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                  <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">{app.name}</h4>
-                  <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
-                    신청일: {new Date(app.createdAt).toLocaleDateString()}
+        <div className="space-y-3">
+          {list.slice(0, PREVIEW_LIMIT).map((app) => (
+            <div
+              key={app.id}
+              className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
+            >
+              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
+                {app.image ? (
+                  <Image
+                    src={app.image}
+                    alt={app.name}
+                    fill
+                    className="object-cover"
+                    sizes="56px"
+                  />
+                ) : (
+                  <div className="h-full w-full bg-zinc-200 dark:bg-zinc-700" />
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
+                      {app.name}
+                    </h4>
+                    <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
+                      신청일: {new Date(app.createdAt).toLocaleDateString()}
+                    </div>
                   </div>
-                </div>
-                <Chip
-                  size="sm"
-                  color={
-                    app.status === 'PENDING'
-                      ? 'warning'
+                  <Chip
+                    size="sm"
+                    color={
+                      app.status === 'PENDING'
+                        ? 'warning'
+                        : app.status === 'APPROVED'
+                          ? 'success'
+                          : 'danger'
+                    }
+                    variant="soft"
+                    className="shrink-0"
+                  >
+                    {app.status === 'PENDING'
+                      ? '대기중'
                       : app.status === 'APPROVED'
-                        ? 'success'
-                        : 'danger'
-                  }
-                  variant="soft"
-                  className="shrink-0"
-                >
-                  {app.status === 'PENDING'
-                    ? '대기중'
-                    : app.status === 'APPROVED'
-                      ? '승인됨'
-                      : '거절됨'}
-                </Chip>
+                        ? '승인됨'
+                        : '거절됨'}
+                  </Chip>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
       )}
     </div>
   );

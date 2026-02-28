@@ -627,13 +627,17 @@ function ClubInfoTab({
   isSaving: boolean;
 }) {
   const infoItems = [
+    { label: '동아리 이름', value: club.name || '-' },
+    { label: '한 줄 소개', value: club.summary || club.description || '-' },
+    { label: '카테고리', value: CATEGORY_LABEL[club.category] },
+    { label: '동아리 유형', value: TYPE_LABEL[club.type] },
     {
       label: '모집 기간',
       value: `${formatDate(club.recruitmentStartDate)} ~ ${formatDate(club.recruitmentEndDate)}`,
     },
-    { label: '대상', value: club.targetGraduate },
-    { label: '동아리장', value: club.leaderName },
-    { label: '활동 장소', value: club.location },
+    { label: '대상', value: club.targetGraduate || '-' },
+    { label: '동아리장', value: club.leaderName || '-' },
+    { label: '활동 장소', value: club.location || '-' },
     {
       label: '주간 활동',
       value:
@@ -641,6 +645,9 @@ function ClubInfoTab({
         (club.weeklyActiveFrequency != null ? `${club.weeklyActiveFrequency}회` : '-'),
     },
   ];
+
+  const valueBoxClass =
+    'min-h-[48px] w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800/50 dark:text-zinc-100';
 
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -698,11 +705,13 @@ function ClubInfoTab({
           )}
         </div>
         {!isEditingBasic ? (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {infoItems.map((item) => (
-              <div key={item.label} className="flex justify-between text-sm">
-                <span className="text-zinc-500 dark:text-zinc-400">{item.label}</span>
-                <span className="font-medium text-zinc-900 dark:text-zinc-100">{item.value}</span>
+              <div key={item.label}>
+                <label className="mb-1.5 block text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                  {item.label}
+                </label>
+                <div className={valueBoxClass}>{item.value}</div>
               </div>
             ))}
           </div>
@@ -921,19 +930,27 @@ function ClubInfoTab({
         </div>
         {!isEditingContent ? (
           <>
-            <p className="text-sm leading-relaxed whitespace-pre-wrap text-zinc-700 dark:text-zinc-300">
+            <label className="mb-1.5 block text-sm font-medium text-zinc-500 dark:text-zinc-400">
+              상세 설명
+            </label>
+            <div className="min-h-[120px] w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800/50 dark:text-zinc-100">
               {club.content || '내용이 없습니다.'}
-            </p>
+            </div>
             {descriptionImages && descriptionImages.length > 0 && (
-              <div className="mt-4 grid grid-cols-3 gap-2">
-                {descriptionImages.map((url: string, index: number) => (
-                  <div
-                    key={index}
-                    className="relative aspect-square overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-700"
-                  >
-                    <Image src={url} alt="" fill className="object-cover" sizes="120px" />
-                  </div>
-                ))}
+              <div className="mt-4">
+                <label className="mb-1.5 block text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                  설명 이미지
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {descriptionImages.map((url: string, index: number) => (
+                    <div
+                      key={index}
+                      className="relative aspect-square overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-700"
+                    >
+                      <Image src={url} alt="" fill className="object-cover" sizes="120px" />
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </>
@@ -1091,36 +1108,48 @@ function ClubInfoTab({
           )}
         </div>
         {!isEditingRecruitment ? (
-          <div className="space-y-3">
-            <div className="flex justify-between text-sm">
-              <span className="text-zinc-500 dark:text-zinc-400">모집 상태</span>
-              <Chip
-                size="sm"
-                color={STATUS_CONFIG[club.recruitmentStatus as RecruitmentStatus].color}
-                variant="soft"
-              >
-                {STATUS_CONFIG[club.recruitmentStatus as RecruitmentStatus].label}
-              </Chip>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-zinc-500 dark:text-zinc-400">모집 기간</span>
-              <span className="font-medium text-zinc-900 dark:text-zinc-100">
-                {formatDate(club.recruitmentStartDate)} ~ {formatDate(club.recruitmentEndDate)}
-              </span>
-            </div>
-            {(club.applicationLink || club.recruitmentUrl) && (
-              <div className="flex justify-between text-sm">
-                <span className="text-zinc-500 dark:text-zinc-400">지원 링크</span>
-                <a
-                  href={club.applicationLink || club.recruitmentUrl || ''}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-medium text-blue-500 hover:underline dark:text-blue-400"
+          <div className="space-y-4">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                모집 상태
+              </label>
+              <div className={valueBoxClass}>
+                <Chip
+                  size="sm"
+                  color={STATUS_CONFIG[club.recruitmentStatus as RecruitmentStatus].color}
+                  variant="soft"
                 >
-                  링크 열기
-                </a>
+                  {STATUS_CONFIG[club.recruitmentStatus as RecruitmentStatus].label}
+                </Chip>
               </div>
-            )}
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                모집 기간
+              </label>
+              <div className={valueBoxClass}>
+                {formatDate(club.recruitmentStartDate)} ~ {formatDate(club.recruitmentEndDate)}
+              </div>
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                지원 링크
+              </label>
+              <div className={valueBoxClass}>
+                {club.applicationLink || club.recruitmentUrl ? (
+                  <a
+                    href={club.applicationLink || club.recruitmentUrl || ''}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:underline dark:text-blue-400"
+                  >
+                    링크 열기
+                  </a>
+                ) : (
+                  <span className="text-zinc-400 dark:text-zinc-500">없음</span>
+                )}
+              </div>
+            </div>
           </div>
         ) : (
           <div className="space-y-5">
