@@ -31,6 +31,10 @@
   --border: #e4e4e7;
   --accent: var(--color-accent-blue);
   --accent-foreground: #ffffff;
+  --dropdown-bg: #ffffff;
+  --dropdown-border: #e4e4e7;
+  --dropdown-text: #3f3f46;
+  --dropdown-hover: #f4f4f5;
 }
 
 /* Dark Mode */
@@ -43,6 +47,10 @@
   --muted: #27272a;
   --muted-foreground: #a1a1aa;
   --border: #27272a;
+  --dropdown-bg: #27272a;
+  --dropdown-border: #3f3f46;
+  --dropdown-text: #e4e4e7;
+  --dropdown-hover: #3f3f46;
   --accent: var(--color-accent-lime);
   --accent-foreground: #09090b;
 }
@@ -118,42 +126,6 @@ html:not(.dark) .club-manage-dropdown [role='option']:hover,
 html:not(.dark) .club-manage-dropdown-list [role='option']:hover,
 html:not(.dark) .club-manage-dropdown [data-slot='listbox-item']:hover,
 html:not(.dark) .club-manage-dropdown-list [data-slot='listbox-item']:hover {
-  background-color: #f4f4f5 !important;
-  color: #09090b !important;
-}
-
-/* 동아리 관리 페이지일 때: 드롭다운 항상 라이트 (폰·시스템 다크모드에서도) */
-body.page-club-manage .club-manage-select-trigger {
-  color-scheme: light !important;
-  background-color: #ffffff !important;
-  color: #09090b !important;
-  border-color: #e4e4e7 !important;
-}
-
-body.page-club-manage .club-manage-dropdown,
-body.page-club-manage .club-manage-dropdown-list,
-body.page-club-manage .club-manage-dropdown div,
-body.page-club-manage .club-manage-dropdown-list div {
-  color-scheme: light !important;
-  background-color: #ffffff !important;
-  border-color: #e4e4e7 !important;
-  color: #09090b !important;
-}
-
-body.page-club-manage .club-manage-dropdown [role='listbox'],
-body.page-club-manage .club-manage-dropdown-list [role='listbox'],
-body.page-club-manage .club-manage-dropdown [role='option'],
-body.page-club-manage .club-manage-dropdown-list [role='option'],
-body.page-club-manage .club-manage-dropdown [data-slot='listbox-item'],
-body.page-club-manage .club-manage-dropdown-list [data-slot='listbox-item'] {
-  background-color: #ffffff !important;
-  color: #09090b !important;
-}
-
-body.page-club-manage .club-manage-dropdown [role='option']:hover,
-body.page-club-manage .club-manage-dropdown-list [role='option']:hover,
-body.page-club-manage .club-manage-dropdown [data-slot='listbox-item']:hover,
-body.page-club-manage .club-manage-dropdown-list [data-slot='listbox-item']:hover {
   background-color: #f4f4f5 !important;
   color: #09090b !important;
 }

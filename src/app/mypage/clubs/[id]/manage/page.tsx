@@ -114,12 +114,6 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   // Q&A 답변 상태
   const [answerTexts, setAnswerTexts] = useState<Record<number, string>>({});
 
-  // 동아리 관리 페이지에서 드롭다운 라이트 모드 강제 (폰에서 다크로 보이는 오류 방지)
-  useEffect(() => {
-    document.body.classList.add('page-club-manage');
-    return () => document.body.classList.remove('page-club-manage');
-  }, []);
-
   // 데이터 로드 시 폼 초기화 (동아리 변경 시 폼 리셋)
   /* eslint-disable react-hooks/set-state-in-effect -- 폼 초기값을 서버 데이터와 동기화 */
   useEffect(() => {
@@ -1190,28 +1184,36 @@ function ClubInfoTab({
                 </Select.Popover>
               </Select>
             </div>
-            <div className="flex flex-col items-end">
-              <label className="mb-2 w-full text-sm font-medium text-gray-700 dark:text-zinc-300">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
                 모집 시작일
               </label>
               <input
                 type="date"
                 max={recruitmentEndDate || undefined}
                 value={recruitmentStartDate}
-                onChange={(e) => setRecruitmentStartDate(e.target.value)}
-                className="w-full max-w-[170px] rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setRecruitmentStartDate(v);
+                  if (recruitmentEndDate && v > recruitmentEndDate) setRecruitmentEndDate(v);
+                }}
+                className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
               />
             </div>
-            <div className="flex flex-col items-end">
-              <label className="mb-2 w-full text-sm font-medium text-gray-700 dark:text-zinc-300">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
                 모집 종료일
               </label>
               <input
                 type="date"
                 min={recruitmentStartDate || undefined}
                 value={recruitmentEndDate}
-                onChange={(e) => setRecruitmentEndDate(e.target.value)}
-                className="w-full max-w-[170px] rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (recruitmentStartDate && v < recruitmentStartDate) return;
+                  setRecruitmentEndDate(v);
+                }}
+                className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
               />
             </div>
             <div>

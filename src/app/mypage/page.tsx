@@ -77,25 +77,30 @@ function SettingsDropdown({
   onWithdraw: () => void;
 }) {
   return (
-    <div className="absolute top-full right-0 z-50 mt-2 w-48 rounded-xl border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
+    <div
+      className="absolute top-full right-0 z-50 mt-2 w-48 rounded-xl border py-1 shadow-lg"
+      style={{ borderColor: 'var(--dropdown-border)', background: 'var(--dropdown-bg)' }}
+    >
       <Link
         href="/mypage/notification-settings"
         onClick={onClose}
-        className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-700"
+        className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm transition-colors hover:bg-[var(--dropdown-hover)]"
+        style={{ color: 'var(--dropdown-text)' }}
       >
         알림 설정
       </Link>
       <button
         type="button"
         onClick={onLogout}
-        className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-700"
+        className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm transition-colors hover:bg-[var(--dropdown-hover)]"
+        style={{ color: 'var(--dropdown-text)' }}
       >
         로그아웃
       </button>
       <button
         type="button"
         onClick={onWithdraw}
-        className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-red-600 transition-colors hover:bg-zinc-100 dark:text-red-400 dark:hover:bg-zinc-700"
+        className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-red-600 transition-colors hover:bg-[var(--dropdown-hover)] dark:text-red-400"
       >
         회원탈퇴
       </button>
