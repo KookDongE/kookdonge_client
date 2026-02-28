@@ -195,7 +195,7 @@ function ClubHeader({ clubId }: { clubId: number }) {
                 className="pointer-events-none absolute inset-0 flex items-center justify-center"
                 aria-hidden
               >
-                <span className="h-0.5 w-[140%] rotate-[-35deg] rounded-full bg-current opacity-70" />
+                <span className="h-0.5 w-1/3 rotate-45 rounded-full bg-current opacity-70" />
               </span>
             )}
           </div>
