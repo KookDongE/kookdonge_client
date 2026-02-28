@@ -5,7 +5,10 @@ import { UserProfileRes } from '@/types/api';
 
 export const AUTH_STORAGE_KEY = 'auth-storage';
 
-type PersistedAuth = { state: { accessToken: string | null; refreshToken: string | null }; version?: number };
+type PersistedAuth = {
+  state: { accessToken: string | null; refreshToken: string | null };
+  version?: number;
+};
 
 /** localStorage에 저장된 토큰을 읽습니다. 재수화 전 AuthGuard 등에서 사용 */
 export function getStoredTokens(): { accessToken: string; refreshToken: string } | null {
@@ -23,16 +26,33 @@ export function getStoredTokens(): { accessToken: string; refreshToken: string }
   }
 }
 
-/** SSR 시 localStorage 없음 처리. 클라이언트에서는 createJSONStorage가 직렬화/역직렬화 담당 */
-function getAuthStorage() {
+/** 재수화가 끝나기 전에는 setItem을 하지 않아, 초기 상태(null)가 저장된 토큰을 덮어쓰지 않도록 함 */
+let hasRehydrated = false;
+
+/** SSR 시 localStorage 없음 처리. 클라이언트에서는 재수화 전에는 쓰기만 막고 읽기는 허용 */
+function getAuthStorage(): Storage {
   if (typeof window === 'undefined') {
     return {
       getItem: () => null,
       setItem: () => {},
       removeItem: () => {},
-    };
+      length: 0,
+      key: () => null,
+      clear: () => {},
+    } as Storage;
   }
-  return localStorage;
+  return {
+    getItem: (key: string) => localStorage.getItem(key),
+    setItem: (key: string, value: string) => {
+      if (hasRehydrated) localStorage.setItem(key, value);
+    },
+    removeItem: (key: string) => localStorage.removeItem(key),
+    get length() {
+      return localStorage.length;
+    },
+    key: (index: number) => localStorage.key(index),
+    clear: () => localStorage.clear(),
+  } as Storage;
 }
 
 /** 로그인 여부는 accessToken 존재 여부로 판단합니다. AuthGuard·API 클라이언트 모두 이 값을 사용합니다. */
@@ -85,6 +105,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         refreshToken: state.refreshToken,
       }),
       onRehydrateStorage: () => (state) => {
+        hasRehydrated = true;
         state?.setInitialized(true);
       },
       /** SSR 시 자동 재수화 비활성화. 클라이언트에서 AuthProvider가 rehydrate() 호출 */
