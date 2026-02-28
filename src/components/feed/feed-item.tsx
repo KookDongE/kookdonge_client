@@ -2,6 +2,8 @@
 
 import Image from 'next/image';
 
+import { DefaultClubImage } from '@/components/common/default-club-image';
+
 type FeedItemProps = {
   feedId: number;
   authorName: string;
@@ -41,16 +43,24 @@ export function FeedItem({
         <div className="flex min-w-0 items-center gap-3">
           <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700">
             {authorAvatar ? (
-              <Image src={authorAvatar} alt={authorName} fill className="object-cover" sizes="40px" />
+              <Image
+                src={authorAvatar}
+                alt={authorName}
+                fill
+                className="object-cover"
+                sizes="40px"
+              />
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-lg text-zinc-400 dark:text-zinc-500">
-                {authorName.charAt(0).toUpperCase()}
-              </div>
+              <DefaultClubImage className="rounded-full object-cover" sizes="40px" />
             )}
           </div>
-          <span className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">{authorName}</span>
+          <span className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+            {authorName}
+          </span>
         </div>
-        <span className="shrink-0 text-xs text-zinc-400 dark:text-zinc-500">{formatTimeAgo(createdAt)}</span>
+        <span className="shrink-0 text-xs text-zinc-400 dark:text-zinc-500">
+          {formatTimeAgo(createdAt)}
+        </span>
       </div>
 
       {/* 미디어 영역 */}

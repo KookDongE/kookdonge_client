@@ -20,6 +20,7 @@ import {
 } from '@/features/club/hooks';
 import { AdminClubCard } from '@/components/common/admin-club-card';
 import { ClubCard, ClubCardSkeleton } from '@/components/common/club-card';
+import { DefaultClubImage } from '@/components/common/default-club-image';
 import { SearchFilterBar } from '@/components/common/search-filter-bar';
 
 type RankingTab = 'view' | 'like';
@@ -127,8 +128,8 @@ function RankingSection() {
                       {index + 1}
                     </div>
 
-                    {/* Avatar - 앱 뷰 라이트 모드에서 밝게 보이도록 라이트 전용 */}
-                    <div className="club-logo-placeholder relative mb-2 h-14 w-14 overflow-hidden rounded-full bg-zinc-200 ring-2 ring-blue-400/30">
+                    {/* Avatar */}
+                    <div className="club-logo-placeholder relative mb-2 h-14 w-14 overflow-hidden rounded-full bg-zinc-200 ring-2 ring-blue-400/30 dark:bg-zinc-700 dark:ring-lime-400/30">
                       {club.logoImage && !imageError[club.id] ? (
                         <>
                           {!imageLoaded[club.id] && (
@@ -147,7 +148,7 @@ function RankingSection() {
                           />
                         </>
                       ) : (
-                        <div className="h-full w-full rounded-full bg-zinc-200" />
+                        <DefaultClubImage className="rounded-full object-cover" sizes="56px" />
                       )}
                     </div>
 

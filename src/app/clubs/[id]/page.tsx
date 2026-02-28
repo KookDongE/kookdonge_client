@@ -13,6 +13,7 @@ import { useClubDetail, useLikeClub, useUnlikeClub } from '@/features/club/hooks
 import { useInterestedStore } from '@/features/club/interested-store';
 import { useClubFeeds } from '@/features/feed/hooks';
 import { useCreateQuestion, useQuestions } from '@/features/question/hooks';
+import { DefaultClubImage } from '@/components/common/default-club-image';
 
 const CATEGORY_LABEL: Record<ClubCategory, string> = {
   PERFORMING_ARTS: '공연예술',
@@ -98,7 +99,7 @@ function ClubHeader({ clubId }: { clubId: number }) {
           {club.image ? (
             <Image src={club.image} alt={club.name} fill className="object-cover" sizes="112px" />
           ) : (
-            <div className="h-full w-full bg-zinc-200 dark:bg-zinc-700" />
+            <DefaultClubImage className="object-cover" sizes="112px" />
           )}
         </div>
         <div className="flex flex-1 flex-col justify-center">

@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, useMemo, useEffect } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -11,6 +11,7 @@ import { parseAsString, useQueryState } from 'nuqs';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
 import { useAdminApplications } from '@/features/club/hooks';
+import { DefaultClubImage } from '@/components/common/default-club-image';
 import { SearchFilterBar } from '@/components/common/search-filter-bar';
 
 function ApplicationManagementTab({
@@ -22,7 +23,10 @@ function ApplicationManagementTab({
 } = {}) {
   const [q] = useQueryState('q', parseAsString.withDefault(''));
   const { data: applications, isLoading } = useAdminApplications();
-  const pending = useMemo(() => applications?.filter((app) => app.status === 'PENDING') ?? [], [applications]);
+  const pending = useMemo(
+    () => applications?.filter((app) => app.status === 'PENDING') ?? [],
+    [applications]
+  );
   const filtered = useMemo(
     () =>
       q?.trim()
@@ -50,58 +54,60 @@ function ApplicationManagementTab({
         />
       </div>
       <div className="space-y-4 p-4">
-      {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-white py-12 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
-          <p>{q?.trim() ? '검색 결과가 없습니다.' : '대기 중인 신청이 없습니다.'}</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {filtered.map((app) => (
-            <Link
-              key={app.id}
-              href={`/admin/applications/${app.id}`}
-              className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
-            >
-              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
-                {app.image ? (
-                  <Image
-                    src={app.image}
-                    alt={app.name}
-                    fill
-                    className="object-cover"
-                    sizes="56px"
-                  />
-                ) : (
-                  <div className="h-full w-full bg-zinc-200 dark:bg-zinc-700" />
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="min-w-0 flex-1">
-                    <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">{app.name}</h4>
-                    <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
-                      신청일: {new Date(app.createdAt).toLocaleDateString()}
-                    </div>
-                  </div>
-                  <Chip size="sm" color="warning" variant="soft" className="shrink-0">
-                    승인 대기
-                  </Chip>
-                </div>
-              </div>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
+        {filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-white py-12 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
+            <p>{q?.trim() ? '검색 결과가 없습니다.' : '대기 중인 신청이 없습니다.'}</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {filtered.map((app) => (
+              <Link
+                key={app.id}
+                href={`/admin/applications/${app.id}`}
+                className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          ))}
-        </div>
-      )}
+                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
+                  {app.image ? (
+                    <Image
+                      src={app.image}
+                      alt={app.name}
+                      fill
+                      className="object-cover"
+                      sizes="56px"
+                    />
+                  ) : (
+                    <DefaultClubImage className="object-cover" sizes="56px" />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
+                        {app.name}
+                      </h4>
+                      <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
+                        신청일: {new Date(app.createdAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <Chip size="sm" color="warning" variant="soft" className="shrink-0">
+                      승인 대기
+                    </Chip>
+                  </div>
+                </div>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -176,12 +182,10 @@ function AdminSettingsTab() {
                 key={email}
                 className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
               >
-                <span className="text-sm font-medium text-gray-900 dark:text-zinc-100">{email}</span>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onPress={() => handleRemoveAdmin(email)}
-                >
+                <span className="text-sm font-medium text-gray-900 dark:text-zinc-100">
+                  {email}
+                </span>
+                <Button size="sm" variant="ghost" onPress={() => handleRemoveAdmin(email)}>
                   제거
                 </Button>
               </div>
@@ -281,7 +285,13 @@ function AdminPageContent() {
 
 export default function AdminPage() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center"><Spinner /></div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <Spinner />
+        </div>
+      }
+    >
       <AdminPageContent />
     </Suspense>
   );
