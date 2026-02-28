@@ -738,7 +738,12 @@ function ClubInfoTab({
                     {image ? (
                       <Image src={image} alt="프로필" fill className="object-cover" sizes="96px" />
                     ) : (
-                      <DefaultClubImage className="rounded-full object-cover" sizes="96px" />
+                      <div
+                        className="absolute inset-0 flex items-center justify-center rounded-full bg-zinc-200 text-3xl font-light text-zinc-400 dark:bg-zinc-600 dark:text-zinc-500"
+                        aria-hidden
+                      >
+                        +
+                      </div>
                     )}
                     <div className="absolute right-0 bottom-0 flex h-7 w-7 items-center justify-center rounded-full bg-blue-500 text-white shadow-md">
                       <svg
@@ -882,14 +887,22 @@ function ClubInfoTab({
               <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
                 주간 활동 횟수
               </label>
-              <input
-                type="number"
-                min="0"
-                max="7"
-                value={weeklyActiveFrequency.toString()}
-                onChange={(e) => setWeeklyActiveFrequency(parseInt(e.target.value) || 0)}
-                className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
-              />
+              <div className="flex flex-wrap gap-2">
+                {([1, 2, 3, 4, 5, 6, 7] as const).map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => setWeeklyActiveFrequency(n)}
+                    className={`h-11 min-w-11 rounded-xl border px-3 text-sm font-medium transition-colors ${
+                      weeklyActiveFrequency === n
+                        ? 'border-blue-500 bg-blue-500 text-white dark:border-lime-400 dark:bg-lime-400 dark:text-zinc-900'
+                        : 'border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700'
+                    }`}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
