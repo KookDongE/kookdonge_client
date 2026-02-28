@@ -12,8 +12,7 @@ import { Header } from '@/components/common/header';
 
 import '@/styles/globals.css';
 
-const appUrl =
-  typeof process !== 'undefined' ? process.env.NEXT_PUBLIC_APP_URL : undefined;
+const appUrl = typeof process !== 'undefined' ? process.env.NEXT_PUBLIC_APP_URL : undefined;
 const appBase = typeof appUrl === 'string' ? appUrl.replace(/\/$/, '') : '';
 const iconBase = appBase || '';
 
@@ -31,9 +30,7 @@ export const metadata: Metadata = {
       { url: `${iconBase}/icons/icon-192.png`, sizes: '192x192', type: 'image/png' },
       { url: `${iconBase}/icons/icon-512.png`, sizes: '512x512', type: 'image/png' },
     ],
-    apple: [
-      { url: `${iconBase}/icons/icon-192.png`, sizes: '192x192', type: 'image/png' },
-    ],
+    apple: [{ url: `${iconBase}/icons/icon-192.png`, sizes: '192x192', type: 'image/png' }],
   },
   themeColor: '#3B82F6',
 };
@@ -47,6 +44,17 @@ export const viewport: Viewport = {
   themeColor: '#3B82F6',
 };
 
+const themeScript = `
+(function() {
+  try {
+    var stored = localStorage.getItem('theme');
+    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var theme = stored === 'dark' || stored === 'light' ? stored : (prefersDark ? 'dark' : 'light');
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+  } catch (e) {}
+})();
+`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -55,6 +63,7 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body className="bg-[var(--background)] text-[var(--foreground)]">
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <ThemeProvider>
           <NuqsAdapter>
             <QueryProvider>

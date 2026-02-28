@@ -315,25 +315,34 @@ export const clubApi = {
     if (Object.keys(basic).length > 0) {
       await clubApi.updateBasicInfo(clubId, basic as Parameters<typeof clubApi.updateBasicInfo>[1]);
     }
-    if (
-      data.recruitmentStartDate !== undefined ||
-      data.recruitmentEndDate !== undefined ||
-      data.recruitmentUrl !== undefined
-    ) {
-      const start =
-        typeof data.recruitmentStartDate === 'string' ? data.recruitmentStartDate : undefined;
-      const end = typeof data.recruitmentEndDate === 'string' ? data.recruitmentEndDate : undefined;
-      if (start && end) {
-        await clubApi.updateRecruitmentInfo(clubId, {
-          recruitmentStartTime: start,
-          recruitmentEndTime: end,
-          applicationLink:
-            typeof data.recruitmentUrl === 'string' && data.recruitmentUrl
-              ? data.recruitmentUrl
-              : undefined,
-        });
-      }
+    const recruitmentStatus = data.recruitmentStatus as
+      | 'RECRUITING'
+      | 'SCHEDULED'
+      | 'CLOSED'
+      | undefined;
+    const hasRecruitmentDates =
+      data.recruitmentStartDate !== undefined || data.recruitmentEndDate !== undefined;
+    const start =
+      typeof data.recruitmentStartDate === 'string' ? data.recruitmentStartDate : undefined;
+    const end = typeof data.recruitmentEndDate === 'string' ? data.recruitmentEndDate : undefined;
+
+    if (hasRecruitmentDates && start && end) {
+      await clubApi.updateRecruitmentInfo(clubId, {
+        recruitmentStartTime: start,
+        recruitmentEndTime: end,
+        applicationLink:
+          typeof data.recruitmentUrl === 'string' && data.recruitmentUrl
+            ? data.recruitmentUrl
+            : undefined,
+      });
     }
+
+    if (recruitmentStatus === 'RECRUITING') {
+      await clubApi.startRecruitment(clubId);
+    } else if (recruitmentStatus === 'CLOSED') {
+      await clubApi.closeRecruitment(clubId);
+    }
+
     return clubApi.getClubDetail(clubId);
   },
 };

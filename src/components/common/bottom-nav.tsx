@@ -154,7 +154,7 @@ export function BottomNav() {
                 linkRefs.current[index] = el;
               }}
               href={href}
-              className="relative flex min-w-[64px] flex-col items-center gap-0.5 py-2"
+              className="relative flex min-w-[64px] flex-col items-center gap-0.5 rounded-lg py-2 outline-none focus:ring-2 focus:ring-zinc-300 focus:ring-offset-0 dark:focus:ring-zinc-600"
             >
               <motion.div
                 whileTap={{ scale: 0.9 }}
