@@ -126,22 +126,29 @@ export default function SettingsPage() {
         </button>
       </div>
 
-      {/* WINK 푸터: 로고 + 주소·저작권 */}
+      {/* WINK 푸터: 로고 + 주소·저작권 (클릭 시 WINK 소개 페이지로 이동) */}
       <footer className="mt-20 flex flex-col items-center justify-center px-4 pt-6 pb-8 text-center">
-        <div className="relative mb-4 h-8 w-24">
-          <Image
-            src="/images/wink-logo.svg"
-            alt="WINK"
-            fill
-            className="object-contain object-center dark:invert"
-          />
-        </div>
-        <p className="text-xs leading-relaxed text-zinc-500 dark:text-zinc-500">
-          서울특별시 성북구 정릉로 77 (국민대학교 미래관 605-1)
-        </p>
-        <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
-          © WINK 2025. All rights reserved.
-        </p>
+        <a
+          href="https://wink.kookmin.ac.kr/about-us/wink"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex flex-col items-center justify-center rounded-lg text-center outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
+        >
+          <div className="relative mb-4 h-8 w-24">
+            <Image
+              src="/images/wink-logo.svg"
+              alt="WINK"
+              fill
+              className="object-contain object-center dark:invert"
+            />
+          </div>
+          <p className="text-xs leading-relaxed text-zinc-500 dark:text-zinc-500">
+            서울특별시 성북구 정릉로 77 (국민대학교 미래관 605-1)
+          </p>
+          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
+            © WINK 2026. All rights reserved.
+          </p>
+        </a>
       </footer>
     </div>
   );
