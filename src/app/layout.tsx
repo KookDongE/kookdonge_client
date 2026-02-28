@@ -27,10 +27,45 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: `${iconBase}/icons/icon-192.png`, sizes: '192x192', type: 'image/png' },
-      { url: `${iconBase}/icons/icon-512.png`, sizes: '512x512', type: 'image/png' },
+      {
+        url: `${iconBase}/icons/icon-light-192.png`,
+        sizes: '192x192',
+        type: 'image/png',
+        media: '(prefers-color-scheme: light)',
+      },
+      {
+        url: `${iconBase}/icons/icon-light-512.png`,
+        sizes: '512x512',
+        type: 'image/png',
+        media: '(prefers-color-scheme: light)',
+      },
+      {
+        url: `${iconBase}/icons/icon-dark-192.png`,
+        sizes: '192x192',
+        type: 'image/png',
+        media: '(prefers-color-scheme: dark)',
+      },
+      {
+        url: `${iconBase}/icons/icon-dark-512.png`,
+        sizes: '512x512',
+        type: 'image/png',
+        media: '(prefers-color-scheme: dark)',
+      },
     ],
-    apple: [{ url: `${iconBase}/icons/icon-192.png`, sizes: '192x192', type: 'image/png' }],
+    apple: [
+      {
+        url: `${iconBase}/icons/icon-light-192.png`,
+        sizes: '192x192',
+        type: 'image/png',
+        media: '(prefers-color-scheme: light)',
+      },
+      {
+        url: `${iconBase}/icons/icon-dark-192.png`,
+        sizes: '192x192',
+        type: 'image/png',
+        media: '(prefers-color-scheme: dark)',
+      },
+    ],
   },
   themeColor: '#3B82F6',
 };
