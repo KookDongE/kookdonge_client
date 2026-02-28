@@ -8,6 +8,20 @@ import { motion } from 'framer-motion';
 
 import { isSystemAdmin, useAuthStore, useMyProfile } from '@/features/auth';
 
+const isInputFocused = () => {
+  if (typeof document === 'undefined') return false;
+  const el = document.activeElement;
+  if (!el) return false;
+  const tag = el.tagName.toLowerCase();
+  const role = (el.getAttribute('role') ?? '').toLowerCase();
+  return (
+    tag === 'input' ||
+    tag === 'textarea' ||
+    role === 'textbox' ||
+    el.getAttribute('contenteditable') === 'true'
+  );
+};
+
 type NavItem = {
   href: string;
   label: string;
@@ -81,9 +95,24 @@ export function BottomNav() {
   const pathname = usePathname();
   const linkRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const [indicatorLeft, setIndicatorLeft] = useState(0);
+  const [inputFocused, setInputFocused] = useState(false);
   const accessToken = useAuthStore((state) => state.accessToken);
   const { data: profile } = useMyProfile();
   const isAdmin = isSystemAdmin(profile);
+
+  // 앱뷰에서 입력 중/스크롤 시 네비가 입력창 위로 올라오는 것 방지: 입력 포커스 시 하단 네비 숨김
+  useEffect(() => {
+    const handleFocusChange = () => {
+      requestAnimationFrame(() => setInputFocused(isInputFocused()));
+    };
+    handleFocusChange();
+    document.addEventListener('focusin', handleFocusChange);
+    document.addEventListener('focusout', handleFocusChange);
+    return () => {
+      document.removeEventListener('focusin', handleFocusChange);
+      document.removeEventListener('focusout', handleFocusChange);
+    };
+  }, []);
 
   const isHidden =
     pathname === '/' ||
@@ -134,9 +163,15 @@ export function BottomNav() {
 
   // 피드 페이지에서는 더 선명한 네비게이션 바
   const isFeedPage = pathname.includes('/feed');
-  const navClassName = isFeedPage
-    ? 'fixed bottom-0 left-1/2 z-50 w-full max-w-md -translate-x-1/2 rounded-t-2xl border-t-0 pb-[env(safe-area-inset-bottom)] bg-white/95 backdrop-blur-xl dark:bg-zinc-900/95'
-    : 'glass fixed bottom-0 left-1/2 z-50 w-full max-w-md -translate-x-1/2 rounded-t-2xl border-t-0 pb-[env(safe-area-inset-bottom)]';
+  const navClassName = [
+    isFeedPage
+      ? 'fixed bottom-0 left-1/2 z-50 w-full max-w-md -translate-x-1/2 rounded-t-2xl border-t-0 pb-[env(safe-area-inset-bottom)] bg-white/95 backdrop-blur-xl dark:bg-zinc-900/95'
+      : 'glass fixed bottom-0 left-1/2 z-50 w-full max-w-md -translate-x-1/2 rounded-t-2xl border-t-0 pb-[env(safe-area-inset-bottom)]',
+    'transition-transform duration-200 ease-out',
+    inputFocused ? 'translate-y-full pointer-events-none' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   const activeIndex = allNavItems.findIndex((item) => isActive(item.href));
 
