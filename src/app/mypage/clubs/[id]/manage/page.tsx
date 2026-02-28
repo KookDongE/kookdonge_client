@@ -745,27 +745,6 @@ function ClubInfoTab({
                         +
                       </div>
                     )}
-                    <div className="absolute right-0 bottom-0 flex h-7 w-7 items-center justify-center rounded-full bg-blue-500 text-white shadow-md">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        className="h-4 w-4"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-1.135.175 2.31 2.31 0 01-1.64 1.055l-.822 1.316z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"
-                        />
-                      </svg>
-                    </div>
                   </div>
                 </label>
                 {isUploading && (
@@ -887,21 +866,30 @@ function ClubInfoTab({
               <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
                 주간 활동 횟수
               </label>
-              <div className="flex flex-wrap gap-2">
-                {([1, 2, 3, 4, 5, 6, 7] as const).map((n) => (
-                  <button
-                    key={n}
-                    type="button"
-                    onClick={() => setWeeklyActiveFrequency(n)}
-                    className={`h-11 min-w-11 rounded-xl border px-3 text-sm font-medium transition-colors ${
-                      weeklyActiveFrequency === n
-                        ? 'border-blue-500 bg-blue-500 text-white dark:border-lime-400 dark:bg-lime-400 dark:text-zinc-900'
-                        : 'border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700'
-                    }`}
-                  >
-                    {n}
-                  </button>
-                ))}
+              <div
+                className="flex flex-wrap gap-2"
+                role="radiogroup"
+                aria-label="주간 활동 횟수 (하나만 선택)"
+              >
+                {([1, 2, 3, 4, 5, 6, 7] as const).map((n) => {
+                  const isSelected = weeklyActiveFrequency === n;
+                  return (
+                    <button
+                      key={n}
+                      type="button"
+                      role="radio"
+                      aria-checked={isSelected}
+                      onClick={() => setWeeklyActiveFrequency(n)}
+                      className={`h-11 min-w-11 rounded-xl border px-3 text-sm font-medium transition-colors ${
+                        isSelected
+                          ? 'border-blue-500 bg-blue-500 text-white dark:border-lime-400 dark:bg-lime-400 dark:text-zinc-900'
+                          : 'border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700'
+                      }`}
+                    >
+                      {n}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
