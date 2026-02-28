@@ -19,7 +19,7 @@ import {
   useRemoveFromWaitingList,
 } from '@/features/waiting-list/hooks';
 import { DefaultClubImage } from '@/components/common/default-club-image';
-import { NotificationOffIcon, NotificationOnIcon } from '@/components/icons/notification-icon';
+import { BellIcon } from '@/components/icons/notification-icon';
 
 const CATEGORY_LABEL: Record<ClubCategory, string> = {
   PERFORMING_ARTS: '공연예술',
@@ -187,12 +187,16 @@ function ClubHeader({ clubId }: { clubId: number }) {
           title={isNotificationOn ? '모집 알림 해제' : '모집 알림 받기'}
         >
           <div
-            className={`flex justify-center ${isNotificationOn ? 'text-sky-700 dark:text-sky-300' : 'text-sky-600 dark:text-sky-400'}`}
+            className={`relative flex justify-center ${isNotificationOn ? 'text-sky-700 dark:text-sky-300' : 'text-sky-600 dark:text-sky-400'}`}
           >
-            {isNotificationOn ? (
-              <NotificationOnIcon className="h-7 w-7" />
-            ) : (
-              <NotificationOffIcon className="h-7 w-7" />
+            <BellIcon className="h-7 w-7" />
+            {!isNotificationOn && (
+              <span
+                className="pointer-events-none absolute inset-0 flex items-center justify-center"
+                aria-hidden
+              >
+                <span className="h-0.5 w-[140%] rotate-[-35deg] rounded-full bg-current opacity-70" />
+              </span>
             )}
           </div>
           <div

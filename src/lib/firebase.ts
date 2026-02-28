@@ -53,7 +53,7 @@ async function getServiceWorkerRegistration(): Promise<ServiceWorkerRegistration
       scope: '/',
     });
     await registration.update();
-    return registration.ready;
+    return registration;
   } catch {
     return null;
   }
