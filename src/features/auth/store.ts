@@ -29,7 +29,19 @@ export function getStoredTokens(): { accessToken: string; refreshToken: string }
 /** 재수화가 끝나기 전에는 setItem을 하지 않아, 초기 상태(null)가 저장된 토큰을 덮어쓰지 않도록 함 */
 let hasRehydrated = false;
 
-/** SSR 시 localStorage 없음 처리. 클라이언트에서는 재수화 전에는 쓰기만 막고 읽기는 허용 */
+/** 저장하려는 값이 토큰이 둘 다 null이면 쓰지 않음. (재수화 후 비동기로 null이 쓰이는 것 방지) */
+function shouldSkipWrite(value: string): boolean {
+  try {
+    const parsed = JSON.parse(value) as PersistedAuth;
+    const accessToken = parsed?.state?.accessToken;
+    const refreshToken = parsed?.state?.refreshToken;
+    return accessToken == null && refreshToken == null;
+  } catch {
+    return false;
+  }
+}
+
+/** SSR 시 localStorage 없음 처리. 클라이언트에서는 재수화 전·null 덮어쓰기 모두 막음 */
 function getAuthStorage(): Storage {
   if (typeof window === 'undefined') {
     return {
@@ -44,7 +56,9 @@ function getAuthStorage(): Storage {
   return {
     getItem: (key: string) => localStorage.getItem(key),
     setItem: (key: string, value: string) => {
-      if (hasRehydrated) localStorage.setItem(key, value);
+      if (!hasRehydrated) return;
+      if (shouldSkipWrite(value)) return;
+      localStorage.setItem(key, value);
     },
     removeItem: (key: string) => localStorage.removeItem(key),
     get length() {
