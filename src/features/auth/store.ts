@@ -121,10 +121,10 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
       }),
-      /** rehydrate()가 완료된 뒤에만 호출됨. 여기서 setInitialized(true)로 Hydration Shield 해제 */
+      /** rehydrate() 완료 후 호출. setInitialized는 다음 틱으로 미뤄 병합된 토큰이 구독자에게 반영된 뒤에만 Shield 해제 (스플래시 무한루프 방지) */
       onRehydrateStorage: () => (state) => {
         hasRehydrated = true;
-        state?.setInitialized(true);
+        queueMicrotask(() => state?.setInitialized(true));
       },
       /** SSR 시 자동 재수화 비활성화. 클라이언트에서 AuthProvider의 useEffect에서 rehydrate() 호출 */
       skipHydration: true,
