@@ -125,13 +125,12 @@ export function SearchFilterBar({
     setSort((value as string) || 'name,asc');
   };
 
-  const bgClass =
-    stickyHideOnScroll || useGlass ? 'glass' : 'bg-[var(--card)]';
+  const bgClass = stickyHideOnScroll || useGlass ? 'glass' : 'bg-[var(--card)]';
   return (
     <div
       className={
         stickyHideOnScroll
-          ? `${bgClass} sticky top-14 z-30 border-y-0 px-4 py-2 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full opacity-0'} ${className}`
+          ? `${bgClass} sticky top-14 z-30 mt-4 border-y-0 px-4 pt-4 pb-2 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full opacity-0'} ${className}`
           : `border-b border-zinc-200 ${bgClass} px-4 py-2 dark:border-zinc-700 ${className}`
       }
     >

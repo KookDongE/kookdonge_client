@@ -320,19 +320,17 @@ function QuestionsListSection() {
   );
 }
 
-/** 답변 목록 (답변 완료된 Q&A) */
+/** 답변 목록 (답변 완료된 Q&A) - 기존 답변 대기 목록과 동일하게 섹션 항상 노출 */
 function AnsweredListSection() {
   const { data: managedClubs } = useManagedClubs();
   const router = useRouter();
   const firstManagedClubId = managedClubs?.[0]?.id;
-  const { data: questionsData, isLoading } = useQuestions(firstManagedClubId || 0, {
+  const { data: questionsData, isLoading } = useQuestions(firstManagedClubId ?? 0, {
     page: 0,
     size: 20,
   });
 
-  if (!firstManagedClubId) return null;
-
-  const answered = (questionsData?.content ?? []).filter((q) => q.answer);
+  const answered = firstManagedClubId ? (questionsData?.content ?? []).filter((q) => q.answer) : [];
 
   return (
     <div className="px-4 py-5">
@@ -345,7 +343,11 @@ function AnsweredListSection() {
           전체보기
         </Link>
       </div>
-      {isLoading ? (
+      {!firstManagedClubId ? (
+        <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-12 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
+          <p>답변한 질문이 없습니다.</p>
+        </div>
+      ) : isLoading ? (
         <div className="flex justify-center py-8">
           <Spinner />
         </div>

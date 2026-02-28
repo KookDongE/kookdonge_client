@@ -65,7 +65,7 @@ export default function SettingsPage() {
         <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">설정</h1>
       </div>
       <div className="space-y-3 px-4">
-        <div className="flex min-h-[56px] w-full items-center justify-between gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700/80">
+        <div className="flex min-h-[48px] w-full items-center justify-between gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-3 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700/80">
           <span className="text-base font-medium text-zinc-900 dark:text-zinc-100">다크 모드</span>
           <button
             type="button"
