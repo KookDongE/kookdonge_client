@@ -40,9 +40,29 @@ function getMessagingInstance(): Messaging | null {
   }
 }
 
+const FIREBASE_MESSAGING_SW = '/firebase-messaging-sw.js';
+
+/**
+ * FCM용 서비스 워커를 등록하고 등록 객체를 반환.
+ * getToken() 전에 호출해야 백그라운드 푸시가 같은 SW에서 수신됨.
+ */
+async function getServiceWorkerRegistration(): Promise<ServiceWorkerRegistration | null> {
+  if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return null;
+  try {
+    const registration = await navigator.serviceWorker.register(FIREBASE_MESSAGING_SW, {
+      scope: '/',
+    });
+    await registration.update();
+    return registration.ready;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * FCM 토큰 발급. Firebase 설정 및 브라우저 알림 권한이 있을 때만 유효한 토큰 반환.
  * 설정이 없으면 null 반환 (이때 디바이스 등록은 fcmToken: 'web-pending'으로 함).
+ * 서비스 워커를 먼저 등록한 뒤 getToken을 호출해 백그라운드 수신이 동작하도록 함.
  */
 export async function getFcmToken(): Promise<string | null> {
   if (typeof window === 'undefined') return null;
@@ -52,7 +72,11 @@ export async function getFcmToken(): Promise<string | null> {
   try {
     const permission = await Notification.requestPermission();
     if (permission !== 'granted') return null;
-    const token = await getToken(messagingInstance, { vapidKey });
+    const registration = await getServiceWorkerRegistration().catch(() => null);
+    const token = await getToken(messagingInstance, {
+      vapidKey,
+      ...(registration && { serviceWorkerRegistration: registration }),
+    });
     return token || null;
   } catch {
     return null;

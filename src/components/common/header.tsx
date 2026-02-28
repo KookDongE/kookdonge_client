@@ -19,7 +19,7 @@ export function Header() {
   if (isHidden) return null;
 
   return (
-    <header className="glass sticky top-0 z-40 border-b-0">
+    <header className="glass sticky top-0 z-40 border-b-0 pt-3">
       <div className="flex h-14 items-center justify-between px-4">
         <Link href="/home" className="flex items-center">
           <span className="text-xl font-black tracking-tight text-blue-500 dark:text-lime-400">
@@ -46,7 +46,7 @@ export function Header() {
           </svg>
           {unreadCount > 0 && (
             <span
-              className="absolute -right-0.5 -top-0.5 flex min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 py-0.5 text-[10px] font-bold leading-none text-white"
+              className="absolute -top-0.5 -right-0.5 flex min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 py-0.5 text-[10px] leading-none font-bold text-white"
               aria-label={`읽지 않은 알림 ${unreadCount}개`}
             >
               {unreadCount > 99 ? '99+' : unreadCount}
