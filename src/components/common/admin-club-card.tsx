@@ -111,8 +111,12 @@ export function AdminClubCard({
 
   return (
     <div className="relative overflow-hidden">
-      {/* ClubCard를 직접 드래그 가능하게 만들기 */}
-      <div onClick={handleCardClick} className="relative z-0 cursor-pointer">
+      {/* 스와이프 시 카드 영역만 좁혀서 우측에 버튼이 보이도록 (폰·컴 공통) */}
+      <div
+        onClick={handleCardClick}
+        className="relative z-0 cursor-pointer transition-[width] duration-150"
+        style={isSwiped ? { width: 'calc(100% - 120px)' } : undefined}
+      >
         <ClubCard
           club={clubData}
           index={index}
@@ -127,12 +131,11 @@ export function AdminClubCard({
         />
       </div>
 
-      {/* 숨기기/삭제 버튼: 스와이프로 노출된 경우에만 클릭 가능 (z-10으로 카드 위에 표시) */}
+      {/* 숨기기/삭제 버튼: 스와이프로 노출 (z-10, 배경 있어서 컴에서도 가려지지 않음) */}
       <div
-        className={`absolute top-0 right-0 z-10 flex h-full flex-col justify-center gap-2 px-2 py-2 transition-opacity ${
+        className={`absolute top-0 right-0 z-10 flex h-full w-[120px] flex-col justify-center gap-2 bg-white px-2 py-2 transition-opacity dark:bg-zinc-900 ${
           isSwiped ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
         }`}
-        style={{ width: '120px' }}
       >
         <button
           type="button"
