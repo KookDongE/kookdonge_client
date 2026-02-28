@@ -350,12 +350,12 @@ function ClubQnaTab({ clubId }: { clubId: number }) {
     <div className="space-y-4 p-4">
       <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
         <h4 className="mb-3 text-sm font-semibold text-zinc-900 dark:text-zinc-100">질문하기</h4>
-        <div className="bg-default-100 flex items-center gap-2 rounded-lg border border-zinc-200 py-1 pr-1 pl-2 dark:border-zinc-600 dark:bg-zinc-800/50">
+        <div className="bg-default-100 relative rounded-lg border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800/50">
           <TextArea
             placeholder="궁금한 점을 질문해주세요"
             value={questionText}
             onChange={(e) => setQuestionText(e.target.value)}
-            className="min-h-[2.5rem] flex-1 resize-none border-0 bg-transparent py-2 shadow-none placeholder:text-zinc-400 hover:shadow-none focus:ring-0 dark:placeholder:text-zinc-500"
+            className="min-h-[2.5rem] w-full resize-none border-0 bg-transparent py-2 pr-14 pl-3 shadow-none placeholder:text-zinc-400 hover:shadow-none focus:ring-0 dark:placeholder:text-zinc-500"
           />
           <Button
             size="sm"
@@ -363,7 +363,7 @@ function ClubQnaTab({ clubId }: { clubId: number }) {
             onPress={handleSubmit}
             isDisabled={!questionText.trim() || !profile || createQuestion.isPending}
             isPending={createQuestion.isPending}
-            className="shrink-0"
+            className="absolute top-1/2 right-1.5 shrink-0 -translate-y-1/2"
           >
             등록
           </Button>

@@ -27,10 +27,21 @@ type RankingTab = 'view' | 'like';
 
 function RankingSection() {
   const [activeTab, setActiveTab] = useState<RankingTab>('view');
+  const rankingScrollRef = useRef<HTMLDivElement>(null);
   const { data: viewRankings, isLoading: viewLoading } = useTopWeeklyView();
   const { data: likeRankings, isLoading: likeLoading } = useTopWeeklyLike();
   const [imageLoaded, setImageLoaded] = useState<Record<number, boolean>>({});
   const [imageError, setImageError] = useState<Record<number, boolean>>({});
+
+  // 데스크톱: 마우스 휠을 가로 스크롤로 전환
+  const handleRankingWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    const el = rankingScrollRef.current;
+    if (!el) return;
+    const { scrollWidth, clientWidth, scrollLeft } = el;
+    if (scrollWidth <= clientWidth) return;
+    e.preventDefault();
+    el.scrollLeft += e.deltaY;
+  };
 
   const isLoading = activeTab === 'view' ? viewLoading : likeLoading;
   const rawRankings = activeTab === 'view' ? viewRankings : likeRankings;
@@ -104,11 +115,13 @@ function RankingSection() {
       ) : (
         <AnimatePresence mode="wait">
           <motion.div
+            ref={rankingScrollRef}
             key={activeTab}
             initial={{ opacity: 0, x: 10 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -10 }}
             transition={{ duration: 0.2 }}
+            onWheel={handleRankingWheel}
             className="no-scrollbar flex w-full min-w-0 [touch-action:pan-x] gap-3 overflow-x-auto overflow-y-hidden pt-2 pb-2 pl-2 [-webkit-overflow-scrolling:touch]"
           >
             {top5.map((club, index) => (
