@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:webpack": "next dev --webpack",
+    "inject-sw": "node scripts/inject-firebase-sw.js",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",

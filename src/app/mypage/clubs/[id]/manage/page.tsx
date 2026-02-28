@@ -218,6 +218,14 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   };
 
   const handleSaveRecruitment = () => {
+    if (recruitmentStartDate && recruitmentEndDate) {
+      const start = new Date(recruitmentStartDate);
+      const end = new Date(recruitmentEndDate);
+      if (end < start) {
+        alert('모집 종료일은 모집 시작일보다 빠를 수 없습니다.');
+        return;
+      }
+    }
     updateClub.mutate(
       {
         clubId,
@@ -1188,6 +1196,7 @@ function ClubInfoTab({
               </label>
               <input
                 type="date"
+                max={recruitmentEndDate || undefined}
                 value={recruitmentStartDate}
                 onChange={(e) => setRecruitmentStartDate(e.target.value)}
                 className="w-full max-w-[170px] rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
@@ -1199,6 +1208,7 @@ function ClubInfoTab({
               </label>
               <input
                 type="date"
+                min={recruitmentStartDate || undefined}
                 value={recruitmentEndDate}
                 onChange={(e) => setRecruitmentEndDate(e.target.value)}
                 className="w-full max-w-[170px] rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"

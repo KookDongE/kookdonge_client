@@ -2,20 +2,10 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import {
-  CompleteRegistrationReq,
-  LoginReq,
-  ReissueAccessTokenReq,
-} from '@/types/api';
-
-import { registerDeviceWithBackend } from '@/features/device/register-device';
+import { CompleteRegistrationReq, LoginReq, ReissueAccessTokenReq } from '@/types/api';
 
 import { authApi } from './api';
 import { useAuthStore } from './store';
-
-function registerDeviceAfterLogin() {
-  registerDeviceWithBackend().catch(() => {});
-}
 
 export const authKeys = {
   all: ['auth'] as const,
@@ -42,7 +32,7 @@ export function useLogin() {
       if (res.accessToken && res.refreshToken) {
         setTokens(res.accessToken, res.refreshToken);
         queryClient.invalidateQueries({ queryKey: authKeys.profile() });
-        registerDeviceAfterLogin();
+        // 디바이스 등록은 AuthProvider useEffect에서 requestPermissionAndRegister()로 처리
       }
     },
   });
@@ -59,7 +49,7 @@ export function useRegister() {
       if (res.accessToken && res.refreshToken) {
         setTokens(res.accessToken, res.refreshToken);
         queryClient.invalidateQueries({ queryKey: authKeys.profile() });
-        registerDeviceAfterLogin();
+        // 디바이스 등록은 AuthProvider useEffect에서 requestPermissionAndRegister()로 처리
       }
     },
   });

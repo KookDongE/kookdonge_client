@@ -1,9 +1,14 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
 import type { NotificationRes } from '@/types/api';
-import { useMarkAllAsRead, useMarkAsRead, useNotifications } from '@/features/notifications/hooks';
+import {
+  useMarkAllAsRead,
+  useMarkAsRead,
+  useNotificationsInfinite,
+} from '@/features/notifications/hooks';
 
 function typeLabel(type: string): string {
   const labels: Record<string, string> = {
@@ -47,12 +52,14 @@ function formatTime(iso: string): string {
 
 export default function NotificationsPage() {
   const router = useRouter();
-  const { data, isLoading } = useNotifications(0, 20);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useNotificationsInfinite(20);
   const markAsRead = useMarkAsRead();
   const markAllAsRead = useMarkAllAsRead();
 
-  const list = data?.notifications ?? [];
-  const hasNext = data?.hasNext ?? false;
+  const list = data?.pages.flatMap((p) => p.notifications) ?? [];
+  const hasNext = hasNextPage ?? false;
 
   const handleItemClick = (item: NotificationRes) => {
     markAsRead.mutate(item.id);
@@ -61,10 +68,23 @@ export default function NotificationsPage() {
   };
 
   const handleMarkAllAsRead = () => {
-    markAllAsRead.mutate(undefined, {
-      onSuccess: () => {},
-    });
+    markAllAsRead.mutate(undefined, { onSuccess: () => {} });
   };
+
+  // 무한 스크롤: sentinel이 보이면 다음 페이지 로드
+  useEffect(() => {
+    if (!hasNext || isFetchingNextPage) return;
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) fetchNextPage();
+      },
+      { rootMargin: '100px', threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasNext, isFetchingNextPage, fetchNextPage]);
 
   return (
     <div className="pb-6">
@@ -92,10 +112,6 @@ export default function NotificationsPage() {
           <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-16 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
             <span className="mb-2 text-4xl">🔔</span>
             <p>알림이 없습니다.</p>
-            <p className="mt-1 max-w-[280px] text-center text-sm">
-              동아리 생성 승인·거절, Q&A 답변, 관심 동아리 모집 시작·마감 알림이 여기에 표시됩니다.
-              승인했는데도 보이지 않으면 서버에 알림이 저장되는지 확인이 필요합니다.
-            </p>
           </div>
         ) : (
           list.map((item) => (
@@ -131,9 +147,15 @@ export default function NotificationsPage() {
           ))
         )}
         {hasNext && list.length > 0 && (
-          <p className="py-2 text-center text-xs text-zinc-400 dark:text-zinc-500">
-            스크롤을 내리면 다음 알림을 불러옵니다.
-          </p>
+          <div ref={sentinelRef} className="flex justify-center py-4">
+            {isFetchingNextPage ? (
+              <span className="text-xs text-zinc-400 dark:text-zinc-500">알림 불러오는 중...</span>
+            ) : (
+              <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                스크롤하면 더 불러옵니다
+              </span>
+            )}
+          </div>
         )}
       </div>
     </div>

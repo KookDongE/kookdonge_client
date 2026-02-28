@@ -13,6 +13,11 @@ import { useClubDetail, useLikeClub, useUnlikeClub } from '@/features/club/hooks
 import { useInterestedStore } from '@/features/club/interested-store';
 import { useClubFeeds } from '@/features/feed/hooks';
 import { useCreateQuestion, useQuestions } from '@/features/question/hooks';
+import {
+  useAddToWaitingList,
+  useMyWaitingList,
+  useRemoveFromWaitingList,
+} from '@/features/waiting-list/hooks';
 import { DefaultClubImage } from '@/components/common/default-club-image';
 
 const CATEGORY_LABEL: Record<ClubCategory, string> = {
@@ -56,8 +61,12 @@ function ClubHeader({ clubId }: { clubId: number }) {
   const interestedClubs = useInterestedStore((s) => s.clubs);
   const add = useInterestedStore((s) => s.add);
   const remove = useInterestedStore((s) => s.remove);
+  const { data: subscriptions } = useMyWaitingList();
+  const addNotification = useAddToWaitingList();
+  const removeNotification = useRemoveFromWaitingList();
 
   const isInterestedByMe = interestedClubs.some((c) => c.id === clubId);
+  const isNotificationOn = (subscriptions ?? []).some((s) => s.clubId === clubId);
 
   if (isLoading || !club) {
     return (
@@ -89,6 +98,15 @@ function ClubHeader({ clubId }: { clubId: number }) {
         logoImage: club.image ?? '',
         type: club.type,
       });
+    }
+  };
+
+  const handleNotificationToggle = () => {
+    if (addNotification.isPending || removeNotification.isPending) return;
+    if (isNotificationOn) {
+      removeNotification.mutate(clubId);
+    } else {
+      addNotification.mutate(clubId);
     }
   };
 
@@ -156,6 +174,26 @@ function ClubHeader({ clubId }: { clubId: number }) {
             className={`text-xs ${isInterestedByMe ? 'text-amber-700/80 dark:text-amber-300/80' : 'text-zinc-500 dark:text-zinc-400'}`}
           >
             관심
+          </div>
+        </button>
+        <button
+          type="button"
+          onClick={handleNotificationToggle}
+          disabled={addNotification.isPending || removeNotification.isPending}
+          className={`flex-1 rounded-xl py-3 text-center transition-colors ${
+            isNotificationOn ? 'bg-sky-200 dark:bg-sky-900/50' : 'bg-sky-50 dark:bg-sky-950/30'
+          }`}
+          title={isNotificationOn ? '모집 알림 해제' : '모집 알림 받기'}
+        >
+          <div
+            className={`text-xl font-bold ${isNotificationOn ? 'text-sky-700 dark:text-sky-300' : 'text-sky-600 dark:text-sky-400'}`}
+          >
+            🔔
+          </div>
+          <div
+            className={`text-xs ${isNotificationOn ? 'text-sky-700/80 dark:text-sky-300/80' : 'text-zinc-500 dark:text-zinc-400'}`}
+          >
+            {isNotificationOn ? '알림 ON' : '알림'}
           </div>
         </button>
         <div className="flex-1 rounded-xl bg-blue-50 py-3 text-center dark:bg-blue-950/30">

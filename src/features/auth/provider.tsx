@@ -3,6 +3,7 @@
 import { ReactNode, useEffect } from 'react';
 
 import { registerDeviceWithBackend } from '@/features/device/register-device';
+import { useNotification } from '@/features/device/use-notification';
 
 import { AuthGuard } from './auth-guard';
 import { useAuthStore } from './store';
@@ -35,12 +36,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useAuthStore.persist.rehydrate();
   }, []);
 
-  // 재수화 후 로그인 상태면 디바이스( FCM 토큰 ) 재등록 → 푸시 알림 수신 가능
+  // 재수화 후 로그인 상태면 디바이스 등록. Firebase 지원 시 권한 요청 후 FCM 토큰 등록, 미지원 시 web-pending 등록.
   const accessToken = useAuthStore((s) => s.accessToken);
+  const { requestPermissionAndRegister, isSupported } = useNotification();
   useEffect(() => {
     if (!isInitialized || !accessToken) return;
-    registerDeviceWithBackend().catch(() => {});
-  }, [isInitialized, accessToken]);
+    if (isSupported) requestPermissionAndRegister().catch(() => {});
+    else registerDeviceWithBackend().catch(() => {});
+  }, [isInitialized, accessToken, isSupported, requestPermissionAndRegister]);
 
   if (!isInitialized) {
     return <AuthLoadingFallback />;

@@ -7,6 +7,7 @@ import { Toaster } from 'sonner';
 import { QueryProvider } from '@/lib/query/provider';
 import { ThemeProvider } from '@/lib/theme/provider';
 import { AuthProvider } from '@/features/auth';
+import { FcmForegroundHandler } from '@/features/notifications/fcm-foreground-handler';
 import { BottomNav } from '@/components/common/bottom-nav';
 import { Header } from '@/components/common/header';
 
@@ -103,6 +104,7 @@ export default function RootLayout({
           <NuqsAdapter>
             <QueryProvider>
               <AuthProvider>
+                <FcmForegroundHandler />
                 <div className="relative mx-auto min-h-dvh max-w-md bg-[var(--card)] shadow-xl">
                   <Header />
                   <main className="pb-safe">{children}</main>

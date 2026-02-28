@@ -124,8 +124,13 @@ function ProfileSection() {
     } catch {
       // 서버 오류 시에도 로컬 로그아웃 진행
     }
+    // 토큰이 유효한 동안 해당 기기 삭제 (로그아웃 시 서버에서 FCM 토큰 정리)
     if (deviceId) {
-      deviceApi.deleteDevice(deviceId).catch(() => {});
+      try {
+        await deviceApi.deleteDevice(deviceId);
+      } catch {
+        // 삭제 실패해도 로그아웃은 진행
+      }
     }
     clearAuth();
     router.replace('/');
