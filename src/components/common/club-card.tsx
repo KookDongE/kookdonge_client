@@ -7,8 +7,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 
 import { ClubCategory, ClubListRes, ClubType, RecruitmentStatus } from '@/types/api';
-
-import { DefaultClubImage } from './default-club-image';
+import { DefaultClubImage } from '@/components/common/default-club-image';
 
 const CATEGORY_LABEL: Record<ClubCategory, string> = {
   PERFORMING_ARTS: '공연예술',
