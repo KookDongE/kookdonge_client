@@ -18,9 +18,11 @@ type PullToRefreshProps = {
   children: React.ReactNode;
   /** true면 헤더/하단네비 없는 풀스크린(스플래시·로그인) — 높이 100dvh */
   fullScreen?: boolean;
+  /** true면 당겨서 새로고침 비활성화 (예: 피드 상세) */
+  disabled?: boolean;
 };
 
-export function PullToRefresh({ children, fullScreen = false }: PullToRefreshProps) {
+export function PullToRefresh({ children, fullScreen = false, disabled = false }: PullToRefreshProps) {
   const pathname = usePathname();
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -50,18 +52,18 @@ export function PullToRefresh({ children, fullScreen = false }: PullToRefreshPro
 
   const onTouchStart = useCallback(
     (e: React.TouchEvent) => {
-      if (fullScreen) return;
+      if (fullScreen || disabled) return;
       const el = scrollRef.current;
       if (!el || el.scrollTop > 0) return;
       startYRef.current = e.touches[0].clientY;
       setIsReleasing(false);
     },
-    [fullScreen]
+    [fullScreen, disabled]
   );
 
   const onTouchMove = useCallback(
     (e: React.TouchEvent) => {
-      if (fullScreen) return;
+      if (fullScreen || disabled) return;
       const el = scrollRef.current;
       if (!el || el.scrollTop > 0 || isRefreshing) return;
       const y = e.touches[0].clientY;
@@ -74,11 +76,11 @@ export function PullToRefresh({ children, fullScreen = false }: PullToRefreshPro
         setPullDistance(lastDistanceRef.current);
       });
     },
-    [fullScreen, isRefreshing]
+    [fullScreen, disabled, isRefreshing]
   );
 
   const onTouchEnd = useCallback(() => {
-    if (fullScreen) return;
+    if (fullScreen || disabled) return;
     if (rafIdRef.current !== null) {
       cancelAnimationFrame(rafIdRef.current);
       rafIdRef.current = null;
@@ -101,7 +103,7 @@ export function PullToRefresh({ children, fullScreen = false }: PullToRefreshPro
       setPullDistance(0);
       setTimeout(() => setIsReleasing(false), RELEASE_DURATION_MS);
     }
-  }, [fullScreen, pathname, isRefreshing, router]);
+  }, [fullScreen, disabled, pathname, isRefreshing, router]);
 
   return (
     <div

@@ -8,6 +8,9 @@ import { PullToRefresh } from '@/components/common/pull-to-refresh';
 
 const FULL_SCREEN_PATHS = ['/', '/login'];
 
+/** 풀투리프레시 비활성화 경로 (예: 피드 상세 — 스크롤/제스처와 충돌 방지) */
+const PULL_TO_REFRESH_DISABLED_PATH = /^\/clubs\/[^/]+\/feed$/;
+
 function isFullScreenPath(pathname: string): boolean {
   return FULL_SCREEN_PATHS.includes(pathname) || pathname.startsWith('/login/');
 }
@@ -15,6 +18,7 @@ function isFullScreenPath(pathname: string): boolean {
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const fullScreen = isFullScreenPath(pathname ?? '');
+  const pullToRefreshDisabled = PULL_TO_REFRESH_DISABLED_PATH.test(pathname ?? '');
 
   return (
     <div
@@ -24,7 +28,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <main
         className={`flex flex-col overflow-hidden ${fullScreen ? 'h-dvh min-h-0' : 'h-[calc(100dvh-3.5rem-4rem)]'}`}
       >
-        <PullToRefresh fullScreen={fullScreen}>{children}</PullToRefresh>
+        <PullToRefresh fullScreen={fullScreen} disabled={pullToRefreshDisabled}>
+          {children}
+        </PullToRefresh>
       </main>
       <BottomNav />
     </div>
