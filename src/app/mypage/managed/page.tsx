@@ -78,7 +78,7 @@ function ManagedClubsListContent() {
                           club.recruitmentStatus === 'RECRUITING'
                             ? 'success'
                             : club.recruitmentStatus === 'SCHEDULED'
-                              ? 'primary'
+                              ? 'accent'
                               : 'default'
                         }
                         variant="soft"
@@ -94,7 +94,7 @@ function ManagedClubsListContent() {
                       {TYPE_LABEL[club.type]}
                     </Chip>
                     {club.category && (
-                      <Chip size="sm" color="primary" variant="soft">
+                      <Chip size="sm" color="accent" variant="soft">
                         {club.category === 'PERFORMING_ARTS'
                           ? '공연예술'
                           : club.category === 'LIBERAL_ARTS_SERVICE'
