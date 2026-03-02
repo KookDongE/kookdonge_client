@@ -3,7 +3,7 @@
 import { Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Spinner } from '@heroui/react';
+import { Spinner, Tabs } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
 
 import type { QuestionAnswerRes } from '@/types/api';
@@ -11,7 +11,6 @@ import {
   useMyQuestions,
   useQuestionsForMeAsManager,
 } from '@/features/question/hooks';
-import { SearchFilterBar } from '@/components/common/search-filter-bar';
 
 function QnaCard({
   qna,
@@ -82,13 +81,9 @@ function QnaCard({
 }
 
 function QuestionsTabContent() {
-  const [q] = useQueryState('q', parseAsString.withDefault(''));
   const router = useRouter();
   const { data, isLoading } = useMyQuestions({ page: 0, size: 200 });
   const list = data?.content ?? [];
-  const filtered = q
-    ? list.filter((item) => item.question.toLowerCase().includes(q.trim().toLowerCase()))
-    : list;
 
   return (
     <div className="px-4 py-4">
@@ -96,13 +91,13 @@ function QuestionsTabContent() {
         <div className="flex justify-center py-12">
           <Spinner size="lg" />
         </div>
-      ) : filtered.length === 0 ? (
+      ) : list.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-16 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
-          <p>{q ? '검색 결과가 없습니다.' : '등록된 질문이 없습니다.'}</p>
+          <p>등록된 질문이 없습니다.</p>
         </div>
       ) : (
         <div className="space-y-3">
-          {filtered.map((qna) => (
+          {list.map((qna) => (
             <QnaCard
               key={qna.id}
               qna={qna}
@@ -123,14 +118,9 @@ function QuestionsTabContent() {
 
 /** 답변 탭: 나에게 온 질문 (내가 관리하는 동아리에 올라온 질문) — GET .../questions/manage */
 function AnswersTabContent() {
-  const [q] = useQueryState('q', parseAsString.withDefault(''));
   const router = useRouter();
   const { data: list, isLoading } = useQuestionsForMeAsManager();
-  const filtered = q
-    ? list.filter((item) =>
-        item.question.toLowerCase().includes(q.trim().toLowerCase())
-      )
-    : list;
+  const items = Array.isArray(list) ? list : [];
 
   return (
     <div className="px-4 py-4">
@@ -138,13 +128,13 @@ function AnswersTabContent() {
         <div className="flex justify-center py-12">
           <Spinner size="lg" />
         </div>
-      ) : filtered.length === 0 ? (
+      ) : items.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-16 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
-          <p>{q ? '검색 결과가 없습니다.' : '나에게 온 질문이 없습니다.'}</p>
+          <p>나에게 온 질문이 없습니다.</p>
         </div>
       ) : (
         <div className="space-y-3">
-          {filtered.map((qna) => (
+          {items.map((qna) => (
             <QnaCard
               key={`${qna.clubId ?? 0}-${qna.id}`}
               qna={qna}
@@ -170,62 +160,42 @@ const TAB_LABELS: Record<(typeof TAB_IDS)[number], string> = {
 };
 
 function QuestionsPageContent() {
-  const [tabFromUrl, setTabFromUrl] = useQueryState('tab', parseAsString);
-  const selectedTab =
-    tabFromUrl && (TAB_IDS as readonly string[]).includes(tabFromUrl)
-      ? tabFromUrl
-      : 'questions';
-  const setSelectedTab = (id: (typeof TAB_IDS)[number]) => {
-    setTabFromUrl(id);
-  };
+  const [tab, setTab] = useQueryState('tab', parseAsString.withDefault('questions'));
+  const selectedKey =
+    tab && (TAB_IDS as readonly string[]).includes(tab) ? tab : 'questions';
 
   return (
     <div className="pb-6">
-      <div className="sticky top-0 z-30 bg-[var(--card)] px-4 pt-3" role="tablist" aria-label="Q&A 탭">
-        <div className="flex w-full">
-          {TAB_IDS.map((id) => (
-            <button
-              key={id}
-              type="button"
-              role="tab"
-              aria-selected={selectedTab === id}
-              aria-controls={`panel-${id}`}
-              id={`tab-${id}`}
-              onClick={() => setSelectedTab(id)}
-              className={`flex-1 py-3 text-center text-sm font-medium transition-colors ${
-                selectedTab === id
-                  ? 'text-zinc-900 dark:text-zinc-100'
-                  : 'text-zinc-600 dark:text-zinc-400'
-              }`}
+      <Tabs
+        selectedKey={selectedKey}
+        onSelectionChange={(key) => setTab(key as string)}
+        className="w-full"
+      >
+        <Tabs.ListContainer className="sticky top-0 z-30 bg-[var(--card)] px-4 pt-3">
+          <Tabs.List aria-label="Q&A 탭" className="flex w-full">
+            <Tabs.Tab
+              id="questions"
+              className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
             >
-              {TAB_LABELS[id]}
-              {selectedTab === id && (
-                <span
-                  className="mt-1 block h-0.5 w-full rounded-full bg-zinc-900 dark:bg-zinc-100"
-                  aria-hidden
-                />
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
-      <SearchFilterBar stickyHideOnScroll placeholder="질문 검색" />
-      <div
-        id="panel-questions"
-        role="tabpanel"
-        aria-labelledby="tab-questions"
-        hidden={selectedTab !== 'questions'}
-      >
-        {selectedTab === 'questions' && <QuestionsTabContent />}
-      </div>
-      <div
-        id="panel-answers"
-        role="tabpanel"
-        aria-labelledby="tab-answers"
-        hidden={selectedTab !== 'answers'}
-      >
-        {selectedTab === 'answers' && <AnswersTabContent />}
-      </div>
+              {TAB_LABELS.questions}
+              <Tabs.Indicator />
+            </Tabs.Tab>
+            <Tabs.Tab
+              id="answers"
+              className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
+            >
+              {TAB_LABELS.answers}
+              <Tabs.Indicator />
+            </Tabs.Tab>
+          </Tabs.List>
+        </Tabs.ListContainer>
+        <Tabs.Panel id="questions" className="px-3 pt-0">
+          <QuestionsTabContent />
+        </Tabs.Panel>
+        <Tabs.Panel id="answers" className="pt-0">
+          <AnswersTabContent />
+        </Tabs.Panel>
+      </Tabs>
     </div>
   );
 }
