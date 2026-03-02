@@ -50,7 +50,10 @@ export default function SplashPage() {
   }, [isInitialized, accessToken, router]);
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center bg-[var(--background)]">
+    <div
+      className="flex min-h-dvh flex-col items-center justify-center bg-[var(--background)] -mb-[calc(80px+env(safe-area-inset-bottom,0px))] pb-[calc(80px+env(safe-area-inset-bottom,0px))]"
+      style={{ minHeight: '100dvh' }}
+    >
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
