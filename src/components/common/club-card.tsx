@@ -53,6 +53,7 @@ type ClubCardProps = {
   onDragEnd?: (event: unknown, info: { offset: { x: number } }) => void;
   style?: React.CSSProperties & { x?: number };
   animate?: object;
+  transition?: { type?: string; duration?: number };
 };
 
 export function ClubCard({
@@ -67,6 +68,7 @@ export function ClubCard({
   onDragEnd,
   style,
   animate,
+  transition,
 }: ClubCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const status = STATUS_CONFIG[club.recruitmentStatus];
@@ -133,7 +135,9 @@ export function ClubCard({
   const motionProps: Record<string, unknown> = {
     initial: isDragMode ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 },
     animate: isDragMode ? { opacity: 1, y: 0, ...(animate && typeof animate === 'object' ? animate : {}) } : animate || { opacity: 1, y: 0 },
-    transition: { delay: index * 0.05, duration: 0.3 },
+    transition: isDragMode && transition
+      ? { delay: 0, duration: transition.duration ?? 0.2, type: (transition.type as string) ?? 'tween' }
+      : { delay: index * 0.05, duration: 0.3 },
   };
 
   if (drag) {

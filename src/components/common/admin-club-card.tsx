@@ -140,7 +140,7 @@ export function AdminClubCard({
       <div
         onClick={handleCardClick}
         className="relative z-0 cursor-pointer transition-[width] duration-150"
-        style={isSwiped ? { width: 'calc(100% - 120px)' } : undefined}
+        style={{ width: isSwiped ? 'calc(100% - 120px)' : '100%' }}
       >
         <ClubCard
           club={clubData}
@@ -154,6 +154,7 @@ export function AdminClubCard({
           onDragEnd={handleDragEnd}
           style={{ x: dragX }}
           animate={{ x: dragX }}
+          transition={{ type: 'tween', duration: 0.2 }}
         />
       </div>
 

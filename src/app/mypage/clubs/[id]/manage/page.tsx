@@ -245,63 +245,66 @@ function ClubManageContent({ clubId }: { clubId: number }) {
 
   return (
     <>
-      {/* 뒤로가기 */}
-      <div className="flex items-center gap-2 px-4 pt-3 pb-1">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-        >
-          <span className="inline-block h-4 w-4">←</span>
-          <span>뒤로가기</span>
-        </button>
-      </div>
+      {/* 스크롤 시 상단 고정: 뒤로가기 + 헤더 + 탭 리스트 */}
+      <div className="sticky top-0 z-30 bg-white dark:bg-zinc-900">
+        {/* 뒤로가기 */}
+        <div className="flex items-center gap-2 px-4 pt-3 pb-1">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+          >
+            <span className="inline-block h-4 w-4">←</span>
+            <span>뒤로가기</span>
+          </button>
+        </div>
 
-      {/* 헤더 */}
-      <div className="bg-white px-4 py-6 dark:bg-zinc-900">
-        <div className="flex gap-4">
-          <div className="club-logo-wrap relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-zinc-100 shadow-sm dark:bg-zinc-800">
-            {club.image ? (
-              <Image src={club.image} alt={club.name} fill className="object-cover" sizes="112px" />
-            ) : (
-              <DefaultClubImage className="object-cover" sizes="112px" />
-            )}
-          </div>
-          <div className="flex flex-1 flex-col justify-center">
-            <div className="flex items-center gap-2">
-              <Chip size="sm" color={status.color} variant="soft">
-                {status.label}
-              </Chip>
+        {/* 헤더 */}
+        <div className="px-4 pt-2 pb-2">
+          <div className="flex gap-4">
+            <div className="club-logo-wrap relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-zinc-100 shadow-sm dark:bg-zinc-800">
+              {club.image ? (
+                <Image src={club.image} alt={club.name} fill className="object-cover" sizes="112px" />
+              ) : (
+                <DefaultClubImage className="object-cover" sizes="112px" />
+              )}
             </div>
-            <h1 className="mt-1.5 text-xl font-bold text-zinc-900 dark:text-zinc-100">
-              {club.name}
-            </h1>
-            {club.summary && (
-              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{club.summary}</p>
-            )}
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              {TYPE_LABEL[club.type]} · {CATEGORY_LABEL[club.category]}
-            </p>
+            <div className="flex flex-1 flex-col justify-center">
+              <div className="flex items-center gap-2">
+                <Chip size="sm" color={status.color} variant="soft">
+                  {status.label}
+                </Chip>
+              </div>
+              <h1 className="mt-1.5 text-xl font-bold text-zinc-900 dark:text-zinc-100">
+                {club.name}
+              </h1>
+              {club.summary && (
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{club.summary}</p>
+              )}
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                {TYPE_LABEL[club.type]} · {CATEGORY_LABEL[club.category]}
+              </p>
+            </div>
+          </div>
+          <div className="mt-5 flex gap-3">
+            <div className="flex-1 rounded-xl bg-red-50 py-3 text-center dark:bg-red-950/30">
+              <div className="text-xl font-bold text-red-500 dark:text-red-400">
+                {club.totalLikeCount}
+              </div>
+              <div className="text-xs text-zinc-500 dark:text-zinc-400">좋아요</div>
+            </div>
+            <div className="flex-1 rounded-xl bg-blue-50 py-3 text-center dark:bg-blue-950/30">
+              <div className="text-xl font-bold text-blue-500 dark:text-blue-400">
+                {club.totalViewCount}
+              </div>
+              <div className="text-xs text-zinc-500 dark:text-zinc-400">조회수</div>
+            </div>
           </div>
         </div>
-        <div className="mt-5 flex gap-3">
-          <div className="flex-1 rounded-xl bg-red-50 py-3 text-center dark:bg-red-950/30">
-            <div className="text-xl font-bold text-red-500 dark:text-red-400">
-              {club.totalLikeCount}
-            </div>
-            <div className="text-xs text-zinc-500 dark:text-zinc-400">좋아요</div>
-          </div>
-          <div className="flex-1 rounded-xl bg-blue-50 py-3 text-center dark:bg-blue-950/30">
-            <div className="text-xl font-bold text-blue-500 dark:text-blue-400">
-              {club.totalViewCount}
-            </div>
-            <div className="text-xs text-zinc-500 dark:text-zinc-400">조회수</div>
-          </div>
-        </div>
-      </div>
 
-      <Tabs selectedKey={tab} onSelectionChange={(key) => setTab(key as string)} className="w-full">
-        <Tabs.ListContainer className="bg-white px-4 dark:bg-zinc-900">
+        {/* 탭 리스트 (고정 영역에 포함) */}
+        <Tabs selectedKey={tab} onSelectionChange={(key) => setTab(key as string)} className="w-full">
+          <Tabs.ListContainer className="border-t border-zinc-200 bg-white px-4 dark:border-zinc-700 dark:bg-zinc-900">
           <Tabs.List aria-label="동아리 정보" className="flex w-full">
             <Tabs.Tab
               id="info"
@@ -410,6 +413,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
           />
         </Tabs.Panel>
       </Tabs>
+      </div>
 
       {/* 하단 네비 공간 확보 */}
       <div className="h-32" />
@@ -889,7 +893,7 @@ function ClubInfoTab({
                 })}
               </div>
             </div>
-            <div className="mt-3 flex items-center justify-between gap-3">
+            <div className="mt-5 flex items-center justify-between gap-3">
               <label className="text-sm font-medium text-gray-700 dark:text-zinc-300">
                 휴학생 지원 가능 여부
               </label>
@@ -1193,9 +1197,9 @@ function ClubInfoTab({
                 </Select.Popover>
               </Select>
             </div>
-            <div className="grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="min-w-0 max-w-full">
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+            <div className="grid w-full max-w-full grid-cols-2 gap-3 overflow-hidden">
+              <div className="min-w-0 overflow-hidden">
+                <label className="mb-2 block truncate text-sm font-medium text-gray-700 dark:text-zinc-300">
                   모집 시작일
                 </label>
                 <input
@@ -1207,11 +1211,11 @@ function ClubInfoTab({
                     setRecruitmentStartDate(v);
                     if (recruitmentEndDate && v > recruitmentEndDate) setRecruitmentEndDate(v);
                   }}
-                  className="w-full max-w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                  className="box-border w-full min-w-0 max-w-full rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
                 />
               </div>
-              <div className="min-w-0 max-w-full">
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+              <div className="min-w-0 overflow-hidden">
+                <label className="mb-2 block truncate text-sm font-medium text-gray-700 dark:text-zinc-300">
                   모집 종료일
                 </label>
                 <input
@@ -1223,7 +1227,7 @@ function ClubInfoTab({
                     if (recruitmentStartDate && v < recruitmentStartDate) return;
                     setRecruitmentEndDate(v);
                   }}
-                  className="w-full max-w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                  className="box-border w-full min-w-0 max-w-full rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
                 />
               </div>
             </div>
