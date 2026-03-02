@@ -327,7 +327,6 @@ function ClubListSection() {
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col items-center justify-center py-20"
       >
-        <span className="mb-3 text-5xl">🔍</span>
         <p className="text-sm text-zinc-400">검색 결과가 없어요</p>
         <p className="mt-1 text-xs text-zinc-300 dark:text-zinc-600">다른 키워드로 검색해보세요</p>
       </motion.div>
@@ -341,7 +340,6 @@ function ClubListSection() {
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col items-center justify-center py-20"
       >
-        <span className="mb-3 text-5xl">🔍</span>
         <p className="text-sm text-zinc-400">검색 결과가 없어요</p>
         <p className="mt-1 text-xs text-zinc-300 dark:text-zinc-600">다른 키워드로 검색해보세요</p>
       </motion.div>

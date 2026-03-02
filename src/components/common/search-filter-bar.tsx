@@ -94,14 +94,17 @@ export function SearchFilterBar({
 
   useEffect(() => {
     if (!stickyHideOnScroll) return;
+    const scrollEl = document.querySelector('main') ?? document.documentElement;
+    const getScrollY = () =>
+      scrollEl === document.documentElement ? window.scrollY : (scrollEl as HTMLElement).scrollTop;
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+      const currentScrollY = getScrollY();
       if (currentScrollY > lastScrollY && currentScrollY > 100) setIsVisible(false);
       else if (currentScrollY < lastScrollY) setIsVisible(true);
       setLastScrollY(currentScrollY);
     };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    scrollEl.addEventListener('scroll', handleScroll, { passive: true });
+    return () => scrollEl.removeEventListener('scroll', handleScroll);
   }, [lastScrollY, stickyHideOnScroll]);
 
   useEffect(() => {
@@ -160,7 +163,7 @@ export function SearchFilterBar({
       </div>
 
       {/* 필터: 기본 = 동아리 유형만, 과동아리 선택 시 단과대 추가 노출 */}
-      <div className="no-scrollbar flex items-center gap-2 p-1 overflow-x-auto">
+      <div className="no-scrollbar flex items-center gap-2 overflow-x-auto p-1">
         {/* 1. 동아리 유형 (기본 노출) */}
         <Select
           className="shrink-0"

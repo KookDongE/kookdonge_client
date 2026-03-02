@@ -45,12 +45,14 @@ function ApplicationManagementTab({
 
   return (
     <div className="pt-0">
-      <div className={`glass sticky top-[6.5rem] z-20 border-b-0 ${filterStickyClass}`}>
+      <div
+        className={`glass sticky top-[6.5rem] z-20 border-y-0 border-b-0 pt-0 pb-2 ${filterStickyClass}`}
+      >
         <SearchFilterBar
           placeholder="동아리명 검색"
           stickyHideOnScroll={false}
           useGlass
-          className="!border-b-0"
+          className="!border-y-0 !border-b-0"
         />
       </div>
       <div className="space-y-4 p-4">
@@ -212,8 +214,11 @@ function AdminPageContent() {
   }, [profile, profileLoading, router]);
 
   useEffect(() => {
+    const scrollEl = document.querySelector('main') ?? document.documentElement;
+    const getScrollY = () =>
+      scrollEl === document.documentElement ? window.scrollY : (scrollEl as HTMLElement).scrollTop;
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+      const currentScrollY = getScrollY();
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
         setIsStickyVisible(false);
       } else if (currentScrollY < lastScrollY) {
@@ -221,12 +226,13 @@ function AdminPageContent() {
       }
       setLastScrollY(currentScrollY);
     };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    scrollEl.addEventListener('scroll', handleScroll, { passive: true });
+    return () => scrollEl.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    document.querySelector('main')?.scrollTo(0, 0);
   }, [tab]);
 
   const isApplicationsTab = (tab || 'applications') === 'applications';
@@ -250,7 +256,7 @@ function AdminPageContent() {
         className="mt-0 w-full pt-0 [&_[data-slot=tabs-panel]]:pt-0"
       >
         <Tabs.ListContainer
-          className={`glass sticky top-[3.5rem] z-30 border-b-0 px-4 pt-0 pb-0 ${stickyTransitionClass}`}
+          className={`glass sticky top-[3.5rem] z-30 border-y-0 border-b-0 px-4 pt-0 pb-2 ${stickyTransitionClass}`}
         >
           <Tabs.List aria-label="관리자 메뉴" className="flex w-full">
             <Tabs.Tab

@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect } from 'react';
+import { Suspense, useLayoutEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -49,9 +49,15 @@ function ManagedClubsListContent() {
   const [clubType] = useQueryState('clubType', parseAsString.withDefault(''));
   const { data: managedClubs, isLoading } = useManagedClubs();
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    document.querySelector('main')?.scrollTo(0, 0);
+  useLayoutEffect(() => {
+    const main = document.querySelector('main');
+    const scrollToTop = () => {
+      window.scrollTo(0, 0);
+      main?.scrollTo(0, 0);
+    };
+    scrollToTop();
+    const id = requestAnimationFrame(scrollToTop);
+    return () => cancelAnimationFrame(id);
   }, []);
 
   const list = managedClubs || [];
