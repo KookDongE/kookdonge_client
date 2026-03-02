@@ -8,14 +8,18 @@ const MAX_PULL = 80;
 
 type PullToRefreshProps = {
   children: React.ReactNode;
+  /** true면 헤더/하단네비 없는 풀스크린(스플래시·로그인) — 높이 100dvh */
+  fullScreen?: boolean;
 };
 
-export function PullToRefresh({ children }: PullToRefreshProps) {
+export function PullToRefresh({ children, fullScreen = false }: PullToRefreshProps) {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef(0);
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const contentHeight = fullScreen ? '100dvh' : 'calc(100dvh - 3.5rem - 4rem)';
 
   const onTouchStart = useCallback((e: React.TouchEvent) => {
     const el = scrollRef.current;
@@ -50,7 +54,7 @@ export function PullToRefresh({ children }: PullToRefreshProps) {
     <div
       ref={scrollRef}
       className="pb-safe h-full overflow-y-auto overscroll-y-none"
-      style={{ height: 'calc(100dvh - 3.5rem - 4rem)' }}
+      style={{ height: contentHeight }}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}

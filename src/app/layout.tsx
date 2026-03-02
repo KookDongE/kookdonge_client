@@ -8,9 +8,7 @@ import { QueryProvider } from '@/lib/query/provider';
 import { ThemeProvider } from '@/lib/theme/provider';
 import { AuthProvider } from '@/features/auth';
 import { FcmForegroundHandler } from '@/features/notifications/fcm-foreground-handler';
-import { BottomNav } from '@/components/common/bottom-nav';
-import { Header } from '@/components/common/header';
-import { PullToRefresh } from '@/components/common/pull-to-refresh';
+import { AppShell } from '@/components/common/app-shell';
 import { PwaNoticeModal } from '@/components/common/pwa-notice-modal';
 import { PwaNotificationPromptModal } from '@/components/common/pwa-notification-prompt-modal';
 
@@ -108,13 +106,7 @@ export default function RootLayout({
             <QueryProvider>
               <AuthProvider>
                 <FcmForegroundHandler />
-                <div className="relative mx-auto min-h-dvh max-w-md overflow-hidden bg-[var(--card)] shadow-xl">
-                  <Header />
-                  <main className="flex h-[calc(100dvh-3.5rem-4rem)] flex-col overflow-hidden">
-                    <PullToRefresh>{children}</PullToRefresh>
-                  </main>
-                  <BottomNav />
-                </div>
+                <AppShell>{children}</AppShell>
                 <Toaster position="top-center" richColors />
                 <PwaNoticeModal />
                 <PwaNotificationPromptModal />

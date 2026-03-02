@@ -159,6 +159,36 @@ html:not(.dark) .club-manage-admin-item {
   color: #09090b;
 }
 
+/* 라이트 모드: 마이페이지 동아리 종류·카테고리 태그 밝게 (앱뷰에서 다크로 보이는 현상 방지) */
+html:not(.dark) .mypage-club-tag-type {
+  color-scheme: light;
+  background-color: #f3f4f6 !important;
+  color: #374151 !important;
+}
+html:not(.dark) .mypage-club-tag-category {
+  color-scheme: light;
+  background-color: #eff6ff !important;
+  color: #2563eb !important;
+}
+
+/* 라이트 모드: 동아리관리 탭 영역 밝게 (앱뷰에서 다크로 보이는 현상 방지) */
+html:not(.dark) .club-manage-tabs {
+  color-scheme: light;
+}
+html:not(.dark) .club-manage-tabs,
+html:not(.dark) .club-manage-tabs [data-slot='listContainer'],
+html:not(.dark) .club-manage-tabs [role='tablist'],
+html:not(.dark) .club-manage-tabs [data-slot='tabList'] {
+  background-color: #ffffff !important;
+  border-color: #e4e4e7 !important;
+  color: #1f2937 !important;
+}
+html:not(.dark) .club-manage-tabs [role='tab'],
+html:not(.dark) .club-manage-tabs [data-slot='tab'],
+html:not(.dark) .club-manage-tabs button[role='tab'] {
+  color: #1f2937 !important;
+}
+
 html:not(.dark) .club-manage-admin-empty {
   background-color: #f4f4f5 !important;
   border-color: #e4e4e7 !important;
