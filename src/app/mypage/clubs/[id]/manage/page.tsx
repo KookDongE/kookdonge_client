@@ -1172,9 +1172,6 @@ function ClubInfoTab({
           <div className="space-y-5">
             {/* 소개 사진 1장 (프로필과 동일 업로드) */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-                소개 사진
-              </label>
               <input
                 type="file"
                 accept="image/*"
