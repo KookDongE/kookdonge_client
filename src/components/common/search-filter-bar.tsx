@@ -168,14 +168,18 @@ export function SearchFilterBar({
     };
   }, []);
 
+  // 스크롤 시 필터바 숨김 — 실제 스크롤은 [data-scroll-container](PullToRefresh 내부)에서 발생
   useEffect(() => {
     if (!stickyHideOnScroll) return;
-    const scrollEl = document.querySelector('main') ?? document.documentElement;
+    const scrollEl =
+      document.querySelector('[data-scroll-container]') ??
+      document.querySelector('main') ??
+      document.documentElement;
     const getScrollY = () =>
       scrollEl === document.documentElement ? window.scrollY : (scrollEl as HTMLElement).scrollTop;
     const handleScroll = () => {
       const currentScrollY = getScrollY();
-      if (currentScrollY > lastScrollY && currentScrollY > 100) setIsVisible(false);
+      if (currentScrollY > lastScrollY && currentScrollY > 80) setIsVisible(false);
       else if (currentScrollY < lastScrollY) setIsVisible(true);
       setLastScrollY(currentScrollY);
     };

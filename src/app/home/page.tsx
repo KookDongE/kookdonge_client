@@ -443,10 +443,12 @@ function HomeContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const hasHandledReloadRef = useRef(false);
 
-  // 풀리프레시·웹 새로고침 시 필터(쿼리) 초기화
+  // 풀리프레시·웹 새로고침 시에만 필터(쿼리) 초기화 (드롭다운 선택 시에는 실행되지 않도록 1회만 처리)
   useEffect(() => {
     if (typeof window === 'undefined' || pathname !== '/home') return;
+    if (hasHandledReloadRef.current) return;
     const nav = performance.getEntriesByType?.('navigation')?.[0] as
       | PerformanceNavigationTiming
       | undefined;
@@ -462,6 +464,7 @@ function HomeContent() {
       searchParams.get('q') ??
       (searchParams.get('sort') && searchParams.get('sort') !== 'name,asc');
     if (isReload && hasFilter) {
+      hasHandledReloadRef.current = true;
       router.replace('/home', { scroll: false });
     }
   }, [pathname, router, searchParams]);
