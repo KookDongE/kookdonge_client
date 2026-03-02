@@ -897,8 +897,8 @@ function ClubInfoTab({
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={allowLeaveOfAbsence}
-                    onChange={(e) => setAllowLeaveOfAbsence(e.target.checked)}
+                    checked={_allowLeaveOfAbsence}
+                    onChange={(e) => _setAllowLeaveOfAbsence(e.target.checked)}
                     className="h-5 w-5 rounded border-zinc-300 text-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-zinc-600 dark:bg-zinc-800"
                   />
                   <span className="text-sm text-gray-700 dark:text-zinc-300">
