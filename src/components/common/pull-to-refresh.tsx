@@ -5,9 +5,11 @@ import { usePathname, useRouter } from 'next/navigation';
 
 /** 새로고침이 발동되려면 당겨야 하는 최소 거리 (px). 높을수록 둔감 */
 const PULL_THRESHOLD = 95;
-/** 당김 거리 상한. 당김 감도 배율을 낮춰 의도치 않은 새로고침 방지 */
-const PULL_DAMPING = 0.35;
+/** 당김 감도. 낮을수록 부드럽고 둔감 (0.25~0.4 권장) */
+const PULL_DAMPING = 0.28;
 const MAX_PULL = 100;
+/** 손가락 놓았을 때 원위치로 돌아가는 애니메이션 시간 (ms) */
+const RELEASE_DURATION_MS = 320;
 
 /** 동아리 관리 페이지 진입 시 스크롤 리셋 (캐시된 페이지 재진입 시에도 동작) */
 const CLUB_MANAGE_PATH = /^\/mypage\/clubs\/[^/]+\/manage$/;
@@ -23,8 +25,12 @@ export function PullToRefresh({ children, fullScreen = false }: PullToRefreshPro
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef(0);
+  const rafIdRef = useRef<number | null>(null);
+  const lastDistanceRef = useRef(0);
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  /** 놓을 때만 트랜지션 적용 — 당기는 중에는 트랜지션 없이 손가락을 따라감 */
+  const [isReleasing, setIsReleasing] = useState(false);
 
   const contentHeight = fullScreen ? '100dvh' : 'calc(100dvh - 3.5rem - 4rem)';
 
@@ -48,6 +54,7 @@ export function PullToRefresh({ children, fullScreen = false }: PullToRefreshPro
       const el = scrollRef.current;
       if (!el || el.scrollTop > 0) return;
       startYRef.current = e.touches[0].clientY;
+      setIsReleasing(false);
     },
     [fullScreen]
   );
@@ -60,26 +67,41 @@ export function PullToRefresh({ children, fullScreen = false }: PullToRefreshPro
       const y = e.touches[0].clientY;
       const delta = Math.max(0, y - startYRef.current);
       const distance = Math.min(delta * PULL_DAMPING, MAX_PULL);
-      setPullDistance(distance);
+      lastDistanceRef.current = distance;
+      if (rafIdRef.current !== null) return;
+      rafIdRef.current = requestAnimationFrame(() => {
+        rafIdRef.current = null;
+        setPullDistance(lastDistanceRef.current);
+      });
     },
     [fullScreen, isRefreshing]
   );
 
   const onTouchEnd = useCallback(() => {
     if (fullScreen) return;
-    if (pullDistance >= PULL_THRESHOLD && !isRefreshing) {
+    if (rafIdRef.current !== null) {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
+    }
+    const distance = lastDistanceRef.current;
+    if (distance >= PULL_THRESHOLD && !isRefreshing) {
       setIsRefreshing(true);
+      setIsReleasing(true);
       setPullDistance(0);
-      // 풀리프레시 시 현재 경로의 필터(쿼리) 초기화 후 새로고침
       if (pathname) {
         router.replace(pathname, { scroll: false });
       }
       router.refresh();
-      setTimeout(() => setIsRefreshing(false), 800);
+      setTimeout(() => {
+        setIsRefreshing(false);
+        setIsReleasing(false);
+      }, 800);
     } else {
+      setIsReleasing(true);
       setPullDistance(0);
+      setTimeout(() => setIsReleasing(false), RELEASE_DURATION_MS);
     }
-  }, [fullScreen, pathname, pullDistance, isRefreshing, router]);
+  }, [fullScreen, pathname, isRefreshing, router]);
 
   return (
     <div
@@ -93,8 +115,11 @@ export function PullToRefresh({ children, fullScreen = false }: PullToRefreshPro
       onTouchCancel={onTouchEnd}
     >
       <div
-        className="transition-transform duration-150"
-        style={{ transform: `translateY(${pullDistance}px)` }}
+        className={isReleasing ? 'transition-transform ease-out' : ''}
+        style={{
+          transform: `translateY(${pullDistance}px)`,
+          transitionDuration: isReleasing ? `${RELEASE_DURATION_MS}ms` : undefined,
+        }}
       >
         <div
           className="flex items-center justify-center"
