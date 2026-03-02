@@ -1,13 +1,15 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { ClubType } from '@/types/api';
+import { ClubCategory, ClubType, RecruitmentStatus } from '@/types/api';
 
 export type InterestedClubItem = {
   id: number;
   name: string;
   logoImage: string;
   type: ClubType;
+  category?: ClubCategory;
+  recruitmentStatus?: RecruitmentStatus;
 };
 
 interface InterestedState {

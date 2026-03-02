@@ -104,6 +104,8 @@ function ClubHeader({ clubId }: { clubId: number }) {
         name: club.name,
         logoImage: club.image ?? '',
         type: club.type,
+        category: club.category,
+        recruitmentStatus: club.recruitmentStatus,
       });
     }
   };

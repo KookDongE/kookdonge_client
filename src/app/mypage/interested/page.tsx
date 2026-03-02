@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { Spinner } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
 
-import { ClubType } from '@/types/api';
+import { ClubCategory, ClubType, RecruitmentStatus } from '@/types/api';
 import { useInterestedStore } from '@/features/club/interested-store';
 import { DefaultClubImage } from '@/components/common/default-club-image';
 import { SearchFilterBar } from '@/components/common/search-filter-bar';
@@ -17,6 +17,31 @@ const TYPE_LABEL: Record<ClubType, string> = {
   DEPARTMENTAL: '학과동아리',
   ACADEMIC_SOCIETY: '학회',
   CLUB: '소모임',
+};
+
+const CATEGORY_LABEL: Record<ClubCategory, string> = {
+  PERFORMING_ARTS: '공연예술',
+  LIBERAL_ARTS_SERVICE: '교양봉사',
+  EXHIBITION_ARTS: '전시창작',
+  RELIGION: '종교',
+  BALL_LEISURE: '구기레저',
+  PHYSICAL_MARTIAL_ARTS: '체육무예',
+  ACADEMIC: '학술',
+};
+
+const STATUS_CONFIG: Record<RecruitmentStatus, { label: string; className: string }> = {
+  RECRUITING: {
+    label: '모집중',
+    className: 'bg-lime-200 text-zinc-800 dark:bg-lime-500/70 dark:text-zinc-900',
+  },
+  SCHEDULED: {
+    label: '모집예정',
+    className: 'bg-cyan-200 text-zinc-800 dark:bg-cyan-500/70 dark:text-zinc-900',
+  },
+  CLOSED: {
+    label: '마감',
+    className: 'bg-zinc-200 text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400',
+  },
 };
 
 function InterestedClubsContent() {
@@ -63,16 +88,28 @@ function InterestedClubsContent() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="mb-1 flex flex-wrap items-center gap-1.5">
-                    <span className="rounded-md bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-700 dark:bg-zinc-800 dark:text-zinc-400">
+                    {club.recruitmentStatus && (
+                      <span
+                        className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium ${STATUS_CONFIG[club.recruitmentStatus].className}`}
+                      >
+                        {STATUS_CONFIG[club.recruitmentStatus].label}
+                      </span>
+                    )}
+                    <span className="rounded-md bg-violet-100 px-1.5 py-0.5 text-[10px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
                       {TYPE_LABEL[club.type]}
                     </span>
+                    {club.category && (
+                      <span className="rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                        {CATEGORY_LABEL[club.category]}
+                      </span>
+                    )}
                   </div>
                   <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
                     {club.name}
                   </h4>
                 </div>
                 <svg
-                  className="h-5 w-5 text-zinc-400 dark:text-zinc-500"
+                  className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"

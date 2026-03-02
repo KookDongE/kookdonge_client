@@ -498,9 +498,21 @@ function InterestedClubsSection() {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="mb-1 flex flex-wrap items-center gap-1.5">
+                  {club.recruitmentStatus && (
+                    <span
+                      className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium ${STATUS_CONFIG[club.recruitmentStatus].className}`}
+                    >
+                      {STATUS_CONFIG[club.recruitmentStatus].label}
+                    </span>
+                  )}
                   <span className="mypage-club-tag-type rounded-md bg-violet-100 px-1.5 py-0.5 text-[10px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
                     {TYPE_LABEL[club.type]}
                   </span>
+                  {club.category && (
+                    <span className="mypage-club-tag-category rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                      {CATEGORY_LABEL[club.category]}
+                    </span>
+                  )}
                 </div>
                 <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
                   {club.name}
