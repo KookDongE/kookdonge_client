@@ -61,8 +61,10 @@ const TYPE_OPTIONS = Object.entries(TYPE_LABEL).map(([value, label]) => ({
   label,
 }));
 
-function formatDate(dateString: string): string {
+function formatDate(dateString: string | null | undefined): string {
+  if (dateString == null || dateString === '') return '-';
   const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return '-';
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
   const day = date.getDate();
@@ -143,10 +145,10 @@ function ClubManageContent({ clubId }: { clubId: number }) {
     setDescription(club.description || '');
     setDescriptionImages(club.descriptionImages || []);
     setRecruitmentStatus(club.recruitmentStatus);
-    const startParts = club.recruitmentStartDate.split('T');
+    const startParts = (club.recruitmentStartDate ?? '').split('T');
     setRecruitmentStartDate(startParts[0] || '');
     setRecruitmentStartTime(startParts[1]?.slice(0, 5) || '00:00');
-    const endParts = club.recruitmentEndDate.split('T');
+    const endParts = (club.recruitmentEndDate ?? '').split('T');
     setRecruitmentEndDate(endParts[0] || '');
     setRecruitmentEndTime(endParts[1]?.slice(0, 5) || '23:59');
     setRecruitmentUrl(club.applicationLink || club.recruitmentUrl || '');
