@@ -44,11 +44,23 @@ const TYPE_LABEL: Record<ClubType, string> = {
 
 const STATUS_CONFIG: Record<
   RecruitmentStatus,
-  { label: string; color: 'success' | 'accent' | 'default' }
+  { label: string; color: 'success' | 'accent' | 'default'; className: string }
 > = {
-  RECRUITING: { label: '모집중', color: 'success' },
-  SCHEDULED: { label: '모집예정', color: 'accent' },
-  CLOSED: { label: '모집마감', color: 'default' },
+  RECRUITING: {
+    label: '모집중',
+    color: 'success',
+    className: 'bg-lime-200 text-zinc-800 dark:bg-lime-500/70 dark:text-zinc-900',
+  },
+  SCHEDULED: {
+    label: '모집예정',
+    color: 'accent',
+    className: 'bg-cyan-200 text-zinc-800 dark:bg-cyan-500/70 dark:text-zinc-900',
+  },
+  CLOSED: {
+    label: '모집마감',
+    color: 'default',
+    className: 'bg-zinc-200 text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400',
+  },
 };
 
 const CATEGORY_OPTIONS = Object.entries(CATEGORY_LABEL).map(([value, label]) => ({
@@ -276,7 +288,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
 
   return (
     <>
-      {/* 스크롤 시 상단 고정: 뒤로가기 + 헤더 + 탭 리스트 */}
+      {/* 스크롤 시 상단 고정: 뒤로가기 + 헤더 + 탭 리스트 (동아리 상세페이지와 동일, 기본정보/동아리소개/모집정보/관리자 제외) */}
       <div className="sticky top-0 z-30 bg-[var(--card)]">
         {/* 뒤로가기 */}
         <div className="flex items-center gap-2 px-4 pt-3 pb-1">
@@ -290,10 +302,10 @@ function ClubManageContent({ clubId }: { clubId: number }) {
           </button>
         </div>
 
-        {/* 헤더 */}
-        <div className="px-4 pt-2 pb-2">
+        {/* 헤더 - 동아리 상세페이지( clubs/[id] ) 상단 UI와 동일 */}
+        <div className="bg-white px-4 py-6 dark:bg-zinc-900">
           <div className="flex gap-4">
-            <div className="club-logo-wrap relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-zinc-100 shadow-sm dark:bg-zinc-800">
+            <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-zinc-100 shadow-sm dark:bg-zinc-800">
               {club.image ? (
                 <Image
                   src={club.image}
@@ -307,34 +319,47 @@ function ClubManageContent({ clubId }: { clubId: number }) {
               )}
             </div>
             <div className="flex flex-1 flex-col justify-center">
-              <div className="flex items-center gap-2">
-                <Chip size="sm" color={status.color} variant="soft">
+              <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
+                <span
+                  className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium ${status.className}`}
+                >
                   {status.label}
-                </Chip>
+                </span>
+                <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+                  {TYPE_LABEL[club.type]}
+                </span>
+                <span className="rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                  {CATEGORY_LABEL[club.category]}
+                </span>
               </div>
-              <h1 className="mt-1.5 text-xl font-bold text-zinc-900 dark:text-zinc-100">
-                {club.name}
-              </h1>
+              <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">{club.name}</h1>
               {club.summary && (
                 <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{club.summary}</p>
               )}
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                {TYPE_LABEL[club.type]} · {CATEGORY_LABEL[club.category]}
-              </p>
             </div>
           </div>
-          <div className="mt-5 flex gap-3">
-            <div className="flex-1 rounded-xl bg-red-50 py-3 text-center dark:bg-red-950/30">
-              <div className="text-xl font-bold text-red-500 dark:text-red-400">
+          <div className="mt-4 flex gap-1.5">
+            <div
+              className="flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-2.5 bg-red-50 dark:bg-red-950/30"
+              aria-hidden
+            >
+              <span className="text-sm font-semibold tabular-nums text-red-600 dark:text-red-400">
                 {club.totalLikeCount}
-              </div>
-              <div className="text-xs text-zinc-500 dark:text-zinc-400">좋아요</div>
+              </span>
+              <span className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400">
+                좋아요
+              </span>
             </div>
-            <div className="flex-1 rounded-xl bg-blue-50 py-3 text-center dark:bg-blue-950/30">
-              <div className="text-xl font-bold text-blue-500 dark:text-blue-400">
+            <div
+              className="flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-2.5 bg-zinc-100 dark:bg-zinc-800/80"
+              aria-hidden
+            >
+              <span className="text-sm font-semibold tabular-nums text-zinc-700 dark:text-zinc-300">
                 {club.totalViewCount}
-              </div>
-              <div className="text-xs text-zinc-500 dark:text-zinc-400">조회수</div>
+              </span>
+              <span className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400">
+                조회수
+              </span>
             </div>
           </div>
         </div>
@@ -1169,13 +1194,9 @@ function ClubInfoTab({
                 모집 상태
               </label>
               <div className={valueBoxClass}>
-                <Chip
-                  size="sm"
-                  color={STATUS_CONFIG[club.recruitmentStatus as RecruitmentStatus].color}
-                  variant="soft"
-                >
+                <span className="text-zinc-900 dark:text-zinc-100">
                   {STATUS_CONFIG[club.recruitmentStatus as RecruitmentStatus].label}
-                </Chip>
+                </span>
               </div>
             </div>
             <div>
@@ -1196,9 +1217,9 @@ function ClubInfoTab({
                     href={club.applicationLink || club.recruitmentUrl || ''}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-500 hover:underline dark:text-blue-400"
+                    className="block min-w-0 truncate text-sm text-blue-600 underline decoration-blue-300 hover:decoration-blue-500 dark:text-blue-400 dark:decoration-blue-600 dark:hover:decoration-blue-400"
                   >
-                    링크 열기
+                    {club.applicationLink || club.recruitmentUrl}
                   </a>
                 ) : (
                   <span className="text-zinc-400 dark:text-zinc-500">없음</span>
@@ -1237,8 +1258,8 @@ function ClubInfoTab({
               </Select>
             </div>
             <div className="w-full max-w-full min-w-0 space-y-4 overflow-hidden">
-              <div className="grid w-full max-w-full min-w-0 grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-                <div className="max-w-full min-w-0 overflow-hidden">
+              <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-[minmax(10rem,1fr)_minmax(8rem,1fr)]">
+                <div className="min-w-0 sm:min-w-[10rem]">
                   <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
                     모집 시작일
                   </label>
@@ -1251,10 +1272,11 @@ function ClubInfoTab({
                       setRecruitmentStartDate(v);
                       if (recruitmentEndDate && v > recruitmentEndDate) setRecruitmentEndDate(v);
                     }}
-                    className="box-border w-full max-w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 [&::-webkit-date-and-time-value]:text-left"
+                    className="club-manage-date-input w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                    style={{ minWidth: '8rem' }}
                   />
                 </div>
-                <div className="max-w-full min-w-0 overflow-hidden">
+                <div className="min-w-0 sm:min-w-[8rem]">
                   <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
                     모집 시작 시간
                   </label>
@@ -1262,12 +1284,13 @@ function ClubInfoTab({
                     type="time"
                     value={recruitmentStartTime}
                     onChange={(e) => setRecruitmentStartTime(e.target.value)}
-                    className="box-border w-full max-w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                    className="club-manage-time-input w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                    style={{ minWidth: '6.5rem' }}
                   />
                 </div>
               </div>
-              <div className="grid w-full max-w-full min-w-0 grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-                <div className="max-w-full min-w-0 overflow-hidden">
+              <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-[minmax(10rem,1fr)_minmax(8rem,1fr)]">
+                <div className="min-w-0 sm:min-w-[10rem]">
                   <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
                     모집 종료일
                   </label>
@@ -1280,10 +1303,11 @@ function ClubInfoTab({
                       if (recruitmentStartDate && v < recruitmentStartDate) return;
                       setRecruitmentEndDate(v);
                     }}
-                    className="box-border w-full max-w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 [&::-webkit-date-and-time-value]:text-left"
+                    className="club-manage-date-input w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                    style={{ minWidth: '8rem' }}
                   />
                 </div>
-                <div className="max-w-full min-w-0 overflow-hidden">
+                <div className="min-w-0 sm:min-w-[8rem]">
                   <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
                     모집 종료 시간
                   </label>
@@ -1291,7 +1315,8 @@ function ClubInfoTab({
                     type="time"
                     value={recruitmentEndTime}
                     onChange={(e) => setRecruitmentEndTime(e.target.value)}
-                    className="box-border w-full max-w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                    className="club-manage-time-input w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                    style={{ minWidth: '6.5rem' }}
                   />
                 </div>
               </div>

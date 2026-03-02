@@ -118,13 +118,34 @@ html:not(.dark) .weekly-frequency-buttons button[role='radio'][aria-checked='tru
   color: #ffffff !important;
 }
 
-/* 동아리 관리 모집 정보: 날짜/시간 입력이 카드 밖으로 삐져나오지 않도록 (앱 뷰) */
+/* 동아리 관리 모집 정보: 날짜/시간 입력 웹뷰에서 값이 잘리지 않도록 (최소 너비 보장, 표시 정렬) */
 .club-manage-card input[type='date'],
-.club-manage-card input[type='time'] {
+.club-manage-card input[type='time'],
+.club-manage-date-input,
+.club-manage-time-input {
   min-width: 0;
-  max-width: 50%;
   width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
+}
+.club-manage-card input[type='date'],
+.club-manage-date-input {
+  min-width: 8rem;
+}
+.club-manage-card input[type='time'],
+.club-manage-time-input {
+  min-width: 6.5rem;
+}
+/* 웹뷰에서 date/time 값 텍스트가 잘리지 않게 */
+.club-manage-card input[type='date']::-webkit-datetime-edit,
+.club-manage-date-input::-webkit-datetime-edit {
+  min-width: 0;
+  padding: 0;
+}
+.club-manage-card input[type='time']::-webkit-datetime-edit,
+.club-manage-time-input::-webkit-datetime-edit {
+  min-width: 0;
+  padding: 0;
 }
 
 html:not(.dark) .club-manage-dropdown,
