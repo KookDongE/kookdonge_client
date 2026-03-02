@@ -67,13 +67,6 @@ export default function SplashPage() {
           국민대 동아리 정보 모음이
         </p>
       </motion.div>
-      <motion.div
-        className="absolute bottom-20 left-1/2 h-1 w-16 -translate-x-1/2 rounded-full bg-zinc-200 dark:bg-zinc-700"
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: 1 }}
-        transition={{ duration: SPLASH_DURATION_MS / 1000, ease: 'linear' }}
-        style={{ originX: 0 }}
-      />
     </div>
   );
 }

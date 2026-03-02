@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -23,6 +23,11 @@ function ManagedClubsListContent() {
   const [q] = useQueryState('q', parseAsString.withDefault(''));
   const [clubType] = useQueryState('clubType', parseAsString.withDefault(''));
   const { data: managedClubs, isLoading } = useManagedClubs();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.querySelector('main')?.scrollTo(0, 0);
+  }, []);
 
   const list = managedClubs || [];
   let filtered = list;

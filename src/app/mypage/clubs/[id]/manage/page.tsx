@@ -893,7 +893,7 @@ function ClubInfoTab({
                 })}
               </div>
             </div>
-            <div className="mt-8 flex items-center justify-between gap-3">
+            <div className="mt-8 flex items-center gap-2">
               <label className="text-sm font-medium text-gray-700 dark:text-zinc-300">
                 휴학생 지원 가능 여부
               </label>
@@ -1197,9 +1197,9 @@ function ClubInfoTab({
                 </Select.Popover>
               </Select>
             </div>
-            <div className="grid w-full grid-cols-2 gap-3" style={{ gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)' }}>
+            <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="min-w-0">
-                <label className="mb-2 block truncate text-sm font-medium text-gray-700 dark:text-zinc-300">
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
                   모집 시작일
                 </label>
                 <input
@@ -1215,7 +1215,7 @@ function ClubInfoTab({
                 />
               </div>
               <div className="min-w-0">
-                <label className="mb-2 block truncate text-sm font-medium text-gray-700 dark:text-zinc-300">
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
                   모집 종료일
                 </label>
                 <input
