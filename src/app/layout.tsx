@@ -11,6 +11,7 @@ import { FcmForegroundHandler } from '@/features/notifications/fcm-foreground-ha
 import { AppShell } from '@/components/common/app-shell';
 import { PwaNoticeModal } from '@/components/common/pwa-notice-modal';
 import { PwaNotificationPromptModal } from '@/components/common/pwa-notification-prompt-modal';
+import { ScrollbarOnScroll } from '@/components/common/scrollbar-on-scroll';
 
 import '@/styles/globals.css';
 
@@ -105,6 +106,7 @@ export default function RootLayout({
           <NuqsAdapter>
             <QueryProvider>
               <AuthProvider>
+                <ScrollbarOnScroll />
                 <FcmForegroundHandler />
                 <AppShell>{children}</AppShell>
                 <Toaster position="top-center" richColors />

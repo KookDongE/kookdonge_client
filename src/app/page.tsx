@@ -50,7 +50,7 @@ export default function SplashPage() {
   }, [isInitialized, accessToken, router]);
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center bg-[var(--background)]">
+    <div className="flex h-dvh min-h-0 flex-col items-center justify-center overflow-hidden bg-[var(--background)]">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
