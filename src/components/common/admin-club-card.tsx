@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { AdminClubListItem, ClubListRes } from '@/types/api';
@@ -10,6 +10,8 @@ import { ClubCard } from './club-card';
 type AdminClubCardProps = {
   club: AdminClubListItem;
   index?: number;
+  /** 홈 필터 유지용: 뒤로가기 시 이동할 URL */
+  returnTo?: string;
   onToggleVisibility: (clubId: number, isHidden: boolean) => void;
   onDelete: (clubId: number) => void;
 };
@@ -17,6 +19,7 @@ type AdminClubCardProps = {
 export function AdminClubCard({
   club,
   index = 0,
+  returnTo,
   onToggleVisibility,
   onDelete,
 }: AdminClubCardProps) {
@@ -103,8 +106,12 @@ export function AdminClubCard({
       e.stopPropagation();
       return;
     }
-    // 단순 클릭이면 동아리 상세 페이지로 이동
-    router.push(`/clubs/${club.id}`);
+    // 단순 클릭이면 동아리 상세 페이지로 이동 (returnTo 있으면 필터 유지용 쿼리 포함)
+    router.push(
+      returnTo != null && returnTo !== ''
+        ? `/clubs/${club.id}?from=${encodeURIComponent(returnTo)}`
+        : `/clubs/${club.id}`
+    );
   };
 
   const handleHideClick = (e: React.MouseEvent) => {

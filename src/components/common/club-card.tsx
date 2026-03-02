@@ -44,6 +44,8 @@ const STATUS_CONFIG: Record<RecruitmentStatus, { label: string; className: strin
 type ClubCardProps = {
   club: ClubListRes;
   index?: number;
+  /** 홈 필터 유지용: 뒤로가기 시 이동할 URL (예: /home?category=ACADEMIC) */
+  returnTo?: string;
   disableLink?: boolean;
   drag?: 'x' | 'y' | boolean;
   dragConstraints?: { left?: number; right?: number; top?: number; bottom?: number };
@@ -59,6 +61,7 @@ type ClubCardProps = {
 export function ClubCard({
   club,
   index = 0,
+  returnTo,
   disableLink = false,
   drag,
   dragConstraints,
@@ -134,10 +137,17 @@ export function ClubCard({
 
   const motionProps: Record<string, unknown> = {
     initial: isDragMode ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 },
-    animate: isDragMode ? { opacity: 1, y: 0, ...(animate && typeof animate === 'object' ? animate : {}) } : animate || { opacity: 1, y: 0 },
-    transition: isDragMode && transition
-      ? { delay: 0, duration: transition.duration ?? 0.2, type: (transition.type as string) ?? 'tween' }
-      : { delay: index * 0.05, duration: 0.3 },
+    animate: isDragMode
+      ? { opacity: 1, y: 0, ...(animate && typeof animate === 'object' ? animate : {}) }
+      : animate || { opacity: 1, y: 0 },
+    transition:
+      isDragMode && transition
+        ? {
+            delay: 0,
+            duration: transition.duration ?? 0.2,
+            type: (transition.type as string) ?? 'tween',
+          }
+        : { delay: index * 0.05, duration: 0.3 },
   };
 
   if (drag) {
@@ -157,7 +167,14 @@ export function ClubCard({
       {disableLink ? (
         <div className="block">{cardContent}</div>
       ) : (
-        <Link href={`/clubs/${club.id}`} className="block">
+        <Link
+          href={
+            returnTo != null && returnTo !== ''
+              ? `/clubs/${club.id}?from=${encodeURIComponent(returnTo)}`
+              : `/clubs/${club.id}`
+          }
+          className="block"
+        >
           {cardContent}
         </Link>
       )}

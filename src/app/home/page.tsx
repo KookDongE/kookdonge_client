@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 import { Button, Spinner } from '@heroui/react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -25,7 +26,7 @@ import { SearchFilterBar } from '@/components/common/search-filter-bar';
 
 type RankingTab = 'view' | 'like';
 
-function RankingSection() {
+function RankingSection({ returnTo }: { returnTo?: string }) {
   const [activeTab, setActiveTab] = useState<RankingTab>('view');
   const rankingScrollRef = useRef<HTMLDivElement>(null);
   const { data: viewRankings, isLoading: viewLoading } = useTopWeeklyView();
@@ -190,7 +191,13 @@ function RankingSection() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.05 }}
               >
-                <Link href={`/clubs/${club.id}`}>
+                <Link
+                  href={
+                    returnTo != null && returnTo !== ''
+                      ? `/clubs/${club.id}?from=${encodeURIComponent(returnTo)}`
+                      : `/clubs/${club.id}`
+                  }
+                >
                   <motion.div
                     whileTap={{ scale: 0.95 }}
                     className="club-logo-wrap relative flex w-24 shrink-0 flex-col items-center rounded-2xl bg-zinc-100 p-3 dark:bg-zinc-800"
@@ -248,7 +255,7 @@ function ClubFilters() {
   return <SearchFilterBar stickyHideOnScroll placeholder="어떤 동아리를 찾으시나요?" />;
 }
 
-function ClubListSection() {
+function ClubListSection({ returnTo }: { returnTo?: string }) {
   const [category] = useQueryState('category', parseAsString.withDefault(''));
   const [status] = useQueryState('status', parseAsString.withDefault(''));
   const [clubType] = useQueryState('clubType', parseAsString.withDefault(''));
@@ -380,11 +387,12 @@ function ClubListSection() {
                     index={index}
                     onToggleVisibility={handleToggleVisibility}
                     onDelete={handleDelete}
+                    returnTo={returnTo}
                   />
                 );
               } else {
                 // 일반 사용자는 일반 ClubCard 사용
-                return <ClubCard key={club.id} club={club} index={index} />;
+                return <ClubCard key={club.id} club={club} index={index} returnTo={returnTo} />;
               }
             })}
           </div>
@@ -428,11 +436,18 @@ function ClubListSection() {
 }
 
 function HomeContent() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const returnTo =
+    pathname === '/home'
+      ? `/home${searchParams.toString() ? `?${searchParams.toString()}` : ''}`
+      : undefined;
+
   return (
     <>
       <ClubFilters />
-      <RankingSection />
-      <ClubListSection />
+      <RankingSection returnTo={returnTo} />
+      <ClubListSection returnTo={returnTo} />
     </>
   );
 }

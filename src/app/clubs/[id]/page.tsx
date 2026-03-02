@@ -500,6 +500,7 @@ function ClubCTA({ clubId }: { clubId: number }) {
 function ClubDetailContent({ clubId }: { clubId: number }) {
   const searchParams = useSearchParams();
   const questionId = searchParams.get('questionId');
+  const from = searchParams.get('from');
   const [tab, setTab] = useQueryState('tab', parseAsString.withDefault('info'));
   const router = useRouter();
 
@@ -507,12 +508,20 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
     if (questionId) setTab('qna');
   }, [questionId, setTab]);
 
+  const handleBack = () => {
+    if (from) {
+      router.push(from);
+    } else {
+      router.back();
+    }
+  };
+
   return (
     <>
       <div className="flex items-center gap-2 px-4 pt-3 pb-1">
         <button
           type="button"
-          onClick={() => router.back()}
+          onClick={handleBack}
           className="flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
         >
           <span className="inline-block h-4 w-4">←</span>
