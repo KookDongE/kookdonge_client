@@ -79,12 +79,15 @@ export async function apiClient<T>(endpoint: string, options: RequestOptions = {
   const json: ResponseDTO<T> = await response.json();
 
   if (json.status !== 200) {
+    const message = json.message ?? '';
     const isUnauthorized = response.status === 401 || json.status === 401;
-    if (isUnauthorized) {
-      // 토큰 없음·만료 시 토스트 반복 대신 스플래시로 이동
+    const isAuthHeaderMissing =
+      /헤더가\s*존재하지\s*않습니다/i.test(message) ||
+      (/authorization/i.test(message) && /헤더|header/i.test(message));
+    if (isUnauthorized || isAuthHeaderMissing) {
       redirectToSplashIfNeeded();
     } else {
-      toast.error(json.message || '오류가 발생했습니다');
+      toast.error(message || '오류가 발생했습니다');
     }
     throw new Error(`${json.status}: ${json.message}`);
   }
