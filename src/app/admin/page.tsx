@@ -1,9 +1,9 @@
 'use client';
 
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { Button, Chip, Input, Spinner, Tabs } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
@@ -201,10 +201,29 @@ function AdminSettingsTab() {
 
 function AdminPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: profile, isLoading: profileLoading } = useMyProfile();
   const [tab, setTab] = useQueryState('tab', parseAsString.withDefault('applications'));
   const [isStickyVisible, setIsStickyVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const didInitialClearCheckRef = useRef(false);
+
+  // 새로고침 시 필터(q 등) 초기화, tab만 유지 (마운트 후 1회만)
+  useEffect(() => {
+    if (didInitialClearCheckRef.current) return;
+    didInitialClearCheckRef.current = true;
+    const hasFilter =
+      searchParams.get('q') ??
+      searchParams.get('category') ??
+      searchParams.get('status') ??
+      searchParams.get('clubType') ??
+      searchParams.get('college') ??
+      (searchParams.get('sort') && searchParams.get('sort') !== 'name,asc');
+    if (hasFilter) {
+      const tabVal = searchParams.get('tab') || 'applications';
+      router.replace(`/admin?tab=${tabVal}`, { scroll: false });
+    }
+  }, [router, searchParams]);
 
   useEffect(() => {
     if (profileLoading) return;

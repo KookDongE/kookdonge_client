@@ -443,19 +443,13 @@ function HomeContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const hasHandledReloadRef = useRef(false);
+  const didInitialClearCheckRef = useRef(false);
 
-  // 풀리프레시·웹 새로고침 시에만 필터(쿼리) 초기화 (드롭다운 선택 시에는 실행되지 않도록 1회만 처리)
+  // 새로고침 시 필터 초기화 (마운트 후 1회만 검사 → 드롭다운 선택 시에는 초기화되지 않음)
   useEffect(() => {
     if (typeof window === 'undefined' || pathname !== '/home') return;
-    if (hasHandledReloadRef.current) return;
-    const nav = performance.getEntriesByType?.('navigation')?.[0] as
-      | PerformanceNavigationTiming
-      | undefined;
-    const isReload =
-      nav?.type === 'reload' ||
-      (typeof performance !== 'undefined' &&
-        (performance as Performance & { navigation?: { type: number } }).navigation?.type === 1);
+    if (didInitialClearCheckRef.current) return;
+    didInitialClearCheckRef.current = true;
     const hasFilter =
       searchParams.get('category') ??
       searchParams.get('status') ??
@@ -463,8 +457,7 @@ function HomeContent() {
       searchParams.get('college') ??
       searchParams.get('q') ??
       (searchParams.get('sort') && searchParams.get('sort') !== 'name,asc');
-    if (isReload && hasFilter) {
-      hasHandledReloadRef.current = true;
+    if (hasFilter) {
       router.replace('/home', { scroll: false });
     }
   }, [pathname, router, searchParams]);
