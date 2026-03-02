@@ -302,7 +302,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
           </button>
         </div>
 
-        {/* 헤더 - 동아리 상세페이지( clubs/[id] ) 상단 UI와 동일 */}
+        {/* 헤더 - 동아리 상세페이지와 동일: 태그=사진 상단, 이름=태그 아래, 아이콘=사진 하단 우측 1열 */}
         <div className="bg-white px-4 py-6 dark:bg-zinc-900">
           <div className="flex gap-4">
             <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-zinc-100 shadow-sm dark:bg-zinc-800">
@@ -318,8 +318,9 @@ function ClubManageContent({ clubId }: { clubId: number }) {
                 <DefaultClubImage className="object-cover" sizes="112px" />
               )}
             </div>
-            <div className="flex flex-1 flex-col justify-center">
-              <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
+            <div className="flex min-h-28 flex-1 flex-col">
+              {/* 태그: 사진 상단과 맞춤 */}
+              <div className="flex flex-wrap items-center gap-1.5">
                 <span
                   className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium ${status.className}`}
                 >
@@ -332,34 +333,49 @@ function ClubManageContent({ clubId }: { clubId: number }) {
                   {CATEGORY_LABEL[club.category]}
                 </span>
               </div>
-              <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">{club.name}</h1>
+              {/* 동아리 이름: 태그 바로 아래 */}
+              <h1 className="mt-1.5 text-xl font-bold text-zinc-900 dark:text-zinc-100">
+                {club.name}
+              </h1>
               {club.summary && (
                 <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{club.summary}</p>
               )}
-            </div>
-          </div>
-          <div className="mt-4 flex gap-1.5">
-            <div
-              className="flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-2.5 bg-red-50 dark:bg-red-950/30"
-              aria-hidden
-            >
-              <span className="text-sm font-semibold tabular-nums text-red-600 dark:text-red-400">
-                {club.totalLikeCount}
-              </span>
-              <span className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400">
-                좋아요
-              </span>
-            </div>
-            <div
-              className="flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-2.5 bg-zinc-100 dark:bg-zinc-800/80"
-              aria-hidden
-            >
-              <span className="text-sm font-semibold tabular-nums text-zinc-700 dark:text-zinc-300">
-                {club.totalViewCount}
-              </span>
-              <span className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400">
-                조회수
-              </span>
+              {/* 좋아요/조회수: 아이콘만, 사진 하단에 맞춰 우측 1열 (관리페이지는 좋아요·조회수만) */}
+              <div className="mt-auto flex items-center justify-end gap-2 pt-2">
+                <div
+                  className="flex items-center rounded-lg p-1.5 text-red-500 dark:text-red-400"
+                  aria-label={`좋아요 ${club.totalLikeCount}`}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    className="h-4 w-4 shrink-0"
+                    aria-hidden
+                  >
+                    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                  </svg>
+                </div>
+                <div
+                  className="flex items-center rounded-lg p-1.5 text-zinc-500 dark:text-zinc-400"
+                  aria-label={`조회수 ${club.totalViewCount}`}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    className="h-4 w-4 shrink-0"
+                    aria-hidden
+                  >
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </div>
+              </div>
             </div>
           </div>
         </div>

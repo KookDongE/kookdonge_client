@@ -196,8 +196,9 @@ function ClubHeader({
             <DefaultClubImage className="object-cover" sizes="112px" />
           )}
         </div>
-        <div className="flex flex-1 flex-col justify-center">
-          <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
+        <div className="flex min-h-28 flex-1 flex-col">
+          {/* 태그: 사진 상단과 맞춤 */}
+          <div className="flex flex-wrap items-center gap-1.5">
             <span
               className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium ${status.className}`}
             >
@@ -210,104 +211,78 @@ function ClubHeader({
               {CATEGORY_LABEL[club.category]}
             </span>
           </div>
-          <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">{club.name}</h1>
+          {/* 동아리 이름: 태그 바로 아래 */}
+          <h1 className="mt-1.5 text-xl font-bold text-zinc-900 dark:text-zinc-100">{club.name}</h1>
           {club.summary && (
             <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{club.summary}</p>
           )}
-        </div>
-      </div>
-      <div className="mt-4 flex gap-1.5">
-        <button
-          type="button"
-          onClick={handleLikeToggle}
-          disabled={isLiking}
-          className={`flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-2.5 transition-colors active:scale-[0.98] ${
-            club.isLikedByMe
-              ? 'bg-red-100 dark:bg-red-500/20'
-              : 'bg-zinc-100 dark:bg-zinc-800/80 hover:bg-red-50 dark:hover:bg-red-950/20'
-          }`}
-          aria-label={club.isLikedByMe ? '좋아요 취소' : '좋아요'}
-        >
-          <HeartIcon
-            filled={club.isLikedByMe}
-            className={`h-5 w-5 shrink-0 ${club.isLikedByMe ? 'text-red-600 dark:text-red-400' : 'text-zinc-400 dark:text-zinc-500'}`}
-          />
-          <span
-            className={`text-sm font-semibold tabular-nums ${
-              club.isLikedByMe ? 'text-red-600 dark:text-red-400' : 'text-zinc-700 dark:text-zinc-300'
-            }`}
-          >
-            {club.totalLikeCount}
-          </span>
-          <span className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400">좋아요</span>
-        </button>
-        <button
-          type="button"
-          onClick={handleInterestedToggle}
-          className={`flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-2.5 transition-colors active:scale-[0.98] ${
-            isInterestedByMe
-              ? 'bg-amber-100 dark:bg-amber-500/20'
-              : 'bg-zinc-100 dark:bg-zinc-800/80 hover:bg-amber-50 dark:hover:bg-amber-950/20'
-          }`}
-          title="관심 동아리"
-          aria-label={isInterestedByMe ? '관심 해제' : '관심 등록'}
-        >
-          <StarIcon
-            filled={isInterestedByMe}
-            className={`h-5 w-5 shrink-0 ${isInterestedByMe ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-400 dark:text-zinc-500'}`}
-          />
-          <span
-            className={`text-sm font-semibold ${
-              isInterestedByMe ? 'text-amber-700 dark:text-amber-400' : 'text-zinc-600 dark:text-zinc-400'
-            }`}
-          >
-            {isInterestedByMe ? '관심' : '—'}
-          </span>
-          <span className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400">관심</span>
-        </button>
-        <button
-          type="button"
-          onClick={handleNotificationToggle}
-          disabled={addNotification.isPending || removeNotification.isPending}
-          className={`flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-2.5 transition-colors active:scale-[0.98] ${
-            isNotificationOn
-              ? 'bg-sky-100 dark:bg-sky-500/20'
-              : 'bg-zinc-100 dark:bg-zinc-800/80 hover:bg-sky-50 dark:hover:bg-sky-950/20'
-          }`}
-          title={isNotificationOn ? '모집 알림 해제' : '모집 알림 받기'}
-          aria-label={isNotificationOn ? '알림 해제' : '알림 받기'}
-        >
-          <div
-            className={`relative flex items-center justify-center ${isNotificationOn ? 'text-sky-600 dark:text-sky-400' : 'text-zinc-400 dark:text-zinc-500'}`}
-          >
-            <BellIcon className="h-5 w-5 shrink-0" />
-            {!isNotificationOn && (
-              <span
-                className="pointer-events-none absolute inset-0 flex items-center justify-center"
-                aria-hidden
+          {/* 좋아요/관심/알림/조회수: 아이콘만, 사진 하단에 맞춰 우측 1열 */}
+          <div className="mt-auto flex items-center justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={handleLikeToggle}
+              disabled={isLiking}
+              className={`rounded-lg p-1.5 transition-colors active:scale-95 ${
+                club.isLikedByMe
+                  ? 'bg-red-100 dark:bg-red-500/20'
+                  : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'
+              }`}
+              aria-label={club.isLikedByMe ? `좋아요 취소 (${club.totalLikeCount})` : `좋아요 (${club.totalLikeCount})`}
+            >
+              <HeartIcon
+                filled={club.isLikedByMe}
+                className={`h-4 w-4 shrink-0 ${club.isLikedByMe ? 'text-red-600 dark:text-red-400' : 'text-zinc-400 dark:text-zinc-500'}`}
+              />
+            </button>
+            <button
+              type="button"
+              onClick={handleInterestedToggle}
+              className={`rounded-lg p-1.5 transition-colors active:scale-95 ${
+                isInterestedByMe
+                  ? 'bg-amber-100 dark:bg-amber-500/20'
+                  : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'
+              }`}
+              title="관심 동아리"
+              aria-label={isInterestedByMe ? '관심 해제' : '관심 등록'}
+            >
+              <StarIcon
+                filled={isInterestedByMe}
+                className={`h-4 w-4 shrink-0 ${isInterestedByMe ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-400 dark:text-zinc-500'}`}
+              />
+            </button>
+            <button
+              type="button"
+              onClick={handleNotificationToggle}
+              disabled={addNotification.isPending || removeNotification.isPending}
+              className={`rounded-lg p-1.5 transition-colors active:scale-95 ${
+                isNotificationOn
+                  ? 'bg-sky-100 dark:bg-sky-500/20'
+                  : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'
+              }`}
+              title={isNotificationOn ? '모집 알림 해제' : '모집 알림 받기'}
+              aria-label={isNotificationOn ? '알림 해제' : '알림 받기'}
+            >
+              <div
+                className={`relative flex items-center justify-center ${isNotificationOn ? 'text-sky-600 dark:text-sky-400' : 'text-zinc-400 dark:text-zinc-500'}`}
               >
-                <span className="h-px w-1/2 rotate-45 rounded-full bg-current opacity-60" />
-              </span>
-            )}
+                <BellIcon className="h-4 w-4 shrink-0" />
+                {!isNotificationOn && (
+                  <span
+                    className="pointer-events-none absolute inset-0 flex items-center justify-center"
+                    aria-hidden
+                  >
+                    <span className="h-px w-1/2 rotate-45 rounded-full bg-current opacity-60" />
+                  </span>
+                )}
+              </div>
+            </button>
+            <div
+              className="flex items-center rounded-lg p-1.5 text-zinc-500 dark:text-zinc-400"
+              aria-label={`조회수 ${club.totalViewCount}`}
+            >
+              <EyeIcon className="h-4 w-4 shrink-0" />
+            </div>
           </div>
-          <span
-            className={`text-sm font-semibold ${
-              isNotificationOn ? 'text-sky-600 dark:text-sky-400' : 'text-zinc-600 dark:text-zinc-400'
-            }`}
-          >
-            {isNotificationOn ? '켬' : '끔'}
-          </span>
-          <span className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400">알림</span>
-        </button>
-        <div
-          className="flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-2.5 bg-zinc-100 dark:bg-zinc-800/80"
-          aria-hidden
-        >
-          <EyeIcon className="h-5 w-5 shrink-0 text-zinc-500 dark:text-zinc-400" />
-          <span className="text-sm font-semibold tabular-nums text-zinc-700 dark:text-zinc-300">
-            {club.totalViewCount}
-          </span>
-          <span className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400">조회수</span>
         </div>
       </div>
     </div>
