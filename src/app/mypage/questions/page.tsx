@@ -6,8 +6,77 @@ import { useRouter } from 'next/navigation';
 import { Spinner, Tabs } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
 
+import type { QuestionAnswerRes } from '@/types/api';
 import { useMyQuestions } from '@/features/question/hooks';
 import { SearchFilterBar } from '@/components/common/search-filter-bar';
+
+function QnaCard({
+  qna,
+  onClick,
+}: {
+  qna: QuestionAnswerRes;
+  onClick: () => void;
+}) {
+  const hasAnswer = qna.answer != null && qna.answer !== '';
+  const dateStr = new Date(qna.createdAt).toLocaleDateString('ko-KR');
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700/80"
+    >
+      {/* Q 섹션: Q 아이콘 + 질문 내용 + 날짜/상태/동아리 + 화살표 */}
+      <div className="flex items-start gap-3">
+        <span
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-600 dark:bg-blue-900/50 dark:text-blue-300"
+          aria-hidden
+        >
+          Q
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium leading-snug text-zinc-900 dark:text-zinc-100">
+            {qna.question}
+          </p>
+          <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+            {dateStr}
+            {hasAnswer ? ' · 답변완료' : ' · 대기중'}
+            {qna.clubName ? ` · ${qna.clubName}` : ''}
+          </p>
+        </div>
+        <svg
+          className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          aria-hidden
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
+      </div>
+
+      {/* A 섹션: 답변이 있을 때만 표시 */}
+      {hasAnswer && (
+        <div className="mt-3 flex items-start gap-3 border-t border-zinc-100 pt-3 dark:border-zinc-700">
+          <span
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-300"
+            aria-hidden
+          >
+            A
+          </span>
+          <p className="min-w-0 flex-1 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
+            {qna.answer}
+          </p>
+        </div>
+      )}
+    </button>
+  );
+}
 
 function QuestionsTabContent() {
   const [q] = useQueryState('q', parseAsString.withDefault(''));
@@ -31,9 +100,9 @@ function QuestionsTabContent() {
       ) : (
         <div className="space-y-3">
           {filtered.map((qna) => (
-            <button
-              type="button"
+            <QnaCard
               key={qna.id}
+              qna={qna}
               onClick={() =>
                 router.push(
                   qna.clubId
@@ -41,45 +110,7 @@ function QuestionsTabContent() {
                     : '/mypage/questions'
                 )
               }
-              className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700/80"
-            >
-              <div className="flex items-start gap-3">
-                <span
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
-                  aria-hidden
-                >
-                  Q
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="line-clamp-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                    {qna.question}
-                  </p>
-                  {qna.answer != null && qna.answer !== '' && (
-                    <p className="mt-0.5 line-clamp-2 text-xs text-zinc-600 dark:text-zinc-400">
-                      {qna.answer}
-                    </p>
-                  )}
-                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                    {new Date(qna.createdAt).toLocaleDateString()}
-                    {qna.answer ? ' · 답변완료' : ' · 대기중'}
-                    {qna.clubName ? ` · ${qna.clubName}` : ''}
-                  </p>
-                </div>
-                <svg
-                  className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </div>
-            </button>
+            />
           ))}
         </div>
       )}
@@ -110,9 +141,9 @@ function AnswersTabContent() {
       ) : (
         <div className="space-y-3">
           {filtered.map((qna) => (
-            <button
-              type="button"
+            <QnaCard
               key={qna.id}
+              qna={qna}
               onClick={() =>
                 router.push(
                   qna.clubId
@@ -120,44 +151,7 @@ function AnswersTabContent() {
                     : '/mypage/questions'
                 )
               }
-              className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700/80"
-            >
-              <div className="flex items-start gap-3">
-                <span
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
-                  aria-hidden
-                >
-                  A
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="line-clamp-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                    {qna.question}
-                  </p>
-                  {qna.answer != null && qna.answer !== '' && (
-                    <p className="mt-0.5 line-clamp-2 text-xs text-zinc-600 dark:text-zinc-400">
-                      {qna.answer}
-                    </p>
-                  )}
-                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                    {new Date(qna.createdAt).toLocaleDateString()}
-                    {qna.clubName ? ` · ${qna.clubName}` : ''}
-                  </p>
-                </div>
-                <svg
-                  className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </div>
-            </button>
+            />
           ))}
         </div>
       )}
