@@ -263,30 +263,31 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
     { label: '휴학생 지원 가능', value: club.allowLeaveOfAbsence ? '가능' : '불가능' },
   ];
 
+  const contentImageUrl = club.descriptionImages?.[0];
   const hasIntroduction =
-    (club.content != null && club.content.trim() !== '') ||
-    (club.descriptionImages && club.descriptionImages.length > 0);
+    (club.content != null && club.content.trim() !== '') || !!contentImageUrl;
 
   return (
     <div className="min-w-0 space-y-4 p-4">
       {hasIntroduction && (
-        <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
-          <h3 className="mb-3 font-semibold text-zinc-900 dark:text-zinc-100">동아리 소개</h3>
-          {club.content != null && club.content.trim() !== '' && (
-            <p className="text-sm leading-relaxed whitespace-pre-wrap text-zinc-700 dark:text-zinc-300">
-              {club.content}
-            </p>
+        <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+          <h3 className="sr-only">동아리 소개</h3>
+          {contentImageUrl && (
+            <div className="relative aspect-[16/10] w-full bg-zinc-100 dark:bg-zinc-800">
+              <Image
+                src={contentImageUrl}
+                alt="동아리 소개"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 600px"
+              />
+            </div>
           )}
-          {club.descriptionImages && club.descriptionImages.length > 0 && (
-            <div className={`grid grid-cols-3 gap-2 ${club.content?.trim() ? 'mt-4' : ''}`}>
-              {club.descriptionImages.map((url) => (
-                <div
-                  key={url}
-                  className="relative aspect-square overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-700"
-                >
-                  <Image src={url} alt="" fill className="object-cover" sizes="120px" />
-                </div>
-              ))}
+          {club.content != null && club.content.trim() !== '' && (
+            <div className="p-4">
+              <p className="text-sm leading-relaxed whitespace-pre-wrap text-zinc-700 dark:text-zinc-300">
+                {club.content}
+              </p>
             </div>
           )}
         </div>

@@ -116,8 +116,9 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   const [allowLeaveOfAbsence, setAllowLeaveOfAbsence] = useState(false);
   const [content, setContent] = useState('');
   const [description, setDescription] = useState('');
-  const [descriptionImages, setDescriptionImages] = useState<string[]>([]);
-  /** 동아리 소개 이미지 UUID (PUT /content 시 서버에 전달, 한 장만 지원) */
+  /** 동아리 소개 대표 이미지 1장 (URL, 프로필과 동일한 업로드 흐름) */
+  const [contentImage, setContentImage] = useState('');
+  /** 동아리 소개 이미지 UUID (PUT /content 시 서버에 전달) */
   const [contentFileUuid, setContentFileUuid] = useState<string | null>(null);
   const [recruitmentStatus, setRecruitmentStatus] = useState<RecruitmentStatus>('RECRUITING');
   const [recruitmentStartDate, setRecruitmentStartDate] = useState('');
@@ -145,7 +146,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
     setAllowLeaveOfAbsence(club.allowLeaveOfAbsence ?? false);
     setContent(club.content || '');
     setDescription(club.description || '');
-    setDescriptionImages(club.descriptionImages || []);
+    setContentImage(club.descriptionImages?.[0] ?? '');
     setRecruitmentStatus(club.recruitmentStatus);
     const startParts = (club.recruitmentStartDate ?? '').split('T');
     setRecruitmentStartDate(startParts[0] || '');
@@ -211,8 +212,6 @@ function ClubManageContent({ clubId }: { clubId: number }) {
         clubId,
         data: {
           content,
-          description,
-          descriptionImages,
           contentFileUuid: contentFileUuid ?? undefined,
         },
       },
@@ -225,13 +224,12 @@ function ClubManageContent({ clubId }: { clubId: number }) {
     );
   };
 
-  const handleDescriptionImagesUpload = async (files: File[]) => {
+  /** 동아리 소개 이미지 1장 업로드 (프로필 이미지와 동일: Presigned URL → S3 → POST /files → UUID 저장) */
+  const handleContentImageUpload = async (file: File) => {
     try {
-      const result = await uploadFeedFiles.mutateAsync(files);
-      const urls = result.map((r) => r.fileUrl);
-      setDescriptionImages([...descriptionImages, ...urls]);
-      // 동아리 소개 API는 이미지 1장만 지원하므로, 새로 올린 첫 번째 이미지 UUID 저장
-      if (result.length > 0 && result[0].uuid) {
+      const result = await uploadFeedFiles.mutateAsync([file]);
+      if (result[0]) {
+        setContentImage(result[0].fileUrl);
         setContentFileUuid(result[0].uuid);
       }
     } catch (error) {
@@ -416,14 +414,11 @@ function ClubManageContent({ clubId }: { clubId: number }) {
               setAllowLeaveOfAbsence={setAllowLeaveOfAbsence}
               content={content}
               setContent={setContent}
-              description={description}
-              setDescription={setDescription}
-              descriptionImages={descriptionImages}
-              setDescriptionImages={setDescriptionImages}
-              onDescriptionImagesChange={(next) => {
-                if (next.length === 0) setContentFileUuid(null);
-              }}
-              onDescriptionImagesUpload={handleDescriptionImagesUpload}
+              contentImage={contentImage}
+              setContentImage={setContentImage}
+              onContentImageUpload={handleContentImageUpload}
+              contentFileUuid={contentFileUuid}
+              setContentFileUuid={setContentFileUuid}
               recruitmentStatus={recruitmentStatus}
               setRecruitmentStatus={setRecruitmentStatus}
               recruitmentStartDate={recruitmentStartDate}
@@ -614,12 +609,11 @@ function ClubInfoTab({
   setAllowLeaveOfAbsence: _setAllowLeaveOfAbsence,
   content,
   setContent,
-  description: _description,
-  setDescription: _setDescription,
-  descriptionImages,
-  setDescriptionImages,
-  onDescriptionImagesChange,
-  onDescriptionImagesUpload,
+  contentImage,
+  setContentImage,
+  onContentImageUpload,
+  contentFileUuid,
+  setContentFileUuid,
   recruitmentStatus,
   setRecruitmentStatus,
   recruitmentStartDate,
@@ -676,12 +670,11 @@ function ClubInfoTab({
   setAllowLeaveOfAbsence: (value: boolean) => void;
   content: string;
   setContent: (value: string) => void;
-  description: string;
-  setDescription: (value: string) => void;
-  descriptionImages: string[];
-  setDescriptionImages: (value: string[]) => void;
-  onDescriptionImagesChange?: (next: string[]) => void;
-  onDescriptionImagesUpload: (files: File[]) => void;
+  contentImage: string;
+  setContentImage: (value: string) => void;
+  onContentImageUpload: (file: File) => void;
+  contentFileUuid: string | null;
+  setContentFileUuid: (value: string | null) => void;
   recruitmentStatus: RecruitmentStatus;
   setRecruitmentStatus: (value: RecruitmentStatus) => void;
   recruitmentStartDate: string;
@@ -727,11 +720,12 @@ function ClubInfoTab({
     }
   };
 
-  const handleDescriptionImagesFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length > 0) {
-      onDescriptionImagesUpload(files);
+  const handleContentImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      onContentImageUpload(file);
     }
+    e.target.value = '';
   };
 
   const cardClass =
@@ -1005,68 +999,85 @@ function ClubInfoTab({
               <Button size="sm" variant="ghost" onPress={onCancelContent}>
                 취소
               </Button>
-              <Button size="sm" variant="primary" onPress={onSaveContent} isDisabled={isSaving}>
-                {isSaving ? '저장 중...' : '저장'}
+              <Button
+                size="sm"
+                variant="primary"
+                onPress={onSaveContent}
+                isDisabled={isSaving || isUploading}
+              >
+                {isSaving ? '저장 중...' : isUploading ? '이미지 업로드 중...' : '저장'}
               </Button>
             </div>
           )}
         </div>
         {!isEditingContent ? (
           <>
+            {/* 동아리 소개: 사진 크게 → 아래 상세 설명 */}
+            {contentImage && (
+              <div className="relative mb-4 aspect-[16/10] w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
+                <Image
+                  src={contentImage}
+                  alt="동아리 소개"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 600px"
+                />
+              </div>
+            )}
             <label className="mb-1.5 block text-sm font-medium text-zinc-500 dark:text-zinc-400">
               상세 설명
             </label>
             <div className="min-h-[120px] w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800/50 dark:text-zinc-100">
               {club.content || '내용이 없습니다.'}
             </div>
-            {descriptionImages && descriptionImages.length > 0 && (
-              <div className="mt-4">
-                <label className="mb-1.5 block text-sm font-medium text-zinc-500 dark:text-zinc-400">
-                  설명 이미지
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {descriptionImages.map((url: string, index: number) => (
-                    <div
-                      key={index}
-                      className="relative aspect-square overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-700"
-                    >
-                      <Image src={url} alt="" fill className="object-cover" sizes="120px" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </>
         ) : (
           <div className="space-y-5">
+            {/* 소개 사진 1장 (프로필과 동일 업로드) */}
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-                상세 설명
-              </label>
-              <textarea
-                placeholder="동아리 상세 설명을 작성해주세요"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                rows={8}
-                className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-400"
-              />
-            </div>
-            <div>
-              <label className="mb-3 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-                설명 이미지
+                소개 사진
               </label>
               <input
                 type="file"
                 accept="image/*"
-                multiple
-                onChange={handleDescriptionImagesFileChange}
+                onChange={handleContentImageFileChange}
                 className="hidden"
-                id="description-images-upload"
+                id="content-image-upload"
                 disabled={isUploading}
               />
-              {descriptionImages.length === 0 ? (
-                <label htmlFor="description-images-upload">
-                  <div className="flex h-32 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:border-gray-400 hover:bg-gray-100 dark:border-zinc-600 dark:bg-zinc-700 dark:hover:border-zinc-500">
+              {contentImage ? (
+                <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
+                  <Image
+                    src={contentImage}
+                    alt="동아리 소개"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 600px"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setContentImage('');
+                      setContentFileUuid(null);
+                    }}
+                    className="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2.5}
+                      className="h-4 w-4"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              ) : (
+                <label htmlFor="content-image-upload">
+                  <div className="flex aspect-[16/10] w-full cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:border-gray-400 hover:bg-gray-100 dark:border-zinc-600 dark:bg-zinc-700 dark:hover:border-zinc-500">
                     {isUploading ? (
                       <Spinner size="sm" />
                     ) : (
@@ -1077,7 +1088,7 @@ function ClubInfoTab({
                           fill="none"
                           stroke="currentColor"
                           strokeWidth={2}
-                          className="h-8 w-8 text-gray-400 dark:text-zinc-500"
+                          className="h-10 w-10 text-gray-400 dark:text-zinc-500"
                         >
                           <path
                             strokeLinecap="round"
@@ -1091,66 +1102,25 @@ function ClubInfoTab({
                           />
                         </svg>
                         <span className="text-sm font-medium text-gray-600 dark:text-zinc-400">
-                          이미지 추가
+                          소개 사진 추가 (1장)
                         </span>
                       </div>
                     )}
                   </div>
                 </label>
-              ) : (
-                <div className="flex flex-wrap gap-3">
-                  {descriptionImages.map((url, index) => (
-                    <div
-                      key={index}
-                      className="relative aspect-square w-24 overflow-hidden rounded-xl"
-                    >
-                      <Image src={url} alt="" fill className="object-cover" sizes="96px" />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const next = descriptionImages.filter((_, i) => i !== index);
-                          setDescriptionImages(next);
-                          onDescriptionImagesChange?.(next);
-                        }}
-                        className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth={2.5}
-                          className="h-4 w-4"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M6 18L18 6M6 6l12 12"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  ))}
-                  <label htmlFor="description-images-upload">
-                    <div className="flex aspect-square w-24 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:border-gray-400 hover:bg-gray-100 dark:border-zinc-600 dark:bg-zinc-700 dark:hover:border-zinc-500">
-                      {isUploading ? (
-                        <Spinner size="sm" />
-                      ) : (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                          className="h-6 w-6 text-gray-400 dark:text-zinc-500"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                        </svg>
-                      )}
-                    </div>
-                  </label>
-                </div>
               )}
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                상세 설명
+              </label>
+              <textarea
+                placeholder="동아리 상세 설명을 작성해주세요"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                rows={8}
+                className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-400"
+              />
             </div>
           </div>
         )}
