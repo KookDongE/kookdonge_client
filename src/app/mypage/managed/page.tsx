@@ -97,10 +97,7 @@ function ManagedClubsListContent() {
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
-                    {club.name}
-                  </h4>
-                  <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                  <div className="mb-1 flex flex-wrap items-center gap-1.5">
                     {club.recruitmentStatus && (
                       <span
                         className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium ${STATUS_CONFIG[club.recruitmentStatus].className}`}

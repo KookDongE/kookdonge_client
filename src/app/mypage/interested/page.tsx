@@ -62,10 +62,7 @@ function InterestedClubsContent() {
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
-                    {club.name}
-                  </h4>
-                  <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                  <div className="mb-1 flex flex-wrap items-center gap-1.5">
                     <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
                       {TYPE_LABEL[club.type]}
                     </span>
