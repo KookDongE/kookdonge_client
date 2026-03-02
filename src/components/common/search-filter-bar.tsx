@@ -51,6 +51,14 @@ const STATUS_OPTIONS: { value: RecruitmentStatus | 'ALL'; label: string }[] = [
   { value: 'CLOSED', label: '모집마감' },
 ];
 
+/** 관리자 개설승인 페이지용: 상태 = 대기/승인/거절 */
+const APPLICATION_STATUS_OPTIONS: { value: 'PENDING' | 'APPROVED' | 'REJECTED' | 'ALL'; label: string }[] = [
+  { value: 'ALL', label: '상태' },
+  { value: 'PENDING', label: '대기' },
+  { value: 'APPROVED', label: '승인' },
+  { value: 'REJECTED', label: '거절' },
+];
+
 /** 백엔드 sort 파라미터 값 (이름순, 좋아요순, 조회수순만 노출. 최신순/마감순 제거) */
 const SORT_OPTIONS: { value: string; label: string }[] = [
   { value: 'name,asc', label: '이름순' },
@@ -93,6 +101,8 @@ type SearchFilterBarProps = {
   stickyHideOnScroll?: boolean;
   useGlass?: boolean;
   className?: string;
+  /** true면 4번째 필터가 "모집상태" 대신 "상태"(대기/승인/거절)로 표시 (관리자 개설승인용) */
+  applicationStatusFilter?: boolean;
 };
 
 export function SearchFilterBar({
@@ -100,6 +110,7 @@ export function SearchFilterBar({
   stickyHideOnScroll = true,
   useGlass = false,
   className = '',
+  applicationStatusFilter = false,
 }: SearchFilterBarProps) {
   const [category, setCategory] = useQueryState('category', parseAsString);
   const [status, setStatus] = useQueryState('status', parseAsString);
@@ -112,7 +123,7 @@ export function SearchFilterBar({
   const filterBarRef = useRef<HTMLDivElement>(null);
 
   const categoryVal = category ?? 'ALL';
-  const statusVal = status ?? 'ALL';
+  const statusVal = applicationStatusFilter ? (status ?? 'ALL') : (status ?? 'ALL');
   const clubTypeVal = clubType ?? 'ALL';
   const collegeVal = college ?? 'ALL';
   const sortVal = sort != null && VALID_SORT_SET.has(sort) ? sort : 'name,asc';
@@ -331,11 +342,11 @@ export function SearchFilterBar({
           </Select.Popover>
         </Select>
 
-        {/* 4. 모집상태 */}
+        {/* 4. 모집상태 (일반) / 상태·대기·승인·거절 (관리자 개설승인) */}
         <Select
           className="shrink-0"
-          placeholder="상태"
-          aria-label="모집상태 선택"
+          placeholder={applicationStatusFilter ? '상태' : '모집상태'}
+          aria-label={applicationStatusFilter ? '상태 선택' : '모집상태 선택'}
           selectedKey={statusVal}
           onSelectionChange={(key) => handleStatusChange(key ?? 'ALL')}
         >
@@ -345,7 +356,7 @@ export function SearchFilterBar({
           </Select.Trigger>
           <Select.Popover>
             <ListBox>
-              {STATUS_OPTIONS.map((opt) => (
+              {(applicationStatusFilter ? APPLICATION_STATUS_OPTIONS : STATUS_OPTIONS).map((opt) => (
                 <ListBox.Item
                   key={opt.value}
                   id={opt.value}
