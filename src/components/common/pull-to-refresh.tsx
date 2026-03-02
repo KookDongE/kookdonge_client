@@ -3,8 +3,11 @@
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
-const PULL_THRESHOLD = 60;
-const MAX_PULL = 80;
+/** 새로고침이 발동되려면 당겨야 하는 최소 거리 (px). 높을수록 둔감 */
+const PULL_THRESHOLD = 95;
+/** 당김 거리 상한. 당김 감도 배율을 낮춰 의도치 않은 새로고침 방지 */
+const PULL_DAMPING = 0.35;
+const MAX_PULL = 100;
 
 /** 동아리 관리 페이지 진입 시 스크롤 리셋 (캐시된 페이지 재진입 시에도 동작) */
 const CLUB_MANAGE_PATH = /^\/mypage\/clubs\/[^/]+\/manage$/;
@@ -56,7 +59,7 @@ export function PullToRefresh({ children, fullScreen = false }: PullToRefreshPro
       if (!el || el.scrollTop > 0 || isRefreshing) return;
       const y = e.touches[0].clientY;
       const delta = Math.max(0, y - startYRef.current);
-      const distance = Math.min(delta * 0.5, MAX_PULL);
+      const distance = Math.min(delta * PULL_DAMPING, MAX_PULL);
       setPullDistance(distance);
     },
     [fullScreen, isRefreshing]

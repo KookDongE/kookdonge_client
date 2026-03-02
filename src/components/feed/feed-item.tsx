@@ -124,17 +124,23 @@ export function FeedItem({
               />
             </div>
           ))}
-          {/* 인디케이터 */}
+          {/* 인디케이터: 클릭 시 해당 사진으로 이동 */}
           <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5">
             {imageUrls.map((_, i) => (
-              <span
+              <button
+                type="button"
                 key={i}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentIndex(i);
+                }}
                 className={`h-1.5 rounded-full transition-all ${
                   i === currentIndex
                     ? 'w-3 bg-white/90'
                     : 'w-1.5 bg-white/50'
-                }`}
-                aria-hidden
+                } hover:bg-white/80 focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-1 focus:ring-offset-transparent`}
+                aria-label={`${i + 1}번째 사진으로 이동`}
+                aria-current={i === currentIndex ? 'true' : undefined}
               />
             ))}
           </div>
