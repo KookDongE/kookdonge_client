@@ -132,7 +132,7 @@ export function ClubCard({
 
   const motionProps: Record<string, unknown> = {
     initial: isDragMode ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 },
-    animate: isDragMode ? { opacity: 1, y: 0 } : animate || { opacity: 1, y: 0 },
+    animate: isDragMode ? { opacity: 1, y: 0, ...(animate && typeof animate === 'object' ? animate : {}) } : animate || { opacity: 1, y: 0 },
     transition: { delay: index * 0.05, duration: 0.3 },
   };
 

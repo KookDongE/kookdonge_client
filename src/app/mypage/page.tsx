@@ -152,10 +152,34 @@ function AdminSection() {
                 <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
                   {club.name}
                 </h4>
-                <div className="mt-1 flex items-center gap-2">
+                <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                  {club.recruitmentStatus && (
+                    <Chip
+                      size="sm"
+                      color={
+                        club.recruitmentStatus === 'RECRUITING'
+                          ? 'success'
+                          : club.recruitmentStatus === 'SCHEDULED'
+                            ? 'accent'
+                            : 'default'
+                      }
+                      variant="soft"
+                    >
+                      {club.recruitmentStatus === 'RECRUITING'
+                        ? '모집중'
+                        : club.recruitmentStatus === 'SCHEDULED'
+                          ? '모집예정'
+                          : '모집마감'}
+                    </Chip>
+                  )}
                   <Chip size="sm" color="accent" variant="soft">
                     {TYPE_LABEL[club.type]}
                   </Chip>
+                  {club.category && (
+                    <Chip size="sm" color="accent" variant="soft">
+                      {CATEGORY_LABEL[club.category]}
+                    </Chip>
+                  )}
                 </div>
               </div>
               <svg

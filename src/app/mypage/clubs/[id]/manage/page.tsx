@@ -889,7 +889,7 @@ function ClubInfoTab({
                 })}
               </div>
             </div>
-            <div className="flex items-center justify-between gap-3">
+            <div className="mt-3 flex items-center justify-between gap-3">
               <label className="text-sm font-medium text-gray-700 dark:text-zinc-300">
                 휴학생 지원 가능 여부
               </label>
@@ -1193,8 +1193,8 @@ function ClubInfoTab({
                 </Select.Popover>
               </Select>
             </div>
-            <div className="space-y-4 sm:grid sm:grid-cols-2 sm:gap-3 sm:space-y-0">
-              <div className="min-w-0">
+            <div className="grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="min-w-0 max-w-full">
                 <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
                   모집 시작일
                 </label>
@@ -1207,10 +1207,10 @@ function ClubInfoTab({
                     setRecruitmentStartDate(v);
                     if (recruitmentEndDate && v > recruitmentEndDate) setRecruitmentEndDate(v);
                   }}
-                  className="w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                  className="w-full max-w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
                 />
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 max-w-full">
                 <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
                   모집 종료일
                 </label>
@@ -1223,7 +1223,7 @@ function ClubInfoTab({
                     if (recruitmentStartDate && v < recruitmentStartDate) return;
                     setRecruitmentEndDate(v);
                   }}
-                  className="w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                  className="w-full max-w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
                 />
               </div>
             </div>

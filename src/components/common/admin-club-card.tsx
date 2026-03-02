@@ -58,7 +58,7 @@ export function AdminClubCard({
     }, 150);
   };
 
-  // 스와이프 해제 함수
+  // 스와이프 해제 함수 (카드 위치도 0으로 리셋)
   const resetSwipe = () => {
     setDragX(0);
     setIsSwiped(false);
@@ -153,6 +153,7 @@ export function AdminClubCard({
           onDrag={handleDrag}
           onDragEnd={handleDragEnd}
           style={{ x: dragX }}
+          animate={{ x: dragX }}
         />
       </div>
 
