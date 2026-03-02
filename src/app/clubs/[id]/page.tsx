@@ -58,6 +58,61 @@ const STATUS_CONFIG: Record<RecruitmentStatus, { label: string; className: strin
   },
 };
 
+function HeartIcon({ filled, className }: { filled: boolean; className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill={filled ? 'currentColor' : 'none'}
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+    </svg>
+  );
+}
+
+function StarIcon({ filled, className }: { filled: boolean; className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill={filled ? 'currentColor' : 'none'}
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
+  );
+}
+
+function EyeIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
   const year = date.getFullYear();
@@ -161,80 +216,98 @@ function ClubHeader({
           )}
         </div>
       </div>
-      <div className="mt-5 flex gap-2">
+      <div className="mt-4 flex gap-1.5">
         <button
           type="button"
           onClick={handleLikeToggle}
           disabled={isLiking}
-          className={`flex-1 rounded-xl py-3 text-center transition-colors ${
-            club.isLikedByMe ? 'bg-red-200 dark:bg-red-900/50' : 'bg-red-50 dark:bg-red-950/30'
+          className={`flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-2.5 transition-colors active:scale-[0.98] ${
+            club.isLikedByMe
+              ? 'bg-red-100 dark:bg-red-500/20'
+              : 'bg-zinc-100 dark:bg-zinc-800/80 hover:bg-red-50 dark:hover:bg-red-950/20'
           }`}
+          aria-label={club.isLikedByMe ? '좋아요 취소' : '좋아요'}
         >
-          <div
-            className={`text-xl font-bold ${club.isLikedByMe ? 'text-red-600 dark:text-red-300' : 'text-red-500 dark:text-red-400'}`}
+          <HeartIcon
+            filled={club.isLikedByMe}
+            className={`h-5 w-5 shrink-0 ${club.isLikedByMe ? 'text-red-600 dark:text-red-400' : 'text-zinc-400 dark:text-zinc-500'}`}
+          />
+          <span
+            className={`text-sm font-semibold tabular-nums ${
+              club.isLikedByMe ? 'text-red-600 dark:text-red-400' : 'text-zinc-700 dark:text-zinc-300'
+            }`}
           >
             {club.totalLikeCount}
-          </div>
-          <div
-            className={`text-xs ${club.isLikedByMe ? 'text-red-600/80 dark:text-red-300/80' : 'text-zinc-500 dark:text-zinc-400'}`}
-          >
-            좋아요
-          </div>
+          </span>
+          <span className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400">좋아요</span>
         </button>
         <button
           type="button"
           onClick={handleInterestedToggle}
-          className={`flex-1 rounded-xl py-3 text-center transition-colors ${
+          className={`flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-2.5 transition-colors active:scale-[0.98] ${
             isInterestedByMe
-              ? 'bg-amber-200 dark:bg-amber-900/50'
-              : 'bg-amber-50 dark:bg-amber-950/30'
+              ? 'bg-amber-100 dark:bg-amber-500/20'
+              : 'bg-zinc-100 dark:bg-zinc-800/80 hover:bg-amber-50 dark:hover:bg-amber-950/20'
           }`}
           title="관심 동아리"
+          aria-label={isInterestedByMe ? '관심 해제' : '관심 등록'}
         >
-          <div
-            className={`text-xl font-bold ${isInterestedByMe ? 'text-amber-700 dark:text-amber-300' : 'text-amber-600 dark:text-amber-400'}`}
+          <StarIcon
+            filled={isInterestedByMe}
+            className={`h-5 w-5 shrink-0 ${isInterestedByMe ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-400 dark:text-zinc-500'}`}
+          />
+          <span
+            className={`text-sm font-semibold ${
+              isInterestedByMe ? 'text-amber-700 dark:text-amber-400' : 'text-zinc-600 dark:text-zinc-400'
+            }`}
           >
-            {isInterestedByMe ? '★' : '☆'}
-          </div>
-          <div
-            className={`text-xs ${isInterestedByMe ? 'text-amber-700/80 dark:text-amber-300/80' : 'text-zinc-500 dark:text-zinc-400'}`}
-          >
-            관심
-          </div>
+            {isInterestedByMe ? '관심' : '—'}
+          </span>
+          <span className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400">관심</span>
         </button>
         <button
           type="button"
           onClick={handleNotificationToggle}
           disabled={addNotification.isPending || removeNotification.isPending}
-          className={`flex-1 rounded-xl py-3 text-center transition-colors ${
-            isNotificationOn ? 'bg-sky-200 dark:bg-sky-900/50' : 'bg-sky-50 dark:bg-sky-950/30'
+          className={`flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-2.5 transition-colors active:scale-[0.98] ${
+            isNotificationOn
+              ? 'bg-sky-100 dark:bg-sky-500/20'
+              : 'bg-zinc-100 dark:bg-zinc-800/80 hover:bg-sky-50 dark:hover:bg-sky-950/20'
           }`}
           title={isNotificationOn ? '모집 알림 해제' : '모집 알림 받기'}
+          aria-label={isNotificationOn ? '알림 해제' : '알림 받기'}
         >
           <div
-            className={`relative flex justify-center ${isNotificationOn ? 'text-sky-700 dark:text-sky-300' : 'text-sky-600 dark:text-sky-400'}`}
+            className={`relative flex items-center justify-center ${isNotificationOn ? 'text-sky-600 dark:text-sky-400' : 'text-zinc-400 dark:text-zinc-500'}`}
           >
-            <BellIcon className="h-7 w-7" />
+            <BellIcon className="h-5 w-5 shrink-0" />
             {!isNotificationOn && (
               <span
                 className="pointer-events-none absolute inset-0 flex items-center justify-center"
                 aria-hidden
               >
-                <span className="h-0.5 w-1/3 rotate-45 rounded-full bg-current opacity-70" />
+                <span className="h-px w-1/2 rotate-45 rounded-full bg-current opacity-60" />
               </span>
             )}
           </div>
-          <div
-            className={`mt-0.5 text-xs ${isNotificationOn ? 'text-sky-700/80 dark:text-sky-300/80' : 'text-zinc-500 dark:text-zinc-400'}`}
+          <span
+            className={`text-sm font-semibold ${
+              isNotificationOn ? 'text-sky-600 dark:text-sky-400' : 'text-zinc-600 dark:text-zinc-400'
+            }`}
           >
-            알림
-          </div>
+            {isNotificationOn ? '켬' : '끔'}
+          </span>
+          <span className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400">알림</span>
         </button>
-        <div className="flex-1 rounded-xl bg-blue-50 py-3 text-center dark:bg-blue-950/30">
-          <div className="text-xl font-bold text-blue-500 dark:text-blue-400">
+        <div
+          className="flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-2.5 bg-zinc-100 dark:bg-zinc-800/80"
+          aria-hidden
+        >
+          <EyeIcon className="h-5 w-5 shrink-0 text-zinc-500 dark:text-zinc-400" />
+          <span className="text-sm font-semibold tabular-nums text-zinc-700 dark:text-zinc-300">
             {club.totalViewCount}
-          </div>
-          <div className="text-xs text-zinc-500 dark:text-zinc-400">조회수</div>
+          </span>
+          <span className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400">조회수</span>
         </div>
       </div>
     </div>
