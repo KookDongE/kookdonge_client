@@ -93,7 +93,7 @@ export default function NotificationSettingsPage() {
                 <div className="shrink-0">
                   <Switch
                     isSelected={notificationEnabled}
-                    onChange={(e) => updateSettings.mutate(e.target.checked)}
+                    onChange={(checked) => updateSettings.mutate(!!checked)}
                     isDisabled={isLoading || !canToggle}
                     aria-label="푸시 알림 켜기/끄기"
                   />

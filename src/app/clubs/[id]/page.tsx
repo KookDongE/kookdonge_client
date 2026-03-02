@@ -18,8 +18,13 @@ import {
   useMyWaitingList,
   useRemoveFromWaitingList,
 } from '@/features/waiting-list/hooks';
+import {
+  getNotificationInlinePromptSeen,
+  NotificationPermissionInlineModal,
+} from '@/components/common/notification-permission-inline-modal';
 import { DefaultClubImage } from '@/components/common/default-club-image';
 import { BellIcon } from '@/components/icons/notification-icon';
+import { useNotification } from '@/features/device/use-notification';
 
 const CATEGORY_LABEL: Record<ClubCategory, string> = {
   PERFORMING_ARTS: '공연예술',
@@ -61,7 +66,13 @@ function formatDate(dateString: string): string {
   return `${year}년 ${month}월 ${day}일`;
 }
 
-function ClubHeader({ clubId }: { clubId: number }) {
+function ClubHeader({
+  clubId,
+  onNotificationTurnOnRequest,
+}: {
+  clubId: number;
+  onNotificationTurnOnRequest?: (clubId: number) => void;
+}) {
   const { data: club, isLoading } = useClubDetail(clubId);
   const likeClub = useLikeClub();
   const unlikeClub = useUnlikeClub();
@@ -116,6 +127,7 @@ function ClubHeader({ clubId }: { clubId: number }) {
       removeNotification.mutate(clubId);
     } else {
       addNotification.mutate(clubId);
+      onNotificationTurnOnRequest?.(clubId);
     }
   };
 
@@ -348,9 +360,11 @@ function ClubFeedTab({ clubId }: { clubId: number }) {
 function ClubQnaTab({
   clubId,
   highlightQuestionId,
+  onQuestionSubmitted,
 }: {
   clubId: number;
   highlightQuestionId?: string | null;
+  onQuestionSubmitted?: () => void;
 }) {
   const { data, isLoading } = useQuestions(clubId, { page: 0, size: 20 });
   const { data: profile } = useMyProfile();
@@ -371,11 +385,10 @@ function ClubQnaTab({
   const handleSubmit = () => {
     if (!questionText.trim() || !profile) return;
     const requestData = { question: questionText.trim(), userName: profile.email };
-    console.log('질문 등록 요청:', requestData);
-    console.log('profile:', profile);
     createQuestion.mutate(requestData, {
       onSuccess: () => {
         setQuestionText('');
+        onQuestionSubmitted?.();
       },
     });
   };
@@ -518,6 +531,9 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
   const from = searchParams.get('from');
   const [tab, setTab] = useQueryState('tab', parseAsString.withDefault('info'));
   const router = useRouter();
+  const { permission, requestPermissionAndRegister, isLoading: isPermissionLoading } =
+    useNotification();
+  const [notificationPromptOpen, setNotificationPromptOpen] = useState(false);
 
   useEffect(() => {
     if (questionId) setTab('qna');
@@ -528,6 +544,12 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
       router.push(from);
     } else {
       router.back();
+    }
+  };
+
+  const tryShowNotificationPrompt = () => {
+    if (permission !== 'granted' && !getNotificationInlinePromptSeen()) {
+      setNotificationPromptOpen(true);
     }
   };
 
@@ -543,7 +565,7 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
           <span>뒤로가기</span>
         </button>
       </div>
-      <ClubHeader clubId={clubId} />
+      <ClubHeader clubId={clubId} onNotificationTurnOnRequest={tryShowNotificationPrompt} />
       <Tabs
         selectedKey={tab}
         onSelectionChange={(key) => setTab(key as string)}
@@ -581,12 +603,22 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
           <ClubFeedTab clubId={clubId} />
         </Tabs.Panel>
         <Tabs.Panel id="qna">
-          <ClubQnaTab clubId={clubId} highlightQuestionId={questionId} />
+          <ClubQnaTab
+            clubId={clubId}
+            highlightQuestionId={questionId}
+            onQuestionSubmitted={tryShowNotificationPrompt}
+          />
         </Tabs.Panel>
       </Tabs>
       {/* 하단 네비 + CTA 공간 확보 */}
       <div className="h-32" />
       <ClubCTA clubId={clubId} />
+      <NotificationPermissionInlineModal
+        open={notificationPromptOpen}
+        onClose={() => setNotificationPromptOpen(false)}
+        onAllow={requestPermissionAndRegister}
+        isAllowLoading={isPermissionLoading}
+      />
     </div>
   );
 }
