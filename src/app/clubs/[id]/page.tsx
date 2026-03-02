@@ -479,7 +479,7 @@ function ClubQnaTab({
               </button>
             </div>
             {qna.answer && (
-              <div className="mt-3 flex items-start gap-3 pt-3">
+              <div className="mt-3 flex items-start gap-3 border-t border-zinc-200 pt-3 dark:border-zinc-700">
                 <span
                   className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
                   aria-hidden
