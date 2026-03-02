@@ -243,11 +243,15 @@ function AdminPageContent() {
         </Tabs.ListContainer>
 
         <Tabs.Panel id="applications" className="pt-0">
-          <SearchFilterBar
-            placeholder="동아리명 검색"
-            stickyHideOnScroll={false}
-            className="!border-0"
-          />
+          <div
+            className={`sticky top-14 z-30 bg-[var(--card)] px-4 pb-2 transition-transform duration-300 ${stickyVisible ? 'translate-y-0' : '-translate-y-full opacity-0'}`}
+          >
+            <SearchFilterBar
+              placeholder="동아리명 검색"
+              stickyHideOnScroll={false}
+              className="!border-0"
+            />
+          </div>
           <ApplicationList />
         </Tabs.Panel>
         <Tabs.Panel id="admins" className="pt-0">
