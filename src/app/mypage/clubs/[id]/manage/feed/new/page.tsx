@@ -58,23 +58,23 @@ function NewFeedContent({ clubId }: { clubId: number }) {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-white">
+    <div className="min-h-screen bg-white dark:bg-zinc-900">
       {/* 헤더 */}
-      <div className="sticky top-0 z-50 border-b border-gray-200 bg-white dark:border-zinc-200 dark:bg-white">
+      <div className="sticky top-0 z-50 border-b border-gray-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
         <div className="flex h-16 items-center justify-between px-4">
           <button
             type="button"
             onClick={() => router.back()}
-            className="text-base font-medium text-gray-700 dark:text-zinc-700"
+            className="text-base font-medium text-gray-700 dark:text-zinc-300"
           >
             취소
           </button>
-          <h1 className="text-lg font-semibold text-gray-900 dark:text-zinc-900">피드 추가</h1>
+          <h1 className="text-lg font-semibold text-gray-900 dark:text-zinc-100">피드 추가</h1>
           <button
             type="button"
             onClick={handleSubmit}
             disabled={!content.trim() || createFeed.isPending}
-            className="text-base font-semibold text-blue-500 disabled:opacity-50 dark:text-blue-600"
+            className="text-base font-semibold text-blue-500 disabled:opacity-50 dark:text-blue-400"
           >
             {createFeed.isPending ? '등록 중...' : '등록'}
           </button>
@@ -99,7 +99,7 @@ function NewFeedContent({ clubId }: { clubId: number }) {
         )}
         {uploadedFiles.length === 0 ? (
           <label htmlFor="feed-images-upload" className="block w-full cursor-pointer">
-            <span className="flex aspect-square w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 text-gray-600 transition-colors hover:border-gray-400 hover:bg-gray-100 dark:border-zinc-400 dark:bg-zinc-100 dark:text-zinc-600 dark:hover:border-zinc-500 dark:hover:bg-zinc-200">
+            <span className="flex aspect-square w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 text-gray-600 transition-colors hover:border-gray-400 hover:bg-gray-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
               {isUploading ? (
                 <Spinner size="sm" />
               ) : (
@@ -143,11 +143,11 @@ function NewFeedContent({ clubId }: { clubId: number }) {
               </div>
             ))}
             <label htmlFor="feed-images-upload">
-              <span className="inline-flex cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-4 transition-colors hover:border-gray-400 hover:bg-gray-100 dark:border-zinc-300 dark:bg-zinc-100 dark:hover:border-zinc-400 dark:hover:bg-zinc-200">
+              <span className="inline-flex cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-4 transition-colors hover:border-gray-400 hover:bg-gray-100 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
                 {isUploading ? (
                   <Spinner size="sm" />
                 ) : (
-                  <span className="text-2xl text-gray-400 dark:text-zinc-500">+</span>
+                  <span className="text-2xl text-gray-400 dark:text-zinc-400">+</span>
                 )}
               </span>
             </label>
@@ -160,7 +160,7 @@ function NewFeedContent({ clubId }: { clubId: number }) {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           rows={8}
-          className="min-h-[150px] w-full resize-none rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-200 dark:bg-white dark:text-zinc-900 dark:placeholder-zinc-500"
+          className="min-h-[150px] w-full resize-none rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
         />
       </div>
     </div>

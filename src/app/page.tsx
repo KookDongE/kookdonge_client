@@ -50,26 +50,32 @@ export default function SplashPage() {
   }, [isInitialized, accessToken, router]);
 
   return (
-    <div
-      className="flex min-h-dvh flex-col items-center justify-center bg-[var(--background)] -mb-[calc(80px+env(safe-area-inset-bottom,0px))] pb-[calc(80px+env(safe-area-inset-bottom,0px))]"
-      style={{ minHeight: '100dvh' }}
-    >
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="flex flex-col items-center gap-4"
-      >
-        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-blue-500 shadow-lg dark:bg-lime-400">
-          <span className="text-4xl font-black text-white dark:text-zinc-900">K</span>
-        </div>
-        <h1 className="text-2xl font-black tracking-tight text-blue-500 dark:text-lime-400">
-          KookDongE
-        </h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          국민대 동아리 정보 모음이
-        </p>
-      </motion.div>
+    <div className="fixed inset-0 z-0 overflow-hidden bg-[var(--background)]">
+      <div className="flex min-h-full flex-col items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          className="flex flex-col items-center gap-4"
+        >
+          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-blue-500 shadow-lg dark:bg-lime-400">
+            <span className="text-4xl font-black text-white dark:text-zinc-900">K</span>
+          </div>
+          <h1 className="text-2xl font-black tracking-tight text-blue-500 dark:text-lime-400">
+            KookDongE
+          </h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            국민대 동아리 정보 모음이
+          </p>
+        </motion.div>
+        <motion.div
+          className="absolute bottom-20 left-1/2 h-1 w-16 -translate-x-1/2 rounded-full bg-zinc-200 dark:bg-zinc-700"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: SPLASH_DURATION_MS / 1000, ease: 'linear' }}
+          style={{ originX: 0 }}
+        />
+      </div>
     </div>
   );
 }

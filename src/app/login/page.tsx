@@ -33,13 +33,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center bg-[var(--background)] px-6">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-sm text-center"
-      >
+    <div className="fixed inset-0 z-0 overflow-hidden bg-[var(--background)]">
+      <div className="flex min-h-full flex-col items-center justify-center px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-sm text-center"
+        >
         <h1 className="mb-4 text-3xl font-black tracking-tight text-blue-500 dark:text-lime-400">
           KookDongE
         </h1>
@@ -72,7 +73,8 @@ export default function LoginPage() {
           </svg>
           Google로 로그인
         </motion.button>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 }
