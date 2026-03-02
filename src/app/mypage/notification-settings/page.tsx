@@ -90,12 +90,14 @@ export default function NotificationSettingsPage() {
                     </p>
                   </div>
                 </div>
-                <Switch
-                  isSelected={notificationEnabled}
-                  onChange={(checked) => updateSettings.mutate(!!checked)}
-                  isDisabled={isLoading || !canToggle}
-                  aria-label="푸시 알림 켜기/끄기"
-                />
+                <div className="shrink-0">
+                  <Switch
+                    isSelected={notificationEnabled}
+                    onValueChange={(checked) => updateSettings.mutate(!!checked)}
+                    isDisabled={isLoading || !canToggle}
+                    aria-label="푸시 알림 켜기/끄기"
+                  />
+                </div>
               </div>
             </div>
 
