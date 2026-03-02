@@ -2,7 +2,7 @@
 
 import { Suspense, use, useEffect, useLayoutEffect, useState } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 import { Button, Chip, ListBox, Select, Spinner, Tabs, TextArea } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
@@ -74,6 +74,7 @@ type PageProps = {
 
 function ClubManageContent({ clubId }: { clubId: number }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [tab, setTab] = useQueryState('tab', parseAsString.withDefault('info'));
   const [highlightQuestionId, setHighlightQuestionId] = useQueryState(
     'questionId',
@@ -82,12 +83,12 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   const { data: club, isLoading } = useClubDetail(clubId);
   const updateClub = useUpdateClubDetail();
 
-  // 진입·동아리 변경 시 스크롤을 맨 위로 (재진입 시 최하단에 보이던 현상 방지)
+  // 진입·동아리 변경 시 스크롤을 맨 위로 (같은 동아리 재진입 시에도 pathname으로 실행)
   useLayoutEffect(() => {
     const scrollEl = document.querySelector('[data-scroll-container]') as HTMLElement | null;
     if (scrollEl) scrollEl.scrollTo(0, 0);
     window.scrollTo(0, 0);
-  }, [clubId]);
+  }, [clubId, pathname]);
 
   // 편집 모드 상태
   const [isEditingBasic, setIsEditingBasic] = useState(false);

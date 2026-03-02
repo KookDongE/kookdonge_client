@@ -254,7 +254,7 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
     (club.descriptionImages && club.descriptionImages.length > 0);
 
   return (
-    <div className="space-y-4 p-4">
+    <div className="min-w-0 space-y-4 p-4">
       {hasIntroduction && (
         <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
           <h3 className="mb-3 font-semibold text-zinc-900 dark:text-zinc-100">동아리 소개</h3>
@@ -277,7 +277,7 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
           )}
         </div>
       )}
-      <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+      <div className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
         <h3 className="mb-3 font-semibold text-zinc-900 dark:text-zinc-100">기본 정보</h3>
         <div className="min-w-0 space-y-3">
           {infoItems.map((item) => (
@@ -565,7 +565,7 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
             </Tabs.Tab>
           </Tabs.List>
         </Tabs.ListContainer>
-        <Tabs.Panel id="info">
+        <Tabs.Panel id="info" className="min-w-0 overflow-hidden">
           <ClubInfoTab clubId={clubId} />
         </Tabs.Panel>
         <Tabs.Panel id="feed">

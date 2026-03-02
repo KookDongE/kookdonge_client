@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 const PULL_THRESHOLD = 60;
 const MAX_PULL = 80;
@@ -13,6 +13,7 @@ type PullToRefreshProps = {
 };
 
 export function PullToRefresh({ children, fullScreen = false }: PullToRefreshProps) {
+  const pathname = usePathname();
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef(0);
@@ -49,12 +50,16 @@ export function PullToRefresh({ children, fullScreen = false }: PullToRefreshPro
     if (pullDistance >= PULL_THRESHOLD && !isRefreshing) {
       setIsRefreshing(true);
       setPullDistance(0);
+      // 풀리프레시 시 현재 경로의 필터(쿼리) 초기화 후 새로고침
+      if (pathname) {
+        router.replace(pathname, { scroll: false });
+      }
       router.refresh();
       setTimeout(() => setIsRefreshing(false), 800);
     } else {
       setPullDistance(0);
     }
-  }, [fullScreen, pullDistance, isRefreshing, router]);
+  }, [fullScreen, pathname, pullDistance, isRefreshing, router]);
 
   return (
     <div

@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -39,7 +39,7 @@ function ApplicationList() {
 
   if (filtered.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-white py-12 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
+      <div className="flex flex-col items-center justify-center rounded-xl bg-white py-12 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500">
         <p>{q?.trim() ? '검색 결과가 없습니다.' : '대기 중인 신청이 없습니다.'}</p>
       </div>
     );
@@ -51,7 +51,7 @@ function ApplicationList() {
         <Link
           key={app.id}
           href={`/admin/applications/${app.id}`}
-          className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
+          className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm transition-all hover:shadow-md dark:bg-zinc-800"
         >
           <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
             {app.image ? (
@@ -150,7 +150,7 @@ function AdminSettingsTab() {
           현재 시스템 관리자 목록
         </label>
         {systemAdmins.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-white py-12 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
+          <div className="flex flex-col items-center justify-center rounded-xl bg-white py-12 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500">
             <p>시스템 관리자가 없습니다.</p>
           </div>
         ) : (
@@ -158,7 +158,7 @@ function AdminSettingsTab() {
             {systemAdmins.map((email) => (
               <div
                 key={email}
-                className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
+                className="flex items-center justify-between rounded-xl bg-white p-4 dark:bg-zinc-800"
               >
                 <span className="text-sm font-medium text-gray-900 dark:text-zinc-100">
                   {email}
@@ -179,6 +179,8 @@ function AdminPageContent() {
   const router = useRouter();
   const { data: profile, isLoading: profileLoading } = useMyProfile();
   const [tab, setTab] = useQueryState('tab', parseAsString.withDefault('applications'));
+  const [stickyVisible, setStickyVisible] = useState(true);
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
     if (profileLoading) return;
@@ -186,6 +188,23 @@ function AdminPageContent() {
       router.replace('/home');
     }
   }, [profile, profileLoading, router]);
+
+  useEffect(() => {
+    const scrollEl =
+      document.querySelector('[data-scroll-container]') ??
+      document.querySelector('main') ??
+      document.documentElement;
+    const getScrollY = () =>
+      scrollEl === document.documentElement ? window.scrollY : (scrollEl as HTMLElement).scrollTop;
+    const handleScroll = () => {
+      const current = getScrollY();
+      if (current > lastScrollY.current && current > 60) setStickyVisible(false);
+      else if (current < lastScrollY.current) setStickyVisible(true);
+      lastScrollY.current = current;
+    };
+    scrollEl.addEventListener('scroll', handleScroll, { passive: true });
+    return () => scrollEl.removeEventListener('scroll', handleScroll);
+  }, []);
 
   if (profileLoading || (profile && !isSystemAdmin(profile))) {
     return (
@@ -197,44 +216,48 @@ function AdminPageContent() {
 
   return (
     <div className="min-h-screen bg-white pb-20 dark:bg-zinc-900">
-      {/* 1. 탭: 헤더 바로 밑 */}
       <Tabs
         selectedKey={tab || 'applications'}
         onSelectionChange={(key) => setTab(key as string)}
         className="w-full"
       >
-        <Tabs.ListContainer className="border-b border-zinc-200 bg-[var(--card)] px-4 dark:border-zinc-700">
-          <Tabs.List aria-label="관리자 메뉴" className="flex w-full">
-            <Tabs.Tab
-              id="applications"
-              className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
-            >
-              개설 승인
-              <Tabs.Indicator />
-            </Tabs.Tab>
-            <Tabs.Tab
-              id="admins"
-              className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
-            >
-              관리자 설정
-              <Tabs.Indicator />
-            </Tabs.Tab>
-          </Tabs.List>
-        </Tabs.ListContainer>
+        {/* 탭 + 검색/필터: 헤더에 붙어 스크롤 시 사라짐 */}
+        <div
+          className={`sticky top-0 z-30 bg-[var(--card)] transition-transform duration-300 ${stickyVisible ? 'translate-y-0' : '-translate-y-full opacity-0'}`}
+        >
+          <Tabs.ListContainer className="bg-[var(--card)] px-4">
+            <Tabs.List aria-label="관리자 메뉴" className="flex w-full">
+              <Tabs.Tab
+                id="applications"
+                className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
+              >
+                개설 승인
+                <Tabs.Indicator />
+              </Tabs.Tab>
+              <Tabs.Tab
+                id="admins"
+                className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
+              >
+                관리자 설정
+                <Tabs.Indicator />
+              </Tabs.Tab>
+            </Tabs.List>
+          </Tabs.ListContainer>
 
-        {/* 2. 개설 승인: 검색 → 필터 → 신청 목록 */}
+          {tab === 'applications' && (
+            <div className="bg-[var(--card)] px-4 pb-2">
+              <SearchFilterBar
+                placeholder="동아리명 검색"
+                stickyHideOnScroll={false}
+                className="!border-0"
+              />
+            </div>
+          )}
+        </div>
+
         <Tabs.Panel id="applications" className="pt-0">
-          <div className="border-b border-zinc-200 bg-[var(--card)] px-4 py-2 dark:border-zinc-700">
-            <SearchFilterBar
-              placeholder="동아리명 검색"
-              stickyHideOnScroll={false}
-              className="!border-0"
-            />
-          </div>
           <ApplicationList />
         </Tabs.Panel>
-
-        {/* 3. 관리자 설정: 설정 내용만 */}
         <Tabs.Panel id="admins" className="pt-0">
           <AdminSettingsTab />
         </Tabs.Panel>
