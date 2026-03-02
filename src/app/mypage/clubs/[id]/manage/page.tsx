@@ -15,7 +15,13 @@ import {
   useRemoveClubAdmin,
   useUpdateClubDetail,
 } from '@/features/club/hooks';
+import { useInterestedStore } from '@/features/club/interested-store';
 import { useClubFeeds, useUploadFeedFiles } from '@/features/feed/hooks';
+import {
+  useAddToWaitingList,
+  useMyWaitingList,
+  useRemoveFromWaitingList,
+} from '@/features/waiting-list/hooks';
 import {
   useCreateAnswer,
   useDeleteQuestion,
@@ -24,6 +30,7 @@ import {
   useQuestionsForManage,
 } from '@/features/question/hooks';
 import { DefaultClubImage } from '@/components/common/default-club-image';
+import { BellIcon } from '@/components/icons/notification-icon';
 
 const CATEGORY_LABEL: Record<ClubCategory, string> = {
   PERFORMING_ARTS: '공연예술',
@@ -83,6 +90,24 @@ function formatDate(dateString: string | null | undefined): string {
   return `${year}년 ${month}월 ${day}일`;
 }
 
+function StarIcon({ filled, className }: { filled: boolean; className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill={filled ? 'currentColor' : 'none'}
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
+  );
+}
+
 type PageProps = {
   params: Promise<{ id: string }>;
 };
@@ -97,6 +122,39 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   );
   const { data: club, isLoading } = useClubDetail(clubId);
   const updateClub = useUpdateClubDetail();
+  const interestedClubs = useInterestedStore((s) => s.clubs);
+  const addInterested = useInterestedStore((s) => s.add);
+  const removeInterested = useInterestedStore((s) => s.remove);
+  const { data: subscriptions } = useMyWaitingList();
+  const addNotification = useAddToWaitingList();
+  const removeNotification = useRemoveFromWaitingList();
+
+  const isInterestedByMe = interestedClubs.some((c) => c.id === clubId);
+  const isNotificationOn = (subscriptions ?? []).some((s) => s.clubId === clubId);
+
+  const handleInterestedToggle = () => {
+    if (isInterestedByMe) {
+      removeInterested(clubId);
+    } else if (club) {
+      addInterested({
+        id: club.id,
+        name: club.name,
+        logoImage: club.image ?? '',
+        type: club.type,
+        category: club.category,
+        recruitmentStatus: club.recruitmentStatus,
+      });
+    }
+  };
+
+  const handleNotificationToggle = () => {
+    if (addNotification.isPending || removeNotification.isPending) return;
+    if (isNotificationOn) {
+      removeNotification.mutate(clubId);
+    } else {
+      addNotification.mutate(clubId);
+    }
+  };
 
   // 진입·동아리 변경 시 스크롤을 맨 위로 (같은 동아리 재진입 시에도 pathname으로 실행)
   useLayoutEffect(() => {
@@ -340,10 +398,52 @@ function ClubManageContent({ clubId }: { clubId: number }) {
               {club.summary && (
                 <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{club.summary}</p>
               )}
-              {/* 좋아요/조회수: 아이콘만, 사진 하단에 맞춰 우측 1열 (관리페이지는 좋아요·조회수만) */}
+              {/* 관심, 알림, 좋아요(숫자), 조회수(숫자): 사진 하단 우측 1열 */}
               <div className="mt-auto flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={handleInterestedToggle}
+                  className={`rounded-lg p-1.5 transition-colors active:scale-95 ${
+                    isInterestedByMe
+                      ? 'bg-amber-100 dark:bg-amber-500/20'
+                      : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                  }`}
+                  title="관심 동아리"
+                  aria-label={isInterestedByMe ? '관심 해제' : '관심 등록'}
+                >
+                  <StarIcon
+                    filled={isInterestedByMe}
+                    className={`h-4 w-4 shrink-0 ${isInterestedByMe ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-400 dark:text-zinc-500'}`}
+                  />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleNotificationToggle}
+                  disabled={addNotification.isPending || removeNotification.isPending}
+                  className={`rounded-lg p-1.5 transition-colors active:scale-95 ${
+                    isNotificationOn
+                      ? 'bg-sky-100 dark:bg-sky-500/20'
+                      : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                  }`}
+                  title={isNotificationOn ? '모집 알림 해제' : '모집 알림 받기'}
+                  aria-label={isNotificationOn ? '알림 해제' : '알림 받기'}
+                >
+                  <div
+                    className={`relative flex items-center justify-center ${isNotificationOn ? 'text-sky-600 dark:text-sky-400' : 'text-zinc-400 dark:text-zinc-500'}`}
+                  >
+                    <BellIcon className="h-4 w-4 shrink-0" />
+                    {!isNotificationOn && (
+                      <span
+                        className="pointer-events-none absolute inset-0 flex items-center justify-center"
+                        aria-hidden
+                      >
+                        <span className="h-px w-1/2 rotate-45 rounded-full bg-current opacity-60" />
+                      </span>
+                    )}
+                  </div>
+                </button>
                 <div
-                  className="flex items-center rounded-lg p-1.5 text-red-500 dark:text-red-400"
+                  className="flex items-center gap-1 rounded-lg px-1.5 py-1 text-red-500 dark:text-red-400"
                   aria-label={`좋아요 ${club.totalLikeCount}`}
                 >
                   <svg
@@ -357,9 +457,12 @@ function ClubManageContent({ clubId }: { clubId: number }) {
                   >
                     <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
                   </svg>
+                  <span className="text-xs tabular-nums text-zinc-600 dark:text-zinc-400">
+                    {club.totalLikeCount}
+                  </span>
                 </div>
                 <div
-                  className="flex items-center rounded-lg p-1.5 text-zinc-500 dark:text-zinc-400"
+                  className="flex items-center gap-1 rounded-lg px-1.5 py-1 text-zinc-500 dark:text-zinc-400"
                   aria-label={`조회수 ${club.totalViewCount}`}
                 >
                   <svg
@@ -374,6 +477,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
                     <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
                     <circle cx="12" cy="12" r="3" />
                   </svg>
+                  <span className="text-xs tabular-nums">{club.totalViewCount}</span>
                 </div>
               </div>
             </div>

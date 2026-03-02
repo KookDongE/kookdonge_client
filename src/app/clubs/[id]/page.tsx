@@ -216,24 +216,8 @@ function ClubHeader({
           {club.summary && (
             <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{club.summary}</p>
           )}
-          {/* 좋아요/관심/알림/조회수: 아이콘만, 사진 하단에 맞춰 우측 1열 */}
+          {/* 관심, 알림, 좋아요(숫자), 조회수(숫자): 사진 하단 우측 1열 */}
           <div className="mt-auto flex items-center justify-end gap-2 pt-2">
-            <button
-              type="button"
-              onClick={handleLikeToggle}
-              disabled={isLiking}
-              className={`rounded-lg p-1.5 transition-colors active:scale-95 ${
-                club.isLikedByMe
-                  ? 'bg-red-100 dark:bg-red-500/20'
-                  : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'
-              }`}
-              aria-label={club.isLikedByMe ? `좋아요 취소 (${club.totalLikeCount})` : `좋아요 (${club.totalLikeCount})`}
-            >
-              <HeartIcon
-                filled={club.isLikedByMe}
-                className={`h-4 w-4 shrink-0 ${club.isLikedByMe ? 'text-red-600 dark:text-red-400' : 'text-zinc-400 dark:text-zinc-500'}`}
-              />
-            </button>
             <button
               type="button"
               onClick={handleInterestedToggle}
@@ -276,11 +260,31 @@ function ClubHeader({
                 )}
               </div>
             </button>
+            <button
+              type="button"
+              onClick={handleLikeToggle}
+              disabled={isLiking}
+              className={`flex items-center gap-1 rounded-lg px-1.5 py-1 transition-colors active:scale-95 ${
+                club.isLikedByMe
+                  ? 'bg-red-100 dark:bg-red-500/20'
+                  : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'
+              }`}
+              aria-label={club.isLikedByMe ? `좋아요 취소 (${club.totalLikeCount})` : `좋아요 (${club.totalLikeCount})`}
+            >
+              <HeartIcon
+                filled={club.isLikedByMe}
+                className={`h-4 w-4 shrink-0 ${club.isLikedByMe ? 'text-red-600 dark:text-red-400' : 'text-zinc-400 dark:text-zinc-500'}`}
+              />
+              <span className="text-xs tabular-nums text-zinc-600 dark:text-zinc-400">
+                {club.totalLikeCount}
+              </span>
+            </button>
             <div
-              className="flex items-center rounded-lg p-1.5 text-zinc-500 dark:text-zinc-400"
+              className="flex items-center gap-1 rounded-lg px-1.5 py-1 text-zinc-500 dark:text-zinc-400"
               aria-label={`조회수 ${club.totalViewCount}`}
             >
               <EyeIcon className="h-4 w-4 shrink-0" />
+              <span className="text-xs tabular-nums">{club.totalViewCount}</span>
             </div>
           </div>
         </div>
