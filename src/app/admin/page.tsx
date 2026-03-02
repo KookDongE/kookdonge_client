@@ -221,41 +221,37 @@ function AdminPageContent() {
         onSelectionChange={(key) => setTab(key as string)}
         className="w-full"
       >
-        {/* 탭 + 검색/필터: 헤더에 붙어 스크롤 시 사라짐 */}
-        <div
-          className={`sticky top-0 z-30 bg-[var(--card)] transition-transform duration-300 ${stickyVisible ? 'translate-y-0' : '-translate-y-full opacity-0'}`}
+        <Tabs.ListContainer
+          className={`sticky top-0 z-30 bg-[var(--card)] px-4 transition-transform duration-300 ${stickyVisible ? 'translate-y-0' : '-translate-y-full opacity-0'}`}
         >
-          <Tabs.ListContainer className="bg-[var(--card)] px-4">
-            <Tabs.List aria-label="관리자 메뉴" className="flex w-full">
-              <Tabs.Tab
-                id="applications"
-                className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
-              >
-                개설 승인
-                <Tabs.Indicator />
-              </Tabs.Tab>
-              <Tabs.Tab
-                id="admins"
-                className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
-              >
-                관리자 설정
-                <Tabs.Indicator />
-              </Tabs.Tab>
-            </Tabs.List>
-          </Tabs.ListContainer>
-
-          {tab === 'applications' && (
-            <div className="bg-[var(--card)] px-4 pb-2">
-              <SearchFilterBar
-                placeholder="동아리명 검색"
-                stickyHideOnScroll={false}
-                className="!border-0"
-              />
-            </div>
-          )}
-        </div>
+          <Tabs.List aria-label="관리자 메뉴" className="flex w-full">
+            <Tabs.Tab
+              id="applications"
+              className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
+            >
+              개설 승인
+              <Tabs.Indicator />
+            </Tabs.Tab>
+            <Tabs.Tab
+              id="admins"
+              className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
+            >
+              관리자 설정
+              <Tabs.Indicator />
+            </Tabs.Tab>
+          </Tabs.List>
+        </Tabs.ListContainer>
 
         <Tabs.Panel id="applications" className="pt-0">
+          <div
+            className={`sticky top-0 z-30 bg-[var(--card)] px-4 pb-2 transition-transform duration-300 ${stickyVisible ? 'translate-y-0' : '-translate-y-full opacity-0'}`}
+          >
+            <SearchFilterBar
+              placeholder="동아리명 검색"
+              stickyHideOnScroll={false}
+              className="!border-0"
+            />
+          </div>
           <ApplicationList />
         </Tabs.Panel>
         <Tabs.Panel id="admins" className="pt-0">
