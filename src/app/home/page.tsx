@@ -462,6 +462,27 @@ function HomeContent() {
     }
   }, [pathname, router, searchParams]);
 
+  // 앱뷰/WebView 풀리프레시: bfcache 복원 시에는 리마운트가 안 되므로 pageshow(persisted)에서 필터 초기화
+  useEffect(() => {
+    const handlePageshow = (e: PageTransitionEvent) => {
+      if (e.persisted !== true) return;
+      if (typeof window === 'undefined' || window.location.pathname !== '/home') return;
+      const params = new URLSearchParams(window.location.search);
+      const hasFilter =
+        params.get('category') ??
+        params.get('status') ??
+        params.get('clubType') ??
+        params.get('college') ??
+        params.get('q') ??
+        (params.get('sort') && params.get('sort') !== 'name,asc');
+      if (hasFilter) {
+        router.replace('/home', { scroll: false });
+      }
+    };
+    window.addEventListener('pageshow', handlePageshow);
+    return () => window.removeEventListener('pageshow', handlePageshow);
+  }, [router]);
+
   const returnTo =
     pathname === '/home'
       ? `/home${searchParams.toString() ? `?${searchParams.toString()}` : ''}`
