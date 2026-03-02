@@ -106,7 +106,7 @@ export default function NotificationsPage() {
         break;
       case 'CLUB_CREATE_APPROVED':
       case 'CLUB_CREATE_REJECTED':
-        router.push('/mypage/applications');
+        router.push('/my/club-requests');
         return;
       case 'CLUB_CREATE_REQUEST':
         router.push('/admin');

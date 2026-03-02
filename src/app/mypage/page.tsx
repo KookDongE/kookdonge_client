@@ -598,7 +598,7 @@ function MyApplicationsSection() {
       <div className="mb-4 flex items-center justify-between">
         <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">내 신청 목록</h3>
         <Link
-          href="/mypage/applications"
+          href="/my/club-requests"
           className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
         >
           전체보기
@@ -613,7 +613,7 @@ function MyApplicationsSection() {
           {list.slice(0, PREVIEW_LIMIT).map((app) => (
             <Link
               key={app.id}
-              href={`/mypage/applications/${app.id}`}
+              href={`/my/club-requests/${app.id}`}
               className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
             >
               <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">

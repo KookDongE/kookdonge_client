@@ -37,7 +37,7 @@ function MyApplicationsListContent() {
             {filtered.map((app) => (
               <Link
                 key={app.id}
-                href={`/mypage/applications/${app.id}`}
+                href={`/my/club-requests/${app.id}`}
                 className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700"
               >
                 <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">

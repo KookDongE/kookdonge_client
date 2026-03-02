@@ -57,7 +57,7 @@ export default function MyApplicationDetailPage() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--background)] p-4 dark:bg-zinc-900">
         <p className="text-gray-500 dark:text-zinc-400">잘못된 경로입니다.</p>
-        <Button className="mt-4" variant="ghost" onPress={() => router.push('/mypage/applications')}>
+        <Button className="mt-4" variant="ghost" onPress={() => router.push('/my/club-requests')}>
           목록으로
         </Button>
       </div>
@@ -76,7 +76,7 @@ export default function MyApplicationDetailPage() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--background)] p-4 dark:bg-zinc-900">
         <p className="text-gray-500 dark:text-zinc-400">신청을 찾을 수 없습니다.</p>
-        <Button className="mt-4" variant="ghost" onPress={() => router.push('/mypage/applications')}>
+        <Button className="mt-4" variant="ghost" onPress={() => router.push('/my/club-requests')}>
           목록으로
         </Button>
       </div>
