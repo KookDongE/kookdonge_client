@@ -45,6 +45,8 @@ export function useInfiniteClubList(params: Omit<ClubListParams, 'page'>) {
       const num = lastPage.number ?? 0;
       return num + 1;
     },
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
 }
 

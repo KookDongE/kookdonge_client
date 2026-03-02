@@ -12,7 +12,7 @@ import { useMyProfile } from '@/features/auth/hooks';
 import { useClubDetail, useLikeClub, useUnlikeClub } from '@/features/club/hooks';
 import { useInterestedStore } from '@/features/club/interested-store';
 import { useClubFeeds } from '@/features/feed/hooks';
-import { useCreateQuestion, useQuestions } from '@/features/question/hooks';
+import { useCreateQuestion, useDeleteQuestion, useQuestions } from '@/features/question/hooks';
 import {
   useAddToWaitingList,
   useMyWaitingList,
@@ -329,6 +329,7 @@ function ClubQnaTab({
   const { data, isLoading } = useQuestions(clubId, { page: 0, size: 20 });
   const { data: profile } = useMyProfile();
   const createQuestion = useCreateQuestion(clubId);
+  const deleteQuestion = useDeleteQuestion(clubId);
   const [questionText, setQuestionText] = useState('');
 
   const questions = data?.content || [];
@@ -397,9 +398,12 @@ function ClubQnaTab({
             className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800"
           >
             <div className="flex items-start gap-3">
-              <Chip size="sm" color="accent" variant="primary" className="shrink-0">
+              <span
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
+                aria-hidden
+              >
                 Q
-              </Chip>
+              </span>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                   {qna.question}
@@ -408,12 +412,30 @@ function ClubQnaTab({
                   {new Date(qna.createdAt).toLocaleDateString()}
                 </p>
               </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirm('이 질문을 삭제할까요?')) {
+                    deleteQuestion.mutate(qna.id);
+                  }
+                }}
+                disabled={deleteQuestion.isPending}
+                className="shrink-0 rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 disabled:opacity-50 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                aria-label="질문 삭제"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
             </div>
             {qna.answer && (
               <div className="mt-3 flex items-start gap-3 pt-3">
-                <Chip size="sm" color="success" variant="primary" className="shrink-0">
+                <span
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
+                  aria-hidden
+                >
                   A
-                </Chip>
+                </span>
                 <p className="flex-1 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
                   {qna.answer}
                 </p>

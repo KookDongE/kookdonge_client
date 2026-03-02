@@ -65,7 +65,7 @@ function ClubApplyContent() {
       alert('동아리유형을 선택해주세요.');
       return;
     }
-    if (!college) {
+    if (clubType === 'DEPARTMENTAL' && !college) {
       alert('과를 선택해주세요.');
       return;
     }
@@ -110,7 +110,14 @@ function ClubApplyContent() {
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={!name.trim() || !description.trim() || !clubType || !college || !category || applyClub.isPending}
+            disabled={
+              !name.trim() ||
+              !description.trim() ||
+              !clubType ||
+              !category ||
+              (clubType === 'DEPARTMENTAL' && !college) ||
+              applyClub.isPending
+            }
             className="text-base font-semibold text-blue-500 disabled:opacity-50 dark:text-blue-400"
           >
             {applyClub.isPending ? '신청 중...' : '신청'}
@@ -143,7 +150,9 @@ function ClubApplyContent() {
               placeholder="동아리유형 선택"
               value={clubType || undefined}
               onChange={(value: Key | null) => {
-                setClubType((value as ClubType) || '');
+                const next = (value as ClubType) || '';
+                setClubType(next);
+                if (next !== 'DEPARTMENTAL') setCollege('');
               }}
               className="w-full"
             >
@@ -167,38 +176,40 @@ function ClubApplyContent() {
               </Select.Popover>
             </Select>
           </div>
-          <div className="min-w-0 flex-1">
-            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-              과 <span className="text-red-500">*</span>
-            </label>
-            <Select
-              placeholder="과 선택"
-              value={college || undefined}
-              onChange={(value: Key | null) => {
-                setCollege((value as College) || '');
-              }}
-              className="w-full"
-            >
-              <Select.Trigger className="rounded-xl border border-gray-200 bg-white text-sm text-gray-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
-                <Select.Value />
-                <Select.Indicator />
-              </Select.Trigger>
-              <Select.Popover>
-                <ListBox>
-                  {COLLEGE_OPTIONS.map((opt) => (
-                    <ListBox.Item
-                      key={opt.value}
-                      id={opt.value}
-                      textValue={opt.label}
-                      className="!text-zinc-600 dark:!text-zinc-200"
-                    >
-                      {opt.label}
-                    </ListBox.Item>
-                  ))}
-                </ListBox>
-              </Select.Popover>
-            </Select>
-          </div>
+          {clubType === 'DEPARTMENTAL' && (
+            <div className="min-w-0 flex-1">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                과 <span className="text-red-500">*</span>
+              </label>
+              <Select
+                placeholder="과 선택"
+                value={college || undefined}
+                onChange={(value: Key | null) => {
+                  setCollege((value as College) || '');
+                }}
+                className="w-full"
+              >
+                <Select.Trigger className="rounded-xl border border-gray-200 bg-white text-sm text-gray-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
+                  <Select.Value />
+                  <Select.Indicator />
+                </Select.Trigger>
+                <Select.Popover>
+                  <ListBox>
+                    {COLLEGE_OPTIONS.map((opt) => (
+                      <ListBox.Item
+                        key={opt.value}
+                        id={opt.value}
+                        textValue={opt.label}
+                        className="!text-zinc-600 dark:!text-zinc-200"
+                      >
+                        {opt.label}
+                      </ListBox.Item>
+                    ))}
+                  </ListBox>
+                </Select.Popover>
+              </Select>
+            </div>
+          )}
           <div className="min-w-0 flex-1">
             <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
               분야 <span className="text-red-500">*</span>
