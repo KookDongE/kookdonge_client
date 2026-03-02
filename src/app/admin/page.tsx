@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { Button, Chip, Input, Spinner } from '@heroui/react';
+import { Button, Chip, Input, Spinner, Tabs } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
 
 import { useMyProfile } from '@/features/auth/hooks';
@@ -46,7 +46,7 @@ function ApplicationManagementTab({
   return (
     <div className="pt-0">
       <div
-        className={`glass sticky top-[3.5rem] z-20 border-y-0 border-b-0 pt-0 pb-2 ${filterStickyClass}`}
+        className={`glass sticky top-[6.5rem] z-20 border-y-0 border-b-0 pt-0 pb-2 ${filterStickyClass}`}
       >
         <SearchFilterBar
           placeholder="동아리명 검색"
@@ -203,11 +203,12 @@ function AdminPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: profile, isLoading: profileLoading } = useMyProfile();
+  const [tab, setTab] = useQueryState('tab', parseAsString.withDefault('applications'));
   const [isStickyVisible, setIsStickyVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const didInitialClearCheckRef = useRef(false);
 
-  // 새로고침 시 필터(q 등) 초기화 (마운트 후 1회만)
+  // 새로고침 시 필터(q 등) 초기화, tab만 유지 (마운트 후 1회만)
   useEffect(() => {
     if (didInitialClearCheckRef.current) return;
     didInitialClearCheckRef.current = true;
@@ -219,7 +220,8 @@ function AdminPageContent() {
       searchParams.get('college') ??
       (searchParams.get('sort') && searchParams.get('sort') !== 'name,asc');
     if (hasFilter) {
-      router.replace('/admin', { scroll: false });
+      const tabVal = searchParams.get('tab') || 'applications';
+      router.replace(`/admin?tab=${tabVal}`, { scroll: false });
     }
   }, [router, searchParams]);
 
@@ -237,7 +239,8 @@ function AdminPageContent() {
         params.get('college') ??
         (params.get('sort') && params.get('sort') !== 'name,asc');
       if (hasFilter) {
-        router.replace('/admin', { scroll: false });
+        const tabVal = params.get('tab') || 'applications';
+        router.replace(`/admin?tab=${tabVal}`, { scroll: false });
       }
     };
     window.addEventListener('pageshow', handlePageshow);
@@ -271,6 +274,12 @@ function AdminPageContent() {
     return () => scrollEl.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.querySelector('[data-scroll-container]')?.scrollTo(0, 0);
+  }, [tab]);
+
+  const isApplicationsTab = (tab || 'applications') === 'applications';
   const stickyTransitionClass = `transition-transform duration-300 ${
     isStickyVisible ? 'translate-y-0' : '-translate-y-full opacity-0'
   }`;
@@ -285,16 +294,41 @@ function AdminPageContent() {
 
   return (
     <div className="-mt-4 min-h-screen bg-white pb-20 dark:bg-zinc-900">
-      <ApplicationManagementTab
-        stickyVisible={isStickyVisible}
-        filterStickyClass={stickyTransitionClass}
-      />
-      <section className="border-t border-zinc-200 pt-4 dark:border-zinc-700">
-        <h2 className="px-4 pb-2 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-          관리자 설정
-        </h2>
-        <AdminSettingsTab />
-      </section>
+      <Tabs
+        selectedKey={tab || 'applications'}
+        onSelectionChange={(key) => setTab(key as string)}
+        className="mt-0 w-full pt-0 [&_[data-slot=tabs-panel]]:pt-0"
+      >
+        <Tabs.ListContainer
+          className={`glass sticky top-[3.5rem] z-30 border-y-0 border-b-0 px-4 pt-0 pb-2 ${stickyTransitionClass}`}
+        >
+          <Tabs.List aria-label="관리자 메뉴" className="flex w-full">
+            <Tabs.Tab
+              id="applications"
+              className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
+            >
+              개설 승인
+              <Tabs.Indicator />
+            </Tabs.Tab>
+            <Tabs.Tab
+              id="admins"
+              className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
+            >
+              관리자 설정
+              <Tabs.Indicator />
+            </Tabs.Tab>
+          </Tabs.List>
+        </Tabs.ListContainer>
+        <Tabs.Panel id="applications">
+          <ApplicationManagementTab
+            stickyVisible={isStickyVisible}
+            filterStickyClass={stickyTransitionClass}
+          />
+        </Tabs.Panel>
+        <Tabs.Panel id="admins">
+          <AdminSettingsTab />
+        </Tabs.Panel>
+      </Tabs>
     </div>
   );
 }
