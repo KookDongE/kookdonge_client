@@ -90,9 +90,15 @@ function RankingSection({ returnTo }: { returnTo?: string }) {
     weeklyViewGrowth: number;
     weeklyLikeGrowth: number;
   };
-  const rankings: RankingItem[] = Array.isArray(rawRankings)
+  const rawList: RankingItem[] = Array.isArray(rawRankings)
     ? rawRankings
     : ((rawRankings as unknown as { content?: RankingItem[] })?.content ?? []);
+
+  // 조회수/좋아요 탭에 맞춰 실제 순위대로 정렬 (높은 순 → 1위, 2위, …)
+  const rankings: RankingItem[] =
+    activeTab === 'view'
+      ? [...rawList].sort((a, b) => (b.weeklyViewGrowth ?? 0) - (a.weeklyViewGrowth ?? 0))
+      : [...rawList].sort((a, b) => (b.weeklyLikeGrowth ?? 0) - (a.weeklyLikeGrowth ?? 0));
 
   if (isLoading) {
     return (
