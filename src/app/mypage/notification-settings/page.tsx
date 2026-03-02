@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 
-import { Spinner, Switch } from '@heroui/react';
+import { Spinner } from '@heroui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { deviceApi } from '@/features/device/api';
@@ -77,11 +77,11 @@ export default function NotificationSettingsPage() {
           <>
             <div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
               <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-400">
+                <div className="min-w-0 flex-1 flex items-center gap-3">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-400">
                     <BellIcon className="h-5 w-5" />
                   </span>
-                  <div>
+                  <div className="min-w-0">
                     <p className="font-medium text-zinc-900 dark:text-zinc-100">푸시 알림</p>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400">
                       {canToggle
@@ -90,14 +90,25 @@ export default function NotificationSettingsPage() {
                     </p>
                   </div>
                 </div>
-                <div className="shrink-0">
-                  <Switch
-                    isSelected={notificationEnabled}
-                    onChange={(checked) => updateSettings.mutate(!!checked)}
-                    isDisabled={isLoading || !canToggle}
-                    aria-label="푸시 알림 켜기/끄기"
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={notificationEnabled}
+                  aria-label="푸시 알림 켜기/끄기"
+                  disabled={isLoading || !canToggle}
+                  onClick={() => updateSettings.mutate(!notificationEnabled)}
+                  className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                    notificationEnabled
+                      ? 'border-sky-500 bg-sky-500 dark:border-sky-400 dark:bg-sky-400'
+                      : 'border-zinc-300 bg-zinc-200 dark:border-zinc-600 dark:bg-zinc-700'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-6 w-6 translate-y-0 rounded-full bg-white shadow ring-0 transition-transform ${
+                      notificationEnabled ? 'translate-x-5' : 'translate-x-0.5'
+                    }`}
                   />
-                </div>
+                </button>
               </div>
             </div>
 
