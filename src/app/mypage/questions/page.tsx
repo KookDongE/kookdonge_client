@@ -62,9 +62,9 @@ function QnaCard({
         </svg>
       </div>
 
-      {/* A 섹션: 답변이 있을 때만 표시 */}
+      {/* A 섹션: 답변이 있을 때만 표시 (앱뷰 라이트모드에서 중간선 검은색 방지) */}
       {hasAnswer && (
-        <div className="mt-3 flex items-start gap-3 border-t border-zinc-200 pt-3 dark:border-zinc-700">
+        <div className="mt-3 flex items-start gap-3 border-t border-t-[#e4e4e7] pt-3 dark:border-t-zinc-700">
           <span
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-300"
             aria-hidden
