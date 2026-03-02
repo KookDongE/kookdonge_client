@@ -222,6 +222,8 @@ export type ClubFeedRes = {
   feedId: number;
   content: string;
   postUrls: string[];
+  /** 피드 작성 시간 (ISO date-time) */
+  createdAt?: string;
 };
 
 export type ClubFeedListRes = {
@@ -391,6 +393,21 @@ export type DeviceRegisterReq = {
 
 export type NotificationSettingReq = { notificationEnabled: boolean };
 export type NotificationSettingRes = { notificationEnabled: boolean };
+
+/** 동아리 정보 수정 요청 (PUT /api/clubs/{clubId}/info). 변경할 필드만 전달 */
+export type UpdateClubInfoReq = {
+  clubName?: string;
+  clubType?: ClubType;
+  category?: ClubCategory;
+  description?: string;
+  profileFileUuid?: string;
+  leaderName?: string;
+  targetGraduate?: string;
+  clubRoomLocation?: string;
+  weeklyActivity?: string;
+  isLeaveOfAbsenceActive?: boolean;
+  college?: string;
+};
 
 /** 동아리 생성 신청 요청 */
 export type ClubCreationReq = {

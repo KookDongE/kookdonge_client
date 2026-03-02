@@ -8,7 +8,8 @@ type FeedItemProps = {
   feedId: number;
   authorName: string;
   authorAvatar?: string;
-  imageUrl: string;
+  /** 피드 이미지 URL 목록 (여러 장 표시) */
+  imageUrls: string[];
   content: string;
   createdAt: string;
 };
@@ -32,10 +33,12 @@ export function FeedItem({
   feedId,
   authorName,
   authorAvatar,
-  imageUrl,
+  imageUrls,
   content,
   createdAt,
 }: FeedItemProps) {
+  const hasMultiple = imageUrls.length > 1;
+
   return (
     <article className="mb-8 border-b border-zinc-200 bg-white pb-6 dark:border-zinc-800 dark:bg-zinc-900">
       {/* 헤더 영역: 프로필 사진 + 이름 + 작성 시간 */}
@@ -63,10 +66,37 @@ export function FeedItem({
         </span>
       </div>
 
-      {/* 미디어 영역 */}
-      <div className="relative aspect-square w-full bg-zinc-100 dark:bg-zinc-800">
-        <Image src={imageUrl} alt="" fill className="object-cover" sizes="100vw" priority />
-      </div>
+      {/* 미디어 영역: 여러 장이면 가로 스크롤, 한 장이면 단일 비율 */}
+      {hasMultiple ? (
+        <div className="flex gap-1 overflow-x-auto px-0 py-0 scrollbar-thin">
+          {imageUrls.map((url, i) => (
+            <div
+              key={`${feedId}-${i}`}
+              className="relative shrink-0 basis-[85%] overflow-hidden rounded-none bg-zinc-100 dark:bg-zinc-800"
+              style={{ aspectRatio: '1' }}
+            >
+              <Image
+                src={url}
+                alt=""
+                fill
+                className="object-cover"
+                sizes="(max-width: 480px) 85vw, 400px"
+              />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="relative aspect-square w-full bg-zinc-100 dark:bg-zinc-800">
+          <Image
+            src={imageUrls[0] ?? ''}
+            alt=""
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority
+          />
+        </div>
+      )}
 
       {/* 정보 영역: 본문글 */}
       <div className="px-4 pt-2">

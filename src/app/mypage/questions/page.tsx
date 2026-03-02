@@ -54,6 +54,11 @@ function QuestionsTabContent() {
                   <p className="line-clamp-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
                     {qna.question}
                   </p>
+                  {qna.answer != null && qna.answer !== '' && (
+                    <p className="mt-0.5 line-clamp-2 text-xs text-zinc-600 dark:text-zinc-400">
+                      {qna.answer}
+                    </p>
+                  )}
                   <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                     {new Date(qna.createdAt).toLocaleDateString()}
                     {qna.answer ? ' · 답변완료' : ' · 대기중'}
@@ -128,6 +133,11 @@ function AnswersTabContent() {
                   <p className="line-clamp-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
                     {qna.question}
                   </p>
+                  {qna.answer != null && qna.answer !== '' && (
+                    <p className="mt-0.5 line-clamp-2 text-xs text-zinc-600 dark:text-zinc-400">
+                      {qna.answer}
+                    </p>
+                  )}
                   <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                     {new Date(qna.createdAt).toLocaleDateString()}
                     {qna.clubName ? ` · ${qna.clubName}` : ''}

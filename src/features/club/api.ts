@@ -7,6 +7,7 @@ import {
   ClubListRes,
   ClubRankingRes,
   PageResponse,
+  UpdateClubInfoReq,
 } from '@/types/api';
 import { apiClient } from '@/lib/api';
 
@@ -234,6 +235,17 @@ export const clubApi = {
     }));
   },
 
+  /** (LEADER) 동아리 정보 수정. PUT /api/clubs/{clubId}/info - 이름, 한줄소개, 기본정보 등 */
+  updateClubInfo: async (
+    clubId: number,
+    data: UpdateClubInfoReq
+  ): Promise<void> => {
+    return apiClient<void>(`/api/clubs/${clubId}/info`, {
+      method: 'PUT',
+      body: data,
+    });
+  },
+
   updateDescription: async (
     clubId: number,
     data: { description?: string; profileFileUuid?: string }
@@ -295,25 +307,28 @@ export const clubApi = {
     clubId: number,
     data: Record<string, unknown>
   ): Promise<ClubDetailRes> => {
-    if (data.description !== undefined || data.profileFileUuid !== undefined) {
-      await clubApi.updateDescription(clubId, {
-        description: (data.description ?? data.summary) as string | undefined,
-        profileFileUuid: data.profileFileUuid as string | undefined,
-      });
+    const infoFields: UpdateClubInfoReq = {};
+    if (data.name !== undefined) infoFields.clubName = data.name as string;
+    if (data.description !== undefined || data.summary !== undefined)
+      infoFields.description = (data.description ?? data.summary) as string;
+    if (data.profileFileUuid !== undefined)
+      infoFields.profileFileUuid = data.profileFileUuid as string;
+    if (data.leaderName !== undefined) infoFields.leaderName = data.leaderName as string;
+    if (data.targetGraduate !== undefined) infoFields.targetGraduate = data.targetGraduate as string;
+    if (data.location !== undefined) infoFields.clubRoomLocation = data.location as string;
+    if (data.weeklyActiveFrequency !== undefined)
+      infoFields.weeklyActivity = String(data.weeklyActiveFrequency);
+    if (data.allowLeaveOfAbsence !== undefined)
+      infoFields.isLeaveOfAbsenceActive = data.allowLeaveOfAbsence as boolean;
+    if (data.college !== undefined) infoFields.college = data.college as string;
+    if (data.type !== undefined) infoFields.clubType = data.type as UpdateClubInfoReq['clubType'];
+    if (data.category !== undefined)
+      infoFields.category = data.category as UpdateClubInfoReq['category'];
+    if (Object.keys(infoFields).length > 0) {
+      await clubApi.updateClubInfo(clubId, infoFields);
     }
     if (data.content !== undefined) {
       await clubApi.updateContent(clubId, { content: data.content as string });
-    }
-    const basic: Record<string, unknown> = {};
-    if (data.leaderName !== undefined) basic.leaderName = data.leaderName;
-    if (data.targetGraduate !== undefined) basic.targetGraduate = data.targetGraduate;
-    if (data.location !== undefined) basic.clubRoomLocation = data.location;
-    if (data.weeklyActiveFrequency !== undefined)
-      basic.weeklyActivity = String(data.weeklyActiveFrequency);
-    if (data.allowLeaveOfAbsence !== undefined)
-      basic.isLeaveOfAbsenceActive = data.allowLeaveOfAbsence;
-    if (Object.keys(basic).length > 0) {
-      await clubApi.updateBasicInfo(clubId, basic as Parameters<typeof clubApi.updateBasicInfo>[1]);
     }
     const recruitmentStatus = data.recruitmentStatus as
       | 'RECRUITING'

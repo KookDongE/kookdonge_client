@@ -4,11 +4,12 @@ import { Spinner } from '@heroui/react';
 
 import { FeedItem } from './feed-item';
 
-type FeedData = {
+export type FeedData = {
   feedId: number;
   authorName: string;
   authorAvatar?: string;
-  imageUrl: string;
+  /** 피드 이미지 URL 목록 (여러 장) */
+  imageUrls: string[];
   content: string;
   createdAt: string;
 };

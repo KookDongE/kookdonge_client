@@ -26,17 +26,18 @@ function FeedPageContent({ clubId }: { clubId: number }) {
     );
   }
 
-  const feeds = (data?.clubFeedList || []).map((feed, index) => {
-    const now = new Date();
-    const createdAt = new Date(now.getTime() - (index + 1) * 2 * 60 * 60 * 1000).toISOString();
-
+  const feeds = (data?.clubFeedList || []).map((feed) => {
+    const imageUrls =
+      feed.postUrls?.length > 0
+        ? feed.postUrls
+        : ['https://images.pexels.com/photos/1181263/pexels-photo-1181263.jpeg?auto=compress&cs=tinysrgb&w=800'];
     return {
       feedId: feed.feedId,
       authorName: club?.name || '동아리',
       authorAvatar: club?.image,
-      imageUrl: feed.postUrls?.[0] || 'https://images.pexels.com/photos/1181263/pexels-photo-1181263.jpeg?auto=compress&cs=tinysrgb&w=800',
+      imageUrls,
       content: feed.content,
-      createdAt,
+      createdAt: feed.createdAt ?? new Date().toISOString(),
     };
   });
 

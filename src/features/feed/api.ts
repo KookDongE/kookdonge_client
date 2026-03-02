@@ -48,10 +48,12 @@ function normalizeClubFeedListRes(raw: unknown): ClubFeedListRes {
   const clubFeedList = (list ?? []).map((feed): ClubFeedRes => {
     const urls = feed.postUrls ?? feed.post_urls;
     const feedId = feed.feedId ?? feed.feed_id;
+    const createdAt = feed.createdAt ?? feed.created_at;
     return {
       feedId: typeof feedId === 'number' ? feedId : Number(feedId),
       content: typeof feed.content === 'string' ? feed.content : '',
       postUrls: Array.isArray(urls) ? (urls as string[]) : [],
+      createdAt: typeof createdAt === 'string' ? createdAt : undefined,
     };
   });
   return {

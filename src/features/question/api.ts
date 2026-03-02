@@ -81,4 +81,28 @@ export const questionApi = {
       params: { page, size, ...(sort ? { sort } : {}) },
     });
   },
+
+  /**
+   * 관리자용 질문 목록. GET /api/clubs/{clubId}/questions/manage
+   * answered=true: 답변 완료만, answered=false: 미답변만, 미지정: 전체
+   */
+  getQuestionsForManage: async (
+    clubId: number,
+    params: { answered?: boolean; page?: number; size?: number; sort?: string | string[] } = {}
+  ): Promise<PageResponse<QuestionAnswerRes>> => {
+    const page = params.page ?? 0;
+    const size = params.size ?? 20;
+    const sortParam = params.sort ?? ['createdAt,DESC'];
+    const sort = Array.isArray(sortParam) ? sortParam[0] : sortParam;
+    const query: Record<string, string | number | boolean | undefined> = {
+      page,
+      size,
+      ...(sort ? { sort } : {}),
+    };
+    if (params.answered !== undefined) query.answered = params.answered;
+    return apiClient<PageResponse<QuestionAnswerRes>>(
+      `/api/clubs/${clubId}/questions/manage`,
+      { params: query }
+    );
+  },
 };

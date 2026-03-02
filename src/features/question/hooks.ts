@@ -41,6 +41,7 @@ export function useCreateAnswer() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: questionKeys.lists() });
       queryClient.invalidateQueries({ queryKey: ['questions', 'pending'] });
+      queryClient.invalidateQueries({ queryKey: ['questions', 'manage'] });
     },
   });
 }
@@ -69,6 +70,19 @@ export function useDeleteQuestion(clubId: number) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: questionKeys.lists() });
       queryClient.invalidateQueries({ queryKey: ['questions', 'pending'] });
+      queryClient.invalidateQueries({ queryKey: ['questions', 'manage'] });
     },
+  });
+}
+
+/** 관리자용 질문 목록 (답변 완료/미답변 필터). GET /api/clubs/{clubId}/questions/manage */
+export function useQuestionsForManage(
+  clubId: number,
+  params: { answered?: boolean; page?: number; size?: number } = {}
+) {
+  return useQuery({
+    queryKey: ['questions', 'manage', clubId, params],
+    queryFn: () => questionApi.getQuestionsForManage(clubId, params),
+    enabled: !!clubId,
   });
 }

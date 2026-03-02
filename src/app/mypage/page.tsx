@@ -66,9 +66,11 @@ function ProfileSection() {
           {profile ? (
             <div className="space-y-1">
               <h2 className="truncate text-lg font-bold text-zinc-800 dark:text-zinc-100">
-                {profile.name || profile.email}
+                {profile.name || '이름 없음'}
               </h2>
-              <p className="truncate text-sm text-zinc-600 dark:text-zinc-400">{profile.email}</p>
+              <p className="truncate text-sm text-zinc-600 dark:text-zinc-400">
+                {profile.email ?? ''}
+              </p>
               {[profile.department, profile.studentId, profile.phoneNumber].some(Boolean) && (
                 <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-zinc-500 dark:text-zinc-400">
                   {profile.department && <span>{profile.department}</span>}

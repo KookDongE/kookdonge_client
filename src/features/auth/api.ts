@@ -47,12 +47,18 @@ export const authApi = {
     return apiClient<UserProfileRes>('/api/users/me');
   },
 
-  /** 프로필 이름 변경 */
-  updateProfile: async (data: { name: string }): Promise<UserProfileRes> => {
-    return apiClient<UserProfileRes>('/api/users/me', {
+  /** 이름 변경. PATCH /api/users/me/name (스웨거) */
+  updateMyName: async (data: { name: string }): Promise<void> => {
+    return apiClient<void>('/api/users/me/name', {
       method: 'PATCH',
       body: data,
     });
+  },
+
+  /** 프로필 이름 변경 (레거시: updateMyName 사용 권장) */
+  updateProfile: async (data: { name: string }): Promise<UserProfileRes> => {
+    await authApi.updateMyName(data);
+    return authApi.getMyProfile();
   },
 
   withdraw: async (): Promise<void> => {
