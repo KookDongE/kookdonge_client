@@ -242,7 +242,7 @@ function AdminPageContent() {
           </Tabs.List>
         </Tabs.ListContainer>
 
-        <Tabs.Panel id="applications" className="pt-0">
+        <Tabs.Panel id="applications" className="px-3 pt-0">
           <div
             className={`sticky top-14 z-30 bg-[var(--card)] px-0 pb-2 transition-transform duration-300 ${stickyVisible ? 'translate-y-0' : '-translate-y-full opacity-0'}`}
           >
