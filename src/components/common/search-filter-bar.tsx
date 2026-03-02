@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type Key } from 'react';
+import { useEffect, useRef, useState, type Key } from 'react';
 
 import { Input, ListBox, Select } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
@@ -51,14 +51,42 @@ const STATUS_OPTIONS: { value: RecruitmentStatus | 'ALL'; label: string }[] = [
   { value: 'CLOSED', label: '모집마감' },
 ];
 
-/** 백엔드 sort 파라미터 값 (스웨거: latest, popularity, viewCount, deadline + 이름순) */
+/** 백엔드 sort 파라미터 값 (이름순, 좋아요순, 조회수순만 노출. 최신순/마감순 제거) */
 const SORT_OPTIONS: { value: string; label: string }[] = [
   { value: 'name,asc', label: '이름순' },
   { value: 'popularity', label: '좋아요순' },
-  { value: 'latest', label: '최신순' },
   { value: 'viewCount', label: '조회수순' },
-  { value: 'deadline', label: '마감순' },
 ];
+const VALID_SORT_SET = new Set(SORT_OPTIONS.map((o) => o.value));
+
+/** key={query}로 감싸서 URL q 변경 시 리마운트되며 초기값 동기화 (effect 내 setState 방지) */
+function SearchInput({
+  initialQuery,
+  setQuery,
+  placeholder,
+}: {
+  initialQuery: string | null;
+  setQuery: (v: string | null) => void;
+  placeholder: string;
+}) {
+  const [searchInput, setSearchInput] = useState(initialQuery ?? '');
+
+  useEffect(() => {
+    const timer = setTimeout(() => setQuery(searchInput.trim() || null), 300);
+    return () => clearTimeout(timer);
+  }, [searchInput, setQuery]);
+
+  return (
+    <Input
+      type="text"
+      placeholder={placeholder}
+      value={searchInput}
+      onChange={(e) => setSearchInput(e.target.value)}
+      className="w-full border border-zinc-300 bg-zinc-50 pl-10 text-zinc-900 placeholder:text-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-400"
+      aria-label="검색"
+    />
+  );
+}
 
 type SearchFilterBarProps = {
   placeholder?: string;
@@ -73,24 +101,64 @@ export function SearchFilterBar({
   useGlass = false,
   className = '',
 }: SearchFilterBarProps) {
-  const [category, setCategory] = useQueryState('category', parseAsString.withDefault('ALL'));
-  const [status, setStatus] = useQueryState('status', parseAsString.withDefault('ALL'));
-  const [clubType, setClubType] = useQueryState('clubType', parseAsString.withDefault('ALL'));
-  const [college, setCollege] = useQueryState('college', parseAsString.withDefault('ALL'));
+  const [category, setCategory] = useQueryState('category', parseAsString);
+  const [status, setStatus] = useQueryState('status', parseAsString);
+  const [clubType, setClubType] = useQueryState('clubType', parseAsString);
+  const [college, setCollege] = useQueryState('college', parseAsString);
   const [sort, setSort] = useQueryState('sort', parseAsString.withDefault('name,asc'));
-  const [query, setQuery] = useQueryState('q', parseAsString.withDefault(''));
-  const [searchInput, setSearchInput] = useState(query);
+  const [query, setQuery] = useQueryState('q', parseAsString);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const filterBarRef = useRef<HTMLDivElement>(null);
 
-  const isDepartmental = clubType === 'DEPARTMENTAL';
+  const categoryVal = category ?? 'ALL';
+  const statusVal = status ?? 'ALL';
+  const clubTypeVal = clubType ?? 'ALL';
+  const collegeVal = college ?? 'ALL';
+  const sortVal = sort != null && VALID_SORT_SET.has(sort) ? sort : 'name,asc';
+  const isDepartmental = clubTypeVal === 'DEPARTMENTAL';
+
+  // URL에 제거된 정렬(latest, deadline)이 있으면 name,asc로 정규화
+  useEffect(() => {
+    if (sort != null && sort !== '' && !VALID_SORT_SET.has(sort)) {
+      setSort('name,asc');
+    }
+  }, [sort, setSort]);
 
   // 과동아리 해제 시 단과대 선택 초기화
   useEffect(() => {
-    if (!isDepartmental && college && college !== 'ALL') {
-      setCollege('ALL');
+    if (!isDepartmental && college != null && college !== '') {
+      setCollege(null);
     }
   }, [isDepartmental, college, setCollege]);
+
+  // 스크롤·외부 클릭 시 필터 드롭다운 닫기 (포커스 해제로 팝오버 닫힘)
+  useEffect(() => {
+    const scrollEl =
+      document.querySelector('[data-scroll-container]') ??
+      document.querySelector('main') ??
+      document.documentElement;
+    const closeDropdowns = () => {
+      const active = document.activeElement as HTMLElement | null;
+      if (
+        active?.closest?.('[data-slot="trigger"]') ||
+        active?.getAttribute?.('role') === 'combobox'
+      ) {
+        active.blur();
+      }
+    };
+    const handleScroll = () => closeDropdowns();
+    const handlePointerDown = (e: PointerEvent) => {
+      if (filterBarRef.current?.contains(e.target as Node)) return;
+      closeDropdowns();
+    };
+    scrollEl.addEventListener('scroll', handleScroll, { passive: true, capture: true });
+    document.addEventListener('pointerdown', handlePointerDown, true);
+    return () => {
+      scrollEl.removeEventListener('scroll', handleScroll, true);
+      document.removeEventListener('pointerdown', handlePointerDown, true);
+    };
+  }, []);
 
   useEffect(() => {
     if (!stickyHideOnScroll) return;
@@ -107,22 +175,17 @@ export function SearchFilterBar({
     return () => scrollEl.removeEventListener('scroll', handleScroll);
   }, [lastScrollY, stickyHideOnScroll]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setQuery(searchInput || null), 300);
-    return () => clearTimeout(timer);
-  }, [searchInput, setQuery]);
-
   const handleCategoryChange = (value: Key | null) => {
-    setCategory(value === 'ALL' ? null : (value as string) || null);
+    setCategory(value === 'ALL' || value === null ? null : (value as string));
   };
   const handleStatusChange = (value: Key | null) => {
-    setStatus(value === 'ALL' ? null : (value as string) || null);
+    setStatus(value === 'ALL' || value === null ? null : (value as string));
   };
   const handleClubTypeChange = (value: Key | null) => {
-    setClubType(value === 'ALL' ? null : (value as string) || null);
+    setClubType(value === 'ALL' || value === null ? null : (value as string));
   };
   const handleCollegeChange = (value: Key | null) => {
-    setCollege(value === 'ALL' ? null : (value as string) || null);
+    setCollege(value === 'ALL' || value === null ? null : (value as string));
   };
   const handleSortChange = (value: Key | null) => {
     setSort((value as string) || 'name,asc');
@@ -131,6 +194,7 @@ export function SearchFilterBar({
   const bgClass = stickyHideOnScroll || useGlass ? 'glass' : 'bg-[var(--card)]';
   return (
     <div
+      ref={filterBarRef}
       className={
         stickyHideOnScroll
           ? `${bgClass} sticky top-0 z-30 border-y-0 px-4 pt-0 pb-2 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full opacity-0'} ${className}`
@@ -152,13 +216,11 @@ export function SearchFilterBar({
             />
           </svg>
         </div>
-        <Input
-          type="text"
+        <SearchInput
+          key={query ?? ''}
+          initialQuery={query}
+          setQuery={setQuery}
           placeholder={placeholder}
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          className="w-full border border-zinc-300 bg-zinc-50 pl-10 text-zinc-900 placeholder:text-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-400"
-          aria-label="검색"
         />
       </div>
 
@@ -169,7 +231,7 @@ export function SearchFilterBar({
           className="shrink-0"
           placeholder="동아리 유형"
           aria-label="동아리 유형 선택"
-          selectedKey={clubType || 'ALL'}
+          selectedKey={clubTypeVal}
           onSelectionChange={(key) => handleClubTypeChange(key ?? 'ALL')}
         >
           <Select.Trigger className="min-w-[100px] rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200">
@@ -198,7 +260,7 @@ export function SearchFilterBar({
             className="shrink-0"
             placeholder="단과대"
             aria-label="단과대 선택"
-            selectedKey={college || 'ALL'}
+            selectedKey={collegeVal}
             onSelectionChange={(key) => handleCollegeChange(key ?? 'ALL')}
           >
             <Select.Trigger className="min-w-[120px] rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200">
@@ -227,7 +289,7 @@ export function SearchFilterBar({
           className="shrink-0"
           placeholder="분야"
           aria-label="분야 선택"
-          selectedKey={category || 'ALL'}
+          selectedKey={categoryVal}
           onSelectionChange={(key) => handleCategoryChange(key ?? 'ALL')}
         >
           <Select.Trigger className="min-w-[72px] rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200">
@@ -255,7 +317,7 @@ export function SearchFilterBar({
           className="shrink-0"
           placeholder="상태"
           aria-label="모집상태 선택"
-          selectedKey={status || 'ALL'}
+          selectedKey={statusVal}
           onSelectionChange={(key) => handleStatusChange(key ?? 'ALL')}
         >
           <Select.Trigger className="min-w-[72px] rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200">
@@ -283,7 +345,7 @@ export function SearchFilterBar({
           className="shrink-0"
           placeholder="정렬"
           aria-label="정렬 선택"
-          selectedKey={sort || 'name,asc'}
+          selectedKey={sortVal}
           onSelectionChange={(key) => handleSortChange(key ?? 'name,asc')}
         >
           <Select.Trigger className="min-w-[88px] rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200">

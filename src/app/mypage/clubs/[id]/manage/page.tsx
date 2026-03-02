@@ -324,25 +324,25 @@ function ClubManageContent({ clubId }: { clubId: number }) {
           onSelectionChange={(key) => setTab(key as string)}
           className="w-full"
         >
-          <Tabs.ListContainer className="club-manage-tabs bg-white px-4 pt-4 dark:bg-zinc-900">
+          <Tabs.ListContainer className="bg-white px-4 dark:bg-zinc-900">
             <Tabs.List aria-label="동아리 정보" className="flex w-full">
               <Tabs.Tab
                 id="info"
-                className="flex-1 py-3 text-center text-sm font-medium text-gray-800 dark:text-zinc-300"
+                className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
               >
                 정보
                 <Tabs.Indicator />
               </Tabs.Tab>
               <Tabs.Tab
                 id="feed"
-                className="flex-1 py-3 text-center text-sm font-medium text-gray-800 dark:text-zinc-300"
+                className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
               >
                 피드
                 <Tabs.Indicator />
               </Tabs.Tab>
               <Tabs.Tab
                 id="qna"
-                className="flex-1 py-3 text-center text-sm font-medium text-gray-800 dark:text-zinc-300"
+                className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
               >
                 Q&A
                 <Tabs.Indicator />
@@ -674,7 +674,7 @@ function ClubInfoTab({
     { label: '동아리장', value: club.leaderName || '-' },
     { label: '활동 장소', value: club.location || '-' },
     {
-      label: '주간 활동',
+      label: '주간활동 횟수',
       value:
         club.weeklyActivity ??
         (club.weeklyActiveFrequency != null ? `${club.weeklyActiveFrequency}회` : '-'),
@@ -897,12 +897,12 @@ function ClubInfoTab({
             </div>
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-                주간 활동 횟수
+                주간활동 횟수
               </label>
               <div
                 className="flex flex-wrap gap-2"
                 role="radiogroup"
-                aria-label="주간 활동 횟수 (하나만 선택)"
+                aria-label="주간활동 횟수 (하나만 선택)"
               >
                 {([1, 2, 3, 4, 5, 6, 7] as const).map((n) => {
                   const isSelected = weeklyActiveFrequency === n;

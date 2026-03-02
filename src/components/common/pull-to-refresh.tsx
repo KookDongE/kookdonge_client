@@ -21,14 +21,19 @@ export function PullToRefresh({ children, fullScreen = false }: PullToRefreshPro
 
   const contentHeight = fullScreen ? '100dvh' : 'calc(100dvh - 3.5rem - 4rem)';
 
-  const onTouchStart = useCallback((e: React.TouchEvent) => {
-    const el = scrollRef.current;
-    if (!el || el.scrollTop > 0) return;
-    startYRef.current = e.touches[0].clientY;
-  }, []);
+  const onTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      if (fullScreen) return;
+      const el = scrollRef.current;
+      if (!el || el.scrollTop > 0) return;
+      startYRef.current = e.touches[0].clientY;
+    },
+    [fullScreen]
+  );
 
   const onTouchMove = useCallback(
     (e: React.TouchEvent) => {
+      if (fullScreen) return;
       const el = scrollRef.current;
       if (!el || el.scrollTop > 0 || isRefreshing) return;
       const y = e.touches[0].clientY;
@@ -36,10 +41,11 @@ export function PullToRefresh({ children, fullScreen = false }: PullToRefreshPro
       const distance = Math.min(delta * 0.5, MAX_PULL);
       setPullDistance(distance);
     },
-    [isRefreshing]
+    [fullScreen, isRefreshing]
   );
 
   const onTouchEnd = useCallback(() => {
+    if (fullScreen) return;
     if (pullDistance >= PULL_THRESHOLD && !isRefreshing) {
       setIsRefreshing(true);
       setPullDistance(0);
@@ -48,11 +54,12 @@ export function PullToRefresh({ children, fullScreen = false }: PullToRefreshPro
     } else {
       setPullDistance(0);
     }
-  }, [pullDistance, isRefreshing, router]);
+  }, [fullScreen, pullDistance, isRefreshing, router]);
 
   return (
     <div
       ref={scrollRef}
+      data-scroll-container
       className="pb-safe h-full overflow-y-auto overscroll-y-none"
       style={{ height: contentHeight }}
       onTouchStart={onTouchStart}

@@ -10,12 +10,9 @@ import { useAuthStore } from '@/features/auth/store';
 
 import { notificationKeys } from './hooks';
 
-const DEDUPE_MS = 3000;
+const DEDUPE_MS = 8000;
 
-/**
- * 앱이 포그라운드일 때 FCM Data Message를 수신하면 알림 목록/배지 쿼리를 무효화하고
- * 토스트로 알림 내용을 보여준다. 동일 알림 중복 표시 방지.
- */
+/** 동일 알림 중복 토스트 방지: 최근 표시한 키·시간은 토스트를 띄운 뒤에만 갱신 */
 export function FcmForegroundHandler() {
   const queryClient = useQueryClient();
   const accessToken = useAuthStore((s) => s.accessToken);
@@ -28,16 +25,17 @@ export function FcmForegroundHandler() {
       const data = payload.data || {};
       const title = data.title || '알림';
       const body = data.body || data.message || '';
-      const key = `${title}|${body}|${data.messageId ?? ''}`;
+      const key = `${title}|${body}|${data.messageId ?? ''}`.trim() || String(Date.now());
       const now = Date.now();
       const isDuplicate = key === lastKeyRef.current && now - lastTimeRef.current < DEDUPE_MS;
-      lastKeyRef.current = key;
-      lastTimeRef.current = now;
 
       queryClient.invalidateQueries({ queryKey: notificationKeys.all });
-      if (!isDuplicate && (title || body)) {
-        toast.info(body ? `${title}\n${body}` : title);
-      }
+
+      if (isDuplicate || !(title || body)) return;
+
+      lastKeyRef.current = key;
+      lastTimeRef.current = now;
+      toast.info(body ? `${title}\n${body}` : title);
     });
     return () => {
       unsubscribe?.();

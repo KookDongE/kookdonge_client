@@ -127,7 +127,6 @@ function RankingSection({ returnTo }: { returnTo?: string }) {
             <button
               type="button"
               role="tab"
-              aria-pressed={activeTab === 'view'}
               aria-selected={activeTab === 'view'}
               onClick={(e) => {
                 e.stopPropagation();
@@ -144,7 +143,6 @@ function RankingSection({ returnTo }: { returnTo?: string }) {
             <button
               type="button"
               role="tab"
-              aria-pressed={activeTab === 'like'}
               aria-selected={activeTab === 'like'}
               onClick={(e) => {
                 e.stopPropagation();
@@ -255,13 +253,19 @@ function ClubFilters() {
   return <SearchFilterBar stickyHideOnScroll placeholder="어떤 동아리를 찾으시나요?" />;
 }
 
+const VALID_SORT_VALUES = ['name,asc', 'popularity', 'viewCount'] as const;
+function normalizeSort(sort: string | null): string {
+  if (!sort) return 'name,asc';
+  return VALID_SORT_VALUES.includes(sort as (typeof VALID_SORT_VALUES)[number]) ? sort : 'name,asc';
+}
+
 function ClubListSection({ returnTo }: { returnTo?: string }) {
-  const [category] = useQueryState('category', parseAsString.withDefault(''));
-  const [status] = useQueryState('status', parseAsString.withDefault(''));
-  const [clubType] = useQueryState('clubType', parseAsString.withDefault(''));
-  const [college] = useQueryState('college', parseAsString.withDefault(''));
+  const [category] = useQueryState('category', parseAsString);
+  const [status] = useQueryState('status', parseAsString);
+  const [clubType] = useQueryState('clubType', parseAsString);
+  const [college] = useQueryState('college', parseAsString);
   const [sort] = useQueryState('sort', parseAsString.withDefault('name,asc'));
-  const [query] = useQueryState('q', parseAsString.withDefault(''));
+  const [query] = useQueryState('q', parseAsString);
   const [deleteModalClubId, setDeleteModalClubId] = useState<number | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -273,8 +277,8 @@ function ClubListSection({ returnTo }: { returnTo?: string }) {
         ? (college as College)
         : undefined,
     recruitmentStatus: status && status !== 'ALL' ? (status as RecruitmentStatus) : undefined,
-    query: query || undefined,
-    sort: sort || 'name,asc',
+    query: (query && query.trim()) || undefined,
+    sort: normalizeSort(sort ?? null),
     size: 20,
   });
 
