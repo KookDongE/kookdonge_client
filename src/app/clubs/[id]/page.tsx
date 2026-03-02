@@ -271,7 +271,9 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
     <div className="min-w-0 space-y-4 p-4">
       {hasIntroduction && (
         <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
-          <h3 className="sr-only">동아리 소개</h3>
+          <h3 className="mb-3 px-4 pt-4 font-semibold text-zinc-900 dark:text-zinc-100">
+            동아리 소개
+          </h3>
           {contentImageUrl && (
             <div className="relative aspect-square w-full bg-zinc-100 dark:bg-zinc-800">
               <Image
