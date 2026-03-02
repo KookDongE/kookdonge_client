@@ -36,7 +36,9 @@ function QuestionsTabContent() {
               key={qna.id}
               onClick={() =>
                 router.push(
-                  qna.clubId ? `/clubs/${qna.clubId}?tab=qna&questionId=${qna.id}` : '/mypage/questions'
+                  qna.clubId
+                    ? `/clubs/${qna.clubId}?tab=qna&questionId=${qna.id}`
+                    : '/mypage/questions'
                 )
               }
               className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700/80"
@@ -108,7 +110,9 @@ function AnswersTabContent() {
               key={qna.id}
               onClick={() =>
                 router.push(
-                  qna.clubId ? `/clubs/${qna.clubId}?tab=qna&questionId=${qna.id}` : '/mypage/questions'
+                  qna.clubId
+                    ? `/clubs/${qna.clubId}?tab=qna&questionId=${qna.id}`
+                    : '/mypage/questions'
                 )
               }
               className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700/80"
@@ -163,7 +167,7 @@ function QuestionsPageContent() {
         className="w-full"
         aria-label="Q&A 탭"
       >
-        <Tabs.ListContainer className="bg-white px-4 dark:bg-zinc-900">
+        <Tabs.ListContainer className="bg-[var(--card)] px-4">
           <Tabs.List aria-label="Q&A 탭" className="flex w-full">
             <Tabs.Tab
               id="questions"

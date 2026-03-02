@@ -87,31 +87,31 @@ export default function NotificationSettingsPage() {
             </div>
 
             {isSupported && (
-              <div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
-                <div className="mb-2 flex items-center justify-between gap-4">
-                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                    브라우저 알림 권한
-                  </p>
-                  {permission !== 'granted' && (
+              <div className="flex flex-col rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
+                <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                  브라우저 알림 권한
+                </p>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                  {permission === 'granted'
+                    ? '알림 권한이 허용되어 있습니다.'
+                    : permission === 'denied'
+                      ? '알림이 차단되어 있습니다. 브라우저 설정 또는 앱 알림 설정에 들어가서 이 사이트 알림을 허용해 주세요.'
+                      : '알림을 받으려면 아래 버튼으로 권한을 허용해 주세요.'}
+                </p>
+                {error && (
+                  <p className="mt-2 text-xs text-red-500 dark:text-red-400">{error.message}</p>
+                )}
+                {permission !== 'granted' && (
+                  <div className="mt-3 flex justify-end">
                     <button
                       type="button"
                       onClick={() => requestPermissionAndRegister()}
                       disabled={isPermissionLoading}
-                      className="shrink-0 rounded-lg bg-sky-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-sky-600 disabled:opacity-50 dark:bg-sky-600 dark:hover:bg-sky-700"
+                      className="rounded-lg bg-sky-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-sky-600 disabled:opacity-50 dark:bg-sky-600 dark:hover:bg-sky-700"
                     >
                       {isPermissionLoading ? '처리 중...' : '허용'}
                     </button>
-                  )}
-                </div>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                  {permission === 'granted'
-                    ? '알림 권한이 허용되어 있습니다.'
-                    : permission === 'denied'
-                      ? '알림이 차단되어 있습니다. 브라우저 설정에서 이 사이트의 알림을 허용해 주세요.'
-                      : '알림을 받으려면 우측 버튼으로 권한을 허용해 주세요.'}
-                </p>
-                {error && (
-                  <p className="mt-2 text-xs text-red-500 dark:text-red-400">{error.message}</p>
+                  </div>
                 )}
               </div>
             )}

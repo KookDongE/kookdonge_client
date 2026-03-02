@@ -540,7 +540,7 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
       </div>
       <ClubHeader clubId={clubId} />
       <Tabs selectedKey={tab} onSelectionChange={(key) => setTab(key as string)} className="w-full">
-        <Tabs.ListContainer className="bg-white px-4 dark:bg-zinc-900">
+        <Tabs.ListContainer className="bg-[var(--card)] px-4">
           <Tabs.List aria-label="동아리 정보" className="flex w-full">
             <Tabs.Tab
               id="info"

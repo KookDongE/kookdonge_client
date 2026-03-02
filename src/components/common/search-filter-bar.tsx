@@ -149,7 +149,15 @@ export function SearchFilterBar({
     };
     const handleScroll = () => closeDropdowns();
     const handlePointerDown = (e: PointerEvent) => {
-      if (filterBarRef.current?.contains(e.target as Node)) return;
+      const target = e.target as Node;
+      if (filterBarRef.current?.contains(target)) return;
+      // 드롭다운(팝오버/리스트박스) 안을 클릭한 경우에는 닫지 않음 — 포털이라 filterBarRef 밖에 있음
+      if (
+        (target as HTMLElement).closest?.(
+          '[role="listbox"], [role="dialog"], [data-slot="popover"], [data-slot="listbox"]'
+        )
+      )
+        return;
       closeDropdowns();
     };
     scrollEl.addEventListener('scroll', handleScroll, { passive: true, capture: true });

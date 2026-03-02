@@ -450,16 +450,19 @@ function HomeContent() {
     const nav = performance.getEntriesByType?.('navigation')?.[0] as
       | PerformanceNavigationTiming
       | undefined;
-    if (
-      nav?.type === 'reload' &&
-      (searchParams.get('category') ??
-        searchParams.get('status') ??
-        searchParams.get('clubType') ??
-        searchParams.get('college') ??
-        searchParams.get('q') ??
-        searchParams.get('sort'))
-    ) {
-      router.replace('/home');
+    const isReload =
+      nav?.type === 'reload' ||
+      (typeof performance !== 'undefined' &&
+        (performance as Performance & { navigation?: { type: number } }).navigation?.type === 1);
+    const hasFilter =
+      searchParams.get('category') ??
+      searchParams.get('status') ??
+      searchParams.get('clubType') ??
+      searchParams.get('college') ??
+      searchParams.get('q') ??
+      (searchParams.get('sort') && searchParams.get('sort') !== 'name,asc');
+    if (isReload && hasFilter) {
+      router.replace('/home', { scroll: false });
     }
   }, [pathname, router, searchParams]);
 

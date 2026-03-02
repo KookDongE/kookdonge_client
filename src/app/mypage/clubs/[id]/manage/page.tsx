@@ -263,7 +263,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   return (
     <>
       {/* 스크롤 시 상단 고정: 뒤로가기 + 헤더 + 탭 리스트 */}
-      <div className="sticky top-0 z-30 bg-white dark:bg-zinc-900">
+      <div className="sticky top-0 z-30 bg-[var(--card)]">
         {/* 뒤로가기 */}
         <div className="flex items-center gap-2 px-4 pt-3 pb-1">
           <button
@@ -331,7 +331,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
           onSelectionChange={(key) => setTab(key as string)}
           className="w-full"
         >
-          <Tabs.ListContainer className="bg-white px-4 dark:bg-zinc-900">
+          <Tabs.ListContainer className="bg-[var(--card)] px-4">
             <Tabs.List aria-label="동아리 정보" className="flex w-full">
               <Tabs.Tab
                 id="info"
