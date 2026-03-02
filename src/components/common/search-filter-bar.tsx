@@ -108,7 +108,7 @@ export function SearchFilterBar({
   const [sort, setSort] = useQueryState('sort', parseAsString.withDefault('name,asc'));
   const [query, setQuery] = useQueryState('q', parseAsString);
   const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollYRef = useRef(0);
   const filterBarRef = useRef<HTMLDivElement>(null);
 
   const categoryVal = category ?? 'ALL';
@@ -168,7 +168,7 @@ export function SearchFilterBar({
     };
   }, []);
 
-  // 스크롤 시 필터바 숨김 — 실제 스크롤은 [data-scroll-container](PullToRefresh 내부)에서 발생
+  // 스크롤 시 필터바 숨김(애니메이션) — 실제 스크롤은 [data-scroll-container](PullToRefresh 내부)에서 발생
   useEffect(() => {
     if (!stickyHideOnScroll) return;
     const scrollEl =
@@ -177,15 +177,22 @@ export function SearchFilterBar({
       document.documentElement;
     const getScrollY = () =>
       scrollEl === document.documentElement ? window.scrollY : (scrollEl as HTMLElement).scrollTop;
+    const THRESHOLD = 60;
     const handleScroll = () => {
       const currentScrollY = getScrollY();
-      if (currentScrollY > lastScrollY && currentScrollY > 80) setIsVisible(false);
-      else if (currentScrollY < lastScrollY) setIsVisible(true);
-      setLastScrollY(currentScrollY);
+      const last = lastScrollYRef.current;
+      if (currentScrollY <= THRESHOLD) {
+        setIsVisible(true);
+      } else if (currentScrollY > last && currentScrollY > THRESHOLD) {
+        setIsVisible(false);
+      } else if (currentScrollY < last) {
+        setIsVisible(true);
+      }
+      lastScrollYRef.current = currentScrollY;
     };
     scrollEl.addEventListener('scroll', handleScroll, { passive: true });
     return () => scrollEl.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY, stickyHideOnScroll]);
+  }, [stickyHideOnScroll]);
 
   const handleCategoryChange = (value: Key | null) => {
     setCategory(value === 'ALL' || value === null ? null : (value as string));
@@ -209,7 +216,7 @@ export function SearchFilterBar({
       ref={filterBarRef}
       className={
         stickyHideOnScroll
-          ? `${bgClass} sticky top-0 z-30 border-y-0 px-4 pt-0 pb-2 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full opacity-0'} ${className}`
+          ? `${bgClass} sticky top-0 z-30 border-y-0 px-4 pt-0 pb-2 transition-[transform,opacity] duration-300 ease-out ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'} ${className}`
           : `border-b border-zinc-200 ${bgClass} px-4 py-2 dark:border-zinc-700 ${className}`
       }
     >
