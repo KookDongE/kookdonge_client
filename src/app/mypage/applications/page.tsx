@@ -2,6 +2,7 @@
 
 import { Suspense } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 import { Chip, Spinner } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
@@ -34,9 +35,10 @@ function MyApplicationsListContent() {
         ) : (
           <div className="space-y-3">
             {filtered.map((app) => (
-              <div
+              <Link
                 key={app.id}
-                className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800"
+                href={`/mypage/applications/${app.id}`}
+                className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700"
               >
                 <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
                   {app.image ? (
@@ -81,7 +83,7 @@ function MyApplicationsListContent() {
                     </Chip>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

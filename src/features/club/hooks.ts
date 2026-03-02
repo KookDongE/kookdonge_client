@@ -318,3 +318,11 @@ export function useMyApplications() {
     queryFn: () => clubApi.getMyApplications(),
   });
 }
+
+/** 내 동아리 신청 목록 (전체 필드). GET /api/clubs/requests/my — 상세 페이지용 */
+export function useMyRequests() {
+  return useQuery({
+    queryKey: [...clubKeys.all, 'my-requests'],
+    queryFn: () => clubApi.getMyRequests(),
+  });
+}
