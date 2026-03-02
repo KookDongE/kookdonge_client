@@ -1229,56 +1229,64 @@ function ClubInfoTab({
                 </Select.Popover>
               </Select>
             </div>
-            <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="min-w-0">
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-                  모집 시작일
-                </label>
-                <input
-                  type="date"
-                  max={recruitmentEndDate || undefined}
-                  value={recruitmentStartDate}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    setRecruitmentStartDate(v);
-                    if (recruitmentEndDate && v > recruitmentEndDate) setRecruitmentEndDate(v);
-                  }}
-                  className="box-border w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 [&::-webkit-date-and-time-value]:text-left"
-                />
-                <label className="mt-2 mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-                  모집 시작 시간
-                </label>
-                <input
-                  type="time"
-                  value={recruitmentStartTime}
-                  onChange={(e) => setRecruitmentStartTime(e.target.value)}
-                  className="box-border w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
-                />
+            <div className="space-y-4">
+              <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="min-w-0">
+                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                    모집 시작일
+                  </label>
+                  <input
+                    type="date"
+                    max={recruitmentEndDate || undefined}
+                    value={recruitmentStartDate}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setRecruitmentStartDate(v);
+                      if (recruitmentEndDate && v > recruitmentEndDate) setRecruitmentEndDate(v);
+                    }}
+                    className="box-border w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 [&::-webkit-date-and-time-value]:text-left"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                    모집 시작 시간
+                  </label>
+                  <input
+                    type="time"
+                    value={recruitmentStartTime}
+                    onChange={(e) => setRecruitmentStartTime(e.target.value)}
+                    className="box-border w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                  />
+                </div>
               </div>
-              <div className="min-w-0">
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-                  모집 종료일
-                </label>
-                <input
-                  type="date"
-                  min={recruitmentStartDate || undefined}
-                  value={recruitmentEndDate}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    if (recruitmentStartDate && v < recruitmentStartDate) return;
-                    setRecruitmentEndDate(v);
-                  }}
-                  className="box-border w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 [&::-webkit-date-and-time-value]:text-left"
-                />
-                <label className="mt-2 mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-                  모집 종료 시간
-                </label>
-                <input
-                  type="time"
-                  value={recruitmentEndTime}
-                  onChange={(e) => setRecruitmentEndTime(e.target.value)}
-                  className="box-border w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
-                />
+              <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="min-w-0">
+                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                    모집 종료일
+                  </label>
+                  <input
+                    type="date"
+                    min={recruitmentStartDate || undefined}
+                    value={recruitmentEndDate}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (recruitmentStartDate && v < recruitmentStartDate) return;
+                      setRecruitmentEndDate(v);
+                    }}
+                    className="box-border w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 [&::-webkit-date-and-time-value]:text-left"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                    모집 종료 시간
+                  </label>
+                  <input
+                    type="time"
+                    value={recruitmentEndTime}
+                    onChange={(e) => setRecruitmentEndTime(e.target.value)}
+                    className="box-border w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                  />
+                </div>
               </div>
             </div>
             <div>
