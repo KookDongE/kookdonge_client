@@ -444,8 +444,12 @@ function HomeContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const didInitialClearCheckRef = useRef(false);
+  const hiddenAtRef = useRef<number | null>(null);
+
+  const FILTER_CLEAR_PENDING_KEY = 'filterClearPending_home';
 
   // 새로고침 시 필터 초기화 (마운트 후 1회만 검사 → 드롭다운 선택 시에는 초기화되지 않음)
+  // 앱뷰: 이전 문서가 pagehide 시 남긴 sessionStorage 플래그가 있으면 초기화
   useEffect(() => {
     if (typeof window === 'undefined' || pathname !== '/home') return;
     if (didInitialClearCheckRef.current) return;
@@ -457,12 +461,37 @@ function HomeContent() {
       searchParams.get('college') ??
       searchParams.get('q') ??
       (searchParams.get('sort') && searchParams.get('sort') !== 'name,asc');
-    if (hasFilter) {
-      router.replace('/home', { scroll: false });
+    const pendingFromReload =
+      typeof sessionStorage !== 'undefined' && sessionStorage.getItem(FILTER_CLEAR_PENDING_KEY);
+    if (hasFilter || pendingFromReload) {
+      if (pendingFromReload) sessionStorage.removeItem(FILTER_CLEAR_PENDING_KEY);
+      if (hasFilter) router.replace('/home', { scroll: false });
     }
   }, [pathname, router, searchParams]);
 
-  // 앱뷰/WebView 풀리프레시: bfcache 복원 시에는 리마운트가 안 되므로 pageshow(persisted)에서 필터 초기화
+  // 앱뷰 풀리프레시: 페이지가 사라지기 직전에(필터가 있을 때만) 플래그 설정 → 새 문서 로드 시 위 effect에서 초기화
+  useEffect(() => {
+    const handlePagehide = () => {
+      try {
+        if (window.location.pathname !== '/home') return;
+        const params = new URLSearchParams(window.location.search);
+        const hasFilter =
+          params.get('category') ??
+          params.get('status') ??
+          params.get('clubType') ??
+          params.get('college') ??
+          params.get('q') ??
+          (params.get('sort') && params.get('sort') !== 'name,asc');
+        if (hasFilter) sessionStorage.setItem(FILTER_CLEAR_PENDING_KEY, '1');
+      } catch {
+        // ignore
+      }
+    };
+    window.addEventListener('pagehide', handlePagehide);
+    return () => window.removeEventListener('pagehide', handlePagehide);
+  }, []);
+
+  // 앱뷰 풀리프레시: bfcache 복원 시 pageshow(persisted)에서 필터 초기화
   useEffect(() => {
     const handlePageshow = (e: PageTransitionEvent) => {
       if (e.persisted !== true) return;
@@ -481,6 +510,33 @@ function HomeContent() {
     };
     window.addEventListener('pageshow', handlePageshow);
     return () => window.removeEventListener('pageshow', handlePageshow);
+  }, [router]);
+
+  // 앱뷰 풀리프레시: 리마운트가 안 되는 WebView는 visibilitychange로 감지 (숨김 → 보임 시 0.8초 이상 지났으면 필터 초기화)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        hiddenAtRef.current = Date.now();
+      }
+      if (document.visibilityState !== 'visible') return;
+      if (typeof window === 'undefined' || window.location.pathname !== '/home') return;
+      const hiddenAt = hiddenAtRef.current;
+      if (hiddenAt == null || Date.now() - hiddenAt < 800) return;
+      hiddenAtRef.current = null;
+      const params = new URLSearchParams(window.location.search);
+      const hasFilter =
+        params.get('category') ??
+        params.get('status') ??
+        params.get('clubType') ??
+        params.get('college') ??
+        params.get('q') ??
+        (params.get('sort') && params.get('sort') !== 'name,asc');
+      if (hasFilter) {
+        router.replace('/home', { scroll: false });
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [router]);
 
   const returnTo =
