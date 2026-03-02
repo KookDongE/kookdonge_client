@@ -50,7 +50,9 @@ export default function SplashPage() {
     // 로그인 상태면 최소 1초 스플래시 후 홈으로
     if (accessToken) {
       const timer = redirectAfterMinSplash('/home');
-      return () => timer !== undefined && clearTimeout(timer);
+      return () => {
+        if (timer !== undefined) clearTimeout(timer);
+      };
     }
     // 비로그인일 수 있으나, 재수화가 아직 안 끝났을 수 있음 → 잠시 후 한 번 더 확인 (이 경로는 이미 2.6초 대기로 최소 1초 충족)
     const timer = setTimeout(() => {
