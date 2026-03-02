@@ -20,10 +20,10 @@ const CATEGORY_LABEL: Record<ClubCategory, string> = {
 };
 
 const TYPE_LABEL: Record<ClubType, string> = {
-  CENTRAL: '중앙',
-  DEPARTMENTAL: '학과',
-  ACADEMIC_SOCIETY: '학술동아리',
-  CLUB: '동아리',
+  CENTRAL: '중앙동아리',
+  DEPARTMENTAL: '학과동아리',
+  ACADEMIC_SOCIETY: '학회',
+  CLUB: '소모임',
 };
 
 const STATUS_CONFIG: Record<RecruitmentStatus, { label: string; className: string }> = {
@@ -101,7 +101,7 @@ export function ClubCard({
       <div className="flex min-w-0 flex-1 flex-col justify-center p-3">
         <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
           <span
-            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider ${status.className}`}
+            className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium ${status.className}`}
           >
             {status.label}
           </span>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { AdminClubListItem, ClubListRes } from '@/types/api';
@@ -57,6 +57,38 @@ export function AdminClubCard({
     }, 150);
   };
 
+  // 스와이프 해제 함수
+  const resetSwipe = () => {
+    setDragX(0);
+    setIsSwiped(false);
+  };
+
+  // 다른 행동 시 스와이프 해제
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (isSwiped) {
+        const target = e.target as HTMLElement;
+        // 버튼 영역이 아니면 스와이프 해제
+        if (!target.closest('[data-swipe-button]')) {
+          resetSwipe();
+        }
+      }
+    };
+    const handleScroll = () => {
+      if (isSwiped) {
+        resetSwipe();
+      }
+    };
+    if (isSwiped) {
+      document.addEventListener('click', handleClick);
+      window.addEventListener('scroll', handleScroll);
+      return () => {
+        document.removeEventListener('click', handleClick);
+        window.removeEventListener('scroll', handleScroll);
+      };
+    }
+  }, [isSwiped]);
+
   const handleCardClick = (e: React.MouseEvent) => {
     // 스와이프된 상태면 클릭 무시
     if (isSwiped) {
@@ -84,16 +116,14 @@ export function AdminClubCard({
     e.preventDefault();
     e.stopPropagation();
     onToggleVisibility(club.id, club.isHidden);
-    setDragX(0);
-    setIsSwiped(false);
+    resetSwipe();
   };
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     onDelete(club.id);
-    setDragX(0);
-    setIsSwiped(false);
+    resetSwipe();
   };
 
   // AdminClubListItem을 ClubListRes로 변환
@@ -141,6 +171,7 @@ export function AdminClubCard({
           type="button"
           onClick={handleHideClick}
           disabled={!isSwiped}
+          data-swipe-button
           className="flex flex-col items-center justify-center gap-1 rounded-2xl bg-gray-200 px-2.5 py-1.5 text-gray-700 transition-colors hover:bg-gray-300 disabled:pointer-events-none dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600"
         >
           <svg
@@ -163,6 +194,7 @@ export function AdminClubCard({
           type="button"
           onClick={handleDeleteClick}
           disabled={!isSwiped}
+          data-swipe-button
           className="flex flex-col items-center justify-center gap-1 rounded-2xl bg-red-100 px-2.5 py-1.5 text-red-600 transition-colors hover:bg-red-200 disabled:pointer-events-none dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-950/50"
         >
           <svg

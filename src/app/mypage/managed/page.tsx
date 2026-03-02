@@ -70,10 +70,46 @@ function ManagedClubsListContent() {
                   <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
                     {club.name}
                   </h4>
-                  <div className="mt-1">
+                  <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                    {club.recruitmentStatus && (
+                      <Chip
+                        size="sm"
+                        color={
+                          club.recruitmentStatus === 'RECRUITING'
+                            ? 'success'
+                            : club.recruitmentStatus === 'SCHEDULED'
+                              ? 'primary'
+                              : 'default'
+                        }
+                        variant="soft"
+                      >
+                        {club.recruitmentStatus === 'RECRUITING'
+                          ? '모집중'
+                          : club.recruitmentStatus === 'SCHEDULED'
+                            ? '모집예정'
+                            : '모집마감'}
+                      </Chip>
+                    )}
                     <Chip size="sm" color="accent" variant="soft">
                       {TYPE_LABEL[club.type]}
                     </Chip>
+                    {club.category && (
+                      <Chip size="sm" color="primary" variant="soft">
+                        {club.category === 'PERFORMING_ARTS'
+                          ? '공연예술'
+                          : club.category === 'LIBERAL_ARTS_SERVICE'
+                            ? '교양봉사'
+                            : club.category === 'EXHIBITION_ARTS'
+                              ? '전시창작'
+                              : club.category === 'RELIGION'
+                                ? '종교'
+                                : club.category === 'BALL_LEISURE'
+                                  ? '구기레저'
+                                  : club.category === 'PHYSICAL_MARTIAL_ARTS'
+                                    ? '체육무예'
+                                    : '학술'}
+                      </Chip>
+                    )}
                   </div>
                 </div>
                 <svg

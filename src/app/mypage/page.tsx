@@ -93,6 +93,15 @@ function ProfileSection() {
 
 function AdminSection() {
   const { data: managedClubs, isLoading: clubsLoading } = useManagedClubs();
+  const CATEGORY_LABEL: Record<string, string> = {
+    PERFORMING_ARTS: '공연예술',
+    LIBERAL_ARTS_SERVICE: '교양봉사',
+    EXHIBITION_ARTS: '전시창작',
+    RELIGION: '종교',
+    BALL_LEISURE: '구기레저',
+    PHYSICAL_MARTIAL_ARTS: '체육무예',
+    ACADEMIC: '학술',
+  };
 
   // 관리 중인 동아리가 없으면 섹션을 표시하지 않음
   if (!managedClubs || managedClubs.length === 0) {
@@ -247,17 +256,17 @@ function PendingQuestionsSection() {
 }
 
 /** 질문 목록 (1·2번: 내가 단 질문 전체 + 답변완료 포함) - GET /api/clubs/questions/me */
-function QuestionsListSection() {
+function QnAListSection() {
   const router = useRouter();
-  const { data: questionsData, isLoading } = useMyQuestions({ page: 0, size: 5 });
+  const { data: questionsData, isLoading } = useMyQuestions({ page: 0, size: 20 });
   const list = questionsData?.content ?? [];
   const getItemHref = (qna: (typeof list)[0]) =>
-    qna.clubId ? `/clubs/${qna.clubId}` : '/mypage/questions';
+    qna.clubId ? `/clubs/${qna.clubId}?tab=qna&questionId=${qna.id}` : '/mypage/questions';
 
   return (
     <div className="px-4 py-5">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">질문 목록</h3>
+        <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">Q&A 목록</h3>
         <Link
           href="/mypage/questions"
           className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
@@ -317,76 +326,6 @@ function QuestionsListSection() {
   );
 }
 
-/** 답변 목록 (3번: 답변 대기 중인 질문) - GET /api/clubs/questions/me 후 answer 없는 것만 표시 */
-function AnsweredListSection() {
-  const router = useRouter();
-  const { data: questionsData, isLoading } = useMyQuestions({ page: 0, size: 20 });
-  const pending = (questionsData?.content ?? []).filter((q) => !q.answer);
-
-  return (
-    <div className="px-4 py-5">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">답변 목록</h3>
-        <Link
-          href="/mypage/questions/pending"
-          className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-        >
-          전체보기
-        </Link>
-      </div>
-      {isLoading ? (
-        <div className="flex justify-center py-8">
-          <Spinner />
-        </div>
-      ) : pending.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-12 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
-          <p>답변 대기 중인 질문이 없습니다.</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {pending.slice(0, PREVIEW_LIMIT).map((qna) => (
-            <button
-              type="button"
-              key={qna.id}
-              onClick={() => router.push(qna.clubId ? `/clubs/${qna.clubId}` : '/mypage/questions')}
-              className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700/80"
-            >
-              <div className="flex items-start gap-3">
-                <Chip size="sm" color="accent" variant="primary" className="shrink-0">
-                  Q
-                </Chip>
-                <div className="min-w-0 flex-1">
-                  <p className="line-clamp-1 text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                    {qna.question}
-                  </p>
-                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                    답변 대기중
-                    {qna.clubName ? ` · ${qna.clubName}` : ''}
-                    {' · '}
-                    {new Date(qna.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-                <svg
-                  className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 function LikedClubsSection() {
   const { data: likedClubs, isLoading } = useLikedClubs();
@@ -666,9 +605,8 @@ export default function MyPage() {
       <ClubApplyButton />
       <AdminSection />
       <MyApplicationsSection />
-      <QuestionsListSection />
+      <QnAListSection />
       <PendingQuestionsSection />
-      <AnsweredListSection />
       <InterestedClubsSection />
       <LikedClubsSection />
     </div>

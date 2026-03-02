@@ -634,10 +634,6 @@ function ClubInfoTab({
     { label: '한 줄 소개', value: club.summary || club.description || '-' },
     { label: '카테고리', value: CATEGORY_LABEL[club.category] },
     { label: '동아리 유형', value: TYPE_LABEL[club.type] },
-    {
-      label: '모집 기간',
-      value: `${formatDate(club.recruitmentStartDate)} ~ ${formatDate(club.recruitmentEndDate)}`,
-    },
     { label: '대상', value: club.targetGraduate || '-' },
     { label: '동아리장', value: club.leaderName || '-' },
     { label: '활동 장소', value: club.location || '-' },
@@ -647,6 +643,7 @@ function ClubInfoTab({
         club.weeklyActivity ??
         (club.weeklyActiveFrequency != null ? `${club.weeklyActiveFrequency}회` : '-'),
     },
+    { label: '휴학생 지원 가능', value: club.allowLeaveOfAbsence ? '가능' : '불가능' },
   ];
 
   const valueBoxClass =
@@ -787,8 +784,8 @@ function ClubInfoTab({
                   <Select.Value />
                   <Select.Indicator />
                 </Select.Trigger>
-                <Select.Popover className="club-manage-dropdown bg-white dark:bg-zinc-800">
-                  <ListBox className="club-manage-dropdown-list bg-white dark:bg-zinc-800">
+                <Select.Popover className="club-manage-dropdown bg-white dark:!bg-[#18181B]">
+                  <ListBox className="club-manage-dropdown-list bg-white dark:!bg-[#18181B]">
                     {CATEGORY_OPTIONS.map((opt) => (
                       <ListBox.Item
                         key={opt.value}
@@ -812,8 +809,8 @@ function ClubInfoTab({
                   <Select.Value />
                   <Select.Indicator />
                 </Select.Trigger>
-                <Select.Popover className="club-manage-dropdown bg-white dark:bg-zinc-800">
-                  <ListBox className="club-manage-dropdown-list bg-white dark:bg-zinc-800">
+                <Select.Popover className="club-manage-dropdown bg-white dark:!bg-[#18181B]">
+                  <ListBox className="club-manage-dropdown-list bg-white dark:!bg-[#18181B]">
                     {TYPE_OPTIONS.map((opt) => (
                       <ListBox.Item
                         key={opt.value}
@@ -890,6 +887,24 @@ function ClubInfoTab({
                     </button>
                   );
                 })}
+              </div>
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                휴학생 지원 가능 여부
+              </label>
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={allowLeaveOfAbsence}
+                    onChange={(e) => setAllowLeaveOfAbsence(e.target.checked)}
+                    className="h-5 w-5 rounded border-zinc-300 text-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-zinc-600 dark:bg-zinc-800"
+                  />
+                  <span className="text-sm text-gray-700 dark:text-zinc-300">
+                    휴학생 지원 가능
+                  </span>
+                </label>
               </div>
             </div>
           </div>
@@ -1169,8 +1184,8 @@ function ClubInfoTab({
                   <Select.Value />
                   <Select.Indicator />
                 </Select.Trigger>
-                <Select.Popover className="club-manage-dropdown bg-white dark:bg-zinc-800">
-                  <ListBox className="club-manage-dropdown-list bg-white dark:bg-zinc-800">
+                <Select.Popover className="club-manage-dropdown bg-white dark:!bg-[#18181B]">
+                  <ListBox className="club-manage-dropdown-list bg-white dark:!bg-[#18181B]">
                     {Object.entries(STATUS_CONFIG).map(([value, config]) => (
                       <ListBox.Item
                         key={value}
@@ -1185,37 +1200,39 @@ function ClubInfoTab({
                 </Select.Popover>
               </Select>
             </div>
-            <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-                모집 시작일
-              </label>
-              <input
-                type="date"
-                max={recruitmentEndDate || undefined}
-                value={recruitmentStartDate}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setRecruitmentStartDate(v);
-                  if (recruitmentEndDate && v > recruitmentEndDate) setRecruitmentEndDate(v);
-                }}
-                className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
-              />
-            </div>
-            <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-                모집 종료일
-              </label>
-              <input
-                type="date"
-                min={recruitmentStartDate || undefined}
-                value={recruitmentEndDate}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  if (recruitmentStartDate && v < recruitmentStartDate) return;
-                  setRecruitmentEndDate(v);
-                }}
-                className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                  모집 시작일
+                </label>
+                <input
+                  type="date"
+                  max={recruitmentEndDate || undefined}
+                  value={recruitmentStartDate}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setRecruitmentStartDate(v);
+                    if (recruitmentEndDate && v > recruitmentEndDate) setRecruitmentEndDate(v);
+                  }}
+                  className="w-full rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                  모집 종료일
+                </label>
+                <input
+                  type="date"
+                  min={recruitmentStartDate || undefined}
+                  value={recruitmentEndDate}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (recruitmentStartDate && v < recruitmentStartDate) return;
+                    setRecruitmentEndDate(v);
+                  }}
+                  className="w-full rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                />
+              </div>
             </div>
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">

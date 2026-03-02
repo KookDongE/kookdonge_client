@@ -136,10 +136,10 @@ export default function SettingsPage() {
         >
           <div className="relative mb-4 h-8 w-24">
             <Image
-              src="/images/wink-logo.svg"
+              src="/images/wink-logo.png"
               alt="WINK"
               fill
-              className="object-contain object-center dark:invert"
+              className="object-contain object-center"
             />
           </div>
           <p className="text-xs leading-relaxed text-zinc-500 dark:text-zinc-500">

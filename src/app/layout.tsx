@@ -105,9 +105,9 @@ export default function RootLayout({
             <QueryProvider>
               <AuthProvider>
                 <FcmForegroundHandler />
-                <div className="relative mx-auto min-h-dvh max-w-md bg-[var(--card)] shadow-xl">
+                <div className="relative mx-auto min-h-dvh max-w-md bg-[var(--card)] shadow-xl overflow-hidden">
                   <Header />
-                  <main className="pb-safe">{children}</main>
+                  <main className="pb-safe overflow-y-auto h-[calc(100dvh-3.5rem-4rem)]">{children}</main>
                   <BottomNav />
                 </div>
                 <Toaster position="top-center" richColors />

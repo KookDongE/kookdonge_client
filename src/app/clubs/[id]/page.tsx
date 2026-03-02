@@ -235,6 +235,7 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
         club.weeklyActivity ??
         (club.weeklyActiveFrequency != null ? `${club.weeklyActiveFrequency}회` : '-'),
     },
+    { label: '휴학생 지원 가능', value: club.allowLeaveOfAbsence ? '가능' : '불가능' },
   ];
 
   return (
