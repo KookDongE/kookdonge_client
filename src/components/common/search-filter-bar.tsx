@@ -123,7 +123,7 @@ export function SearchFilterBar({
   const filterBarRef = useRef<HTMLDivElement>(null);
 
   const categoryVal = category ?? 'ALL';
-  const statusVal = applicationStatusFilter ? (status ?? 'ALL') : (status ?? 'ALL');
+  const statusVal = status ?? 'ALL';
   const clubTypeVal = clubType ?? 'ALL';
   const collegeVal = college ?? 'ALL';
   const sortVal = sort != null && VALID_SORT_SET.has(sort) ? sort : 'name,asc';

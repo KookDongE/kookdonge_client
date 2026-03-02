@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { Button, Chip, Input, ListBox, Select, Spinner, Tabs } from '@heroui/react';
+import { Button, Chip, Input, Spinner, Tabs } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
 
 import { useMyProfile } from '@/features/auth/hooks';
@@ -13,15 +13,6 @@ import { isSystemAdmin } from '@/features/auth/permissions';
 import { useAdminApplications } from '@/features/club/hooks';
 import { DefaultClubImage } from '@/components/common/default-club-image';
 import { SearchFilterBar } from '@/components/common/search-filter-bar';
-
-type ApplicationStatusFilter = 'PENDING' | 'APPROVED' | 'REJECTED' | '';
-
-const STATUS_FILTER_OPTIONS: { value: ApplicationStatusFilter; label: string }[] = [
-  { value: '', label: '전체' },
-  { value: 'PENDING', label: '대기' },
-  { value: 'APPROVED', label: '승인' },
-  { value: 'REJECTED', label: '거절' },
-];
 
 const STATUS_CHIP: Record<string, { label: string; color: 'warning' | 'success' | 'danger' }> = {
   PENDING: { label: '대기', color: 'warning' },
@@ -31,10 +22,7 @@ const STATUS_CHIP: Record<string, { label: string; color: 'warning' | 'success' 
 
 function ApplicationList() {
   const [q] = useQueryState('q', parseAsString.withDefault(''));
-  const [statusFilter, setStatusFilter] = useQueryState(
-    'status',
-    parseAsString.withDefault('').withOptions({ shallow: false })
-  );
+  const [statusFilter] = useQueryState('status', parseAsString);
   const statusParam =
     statusFilter === 'PENDING' || statusFilter === 'APPROVED' || statusFilter === 'REJECTED'
       ? statusFilter
@@ -67,36 +55,6 @@ function ApplicationList() {
 
   return (
     <div className="space-y-3 p-4">
-      <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">상태</span>
-        <Select
-          aria-label="상태 선택"
-          selectedKey={statusFilter || 'all'}
-          onSelectionChange={(key) => {
-            const v = (key ?? 'all') as string;
-            setStatusFilter(v === 'all' ? '' : v);
-          }}
-          className="max-w-[120px]"
-        >
-          <Select.Trigger className="rounded-lg border border-zinc-200 bg-white dark:border-zinc-600 dark:bg-zinc-800">
-            <Select.Value />
-            <Select.Indicator />
-          </Select.Trigger>
-          <Select.Popover>
-            <ListBox>
-              {STATUS_FILTER_OPTIONS.map((opt) => (
-                <ListBox.Item
-                  key={opt.value || 'all'}
-                  id={opt.value || 'all'}
-                  textValue={opt.label}
-                >
-                  {opt.label}
-                </ListBox.Item>
-              ))}
-            </ListBox>
-          </Select.Popover>
-        </Select>
-      </div>
       <div className="space-y-3">
         {filtered.map((app) => {
           const chip = STATUS_CHIP[app.status ?? ''] ?? { label: app.status ?? '-', color: 'warning' as const };
@@ -308,6 +266,7 @@ function AdminPageContent() {
               placeholder="동아리명 검색"
               stickyHideOnScroll={false}
               className="!border-0 !px-0"
+              applicationStatusFilter
             />
           </div>
           <ApplicationList />
