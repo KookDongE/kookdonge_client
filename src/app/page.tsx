@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { motion } from 'framer-motion';
@@ -8,6 +8,8 @@ import { motion } from 'framer-motion';
 import { useAuthStore } from '@/features/auth/store';
 
 const SPLASH_DURATION_MS = 1800;
+/** 스플래시가 최소 이 시간만큼 보이도록 함 */
+const MIN_SPLASH_MS = 1000;
 /** 재수화(토큰 복원)가 끝날 때까지 기다렸다가 로그인 여부 판단 (새로고침 시 로그인 유지) */
 const REHYDRATE_WAIT_MS = 800;
 
@@ -29,15 +31,28 @@ export default function SplashPage() {
   const router = useRouter();
   const accessToken = useAuthStore((s) => s.accessToken);
   const isInitialized = useAuthStore((s) => s.isInitialized);
+  const mountedAtRef = useRef<number | null>(null);
+  if (mountedAtRef.current === null) mountedAtRef.current = Date.now();
 
   useEffect(() => {
     if (!isInitialized) return;
-    // 로그인 상태면 스플래시 없이 바로 홈으로
+    const mountedAt = mountedAtRef.current ?? Date.now();
+    const redirectAfterMinSplash = (path: '/home' | '/login') => {
+      const elapsed = Date.now() - mountedAt;
+      const remaining = Math.max(0, MIN_SPLASH_MS - elapsed);
+      if (remaining > 0) {
+        return setTimeout(() => router.replace(path), remaining);
+      }
+      router.replace(path);
+      return undefined;
+    };
+
+    // 로그인 상태면 최소 1초 스플래시 후 홈으로
     if (accessToken) {
-      router.replace('/home');
-      return;
+      const timer = redirectAfterMinSplash('/home');
+      return () => timer !== undefined && clearTimeout(timer);
     }
-    // 비로그인일 수 있으나, 재수화가 아직 안 끝났을 수 있음 → 잠시 후 한 번 더 확인
+    // 비로그인일 수 있으나, 재수화가 아직 안 끝났을 수 있음 → 잠시 후 한 번 더 확인 (이 경로는 이미 2.6초 대기로 최소 1초 충족)
     const timer = setTimeout(() => {
       const token = useAuthStore.getState().accessToken ?? getStoredAccessToken();
       if (token) {

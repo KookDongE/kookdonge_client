@@ -76,9 +76,45 @@ export default function NotificationsPage() {
     }
   };
 
+  /** API redirectUrl 우선 사용, 없으면 type + clubId로 이동 경로 생성 */
   function goToRedirect(item: NotificationRes) {
-    const url = item.redirectUrl ?? '/home';
-    router.push(url.startsWith('/') ? url : `/${url}`);
+    if (item.redirectUrl?.trim()) {
+      const url = item.redirectUrl.startsWith('/') ? item.redirectUrl : `/${item.redirectUrl}`;
+      router.push(url);
+      return;
+    }
+    const { type, clubId } = item;
+    switch (type) {
+      case 'RECRUITMENT_START':
+      case 'RECRUITMENT_DEADLINE':
+        if (clubId != null) {
+          router.push(`/clubs/${clubId}`);
+          return;
+        }
+        break;
+      case 'QNA_QUESTION_CREATED':
+        if (clubId != null) {
+          router.push(`/mypage/clubs/${clubId}/manage?tab=qna`);
+          return;
+        }
+        break;
+      case 'QNA_ANSWER_CREATED':
+        if (clubId != null) {
+          router.push(`/clubs/${clubId}?tab=qna`);
+          return;
+        }
+        break;
+      case 'CLUB_CREATE_APPROVED':
+      case 'CLUB_CREATE_REJECTED':
+        router.push('/mypage/applications');
+        return;
+      case 'CLUB_CREATE_REQUEST':
+        router.push('/admin');
+        return;
+      default:
+        break;
+    }
+    router.push('/home');
   }
 
   const handleMarkAllAsRead = () => {
