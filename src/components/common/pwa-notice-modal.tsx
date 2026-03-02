@@ -52,16 +52,22 @@ export function PwaNoticeModal() {
         >
           앱처럼 사용해 보세요
         </h2>
-        <p className="mb-6 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-          KookDongE을 홈 화면에 추가하면 앱처럼 더 편하게 이용할 수 있어요.
-          <br />
-          <br />
-          <strong className="text-zinc-800 dark:text-zinc-200">· Android:</strong> 브라우저 메뉴 →
-          홈 화면에 추가
-          <br />
-          <strong className="text-zinc-800 dark:text-zinc-200">· iOS:</strong> Safari 공유 버튼 → 홈
-          화면에 추가
+        <p className="mb-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+          KookDongE을 홈 화면에 추가하면 앱처럼 더 편하게 이용할 수 있어요. 동아리 알림도 받을 수
+          있습니다.
         </p>
+        <div className="mb-6 space-y-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+          <p className="font-medium text-zinc-800 dark:text-zinc-200">· Android (Chrome)</p>
+          <p className="pl-2">
+            1) 오른쪽 상단 ⋮ 메뉴 탭 → 2) &apos;홈 화면에 추가&apos; 또는 &apos;앱 설치&apos; 선택 →
+            3) 추가(설치) 확인
+          </p>
+          <p className="font-medium text-zinc-800 dark:text-zinc-200">· iOS (Safari)</p>
+          <p className="pl-2">
+            1) 하단 중앙 공유 버튼(□↑) 탭 → 2) 목록에서 &apos;홈 화면에 추가&apos; 선택 → 3) 오른쪽
+            상단 &apos;추가&apos; 탭
+          </p>
+        </div>
         <button
           type="button"
           onClick={handleClose}

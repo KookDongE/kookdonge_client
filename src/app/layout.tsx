@@ -10,7 +10,9 @@ import { AuthProvider } from '@/features/auth';
 import { FcmForegroundHandler } from '@/features/notifications/fcm-foreground-handler';
 import { BottomNav } from '@/components/common/bottom-nav';
 import { Header } from '@/components/common/header';
+import { PullToRefresh } from '@/components/common/pull-to-refresh';
 import { PwaNoticeModal } from '@/components/common/pwa-notice-modal';
+import { PwaNotificationPromptModal } from '@/components/common/pwa-notification-prompt-modal';
 
 import '@/styles/globals.css';
 
@@ -108,13 +110,14 @@ export default function RootLayout({
                 <FcmForegroundHandler />
                 <div className="relative mx-auto min-h-dvh max-w-md overflow-hidden bg-[var(--card)] shadow-xl">
                   <Header />
-                  <main className="pb-safe h-[calc(100dvh-3.5rem-4rem)] overflow-y-auto overscroll-y-none">
-                    {children}
+                  <main className="flex h-[calc(100dvh-3.5rem-4rem)] flex-col overflow-hidden">
+                    <PullToRefresh>{children}</PullToRefresh>
                   </main>
                   <BottomNav />
                 </div>
                 <Toaster position="top-center" richColors />
                 <PwaNoticeModal />
+                <PwaNotificationPromptModal />
               </AuthProvider>
             </QueryProvider>
           </NuqsAdapter>

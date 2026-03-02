@@ -108,7 +108,9 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   const [descriptionImages, setDescriptionImages] = useState<string[]>([]);
   const [recruitmentStatus, setRecruitmentStatus] = useState<RecruitmentStatus>('RECRUITING');
   const [recruitmentStartDate, setRecruitmentStartDate] = useState('');
+  const [recruitmentStartTime, setRecruitmentStartTime] = useState('00:00');
   const [recruitmentEndDate, setRecruitmentEndDate] = useState('');
+  const [recruitmentEndTime, setRecruitmentEndTime] = useState('23:59');
   const [recruitmentUrl, setRecruitmentUrl] = useState('');
 
   // Q&A 답변 상태
@@ -132,8 +134,12 @@ function ClubManageContent({ clubId }: { clubId: number }) {
     setDescription(club.description || '');
     setDescriptionImages(club.descriptionImages || []);
     setRecruitmentStatus(club.recruitmentStatus);
-    setRecruitmentStartDate(club.recruitmentStartDate.split('T')[0]);
-    setRecruitmentEndDate(club.recruitmentEndDate.split('T')[0]);
+    const startParts = club.recruitmentStartDate.split('T');
+    setRecruitmentStartDate(startParts[0] || '');
+    setRecruitmentStartTime(startParts[1]?.slice(0, 5) || '00:00');
+    const endParts = club.recruitmentEndDate.split('T');
+    setRecruitmentEndDate(endParts[0] || '');
+    setRecruitmentEndTime(endParts[1]?.slice(0, 5) || '23:59');
     setRecruitmentUrl(club.applicationLink || club.recruitmentUrl || '');
   }, [club, isLoading]);
   /* eslint-enable react-hooks/set-state-in-effect */
@@ -225,10 +231,14 @@ function ClubManageContent({ clubId }: { clubId: number }) {
         clubId,
         data: {
           recruitmentStatus,
-          recruitmentStartDate: recruitmentStartDate
-            ? `${recruitmentStartDate}T00:00:00`
-            : undefined,
-          recruitmentEndDate: recruitmentEndDate ? `${recruitmentEndDate}T23:59:59` : undefined,
+          recruitmentStartDate:
+            recruitmentStartDate && recruitmentStartTime
+              ? `${recruitmentStartDate}T${recruitmentStartTime}:00`
+              : undefined,
+          recruitmentEndDate:
+            recruitmentEndDate && recruitmentEndTime
+              ? `${recruitmentEndDate}T${recruitmentEndTime}:00`
+              : undefined,
           recruitmentUrl: recruitmentUrl || undefined,
         },
       },
@@ -264,7 +274,13 @@ function ClubManageContent({ clubId }: { clubId: number }) {
           <div className="flex gap-4">
             <div className="club-logo-wrap relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-zinc-100 shadow-sm dark:bg-zinc-800">
               {club.image ? (
-                <Image src={club.image} alt={club.name} fill className="object-cover" sizes="112px" />
+                <Image
+                  src={club.image}
+                  alt={club.name}
+                  fill
+                  className="object-cover"
+                  sizes="112px"
+                />
               ) : (
                 <DefaultClubImage className="object-cover" sizes="112px" />
               )}
@@ -303,116 +319,124 @@ function ClubManageContent({ clubId }: { clubId: number }) {
         </div>
 
         {/* 탭 리스트 (고정 영역에 포함) */}
-        <Tabs selectedKey={tab} onSelectionChange={(key) => setTab(key as string)} className="w-full">
-          <Tabs.ListContainer className="bg-white pt-4 px-4 dark:bg-zinc-900">
-          <Tabs.List aria-label="동아리 정보" className="flex w-full">
-            <Tabs.Tab
-              id="info"
-              className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
-            >
-              정보
-              <Tabs.Indicator />
-            </Tabs.Tab>
-            <Tabs.Tab
-              id="feed"
-              className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
-            >
-              피드
-              <Tabs.Indicator />
-            </Tabs.Tab>
-            <Tabs.Tab
-              id="qna"
-              className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
-            >
-              Q&A
-              <Tabs.Indicator />
-            </Tabs.Tab>
-          </Tabs.List>
-        </Tabs.ListContainer>
+        <Tabs
+          selectedKey={tab}
+          onSelectionChange={(key) => setTab(key as string)}
+          className="w-full"
+        >
+          <Tabs.ListContainer className="border-b border-zinc-200 bg-white px-4 pt-4 dark:border-zinc-700 dark:bg-zinc-900">
+            <Tabs.List aria-label="동아리 정보" className="flex w-full">
+              <Tabs.Tab
+                id="info"
+                className="flex-1 py-3 text-center text-sm font-medium text-gray-800 dark:text-zinc-300"
+              >
+                정보
+                <Tabs.Indicator />
+              </Tabs.Tab>
+              <Tabs.Tab
+                id="feed"
+                className="flex-1 py-3 text-center text-sm font-medium text-gray-800 dark:text-zinc-300"
+              >
+                피드
+                <Tabs.Indicator />
+              </Tabs.Tab>
+              <Tabs.Tab
+                id="qna"
+                className="flex-1 py-3 text-center text-sm font-medium text-gray-800 dark:text-zinc-300"
+              >
+                Q&A
+                <Tabs.Indicator />
+              </Tabs.Tab>
+            </Tabs.List>
+          </Tabs.ListContainer>
 
-        {/* 정보 탭 */}
-        <Tabs.Panel id="info">
-          <ClubInfoTab
-            club={club}
-            clubId={clubId}
-            // 편집 상태
-            isEditingBasic={isEditingBasic}
-            isEditingContent={isEditingContent}
-            isEditingRecruitment={isEditingRecruitment}
-            // 편집 모드 토글
-            onEditBasic={() => setIsEditingBasic(true)}
-            onEditContent={() => setIsEditingContent(true)}
-            onEditRecruitment={() => setIsEditingRecruitment(true)}
-            onCancelBasic={() => setIsEditingBasic(false)}
-            onCancelContent={() => setIsEditingContent(false)}
-            onCancelRecruitment={() => setIsEditingRecruitment(false)}
-            // 저장 핸들러
-            onSaveBasic={handleSaveBasic}
-            onSaveContent={handleSaveContent}
-            onSaveRecruitment={handleSaveRecruitment}
-            // 폼 상태
-            name={name}
-            setName={setName}
-            image={image}
-            onImageUpload={handleImageUpload}
-            summary={summary}
-            setSummary={setSummary}
-            category={category}
-            setCategory={setCategory}
-            type={type}
-            setType={setType}
-            targetGraduate={targetGraduate}
-            setTargetGraduate={setTargetGraduate}
-            leaderName={leaderName}
-            setLeaderName={setLeaderName}
-            location={location}
-            setLocation={setLocation}
-            weeklyActiveFrequency={weeklyActiveFrequency}
-            setWeeklyActiveFrequency={setWeeklyActiveFrequency}
-            allowLeaveOfAbsence={allowLeaveOfAbsence}
-            setAllowLeaveOfAbsence={setAllowLeaveOfAbsence}
-            content={content}
-            setContent={setContent}
-            description={description}
-            setDescription={setDescription}
-            descriptionImages={descriptionImages}
-            setDescriptionImages={setDescriptionImages}
-            onDescriptionImagesUpload={handleDescriptionImagesUpload}
-            recruitmentStatus={recruitmentStatus}
-            setRecruitmentStatus={setRecruitmentStatus}
-            recruitmentStartDate={recruitmentStartDate}
-            setRecruitmentStartDate={setRecruitmentStartDate}
-            recruitmentEndDate={recruitmentEndDate}
-            setRecruitmentEndDate={setRecruitmentEndDate}
-            recruitmentUrl={recruitmentUrl}
-            setRecruitmentUrl={setRecruitmentUrl}
-            // 관리자 관리
-            adminSectionExpanded={adminSectionExpanded}
-            onManageAdmins={() => setAdminSectionExpanded(true)}
-            onCloseAdmins={() => setAdminSectionExpanded(false)}
-            // 업로드 상태
-            isUploading={uploadFeedFiles.isPending}
-            // 업데이트 상태
-            isSaving={updateClub.isPending}
-          />
-        </Tabs.Panel>
+          {/* 정보 탭 */}
+          <Tabs.Panel id="info">
+            <ClubInfoTab
+              club={club}
+              clubId={clubId}
+              // 편집 상태
+              isEditingBasic={isEditingBasic}
+              isEditingContent={isEditingContent}
+              isEditingRecruitment={isEditingRecruitment}
+              // 편집 모드 토글
+              onEditBasic={() => setIsEditingBasic(true)}
+              onEditContent={() => setIsEditingContent(true)}
+              onEditRecruitment={() => setIsEditingRecruitment(true)}
+              onCancelBasic={() => setIsEditingBasic(false)}
+              onCancelContent={() => setIsEditingContent(false)}
+              onCancelRecruitment={() => setIsEditingRecruitment(false)}
+              // 저장 핸들러
+              onSaveBasic={handleSaveBasic}
+              onSaveContent={handleSaveContent}
+              onSaveRecruitment={handleSaveRecruitment}
+              // 폼 상태
+              name={name}
+              setName={setName}
+              image={image}
+              onImageUpload={handleImageUpload}
+              summary={summary}
+              setSummary={setSummary}
+              category={category}
+              setCategory={setCategory}
+              type={type}
+              setType={setType}
+              targetGraduate={targetGraduate}
+              setTargetGraduate={setTargetGraduate}
+              leaderName={leaderName}
+              setLeaderName={setLeaderName}
+              location={location}
+              setLocation={setLocation}
+              weeklyActiveFrequency={weeklyActiveFrequency}
+              setWeeklyActiveFrequency={setWeeklyActiveFrequency}
+              allowLeaveOfAbsence={allowLeaveOfAbsence}
+              setAllowLeaveOfAbsence={setAllowLeaveOfAbsence}
+              content={content}
+              setContent={setContent}
+              description={description}
+              setDescription={setDescription}
+              descriptionImages={descriptionImages}
+              setDescriptionImages={setDescriptionImages}
+              onDescriptionImagesUpload={handleDescriptionImagesUpload}
+              recruitmentStatus={recruitmentStatus}
+              setRecruitmentStatus={setRecruitmentStatus}
+              recruitmentStartDate={recruitmentStartDate}
+              setRecruitmentStartDate={setRecruitmentStartDate}
+              recruitmentStartTime={recruitmentStartTime}
+              setRecruitmentStartTime={setRecruitmentStartTime}
+              recruitmentEndDate={recruitmentEndDate}
+              setRecruitmentEndDate={setRecruitmentEndDate}
+              recruitmentEndTime={recruitmentEndTime}
+              setRecruitmentEndTime={setRecruitmentEndTime}
+              recruitmentUrl={recruitmentUrl}
+              setRecruitmentUrl={setRecruitmentUrl}
+              // 관리자 관리
+              adminSectionExpanded={adminSectionExpanded}
+              onManageAdmins={() => setAdminSectionExpanded(true)}
+              onCloseAdmins={() => setAdminSectionExpanded(false)}
+              // 업로드 상태
+              isUploading={uploadFeedFiles.isPending}
+              // 업데이트 상태
+              isSaving={updateClub.isPending}
+            />
+          </Tabs.Panel>
 
-        {/* 피드 탭 */}
-        <Tabs.Panel id="feed">
-          <ClubFeedTab clubId={clubId} />
-        </Tabs.Panel>
+          {/* 피드 탭 */}
+          <Tabs.Panel id="feed">
+            <ClubFeedTab clubId={clubId} />
+          </Tabs.Panel>
 
-        {/* Q&A 탭 */}
-        <Tabs.Panel id="qna">
-          <ClubQnaTab
-            clubId={clubId}
-            answerTexts={answerTexts}
-            setAnswerTexts={setAnswerTexts}
-            highlightQuestionId={highlightQuestionId}
-            onClearHighlightQuestionId={() => setHighlightQuestionId('')}
-          />
-        </Tabs.Panel>
-      </Tabs>
+          {/* Q&A 탭 */}
+          <Tabs.Panel id="qna">
+            <ClubQnaTab
+              clubId={clubId}
+              answerTexts={answerTexts}
+              setAnswerTexts={setAnswerTexts}
+              highlightQuestionId={highlightQuestionId}
+              onClearHighlightQuestionId={() => setHighlightQuestionId('')}
+            />
+          </Tabs.Panel>
+        </Tabs>
       </div>
 
       {/* 하단 네비 공간 확보 */}
@@ -566,8 +590,12 @@ function ClubInfoTab({
   setRecruitmentStatus,
   recruitmentStartDate,
   setRecruitmentStartDate,
+  recruitmentStartTime,
+  setRecruitmentStartTime,
   recruitmentEndDate,
   setRecruitmentEndDate,
+  recruitmentEndTime,
+  setRecruitmentEndTime,
   recruitmentUrl,
   setRecruitmentUrl,
   // 관리자 관리
@@ -623,8 +651,12 @@ function ClubInfoTab({
   setRecruitmentStatus: (value: RecruitmentStatus) => void;
   recruitmentStartDate: string;
   setRecruitmentStartDate: (value: string) => void;
+  recruitmentStartTime: string;
+  setRecruitmentStartTime: (value: string) => void;
   recruitmentEndDate: string;
   setRecruitmentEndDate: (value: string) => void;
+  recruitmentEndTime: string;
+  setRecruitmentEndTime: (value: string) => void;
   recruitmentUrl: string;
   setRecruitmentUrl: (value: string) => void;
   adminSectionExpanded: boolean;
@@ -1213,6 +1245,15 @@ function ClubInfoTab({
                   }}
                   className="box-border w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 [&::-webkit-date-and-time-value]:text-left"
                 />
+                <label className="mt-2 mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                  모집 시작 시간
+                </label>
+                <input
+                  type="time"
+                  value={recruitmentStartTime}
+                  onChange={(e) => setRecruitmentStartTime(e.target.value)}
+                  className="box-border w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                />
               </div>
               <div className="min-w-0">
                 <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
@@ -1228,6 +1269,15 @@ function ClubInfoTab({
                     setRecruitmentEndDate(v);
                   }}
                   className="box-border w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 [&::-webkit-date-and-time-value]:text-left"
+                />
+                <label className="mt-2 mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                  모집 종료 시간
+                </label>
+                <input
+                  type="time"
+                  value={recruitmentEndTime}
+                  onChange={(e) => setRecruitmentEndTime(e.target.value)}
+                  className="box-border w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
                 />
               </div>
             </div>

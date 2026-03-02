@@ -111,7 +111,7 @@ function ManagedClubsListContent() {
                         {STATUS_CONFIG[club.recruitmentStatus].label}
                       </span>
                     )}
-                    <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+                    <span className="rounded-md bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-700 dark:bg-zinc-800 dark:text-zinc-400">
                       {TYPE_LABEL[club.type]}
                     </span>
                     {club.category && (
