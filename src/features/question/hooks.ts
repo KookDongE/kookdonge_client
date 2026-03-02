@@ -1,9 +1,12 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
+import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import type { QuestionAnswerRes } from '@/types/api';
 import { AnswerCreateReq, Pageable, QuestionCreateReq } from '@/types/api';
 
+import { useMyProfile } from '@/features/auth/hooks';
 import { questionApi } from './api';
 
 export const questionKeys = {
@@ -85,4 +88,42 @@ export function useQuestionsForManage(
     queryFn: () => questionApi.getQuestionsForManage(clubId, params),
     enabled: !!clubId,
   });
+}
+
+/**
+ * 나에게 온 질문 목록 (내가 관리하는 동아리들에 올라온 질문).
+ * GET /api/clubs/{clubId}/questions/manage 를 관리하는 각 동아리마다 호출해 합침.
+ * 답변 탭용.
+ */
+export function useQuestionsForMeAsManager(): {
+  data: QuestionAnswerRes[];
+  isLoading: boolean;
+} {
+  const { data: profile, isLoading: profileLoading } = useMyProfile();
+  const managedClubIds = profile?.managedClubIds ?? [];
+
+  const results = useQueries({
+    queries: managedClubIds.map((clubId) => ({
+      queryKey: ['questions', 'manage', clubId, { page: 0, size: 100 }],
+      queryFn: () =>
+        questionApi.getQuestionsForManage(clubId, { page: 0, size: 100 }),
+      enabled: !!clubId,
+    })),
+  });
+
+  const combined = useMemo(() => {
+    const list: QuestionAnswerRes[] = [];
+    for (const res of results) {
+      if (res.data?.content) list.push(...res.data.content);
+    }
+    list.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+    return list;
+  }, [results]);
+
+  const isLoading = profileLoading || results.some((r) => r.isLoading);
+
+  return { data: combined, isLoading };
 }

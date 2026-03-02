@@ -7,7 +7,10 @@ import { Spinner, Tabs } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
 
 import type { QuestionAnswerRes } from '@/types/api';
-import { useMyQuestions } from '@/features/question/hooks';
+import {
+  useMyQuestions,
+  useQuestionsForMeAsManager,
+} from '@/features/question/hooks';
 import { SearchFilterBar } from '@/components/common/search-filter-bar';
 
 function QnaCard({
@@ -118,15 +121,16 @@ function QuestionsTabContent() {
   );
 }
 
+/** 답변 탭: 나에게 온 질문 (내가 관리하는 동아리에 올라온 질문) — GET .../questions/manage */
 function AnswersTabContent() {
   const [q] = useQueryState('q', parseAsString.withDefault(''));
   const router = useRouter();
-  const { data, isLoading } = useMyQuestions({ page: 0, size: 200 });
-  const allList = data?.content ?? [];
-  const answered = allList.filter((item) => item.answer);
+  const { data: list, isLoading } = useQuestionsForMeAsManager();
   const filtered = q
-    ? answered.filter((item) => item.question.toLowerCase().includes(q.trim().toLowerCase()))
-    : answered;
+    ? list.filter((item) =>
+        item.question.toLowerCase().includes(q.trim().toLowerCase())
+      )
+    : list;
 
   return (
     <div className="px-4 py-4">
@@ -136,13 +140,13 @@ function AnswersTabContent() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-16 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
-          <p>{q ? '검색 결과가 없습니다.' : '답변된 질문이 없습니다.'}</p>
+          <p>{q ? '검색 결과가 없습니다.' : '나에게 온 질문이 없습니다.'}</p>
         </div>
       ) : (
         <div className="space-y-3">
           {filtered.map((qna) => (
             <QnaCard
-              key={qna.id}
+              key={`${qna.clubId ?? 0}-${qna.id}`}
               qna={qna}
               onClick={() =>
                 router.push(
