@@ -168,7 +168,6 @@ function QuestionsPageContent() {
 
   return (
     <div className="pb-6">
-      <SearchFilterBar stickyHideOnScroll placeholder="질문 검색" />
       <Tabs
         selectedKey={selectedTab}
         onSelectionChange={(key) => setSelectedTab(key as string)}
@@ -193,6 +192,7 @@ function QuestionsPageContent() {
             </Tabs.Tab>
           </Tabs.List>
         </Tabs.ListContainer>
+        <SearchFilterBar stickyHideOnScroll placeholder="질문 검색" />
         <Tabs.Panel id="questions">
           <QuestionsTabContent />
         </Tabs.Panel>
