@@ -12,6 +12,7 @@ import { AppShell } from '@/components/common/app-shell';
 import { PwaNoticeModal } from '@/components/common/pwa-notice-modal';
 import { PwaNotificationPromptModal } from '@/components/common/pwa-notification-prompt-modal';
 import { ScrollbarOnScroll } from '@/components/common/scrollbar-on-scroll';
+import { FullscreenBodyLock } from '@/components/common/fullscreen-body-lock';
 
 import '@/styles/globals.css';
 
@@ -107,6 +108,7 @@ export default function RootLayout({
             <QueryProvider>
               <AuthProvider>
                 <ScrollbarOnScroll />
+                <FullscreenBodyLock />
                 <FcmForegroundHandler />
                 <AppShell>{children}</AppShell>
                 <Toaster position="top-center" richColors />

@@ -82,7 +82,7 @@ export function PullToRefresh({ children, fullScreen = false }: PullToRefreshPro
     <div
       ref={scrollRef}
       data-scroll-container
-      className="pb-safe h-full overflow-y-auto overscroll-y-none"
+      className={`pb-safe h-full overscroll-y-none ${fullScreen ? 'overflow-hidden no-scrollbar' : 'overflow-y-auto'}`}
       style={{ height: contentHeight }}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}

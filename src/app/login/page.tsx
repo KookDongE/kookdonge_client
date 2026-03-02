@@ -33,7 +33,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center bg-[var(--background)] px-6">
+    <div className="flex h-dvh min-h-0 flex-col items-center justify-center overflow-hidden bg-[var(--background)] px-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

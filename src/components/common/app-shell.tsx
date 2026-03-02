@@ -17,10 +17,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const fullScreen = isFullScreenPath(pathname ?? '');
 
   return (
-    <div className="relative mx-auto min-h-dvh max-w-md overflow-hidden bg-[var(--card)] shadow-xl">
+    <div
+      className={`relative mx-auto max-w-md overflow-hidden bg-[var(--card)] shadow-xl ${fullScreen ? 'h-dvh min-h-0' : 'min-h-dvh'}`}
+    >
       <Header />
       <main
-        className={`flex flex-col overflow-hidden ${fullScreen ? 'h-dvh' : 'h-[calc(100dvh-3.5rem-4rem)]'}`}
+        className={`flex flex-col overflow-hidden ${fullScreen ? 'h-dvh min-h-0' : 'h-[calc(100dvh-3.5rem-4rem)]'}`}
       >
         <PullToRefresh fullScreen={fullScreen}>{children}</PullToRefresh>
       </main>
