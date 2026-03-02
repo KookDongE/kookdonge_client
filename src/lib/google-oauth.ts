@@ -58,6 +58,8 @@ export function getGoogleAuthUrl(): string | null {
     scope: SCOPES.join(' '),
     state,
     access_type: 'online',
+    /** 매번 계정 선택 화면 표시. 국민대 이메일이 아닌 계정으로 실패 후 재로그인 시 다른 계정 선택 가능 */
+    prompt: 'select_account',
   });
 
   return `${GOOGLE_AUTH_BASE}?${params.toString()}`;
