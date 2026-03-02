@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 
 import { Spinner } from '@heroui/react';
@@ -49,6 +49,18 @@ export default function NotificationSettingsPage() {
   const notificationEnabled = settings?.notificationEnabled ?? true;
   const isLoading = isSettingsLoading || updateSettings.isPending;
   const canToggle = permission === 'granted';
+
+  // 풀 로드 등으로 이 페이지 진입 시 AuthProvider가 web-pending으로 덮어쓴 경우 복구:
+  // 권한이 이미 허용된 상태에서 진입 시, 짧은 지연 후 토큰 재등록을 한 번 시도한다.
+  const hasRefreshedTokenRef = useRef(false);
+  useEffect(() => {
+    if (!deviceId || !isSupported || permission !== 'granted' || hasRefreshedTokenRef.current) return;
+    hasRefreshedTokenRef.current = true;
+    const timeoutId = setTimeout(() => {
+      requestPermissionAndRegister().catch(() => {});
+    }, 2000);
+    return () => clearTimeout(timeoutId);
+  }, [deviceId, isSupported, permission, requestPermissionAndRegister]);
 
   return (
     <div className="pb-6">
