@@ -5,6 +5,19 @@ import { useAuthStore } from '@/features/auth/store';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.kookdonge.co.kr';
 
+const PUBLIC_PATHS = ['/', '/login', '/welcome', '/callback'];
+
+function isPublicPath(pathname: string): boolean {
+  return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'));
+}
+
+function redirectToSplashIfNeeded(): void {
+  if (typeof window === 'undefined') return;
+  if (isPublicPath(window.location.pathname)) return;
+  useAuthStore.getState().clearAuth();
+  window.location.replace('/');
+}
+
 type RequestOptions<TBody = unknown> = {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   headers?: Record<string, string>;
@@ -67,8 +80,9 @@ export async function apiClient<T>(endpoint: string, options: RequestOptions = {
 
   if (json.status !== 200) {
     const isUnauthorized = response.status === 401 || json.status === 401;
-    if (isUnauthorized && !token) {
-      // 스플래시·로그인 등 토큰 없을 때 401은 예상됨. 토스트 생략
+    if (isUnauthorized) {
+      // 토큰 없음·만료 시 토스트 반복 대신 스플래시로 이동
+      redirectToSplashIfNeeded();
     } else {
       toast.error(json.message || '오류가 발생했습니다');
     }
