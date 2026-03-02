@@ -193,6 +193,15 @@ export function useClubAdmins(clubId: number) {
   });
 }
 
+/** 동아리 관리자 목록 (이름·이메일 포함). 관리자 설정 UI용 */
+export function useClubMembers(clubId: number) {
+  return useQuery({
+    queryKey: [...clubKeys.all, 'members', clubId],
+    queryFn: () => clubApi.getMembers(clubId),
+    enabled: !!clubId,
+  });
+}
+
 export function useAddClubAdmin() {
   const queryClient = useQueryClient();
 
@@ -201,6 +210,7 @@ export function useAddClubAdmin() {
       clubApi.addClubAdmin(clubId, email),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: [...clubKeys.all, 'admins', variables.clubId] });
+      queryClient.invalidateQueries({ queryKey: [...clubKeys.all, 'members', variables.clubId] });
     },
   });
 }
@@ -213,6 +223,7 @@ export function useRemoveClubAdmin() {
       clubApi.removeClubAdmin(clubId, email),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: [...clubKeys.all, 'admins', variables.clubId] });
+      queryClient.invalidateQueries({ queryKey: [...clubKeys.all, 'members', variables.clubId] });
     },
   });
 }

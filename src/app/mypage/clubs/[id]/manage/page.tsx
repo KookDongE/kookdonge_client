@@ -10,8 +10,8 @@ import { parseAsString, useQueryState } from 'nuqs';
 import { ClubCategory, ClubDetailRes, ClubType, RecruitmentStatus } from '@/types/api';
 import {
   useAddClubAdmin,
-  useClubAdmins,
   useClubDetail,
+  useClubMembers,
   useRemoveClubAdmin,
   useUpdateClubDetail,
 } from '@/features/club/hooks';
@@ -461,7 +461,7 @@ function AdminManageSection({
   clubId: number;
   onClose: () => void;
 }) {
-  const { data: admins, isLoading } = useClubAdmins(clubId);
+  const { data: members, isLoading } = useClubMembers(clubId);
   const addAdmin = useAddClubAdmin();
   const removeAdmin = useRemoveClubAdmin();
   const [newAdminEmail, setNewAdminEmail] = useState('');
@@ -488,7 +488,7 @@ function AdminManageSection({
   };
 
   const handleRemoveAdmin = (email: string) => {
-    if (confirm(`정말 ${email} 관리자 권한을 제거하시겠습니까?`)) {
+    if (confirm(`정말 해당 관리자 권한을 제거하시겠습니까?`)) {
       removeAdmin.mutate({ clubId, email });
     }
   };
@@ -520,22 +520,29 @@ function AdminManageSection({
           <div className="flex justify-center py-4">
             <Spinner size="sm" />
           </div>
-        ) : !admins || admins.length === 0 ? (
+        ) : !members || members.length === 0 ? (
           <div className="club-manage-admin-empty rounded-lg border border-zinc-200 bg-zinc-50 p-4 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
             관리자가 없습니다.
           </div>
         ) : (
           <div className="club-manage-admin-list space-y-2">
-            {admins.map((email) => (
+            {members.map((member) => (
               <div
-                key={email}
+                key={member.userId}
                 className="club-manage-admin-item flex items-center justify-between rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-800"
               >
-                <span className="text-sm text-zinc-900 dark:text-zinc-100">{email}</span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                    {member.name || '(이름 없음)'}
+                  </p>
+                  <p className="truncate text-xs text-zinc-500 dark:text-zinc-400">
+                    {member.email}
+                  </p>
+                </div>
                 <Button
                   size="sm"
                   variant="ghost"
-                  onPress={() => handleRemoveAdmin(email)}
+                  onPress={() => handleRemoveAdmin(member.email)}
                   isPending={removeAdmin.isPending}
                 >
                   제거

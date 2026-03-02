@@ -67,6 +67,9 @@ function ApplicationList() {
                   {app.name}
                 </h4>
                 <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
+                  신청자: {app.applicantName || '(이름 없음)'} · {app.applicantEmail}
+                </div>
+                <div className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
                   신청일: {new Date(app.createdAt).toLocaleDateString()}
                 </div>
               </div>

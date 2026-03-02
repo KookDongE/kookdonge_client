@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback, useRef, useState } from 'react';
 import Image from 'next/image';
 
 import { DefaultClubImage } from '@/components/common/default-club-image';
@@ -13,6 +14,8 @@ type FeedItemProps = {
   content: string;
   createdAt: string;
 };
+
+const SWIPE_THRESHOLD = 50;
 
 function formatTimeAgo(dateString: string): string {
   const now = new Date();
@@ -38,6 +41,32 @@ export function FeedItem({
   createdAt,
 }: FeedItemProps) {
   const hasMultiple = imageUrls.length > 1;
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const touchStartX = useRef<number>(0);
+  const touchEndX = useRef<number>(0);
+
+  const goNext = useCallback(() => {
+    setCurrentIndex((prev) => (prev + 1) % imageUrls.length);
+  }, [imageUrls.length]);
+
+  const goPrev = useCallback(() => {
+    setCurrentIndex((prev) => (prev - 1 + imageUrls.length) % imageUrls.length);
+  }, [imageUrls.length]);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX;
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    const diff = touchStartX.current - touchEndX.current;
+    if (Math.abs(diff) < SWIPE_THRESHOLD) return;
+    if (diff > 0) goNext();
+    else goPrev();
+  }, [goNext, goPrev]);
 
   return (
     <article className="mb-8 border-b border-zinc-200 bg-white pb-6 dark:border-zinc-800 dark:bg-zinc-900">
@@ -66,24 +95,49 @@ export function FeedItem({
         </span>
       </div>
 
-      {/* 미디어 영역: 여러 장이면 가로 스크롤, 한 장이면 단일 비율 */}
+      {/* 미디어 영역: 여러 장이면 스와이프로 넘기기, 한 장이면 단일 */}
       {hasMultiple ? (
-        <div className="flex gap-1 overflow-x-auto px-0 py-0 scrollbar-thin">
+        <div
+          className="relative aspect-square w-full touch-pan-y select-none overflow-hidden bg-zinc-100 dark:bg-zinc-800"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          style={{ touchAction: 'pan-y' }}
+        >
           {imageUrls.map((url, i) => (
             <div
               key={`${feedId}-${i}`}
-              className="relative shrink-0 basis-[85%] overflow-hidden rounded-none bg-zinc-100 dark:bg-zinc-800"
-              style={{ aspectRatio: '1' }}
+              className="absolute inset-0 transition-opacity duration-200"
+              style={{
+                opacity: i === currentIndex ? 1 : 0,
+                pointerEvents: i === currentIndex ? 'auto' : 'none',
+              }}
             >
               <Image
                 src={url}
                 alt=""
                 fill
                 className="object-cover"
-                sizes="(max-width: 480px) 85vw, 400px"
+                sizes="100vw"
+                priority={i === 0}
+                draggable={false}
               />
             </div>
           ))}
+          {/* 인디케이터 */}
+          <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5">
+            {imageUrls.map((_, i) => (
+              <span
+                key={i}
+                className={`h-1.5 rounded-full transition-all ${
+                  i === currentIndex
+                    ? 'w-3 bg-white/90'
+                    : 'w-1.5 bg-white/50'
+                }`}
+                aria-hidden
+              />
+            ))}
+          </div>
         </div>
       ) : (
         <div className="relative aspect-square w-full bg-zinc-100 dark:bg-zinc-800">

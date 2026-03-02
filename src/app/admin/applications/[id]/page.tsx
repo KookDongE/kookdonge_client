@@ -133,10 +133,12 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
           <div className={valueBoxClass}>{application.name}</div>
         </div>
 
-        {/* 신청자 이메일 */}
+        {/* 신청자 이름 · 이메일 */}
         <div>
-          <label className={labelClass}>신청자 이메일</label>
-          <div className={valueBoxClass}>{application.applicantEmail}</div>
+          <label className={labelClass}>신청자</label>
+          <div className={valueBoxClass}>
+            {application.applicantName || '(이름 없음)'} · {application.applicantEmail}
+          </div>
         </div>
 
         {/* 동아리유형 · 분야 (가로 배치 - 폼과 동일) */}
