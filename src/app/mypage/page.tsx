@@ -182,7 +182,7 @@ function AdminSection() {
                       {STATUS_CONFIG[club.recruitmentStatus].label}
                     </span>
                   )}
-                  <span className="mypage-club-tag-type rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                  <span className="mypage-club-tag-type rounded-md bg-violet-100 px-1.5 py-0.5 text-[10px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
                     {TYPE_LABEL[club.type]}
                   </span>
                   {club.category && (
@@ -421,7 +421,7 @@ function LikedClubsSection() {
                       {STATUS_CONFIG[club.recruitmentStatus].label}
                     </span>
                   )}
-                  <span className="mypage-club-tag-type rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                  <span className="mypage-club-tag-type rounded-md bg-violet-100 px-1.5 py-0.5 text-[10px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
                     {TYPE_LABEL[club.type]}
                   </span>
                   {club.category && (
@@ -496,7 +496,7 @@ function InterestedClubsSection() {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="mb-1 flex flex-wrap items-center gap-1.5">
-                  <span className="mypage-club-tag-type rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                  <span className="mypage-club-tag-type rounded-md bg-violet-100 px-1.5 py-0.5 text-[10px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
                     {TYPE_LABEL[club.type]}
                   </span>
                 </div>

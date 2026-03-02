@@ -324,7 +324,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
           onSelectionChange={(key) => setTab(key as string)}
           className="w-full"
         >
-          <Tabs.ListContainer className="club-manage-tabs border-b border-zinc-200 bg-white px-4 pt-4 dark:border-zinc-700 dark:bg-zinc-900">
+          <Tabs.ListContainer className="club-manage-tabs bg-white px-4 pt-4 dark:bg-zinc-900">
             <Tabs.List aria-label="동아리 정보" className="flex w-full">
               <Tabs.Tab
                 id="info"

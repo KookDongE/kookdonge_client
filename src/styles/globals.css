@@ -162,8 +162,8 @@ html:not(.dark) .club-manage-admin-item {
 /* 라이트 모드: 마이페이지 동아리 종류·카테고리 태그 밝게 (앱뷰에서 다크로 보이는 현상 방지) */
 html:not(.dark) .mypage-club-tag-type {
   color-scheme: light;
-  background-color: #e2e8f0 !important;
-  color: #334155 !important;
+  background-color: #ede9fe !important;
+  color: #5b21b6 !important;
 }
 html:not(.dark) .mypage-club-tag-category {
   color-scheme: light;
