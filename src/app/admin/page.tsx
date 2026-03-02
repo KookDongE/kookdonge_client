@@ -243,11 +243,11 @@ function AdminPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-white pt-0 pb-20 dark:bg-zinc-900">
+    <div className="mt-0 min-h-screen bg-white pt-0 pb-20 dark:bg-zinc-900">
       <Tabs
         selectedKey={tab || 'applications'}
         onSelectionChange={(key) => setTab(key as string)}
-        className="w-full pt-0 [&_[data-slot=tabs-panel]]:pt-0"
+        className="mt-0 w-full pt-0 [&_[data-slot=tabs-panel]]:pt-0"
       >
         <Tabs.ListContainer
           className={`glass sticky top-[3.5rem] z-30 border-b-0 px-4 pt-0 pb-0 ${stickyTransitionClass}`}
