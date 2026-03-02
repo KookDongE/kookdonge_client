@@ -1,7 +1,6 @@
 'use client';
 
-import { use } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 
 import { Button, Chip, Spinner } from '@heroui/react';
 
@@ -25,14 +24,25 @@ const TYPE_LABELS: Record<ClubType, string> = {
   CLUB: '동아리',
 };
 
-type PageProps = { params: Promise<{ id: string }> };
-
-export default function MyApplicationDetailPage({ params }: PageProps) {
-  const { id } = use(params);
+export default function MyApplicationDetailPage() {
+  const params = useParams();
+  const id = typeof params?.id === 'string' ? params.id : '';
   const requestId = parseInt(id, 10);
   const router = useRouter();
   const { data: requests, isLoading } = useMyRequests();
-  const application = requests?.find((r) => r.requestId === requestId);
+  const application =
+    Number.isNaN(requestId) ? undefined : requests?.find((r) => r.requestId === requestId);
+
+  if (!id || Number.isNaN(requestId)) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--background)] p-4 dark:bg-zinc-900">
+        <p className="text-gray-500 dark:text-zinc-400">잘못된 경로입니다.</p>
+        <Button className="mt-4" variant="ghost" onPress={() => router.push('/mypage/applications')}>
+          목록으로
+        </Button>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
