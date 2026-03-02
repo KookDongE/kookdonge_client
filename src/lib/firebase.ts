@@ -66,10 +66,14 @@ export type GetFcmTokenResult = {
   permissionDenied: boolean;
 };
 
+const FCM_TOKEN_RETRY_DELAY_MS = 2500;
+const FCM_TOKEN_MAX_RETRIES = 1;
+
 /**
  * FCM 토큰 발급. Firebase 설정 및 브라우저 알림 권한이 있을 때만 유효한 토큰 반환.
  * 설정이 없으면 { token: null, permissionDenied: false } (이때 디바이스 등록은 fcmToken: 'web-pending'으로 함).
  * 서비스 워커를 먼저 등록한 뒤 getToken을 호출해 백그라운드 수신이 동작하도록 함.
+ * 재로그인 등으로 SW가 아직 활성화되지 않았을 수 있어, SW 활성화 대기 및 실패 시 재시도를 수행한다.
  */
 export async function getFcmToken(): Promise<GetFcmTokenResult> {
   const noToken = (permissionDenied = false): GetFcmTokenResult => ({
@@ -91,11 +95,36 @@ export async function getFcmToken(): Promise<GetFcmTokenResult> {
       console.error('[FCM] 서비스 워커 등록 실패:', e);
       return null;
     });
-    const token = await getToken(messagingInstance, {
-      vapidKey,
-      ...(registration && { serviceWorkerRegistration: registration }),
-    });
-    return { token: token || null, permissionDenied: false };
+    // 재로그인 직후 SW가 아직 activating 상태일 수 있으므로 활성화까지 대기
+    if (registration) {
+      await registration.ready;
+    }
+
+    const tryGetToken = (): Promise<string | null> =>
+      getToken(messagingInstance!, {
+        vapidKey: vapidKey!,
+        ...(registration && { serviceWorkerRegistration: registration }),
+      }).then((t) => t || null);
+
+    let token: string | null = null;
+    try {
+      token = await tryGetToken();
+    } catch (e) {
+      console.warn('[FCM] getToken 1차 실패, 재시도 대기:', e);
+    }
+
+    // 토큰 미발급 시 재로그인/모바일 등 타이밍 이슈를 위해 한 번 재시도
+    if (!token && FCM_TOKEN_MAX_RETRIES > 0) {
+      await new Promise((r) => setTimeout(r, FCM_TOKEN_RETRY_DELAY_MS));
+      try {
+        token = await tryGetToken();
+      } catch (e) {
+        console.error('[FCM] getToken 재시도 실패:', e);
+      }
+    }
+
+    if (token) return { token, permissionDenied: false };
+    return noToken();
   } catch (e) {
     console.error('[FCM] getToken 실패:', e);
     return noToken();
