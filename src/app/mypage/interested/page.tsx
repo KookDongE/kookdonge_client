@@ -67,6 +67,9 @@ function InterestedClubsContent() {
                       {TYPE_LABEL[club.type]}
                     </span>
                   </div>
+                  <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
+                    {club.name}
+                  </h4>
                 </div>
                 <svg
                   className="h-5 w-5 text-zinc-400 dark:text-zinc-500"

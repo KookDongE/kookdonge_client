@@ -44,8 +44,8 @@ function ApplicationManagementTab({
   }
 
   return (
-    <div>
-      <div className={`glass sticky top-[6.75rem] z-20 border-b-0 ${filterStickyClass}`}>
+    <div className="pt-0">
+      <div className={`glass sticky top-[6.5rem] z-20 border-b-0 ${filterStickyClass}`}>
         <SearchFilterBar
           placeholder="동아리명 검색"
           stickyHideOnScroll={false}
@@ -243,14 +243,14 @@ function AdminPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-white pb-20 dark:bg-zinc-900 pt-0">
+    <div className="min-h-screen bg-white pt-0 pb-20 dark:bg-zinc-900">
       <Tabs
         selectedKey={tab || 'applications'}
         onSelectionChange={(key) => setTab(key as string)}
-        className="w-full"
+        className="w-full pt-0 [&_[data-slot=tabs-panel]]:pt-0"
       >
         <Tabs.ListContainer
-          className={`glass sticky top-[4.25rem] z-30 border-b-0 px-4 pt-0 ${stickyTransitionClass}`}
+          className={`glass sticky top-[3.5rem] z-30 border-b-0 px-4 pt-0 pb-0 ${stickyTransitionClass}`}
         >
           <Tabs.List aria-label="관리자 메뉴" className="flex w-full">
             <Tabs.Tab
