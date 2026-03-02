@@ -1539,9 +1539,12 @@ function ClubQnaTab({
                 className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700"
               >
                 <div className="flex items-start gap-3">
-                  <Chip size="sm" color="accent" variant="primary" className="shrink-0">
+                  <span
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
+                    aria-hidden
+                  >
                     Q
-                  </Chip>
+                  </span>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                       {qna.question}
@@ -1561,9 +1564,12 @@ function ClubQnaTab({
                 </div>
                 {qna.answer && (
                   <div className="mt-3 flex items-start gap-3 pt-3">
-                    <Chip size="sm" color="success" variant="primary" className="shrink-0">
+                    <span
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
+                      aria-hidden
+                    >
                       A
-                    </Chip>
+                    </span>
                     <p className="flex-1 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
                       {qna.answer}
                     </p>

@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 
 import { Chip, Spinner } from '@heroui/react';
 
-import { ClubType } from '@/types/api';
+import { ClubCategory, ClubType, RecruitmentStatus } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
 import { useLikedClubs, useManagedClubs, useMyApplications } from '@/features/club/hooks';
 import { useInterestedStore } from '@/features/club/interested-store';
@@ -16,8 +16,33 @@ import { DefaultClubImage } from '@/components/common/default-club-image';
 const TYPE_LABEL: Record<ClubType, string> = {
   CENTRAL: '중앙동아리',
   DEPARTMENTAL: '학과동아리',
-  ACADEMIC_SOCIETY: '학술동아리',
-  CLUB: '동아리',
+  ACADEMIC_SOCIETY: '학회',
+  CLUB: '소모임',
+};
+
+const CATEGORY_LABEL: Record<ClubCategory, string> = {
+  PERFORMING_ARTS: '공연예술',
+  LIBERAL_ARTS_SERVICE: '교양봉사',
+  EXHIBITION_ARTS: '전시창작',
+  RELIGION: '종교',
+  BALL_LEISURE: '구기레저',
+  PHYSICAL_MARTIAL_ARTS: '체육무예',
+  ACADEMIC: '학술',
+};
+
+const STATUS_CONFIG: Record<RecruitmentStatus, { label: string; className: string }> = {
+  RECRUITING: {
+    label: '모집중',
+    className: 'bg-lime-200 text-zinc-800 dark:bg-lime-500/70 dark:text-zinc-900',
+  },
+  SCHEDULED: {
+    label: '모집예정',
+    className: 'bg-cyan-200 text-zinc-800 dark:bg-cyan-500/70 dark:text-zinc-900',
+  },
+  CLOSED: {
+    label: '마감',
+    className: 'bg-zinc-200 text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400',
+  },
 };
 
 /** 마이페이지 목록 미리보기 최대 개수 (이상은 전체보기에서만 표시) */
@@ -154,31 +179,19 @@ function AdminSection() {
                 </h4>
                 <div className="mt-1 flex flex-wrap items-center gap-1.5">
                   {club.recruitmentStatus && (
-                    <Chip
-                      size="sm"
-                      color={
-                        club.recruitmentStatus === 'RECRUITING'
-                          ? 'success'
-                          : club.recruitmentStatus === 'SCHEDULED'
-                            ? 'accent'
-                            : 'default'
-                      }
-                      variant="soft"
+                    <span
+                      className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium ${STATUS_CONFIG[club.recruitmentStatus].className}`}
                     >
-                      {club.recruitmentStatus === 'RECRUITING'
-                        ? '모집중'
-                        : club.recruitmentStatus === 'SCHEDULED'
-                          ? '모집예정'
-                          : '모집마감'}
-                    </Chip>
+                      {STATUS_CONFIG[club.recruitmentStatus].label}
+                    </span>
                   )}
-                  <Chip size="sm" color="accent" variant="soft">
+                  <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
                     {TYPE_LABEL[club.type]}
-                  </Chip>
+                  </span>
                   {club.category && (
-                    <Chip size="sm" color="accent" variant="soft">
+                    <span className="rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
                       {CATEGORY_LABEL[club.category]}
-                    </Chip>
+                    </span>
                   )}
                 </div>
               </div>
@@ -246,9 +259,12 @@ function PendingQuestionsSection() {
               className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700/80"
             >
               <div className="flex items-start gap-3">
-                <Chip size="sm" color="accent" variant="primary" className="shrink-0">
+                <span
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
+                  aria-hidden
+                >
                   Q
-                </Chip>
+                </span>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                     {qna.question}
@@ -316,9 +332,12 @@ function QnAListSection() {
               className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700/80"
             >
               <div className="flex items-start gap-3">
-                <Chip size="sm" color="accent" variant="soft" className="shrink-0">
+                <span
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
+                  aria-hidden
+                >
                   Q
-                </Chip>
+                </span>
                 <div className="min-w-0 flex-1">
                   <p className="line-clamp-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
                     {qna.question}
@@ -398,10 +417,22 @@ function LikedClubsSection() {
                 <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
                   {club.name}
                 </h4>
-                <div className="mt-1 flex items-center gap-2">
-                  <Chip size="sm" color="accent" variant="soft">
+                <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                  {club.recruitmentStatus && (
+                    <span
+                      className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium ${STATUS_CONFIG[club.recruitmentStatus].className}`}
+                    >
+                      {STATUS_CONFIG[club.recruitmentStatus].label}
+                    </span>
+                  )}
+                  <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
                     {TYPE_LABEL[club.type]}
-                  </Chip>
+                  </span>
+                  {club.category && (
+                    <span className="rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                      {CATEGORY_LABEL[club.category]}
+                    </span>
+                  )}
                 </div>
               </div>
               <svg
@@ -468,10 +499,22 @@ function InterestedClubsSection() {
                 <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
                   {club.name}
                 </h4>
-                <div className="mt-1 flex items-center gap-2">
-                  <Chip size="sm" color="accent" variant="soft">
+                <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                  {club.recruitmentStatus && (
+                    <span
+                      className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium ${STATUS_CONFIG[club.recruitmentStatus].className}`}
+                    >
+                      {STATUS_CONFIG[club.recruitmentStatus].label}
+                    </span>
+                  )}
+                  <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
                     {TYPE_LABEL[club.type]}
-                  </Chip>
+                  </span>
+                  {club.category && (
+                    <span className="rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                      {CATEGORY_LABEL[club.category]}
+                    </span>
+                  )}
                 </div>
               </div>
               <svg

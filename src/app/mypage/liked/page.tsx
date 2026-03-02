@@ -4,10 +4,10 @@ import { Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { Chip, Spinner } from '@heroui/react';
+import { Spinner } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
 
-import { ClubType } from '@/types/api';
+import { ClubCategory, ClubType, RecruitmentStatus } from '@/types/api';
 import { useLikedClubs } from '@/features/club/hooks';
 import { DefaultClubImage } from '@/components/common/default-club-image';
 import { SearchFilterBar } from '@/components/common/search-filter-bar';
@@ -15,8 +15,24 @@ import { SearchFilterBar } from '@/components/common/search-filter-bar';
 const TYPE_LABEL: Record<ClubType, string> = {
   CENTRAL: '중앙동아리',
   DEPARTMENTAL: '학과동아리',
-  ACADEMIC_SOCIETY: '학술동아리',
-  CLUB: '동아리',
+  ACADEMIC_SOCIETY: '학회',
+  CLUB: '소모임',
+};
+
+const CATEGORY_LABEL: Record<ClubCategory, string> = {
+  PERFORMING_ARTS: '공연예술',
+  LIBERAL_ARTS_SERVICE: '교양봉사',
+  EXHIBITION_ARTS: '전시창작',
+  RELIGION: '종교',
+  BALL_LEISURE: '구기레저',
+  PHYSICAL_MARTIAL_ARTS: '체육무예',
+  ACADEMIC: '학술',
+};
+
+const STATUS_CONFIG: Record<RecruitmentStatus, { label: string; className: string }> = {
+  RECRUITING: { label: '모집중', className: 'bg-lime-200 text-zinc-800 dark:bg-lime-500/70 dark:text-zinc-900' },
+  SCHEDULED: { label: '모집예정', className: 'bg-cyan-200 text-zinc-800 dark:bg-cyan-500/70 dark:text-zinc-900' },
+  CLOSED: { label: '마감', className: 'bg-zinc-200 text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400' },
 };
 
 function LikedClubsListContent() {
@@ -70,10 +86,20 @@ function LikedClubsListContent() {
                   <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
                     {club.name}
                   </h4>
-                  <div className="mt-1">
-                    <Chip size="sm" color="accent" variant="soft">
+                  <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                    {club.recruitmentStatus && (
+                      <span className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium ${STATUS_CONFIG[club.recruitmentStatus].className}`}>
+                        {STATUS_CONFIG[club.recruitmentStatus].label}
+                      </span>
+                    )}
+                    <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
                       {TYPE_LABEL[club.type]}
-                    </Chip>
+                    </span>
+                    {club.category && (
+                      <span className="rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                        {CATEGORY_LABEL[club.category]}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <svg
