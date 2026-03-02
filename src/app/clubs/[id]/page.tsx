@@ -4,7 +4,7 @@ import { Suspense, use, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { Button, Chip, Spinner, Tabs, TextArea } from '@heroui/react';
+import { Button, Spinner, Tabs, TextArea } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
 
 import { ClubCategory, ClubType, RecruitmentStatus } from '@/types/api';
@@ -34,17 +34,23 @@ const CATEGORY_LABEL: Record<ClubCategory, string> = {
 const TYPE_LABEL: Record<ClubType, string> = {
   CENTRAL: '중앙동아리',
   DEPARTMENTAL: '학과동아리',
-  ACADEMIC_SOCIETY: '학술동아리',
-  CLUB: '동아리',
+  ACADEMIC_SOCIETY: '학회',
+  CLUB: '소모임',
 };
 
-const STATUS_CONFIG: Record<
-  RecruitmentStatus,
-  { label: string; color: 'success' | 'accent' | 'default' }
-> = {
-  RECRUITING: { label: '모집중', color: 'success' },
-  SCHEDULED: { label: '모집예정', color: 'accent' },
-  CLOSED: { label: '모집마감', color: 'default' },
+const STATUS_CONFIG: Record<RecruitmentStatus, { label: string; className: string }> = {
+  RECRUITING: {
+    label: '모집중',
+    className: 'bg-lime-200 text-zinc-800 dark:bg-lime-500/70 dark:text-zinc-900',
+  },
+  SCHEDULED: {
+    label: '모집예정',
+    className: 'bg-cyan-200 text-zinc-800 dark:bg-cyan-500/70 dark:text-zinc-900',
+  },
+  CLOSED: {
+    label: '마감',
+    className: 'bg-zinc-200 text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400',
+  },
 };
 
 function formatDate(dateString: string): string {
@@ -122,18 +128,23 @@ function ClubHeader({ clubId }: { clubId: number }) {
           )}
         </div>
         <div className="flex flex-1 flex-col justify-center">
-          <div className="flex items-center gap-2">
-            <Chip size="sm" color={status.color} variant="soft">
+          <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
+            <span
+              className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium ${status.className}`}
+            >
               {status.label}
-            </Chip>
+            </span>
+            <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+              {TYPE_LABEL[club.type]}
+            </span>
+            <span className="rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+              {CATEGORY_LABEL[club.category]}
+            </span>
           </div>
-          <h1 className="mt-1.5 text-xl font-bold text-zinc-900 dark:text-zinc-100">{club.name}</h1>
+          <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">{club.name}</h1>
           {club.summary && (
             <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{club.summary}</p>
           )}
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            {TYPE_LABEL[club.type]} · {CATEGORY_LABEL[club.category]}
-          </p>
         </div>
       </div>
       <div className="mt-5 flex gap-2">
@@ -423,8 +434,19 @@ function ClubQnaTab({
                 className="shrink-0 rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 disabled:opacity-50 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
                 aria-label="질문 삭제"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  className="h-4 w-4"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
                 </svg>
               </button>
             </div>

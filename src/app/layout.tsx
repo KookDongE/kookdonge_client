@@ -10,6 +10,7 @@ import { AuthProvider } from '@/features/auth';
 import { FcmForegroundHandler } from '@/features/notifications/fcm-foreground-handler';
 import { BottomNav } from '@/components/common/bottom-nav';
 import { Header } from '@/components/common/header';
+import { PwaNoticeModal } from '@/components/common/pwa-notice-modal';
 
 import '@/styles/globals.css';
 
@@ -113,6 +114,7 @@ export default function RootLayout({
                   <BottomNav />
                 </div>
                 <Toaster position="top-center" richColors />
+                <PwaNoticeModal />
               </AuthProvider>
             </QueryProvider>
           </NuqsAdapter>

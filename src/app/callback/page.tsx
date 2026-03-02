@@ -3,15 +3,15 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { useQueryClient } from '@tanstack/react-query';
 import { Spinner } from '@heroui/react';
+import { useQueryClient } from '@tanstack/react-query';
 
+import { getRedirectUri, OAUTH_STATE_KEY } from '@/lib/google-oauth';
 import { authApi } from '@/features/auth/api';
 import { authKeys } from '@/features/auth/hooks';
 import { useAuthStore } from '@/features/auth/store';
-import { getOrCreateDeviceId } from '@/features/device/device-id';
 import { deviceApi } from '@/features/device/api';
-import { getRedirectUri, OAUTH_STATE_KEY } from '@/lib/google-oauth';
+import { getOrCreateDeviceId } from '@/features/device/device-id';
 
 function registerDeviceAfterLogin() {
   const deviceId = getOrCreateDeviceId();
@@ -39,13 +39,17 @@ function CallbackContent() {
     const state = searchParams.get('state');
     const errorFromGoogle = searchParams.get('error');
 
+    const scheduleError = () => {
+      queueMicrotask(() => setStatus('error'));
+    };
+
     if (errorFromGoogle) {
-      setStatus('error');
+      scheduleError();
       return;
     }
 
     if (!code) {
-      setStatus('error');
+      scheduleError();
       return;
     }
 
@@ -58,7 +62,7 @@ function CallbackContent() {
     }
 
     if (state !== savedState) {
-      setStatus('error');
+      scheduleError();
       return;
     }
 
