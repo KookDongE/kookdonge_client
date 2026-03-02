@@ -49,8 +49,14 @@ export function useNotification(): UseNotificationReturn {
     if (typeof window === 'undefined') return;
     setError(null);
     setIsLoading(true);
+    const timeoutMs = 20000;
+    const timeoutId = setTimeout(() => {
+      setError(new Error('처리 시간이 초과되었습니다. 다시 시도해 주세요.'));
+      setIsLoading(false);
+    }, timeoutMs);
     try {
       const token = await getFcmToken();
+      clearTimeout(timeoutId);
       const deviceId = getOrCreateDeviceId();
       if (!deviceId) {
         setError(new Error('디바이스 ID를 생성할 수 없습니다.'));
@@ -65,10 +71,12 @@ export function useNotification(): UseNotificationReturn {
         platform: 'WEB',
       });
     } catch (e) {
+      clearTimeout(timeoutId);
       const err = e instanceof Error ? e : new Error(String(e));
       setError(err);
       setPermission(getPermissionState());
     } finally {
+      clearTimeout(timeoutId);
       setIsLoading(false);
     }
   }, []);

@@ -279,11 +279,13 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
       )}
       <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
         <h3 className="mb-3 font-semibold text-zinc-900 dark:text-zinc-100">기본 정보</h3>
-        <div className="space-y-3">
+        <div className="min-w-0 space-y-3">
           {infoItems.map((item) => (
-            <div key={item.label} className="flex justify-between text-sm">
-              <span className="text-zinc-500 dark:text-zinc-400">{item.label}</span>
-              <span className="font-medium text-zinc-900 dark:text-zinc-100">{item.value}</span>
+            <div key={item.label} className="flex min-w-0 justify-between gap-2 text-sm">
+              <span className="shrink-0 text-zinc-500 dark:text-zinc-400">{item.label}</span>
+              <span className="min-w-0 truncate text-right font-medium text-zinc-900 dark:text-zinc-100">
+                {item.value}
+              </span>
             </div>
           ))}
         </div>

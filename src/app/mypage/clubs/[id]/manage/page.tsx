@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, use, useEffect, useState } from 'react';
+import { Suspense, use, useEffect, useLayoutEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
@@ -81,6 +81,13 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   );
   const { data: club, isLoading } = useClubDetail(clubId);
   const updateClub = useUpdateClubDetail();
+
+  // 진입·동아리 변경 시 스크롤을 맨 위로 (재진입 시 최하단에 보이던 현상 방지)
+  useLayoutEffect(() => {
+    const scrollEl = document.querySelector('[data-scroll-container]') as HTMLElement | null;
+    if (scrollEl) scrollEl.scrollTo(0, 0);
+    window.scrollTo(0, 0);
+  }, [clubId]);
 
   // 편집 모드 상태
   const [isEditingBasic, setIsEditingBasic] = useState(false);
@@ -1120,7 +1127,7 @@ function ClubInfoTab({
       </div>
 
       {/* 모집 정보 */}
-      <div className={cardClass}>
+      <div className={`${cardClass} min-w-0 overflow-hidden`}>
         <div className="mb-3 flex items-center justify-between">
           <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">모집 정보</h3>
           {!isEditingRecruitment ? (
@@ -1175,7 +1182,7 @@ function ClubInfoTab({
               <label className="mb-1.5 block text-sm font-medium text-zinc-500 dark:text-zinc-400">
                 모집 기간
               </label>
-              <div className={valueBoxClass}>
+              <div className={`${valueBoxClass} min-w-0 truncate`}>
                 {formatDate(club.recruitmentStartDate)} ~ {formatDate(club.recruitmentEndDate)}
               </div>
             </div>
@@ -1229,9 +1236,9 @@ function ClubInfoTab({
                 </Select.Popover>
               </Select>
             </div>
-            <div className="space-y-4">
-              <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
-                <div className="min-w-0">
+            <div className="max-w-full min-w-0 space-y-4">
+              <div className="grid w-full max-w-full grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="max-w-full min-w-0">
                   <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
                     모집 시작일
                   </label>
@@ -1259,8 +1266,8 @@ function ClubInfoTab({
                   />
                 </div>
               </div>
-              <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
-                <div className="min-w-0">
+              <div className="grid w-full max-w-full grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="max-w-full min-w-0">
                   <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
                     모집 종료일
                   </label>

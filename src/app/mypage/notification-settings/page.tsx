@@ -17,6 +17,7 @@ export default function NotificationSettingsPage() {
   const {
     permission,
     isLoading: isPermissionLoading,
+    error,
     requestPermissionAndRegister,
     isSupported,
   } = useNotification();
@@ -87,25 +88,30 @@ export default function NotificationSettingsPage() {
 
             {isSupported && (
               <div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
-                <p className="mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                  브라우저 알림 권한
-                </p>
-                <p className="mb-3 text-xs text-zinc-500 dark:text-zinc-400">
+                <div className="mb-2 flex items-center justify-between gap-4">
+                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                    브라우저 알림 권한
+                  </p>
+                  {permission !== 'granted' && (
+                    <button
+                      type="button"
+                      onClick={() => requestPermissionAndRegister()}
+                      disabled={isPermissionLoading}
+                      className="shrink-0 rounded-lg bg-sky-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-sky-600 disabled:opacity-50 dark:bg-sky-600 dark:hover:bg-sky-700"
+                    >
+                      {isPermissionLoading ? '처리 중...' : '허용'}
+                    </button>
+                  )}
+                </div>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
                   {permission === 'granted'
                     ? '알림 권한이 허용되어 있습니다.'
                     : permission === 'denied'
                       ? '알림이 차단되어 있습니다. 브라우저 설정에서 이 사이트의 알림을 허용해 주세요.'
-                      : '알림을 받으려면 아래 버튼으로 권한을 허용해 주세요.'}
+                      : '알림을 받으려면 우측 버튼으로 권한을 허용해 주세요.'}
                 </p>
-                {permission !== 'granted' && (
-                  <button
-                    type="button"
-                    onClick={() => requestPermissionAndRegister()}
-                    disabled={isPermissionLoading}
-                    className="rounded-lg bg-sky-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-sky-600 disabled:opacity-50 dark:bg-sky-600 dark:hover:bg-sky-700"
-                  >
-                    {isPermissionLoading ? '처리 중...' : '알림 권한 허용하기'}
-                  </button>
+                {error && (
+                  <p className="mt-2 text-xs text-red-500 dark:text-red-400">{error.message}</p>
                 )}
               </div>
             )}
@@ -115,20 +121,9 @@ export default function NotificationSettingsPage() {
                 알림 설정 해제 방법
               </p>
               <p className="text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
-                알림을 완전히 끄려면 아래 두 가지를 모두 해주세요.
+                알림을 끄려면: 설정(앱)에서 위 푸시 알림 스위치를 끄고, 브라우저에서는 설정 → 사이트
+                설정 → 알림에서 이 사이트의 알림을 해제하세요.
               </p>
-              <ol className="mt-3 list-decimal space-y-2 pl-4 text-xs text-zinc-600 dark:text-zinc-400">
-                <li>
-                  <strong className="text-zinc-700 dark:text-zinc-300">앱 설정:</strong> 위에서 푸시
-                  알림 스위치를 끄면 서버에 알림 수신 거부가 저장됩니다.
-                </li>
-                <li>
-                  <strong className="text-zinc-700 dark:text-zinc-300">브라우저 권한:</strong>{' '}
-                  주소창 왼쪽 자물쇠(또는 정보) 아이콘 → 「사이트 설정」 또는 「알림」 → 알림을
-                  「차단」으로 변경하세요. 또는 브라우저 설정 → 개인정보 및 보안 → 사이트 설정 →
-                  알림에서 이 사이트의 알림을 차단할 수 있습니다.
-                </li>
-              </ol>
             </div>
           </>
         )}

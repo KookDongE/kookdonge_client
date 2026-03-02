@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { Button, Spinner } from '@heroui/react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -442,6 +442,27 @@ function ClubListSection({ returnTo }: { returnTo?: string }) {
 function HomeContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // 풀리프레시·웹 새로고침 시 필터(쿼리) 초기화
+  useEffect(() => {
+    if (typeof window === 'undefined' || pathname !== '/home') return;
+    const nav = performance.getEntriesByType?.('navigation')?.[0] as
+      | PerformanceNavigationTiming
+      | undefined;
+    if (
+      nav?.type === 'reload' &&
+      (searchParams.get('category') ??
+        searchParams.get('status') ??
+        searchParams.get('clubType') ??
+        searchParams.get('college') ??
+        searchParams.get('q') ??
+        searchParams.get('sort'))
+    ) {
+      router.replace('/home');
+    }
+  }, [pathname, router, searchParams]);
+
   const returnTo =
     pathname === '/home'
       ? `/home${searchParams.toString() ? `?${searchParams.toString()}` : ''}`

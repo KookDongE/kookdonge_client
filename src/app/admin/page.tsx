@@ -249,7 +249,7 @@ function AdminPageContent() {
   }
 
   return (
-    <div className="mt-0 min-h-screen bg-white pt-0 pb-20 dark:bg-zinc-900">
+    <div className="-mt-4 min-h-screen bg-white pb-20 dark:bg-zinc-900">
       <Tabs
         selectedKey={tab || 'applications'}
         onSelectionChange={(key) => setTab(key as string)}
