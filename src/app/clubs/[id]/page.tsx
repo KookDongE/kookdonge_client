@@ -307,7 +307,7 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
     { label: '휴학생 지원 가능', value: club.allowLeaveOfAbsence ? '가능' : '불가능' },
   ];
 
-  const contentImageUrl = club.descriptionImages?.[0];
+  const contentImageUrl = club.contentImageUrl ?? club.descriptionImages?.[0];
   const hasIntroduction =
     (club.content != null && club.content.trim() !== '') || !!contentImageUrl;
 

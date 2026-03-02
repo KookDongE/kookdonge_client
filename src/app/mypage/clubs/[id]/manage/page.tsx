@@ -216,7 +216,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
     setAllowLeaveOfAbsence(club.allowLeaveOfAbsence ?? false);
     setContent(club.content || '');
     setDescription(club.description || '');
-    setContentImage(club.descriptionImages?.[0] ?? '');
+    setContentImage(club.contentImageUrl ?? club.descriptionImages?.[0] ?? '');
     setRecruitmentStatus(club.recruitmentStatus);
     const startParts = (club.recruitmentStartDate ?? '').split('T');
     setRecruitmentStartDate(startParts[0] || '');

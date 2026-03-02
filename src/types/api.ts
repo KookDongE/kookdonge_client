@@ -157,6 +157,9 @@ export type ClubDetailRes = {
   isLikedByMe: boolean;
   description: string;
   content: string;
+  /** 동아리 소개 이미지 URL (API: contentImageUrl) */
+  contentImageUrl?: string;
+  /** 하위 호환 */
   descriptionImages?: string[];
   category: ClubCategory;
   allowLeaveOfAbsence: boolean;
