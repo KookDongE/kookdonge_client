@@ -8,6 +8,7 @@ import {
   useMarkAllAsRead,
   useMarkAsRead,
   useNotificationsInfinite,
+  useUnreadCount,
 } from '@/features/notifications/hooks';
 
 function typeLabel(type: string): string {
@@ -55,20 +56,33 @@ export default function NotificationsPage() {
   const sentinelRef = useRef<HTMLDivElement>(null);
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useNotificationsInfinite(20);
+  const { data: unreadCount = 0 } = useUnreadCount();
   const markAsRead = useMarkAsRead();
   const markAllAsRead = useMarkAllAsRead();
 
   const list = data?.pages.flatMap((p) => p.notifications) ?? [];
   const hasNext = hasNextPage ?? false;
+  const hasUnread = unreadCount > 0;
 
   const handleItemClick = (item: NotificationRes) => {
-    markAsRead.mutate(item.id);
-    const url = item.redirectUrl ?? '/home';
-    router.push(url.startsWith('/') ? url : `/${url}`);
+    if (!item.isRead) {
+      markAsRead.mutate(item.id, {
+        onSuccess: () => {
+          goToRedirect(item);
+        },
+      });
+    } else {
+      goToRedirect(item);
+    }
   };
 
+  function goToRedirect(item: NotificationRes) {
+    const url = item.redirectUrl ?? '/home';
+    router.push(url.startsWith('/') ? url : `/${url}`);
+  }
+
   const handleMarkAllAsRead = () => {
-    markAllAsRead.mutate(undefined, { onSuccess: () => {} });
+    markAllAsRead.mutate(undefined);
   };
 
   // 무한 스크롤: sentinel이 보이면 다음 페이지 로드
@@ -88,20 +102,18 @@ export default function NotificationsPage() {
 
   return (
     <div className="pb-6">
-      <div className="flex items-center justify-end gap-2 px-4 py-3">
-        {list.some((n) => !n.isRead) && (
+      <div className="flex items-center justify-between gap-3 px-4 py-3">
+        <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">알림</h1>
+        {hasUnread && (
           <button
             type="button"
             onClick={handleMarkAllAsRead}
             disabled={markAllAsRead.isPending}
             className="text-sm font-medium text-blue-500 hover:underline disabled:opacity-50 dark:text-lime-400"
           >
-            모두 읽음
+            전체 읽음
           </button>
         )}
-      </div>
-      <div className="px-4">
-        <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">알림</h1>
       </div>
       <div className="mt-4 flex flex-col gap-4 px-4">
         {isLoading ? (

@@ -35,7 +35,7 @@ export function Header() {
           <BellIcon className="h-6 w-6" />
           {unreadCount > 0 && (
             <span
-              className="absolute -top-0.5 -right-0.5 flex min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 py-0.5 text-[10px] leading-none font-bold text-white"
+              className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold leading-none text-white"
               aria-label={`읽지 않은 알림 ${unreadCount}개`}
             >
               {unreadCount > 99 ? '99+' : unreadCount}
