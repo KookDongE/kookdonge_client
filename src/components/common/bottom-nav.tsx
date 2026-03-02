@@ -140,12 +140,18 @@ export function BottomNav() {
 
   const activeIndex = allNavItems.findIndex((item) => isActive(item.href));
 
+  const scrollHomeToTop = () => {
+    const el = document.querySelector('[data-scroll-container]') as HTMLElement | null;
+    if (el) el.scrollTo(0, 0);
+  };
+
   return (
     <nav className={navClassName}>
       <div className="relative flex items-center justify-around py-2">
         {allNavItems.map((item, index) => {
           const active = isActive(item.href);
           const href = item.href;
+          const isHomeLink = href === '/home';
 
           return (
             <Link
@@ -154,6 +160,14 @@ export function BottomNav() {
                 linkRefs.current[index] = el;
               }}
               href={href}
+              onClick={
+                isHomeLink && pathname === '/home'
+                  ? (e) => {
+                      e.preventDefault();
+                      scrollHomeToTop();
+                    }
+                  : undefined
+              }
               className="relative flex min-w-[64px] flex-col items-center gap-0.5 py-2 outline-none"
             >
               <motion.div

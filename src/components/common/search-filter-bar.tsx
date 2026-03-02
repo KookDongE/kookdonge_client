@@ -201,6 +201,7 @@ export function SearchFilterBar({
       }
       lastScrollYRef.current = currentScrollY;
     };
+    handleScroll(); // 마운트/홈 진입 시 현재 스크롤 위치와 동기화(필터·인기동아리 겹침 방지)
     scrollEl.addEventListener('scroll', handleScroll, { passive: true });
     return () => scrollEl.removeEventListener('scroll', handleScroll);
   }, [stickyHideOnScroll]);

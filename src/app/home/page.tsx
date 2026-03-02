@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -557,6 +557,13 @@ function HomeContent() {
     pathname === '/home'
       ? `/home${searchParams.toString() ? `?${searchParams.toString()}` : ''}`
       : undefined;
+
+  // 홈 진입 시 실제 스크롤 컨테이너(data-scroll-container)를 맨 위로. Next.js 기본 스크롤은 window 기준이라 필터/인기동아리 겹침 방지.
+  useLayoutEffect(() => {
+    if (pathname !== '/home') return;
+    const el = document.querySelector('[data-scroll-container]') as HTMLElement | null;
+    if (el) el.scrollTo(0, 0);
+  }, [pathname]);
 
   return (
     <>
