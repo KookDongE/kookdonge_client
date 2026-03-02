@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { Button, Chip, Input, Select, SelectItem, Spinner, Tabs } from '@heroui/react';
+import { Button, Chip, Input, ListBox, Select, Spinner, Tabs } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
 
 import { useMyProfile } from '@/features/auth/hooks';
@@ -71,19 +71,31 @@ function ApplicationList() {
         <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">상태</span>
         <Select
           aria-label="상태 선택"
-          selectedKeys={[statusFilter || 'all']}
-          onSelectionChange={(keys) => {
-            const v = Array.from(keys)[0] as string;
+          selectedKey={statusFilter || 'all'}
+          onSelectionChange={(key) => {
+            const v = (key ?? 'all') as string;
             setStatusFilter(v === 'all' ? '' : v);
           }}
           className="max-w-[120px]"
           size="sm"
         >
-          {STATUS_FILTER_OPTIONS.map((opt) => (
-            <SelectItem key={opt.value || 'all'} textValue={opt.label}>
-              {opt.label}
-            </SelectItem>
-          ))}
+          <Select.Trigger className="rounded-lg border border-zinc-200 bg-white dark:border-zinc-600 dark:bg-zinc-800">
+            <Select.Value />
+            <Select.Indicator />
+          </Select.Trigger>
+          <Select.Popover>
+            <ListBox>
+              {STATUS_FILTER_OPTIONS.map((opt) => (
+                <ListBox.Item
+                  key={opt.value || 'all'}
+                  id={opt.value || 'all'}
+                  textValue={opt.label}
+                >
+                  {opt.label}
+                </ListBox.Item>
+              ))}
+            </ListBox>
+          </Select.Popover>
         </Select>
       </div>
       <div className="space-y-3">
