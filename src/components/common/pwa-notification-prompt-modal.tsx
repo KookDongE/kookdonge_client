@@ -3,43 +3,31 @@
 import { useEffect, useState } from 'react';
 
 import { useAuthStore } from '@/features/auth/store';
-import { registerDeviceWithBackend } from '@/features/device/register-device';
+import { useNotification } from '@/features/device/use-notification';
 
-const PWA_NOTIFICATION_PROMPT_SEEN_KEY = 'kookdonge-pwa-notification-prompt-seen';
-
-function isRunningAsPWA(): boolean {
-  if (typeof window === 'undefined') return false;
-  const standalone = window.matchMedia('(display-mode: standalone)').matches;
-  const fullscreen = window.matchMedia('(display-mode: fullscreen)').matches;
-  const iosStandalone = (navigator as Navigator & { standalone?: boolean }).standalone === true;
-  return standalone || fullscreen || iosStandalone;
-}
+const NOTIFICATION_PROMPT_SEEN_KEY = 'kookdonge-notification-prompt-seen';
 
 export function PwaNotificationPromptModal() {
   const accessToken = useAuthStore((s) => s.accessToken);
+  const { permission, isSupported, requestPermissionAndRegister, isLoading: isPermissionLoading } =
+    useNotification();
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!accessToken || !isRunningAsPWA()) return;
+    if (!accessToken || !isSupported || permission !== 'default') return;
     try {
-      if (localStorage.getItem(PWA_NOTIFICATION_PROMPT_SEEN_KEY) === 'true') return;
+      if (localStorage.getItem(NOTIFICATION_PROMPT_SEEN_KEY) === 'true') return;
     } catch {
       return;
     }
     const id = setTimeout(() => setOpen(true), 0);
     return () => clearTimeout(id);
-  }, [accessToken]);
+  }, [accessToken, isSupported, permission]);
 
   const handleAllow = async () => {
-    setLoading(true);
+    await requestPermissionAndRegister();
     try {
-      await registerDeviceWithBackend();
-    } finally {
-      setLoading(false);
-    }
-    try {
-      localStorage.setItem(PWA_NOTIFICATION_PROMPT_SEEN_KEY, 'true');
+      localStorage.setItem(NOTIFICATION_PROMPT_SEEN_KEY, 'true');
     } catch {
       // ignore
     }
@@ -48,7 +36,7 @@ export function PwaNotificationPromptModal() {
 
   const handleLater = () => {
     try {
-      localStorage.setItem(PWA_NOTIFICATION_PROMPT_SEEN_KEY, 'true');
+      localStorage.setItem(NOTIFICATION_PROMPT_SEEN_KEY, 'true');
     } catch {
       // ignore
     }
@@ -87,10 +75,10 @@ export function PwaNotificationPromptModal() {
           <button
             type="button"
             onClick={handleAllow}
-            disabled={loading}
+            disabled={isPermissionLoading}
             className="flex-1 rounded-xl bg-blue-500 py-3 font-semibold text-white transition-colors hover:bg-blue-600 disabled:opacity-70 dark:bg-lime-400 dark:text-zinc-900 dark:hover:bg-lime-300"
           >
-            {loading ? '처리 중…' : '알림 허용'}
+            {isPermissionLoading ? '처리 중…' : '알림 허용'}
           </button>
         </div>
       </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 
 import { Spinner, Switch } from '@heroui/react';
@@ -11,9 +11,19 @@ import { getOrCreateDeviceId } from '@/features/device/device-id';
 import { useNotification } from '@/features/device/use-notification';
 import { BellIcon } from '@/components/icons/notification-icon';
 
+/** iOS / Android / 기타(데스크톱 등) 구분 */
+function getNotificationGuideOs(): 'ios' | 'android' | 'desktop' {
+  if (typeof navigator === 'undefined') return 'desktop';
+  const ua = navigator.userAgent.toLowerCase();
+  if (/iphone|ipad|ipod/.test(ua)) return 'ios';
+  if (/android/.test(ua)) return 'android';
+  return 'desktop';
+}
+
 export default function NotificationSettingsPage() {
   const queryClient = useQueryClient();
   const deviceId = useMemo(() => (typeof window !== 'undefined' ? getOrCreateDeviceId() : ''), []);
+  const [guideOs] = useState(() => getNotificationGuideOs());
   const {
     permission,
     isLoading: isPermissionLoading,
@@ -38,6 +48,7 @@ export default function NotificationSettingsPage() {
 
   const notificationEnabled = settings?.notificationEnabled ?? true;
   const isLoading = isSettingsLoading || updateSettings.isPending;
+  const canToggle = permission === 'granted';
 
   return (
     <div className="pb-6">
@@ -73,35 +84,35 @@ export default function NotificationSettingsPage() {
                   <div>
                     <p className="font-medium text-zinc-900 dark:text-zinc-100">푸시 알림</p>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      동아리 모집, Q&A 답변 등 알림 수신
+                      {canToggle
+                        ? '동아리 모집, Q&A 답변 등 알림 수신'
+                        : '알림 권한을 허용한 뒤 토글로 켜고 끌 수 있습니다.'}
                     </p>
                   </div>
                 </div>
                 <Switch
                   isSelected={notificationEnabled}
                   onChange={(checked) => updateSettings.mutate(!!checked)}
-                  isDisabled={isLoading}
+                  isDisabled={isLoading || !canToggle}
                   aria-label="푸시 알림 켜기/끄기"
                 />
               </div>
             </div>
 
-            {isSupported && (
+            {isSupported && permission !== 'granted' && (
               <div className="flex flex-col rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
                 <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                   브라우저 알림 권한
                 </p>
                 <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                  {permission === 'granted'
-                    ? '알림 권한이 허용되어 있습니다.'
-                    : permission === 'denied'
-                      ? '알림이 차단되어 있습니다. 브라우저 설정 또는 앱 알림 설정에 들어가서 이 사이트 알림을 허용해 주세요.'
-                      : '알림을 받으려면 아래 버튼으로 권한을 허용해 주세요.'}
+                  {permission === 'denied'
+                    ? '알림이 차단되어 있습니다. 아래 OS별 방법으로 시스템 설정에서 이 사이트 알림을 허용해 주세요.'
+                    : '알림을 받으려면 아래 버튼으로 권한을 허용해 주세요.'}
                 </p>
                 {error && (
                   <p className="mt-2 text-xs text-red-500 dark:text-red-400">{error.message}</p>
                 )}
-                {permission !== 'granted' && (
+                {permission === 'default' && (
                   <div className="mt-3 flex justify-end">
                     <button
                       type="button"
@@ -118,11 +129,35 @@ export default function NotificationSettingsPage() {
 
             <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
               <p className="mb-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                알림 설정 해제 방법
+                알림 설정 방법
               </p>
               <p className="text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
-                알림을 끄려면: 설정(앱)에서 위 푸시 알림 스위치를 끄고, 브라우저에서는 설정 → 사이트
-                설정 → 알림에서 이 사이트의 알림을 해제하세요.
+                {guideOs === 'ios' && (
+                  <>
+                    <strong>iOS (Safari / 홈 화면에 추가한 앱)</strong>
+                    <br />
+                    설정 → 알림 → KookDongE(또는 Safari) → 알림 허용을 켜주세요. 이미 차단한 경우
+                    브라우저 주소창 왼쪽의 자물쇠/정보 버튼 → 웹사이트 설정 → 알림을 허용으로
+                    변경할 수 있습니다.
+                  </>
+                )}
+                {guideOs === 'android' && (
+                  <>
+                    <strong>Android (Chrome 등)</strong>
+                    <br />
+                    설정 → 사이트 설정 → 알림 → 이 사이트(kookdonge.co.kr) 알림을 허용해 주세요.
+                    또는 주소창 왼쪽 자물쇠 → 사이트 설정 → 알림을 허용으로 변경하세요.
+                  </>
+                )}
+                {guideOs === 'desktop' && (
+                  <>
+                    <strong>PC (Chrome / Edge 등)</strong>
+                    <br />
+                    주소창 오른쪽 자물쇠(또는 정보) 아이콘 → 사이트 설정 → 알림을 허용으로
+                    변경하세요. 이미 차단한 경우 브라우저 설정에서 해당 사이트 알림을 허용할 수
+                    있습니다.
+                  </>
+                )}
               </p>
             </div>
           </>
