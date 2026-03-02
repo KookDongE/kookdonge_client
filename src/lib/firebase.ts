@@ -95,9 +95,9 @@ export async function getFcmToken(): Promise<GetFcmTokenResult> {
       console.error('[FCM] 서비스 워커 등록 실패:', e);
       return null;
     });
-    // 재로그인 직후 SW가 아직 activating 상태일 수 있으므로 활성화까지 대기
-    if (registration) {
-      await registration.ready;
+    // 재로그인 직후 SW가 아직 activating 상태일 수 있으므로 활성화까지 대기 (표준 API, DOM 타입에 없을 수 있음)
+    if (registration && 'ready' in registration && registration.ready) {
+      await (registration as { ready: Promise<ServiceWorkerRegistration> }).ready;
     }
 
     const tryGetToken = (): Promise<string | null> =>
