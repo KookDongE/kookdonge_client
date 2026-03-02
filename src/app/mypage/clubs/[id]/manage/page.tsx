@@ -117,6 +117,8 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   const [content, setContent] = useState('');
   const [description, setDescription] = useState('');
   const [descriptionImages, setDescriptionImages] = useState<string[]>([]);
+  /** 동아리 소개 이미지 UUID (PUT /content 시 서버에 전달, 한 장만 지원) */
+  const [contentFileUuid, setContentFileUuid] = useState<string | null>(null);
   const [recruitmentStatus, setRecruitmentStatus] = useState<RecruitmentStatus>('RECRUITING');
   const [recruitmentStartDate, setRecruitmentStartDate] = useState('');
   const [recruitmentStartTime, setRecruitmentStartTime] = useState('00:00');
@@ -207,7 +209,12 @@ function ClubManageContent({ clubId }: { clubId: number }) {
     updateClub.mutate(
       {
         clubId,
-        data: { content, description, descriptionImages },
+        data: {
+          content,
+          description,
+          descriptionImages,
+          contentFileUuid: contentFileUuid ?? undefined,
+        },
       },
       {
         onSuccess: () => {
@@ -221,7 +228,12 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   const handleDescriptionImagesUpload = async (files: File[]) => {
     try {
       const result = await uploadFeedFiles.mutateAsync(files);
-      setDescriptionImages([...descriptionImages, ...result.map((r) => r.fileUrl)]);
+      const urls = result.map((r) => r.fileUrl);
+      setDescriptionImages([...descriptionImages, ...urls]);
+      // 동아리 소개 API는 이미지 1장만 지원하므로, 새로 올린 첫 번째 이미지 UUID 저장
+      if (result.length > 0 && result[0].uuid) {
+        setContentFileUuid(result[0].uuid);
+      }
     } catch (error) {
       alert('이미지 업로드에 실패했습니다.');
       console.error(error);
@@ -408,6 +420,9 @@ function ClubManageContent({ clubId }: { clubId: number }) {
               setDescription={setDescription}
               descriptionImages={descriptionImages}
               setDescriptionImages={setDescriptionImages}
+              onDescriptionImagesChange={(next) => {
+                if (next.length === 0) setContentFileUuid(null);
+              }}
               onDescriptionImagesUpload={handleDescriptionImagesUpload}
               recruitmentStatus={recruitmentStatus}
               setRecruitmentStatus={setRecruitmentStatus}
@@ -603,6 +618,7 @@ function ClubInfoTab({
   setDescription: _setDescription,
   descriptionImages,
   setDescriptionImages,
+  onDescriptionImagesChange,
   onDescriptionImagesUpload,
   recruitmentStatus,
   setRecruitmentStatus,
@@ -664,6 +680,7 @@ function ClubInfoTab({
   setDescription: (value: string) => void;
   descriptionImages: string[];
   setDescriptionImages: (value: string[]) => void;
+  onDescriptionImagesChange?: (next: string[]) => void;
   onDescriptionImagesUpload: (files: File[]) => void;
   recruitmentStatus: RecruitmentStatus;
   setRecruitmentStatus: (value: RecruitmentStatus) => void;
@@ -1090,9 +1107,11 @@ function ClubInfoTab({
                       <Image src={url} alt="" fill className="object-cover" sizes="96px" />
                       <button
                         type="button"
-                        onClick={() =>
-                          setDescriptionImages(descriptionImages.filter((_, i) => i !== index))
-                        }
+                        onClick={() => {
+                          const next = descriptionImages.filter((_, i) => i !== index);
+                          setDescriptionImages(next);
+                          onDescriptionImagesChange?.(next);
+                        }}
                         className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
                       >
                         <svg

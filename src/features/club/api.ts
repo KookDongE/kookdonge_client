@@ -256,10 +256,17 @@ export const clubApi = {
     });
   },
 
-  updateContent: async (clubId: number, data: { content: string }): Promise<void> => {
+  updateContent: async (
+    clubId: number,
+    data: { content: string; contentFileUuid?: string | null }
+  ): Promise<void> => {
+    const body: { content: string; contentFileUuid?: string } = { content: data.content };
+    if (data.contentFileUuid != null && data.contentFileUuid !== '') {
+      body.contentFileUuid = data.contentFileUuid;
+    }
     return apiClient<void>(`/api/clubs/${clubId}/content`, {
       method: 'PUT',
-      body: data,
+      body,
     });
   },
 
@@ -328,7 +335,10 @@ export const clubApi = {
       await clubApi.updateClubInfo(clubId, infoFields);
     }
     if (data.content !== undefined) {
-      await clubApi.updateContent(clubId, { content: data.content as string });
+      await clubApi.updateContent(clubId, {
+        content: data.content as string,
+        contentFileUuid: data.contentFileUuid as string | null | undefined,
+      });
     }
     const recruitmentStatus = data.recruitmentStatus as
       | 'RECRUITING'
