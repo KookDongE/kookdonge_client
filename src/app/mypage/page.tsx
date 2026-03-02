@@ -369,7 +369,6 @@ function QnAListSection() {
   );
 }
 
-
 function LikedClubsSection() {
   const { data: likedClubs, isLoading } = useLikedClubs();
 
@@ -500,21 +499,9 @@ function InterestedClubsSection() {
                   {club.name}
                 </h4>
                 <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                  {club.recruitmentStatus && (
-                    <span
-                      className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium ${STATUS_CONFIG[club.recruitmentStatus].className}`}
-                    >
-                      {STATUS_CONFIG[club.recruitmentStatus].label}
-                    </span>
-                  )}
                   <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
                     {TYPE_LABEL[club.type]}
                   </span>
-                  {club.category && (
-                    <span className="rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-                      {CATEGORY_LABEL[club.category]}
-                    </span>
-                  )}
                 </div>
               </div>
               <svg
