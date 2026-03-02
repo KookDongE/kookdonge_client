@@ -3,7 +3,7 @@
 import { Suspense, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Chip, Spinner, Tabs, Tab } from '@heroui/react';
+import { Chip, Spinner, Tabs } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
 
 import { useMyQuestions } from '@/features/question/hooks';
@@ -157,12 +157,30 @@ function QuestionsPageContent() {
         className="w-full"
         aria-label="Q&A 탭"
       >
-        <Tab key="questions" title="질문">
+        <Tabs.ListContainer className="bg-white px-4 dark:bg-zinc-900">
+          <Tabs.List aria-label="Q&A 탭" className="flex w-full">
+            <Tabs.Tab
+              id="questions"
+              className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
+            >
+              질문
+              <Tabs.Indicator />
+            </Tabs.Tab>
+            <Tabs.Tab
+              id="answers"
+              className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
+            >
+              답변
+              <Tabs.Indicator />
+            </Tabs.Tab>
+          </Tabs.List>
+        </Tabs.ListContainer>
+        <Tabs.Panel id="questions">
           <QuestionsTabContent />
-        </Tab>
-        <Tab key="answers" title="답변">
+        </Tabs.Panel>
+        <Tabs.Panel id="answers">
           <AnswersTabContent />
-        </Tab>
+        </Tabs.Panel>
       </Tabs>
     </div>
   );
