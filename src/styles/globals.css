@@ -148,6 +148,16 @@ html:not(.dark) .weekly-frequency-buttons button[role='radio'][aria-checked='tru
   padding: 0;
 }
 
+/* 앱 뷰(standalone/PWA)에서만: 모집일/시간 입력 가로를 절반으로 제한해 깨짐 방지 */
+@media (display-mode: standalone) {
+  .club-manage-card input[type='date'],
+  .club-manage-card input[type='time'],
+  .club-manage-date-input,
+  .club-manage-time-input {
+    max-width: 50%;
+  }
+}
+
 html:not(.dark) .club-manage-dropdown,
 html:not(.dark) .club-manage-dropdown-list,
 html:not(.dark) .club-manage-dropdown div,
