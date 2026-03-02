@@ -163,6 +163,7 @@ export function useUpdateClubDetail() {
         weeklyActiveFrequency?: number;
         allowLeaveOfAbsence?: boolean;
         content?: string;
+        contentFileUuid?: string | null;
         description?: string;
         descriptionImages?: string[];
         recruitmentStatus?: RecruitmentStatus;
