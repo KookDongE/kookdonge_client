@@ -247,17 +247,9 @@ function ClubHeader({
               aria-label={isNotificationOn ? '알림 해제' : '알림 받기'}
             >
               <div
-                className={`relative flex items-center justify-center ${isNotificationOn ? 'text-sky-600 dark:text-sky-400' : 'text-zinc-400 dark:text-zinc-500'}`}
+                className={`flex items-center justify-center ${isNotificationOn ? 'text-sky-600 dark:text-sky-400' : 'text-zinc-400 dark:text-zinc-500'}`}
               >
                 <BellIcon className="h-4 w-4 shrink-0" />
-                {!isNotificationOn && (
-                  <span
-                    className="pointer-events-none absolute inset-0 flex items-center justify-center"
-                    aria-hidden
-                  >
-                    <span className="h-px w-1/2 rotate-45 rounded-full bg-current opacity-60" />
-                  </span>
-                )}
               </div>
             </button>
             <button
