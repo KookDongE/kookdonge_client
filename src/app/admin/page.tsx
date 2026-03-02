@@ -77,7 +77,6 @@ function ApplicationList() {
             setStatusFilter(v === 'all' ? '' : v);
           }}
           className="max-w-[120px]"
-          size="sm"
         >
           <Select.Trigger className="rounded-lg border border-zinc-200 bg-white dark:border-zinc-600 dark:bg-zinc-800">
             <Select.Value />
