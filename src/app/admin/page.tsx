@@ -250,7 +250,7 @@ function AdminPageContent() {
         className="w-full"
       >
         <Tabs.ListContainer
-          className={`glass sticky top-20 z-30 border-b-0 px-4 ${stickyTransitionClass}`}
+          className={`glass sticky top-14 z-30 border-b-0 px-4 pt-0 ${stickyTransitionClass}`}
         >
           <Tabs.List aria-label="관리자 메뉴" className="flex w-full">
             <Tabs.Tab

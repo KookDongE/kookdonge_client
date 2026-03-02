@@ -304,7 +304,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
 
         {/* 탭 리스트 (고정 영역에 포함) */}
         <Tabs selectedKey={tab} onSelectionChange={(key) => setTab(key as string)} className="w-full">
-          <Tabs.ListContainer className="border-t border-zinc-200 bg-white px-4 dark:border-zinc-700 dark:bg-zinc-900">
+          <Tabs.ListContainer className="bg-white pt-4 px-4 dark:bg-zinc-900">
           <Tabs.List aria-label="동아리 정보" className="flex w-full">
             <Tabs.Tab
               id="info"
@@ -893,7 +893,7 @@ function ClubInfoTab({
                 })}
               </div>
             </div>
-            <div className="mt-5 flex items-center justify-between gap-3">
+            <div className="mt-8 flex items-center justify-between gap-3">
               <label className="text-sm font-medium text-gray-700 dark:text-zinc-300">
                 휴학생 지원 가능 여부
               </label>
@@ -1197,8 +1197,8 @@ function ClubInfoTab({
                 </Select.Popover>
               </Select>
             </div>
-            <div className="grid w-full max-w-full grid-cols-2 gap-3 overflow-hidden">
-              <div className="min-w-0 overflow-hidden">
+            <div className="grid w-full grid-cols-2 gap-3" style={{ gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)' }}>
+              <div className="min-w-0">
                 <label className="mb-2 block truncate text-sm font-medium text-gray-700 dark:text-zinc-300">
                   모집 시작일
                 </label>
@@ -1211,10 +1211,10 @@ function ClubInfoTab({
                     setRecruitmentStartDate(v);
                     if (recruitmentEndDate && v > recruitmentEndDate) setRecruitmentEndDate(v);
                   }}
-                  className="box-border w-full min-w-0 max-w-full rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                  className="box-border w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 [&::-webkit-date-and-time-value]:text-left"
                 />
               </div>
-              <div className="min-w-0 overflow-hidden">
+              <div className="min-w-0">
                 <label className="mb-2 block truncate text-sm font-medium text-gray-700 dark:text-zinc-300">
                   모집 종료일
                 </label>
@@ -1227,7 +1227,7 @@ function ClubInfoTab({
                     if (recruitmentStartDate && v < recruitmentStartDate) return;
                     setRecruitmentEndDate(v);
                   }}
-                  className="box-border w-full min-w-0 max-w-full rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                  className="box-border w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 [&::-webkit-date-and-time-value]:text-left"
                 />
               </div>
             </div>
@@ -1336,7 +1336,7 @@ function ClubFeedTab({ clubId }: { clubId: number }) {
 
       {/* 피드 목록 */}
       {feeds.map((feed) => {
-        const cover = feed.postUrls[0];
+        const cover = feed.postUrls?.[0];
         return (
           <button
             key={feed.feedId}

@@ -297,7 +297,7 @@ function ClubFeedTab({ clubId }: { clubId: number }) {
   return (
     <div className="grid grid-cols-3 gap-1.5 p-1.5">
       {feeds.map((feed) => {
-        const cover = feed.postUrls[0];
+        const cover = feed.postUrls?.[0];
         return (
           <button
             key={feed.feedId}

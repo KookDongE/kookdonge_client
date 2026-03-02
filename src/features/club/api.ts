@@ -297,7 +297,7 @@ export const clubApi = {
   ): Promise<ClubDetailRes> => {
     if (data.description !== undefined || data.profileFileUuid !== undefined) {
       await clubApi.updateDescription(clubId, {
-        description: data.description as string | undefined,
+        description: (data.description ?? data.summary) as string | undefined,
         profileFileUuid: data.profileFileUuid as string | undefined,
       });
     }

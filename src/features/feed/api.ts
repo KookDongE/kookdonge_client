@@ -41,11 +41,34 @@ export function validateImageFile(file: File): void {
   }
 }
 
+/** API가 snake_case(post_urls 등)로 올 수 있으므로 피드 목록을 camelCase로 정규화 */
+function normalizeClubFeedListRes(raw: unknown): ClubFeedListRes {
+  const o = raw as Record<string, unknown>;
+  const list = (o.clubFeedList ?? o.club_feed_list) as Array<Record<string, unknown>> | undefined;
+  const clubFeedList = (list ?? []).map((feed): ClubFeedRes => {
+    const urls = feed.postUrls ?? feed.post_urls;
+    const feedId = feed.feedId ?? feed.feed_id;
+    return {
+      feedId: typeof feedId === 'number' ? feedId : Number(feedId),
+      content: typeof feed.content === 'string' ? feed.content : '',
+      postUrls: Array.isArray(urls) ? (urls as string[]) : [],
+    };
+  });
+  return {
+    clubFeedList,
+    currentPage: (o.currentPage ?? o.current_page) as number | undefined,
+    totalPages: (o.totalPages ?? o.total_pages) as number | undefined,
+    totalElements: (o.totalElements ?? o.total_elements) as number | undefined,
+    hasNext: (o.hasNext ?? o.has_next) as boolean | undefined,
+  };
+}
+
 export const feedApi = {
   getClubFeeds: async (clubId: number, page = 0, size = 10): Promise<ClubFeedListRes> => {
-    return apiClient<ClubFeedListRes>(`/api/clubs/${clubId}/feeds`, {
+    const raw = await apiClient<unknown>(`/api/clubs/${clubId}/feeds`, {
       params: { page, size },
     });
+    return normalizeClubFeedListRes(raw);
   },
 
   getFeed: async (clubId: number, feedId: number): Promise<ClubFeedRes> => {

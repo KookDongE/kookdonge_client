@@ -34,7 +34,7 @@ function FeedPageContent({ clubId }: { clubId: number }) {
       feedId: feed.feedId,
       authorName: club?.name || '동아리',
       authorAvatar: club?.image,
-      imageUrl: feed.postUrls[0] || 'https://images.pexels.com/photos/1181263/pexels-photo-1181263.jpeg?auto=compress&cs=tinysrgb&w=800',
+      imageUrl: feed.postUrls?.[0] || 'https://images.pexels.com/photos/1181263/pexels-photo-1181263.jpeg?auto=compress&cs=tinysrgb&w=800',
       content: feed.content,
       createdAt,
     };
