@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { Button, Chip, Input, Spinner, Tabs } from '@heroui/react';
+import { Button, Chip, Input, Select, SelectItem, Spinner, Tabs } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
 
 import { useMyProfile } from '@/features/auth/hooks';
@@ -14,19 +14,39 @@ import { useAdminApplications } from '@/features/club/hooks';
 import { DefaultClubImage } from '@/components/common/default-club-image';
 import { SearchFilterBar } from '@/components/common/search-filter-bar';
 
+type ApplicationStatusFilter = 'PENDING' | 'APPROVED' | 'REJECTED' | '';
+
+const STATUS_FILTER_OPTIONS: { value: ApplicationStatusFilter; label: string }[] = [
+  { value: '', label: '전체' },
+  { value: 'PENDING', label: '대기' },
+  { value: 'APPROVED', label: '승인' },
+  { value: 'REJECTED', label: '거절' },
+];
+
+const STATUS_CHIP: Record<string, { label: string; color: 'warning' | 'success' | 'danger' }> = {
+  PENDING: { label: '대기', color: 'warning' },
+  APPROVED: { label: '승인', color: 'success' },
+  REJECTED: { label: '거절', color: 'danger' },
+};
+
 function ApplicationList() {
   const [q] = useQueryState('q', parseAsString.withDefault(''));
-  const { data: applications, isLoading } = useAdminApplications();
-  const pending = useMemo(
-    () => applications?.filter((app) => app.status === 'PENDING') ?? [],
-    [applications]
+  const [statusFilter, setStatusFilter] = useQueryState(
+    'status',
+    parseAsString.withDefault('').withOptions({ shallow: false })
   );
+  const statusParam =
+    statusFilter === 'PENDING' || statusFilter === 'APPROVED' || statusFilter === 'REJECTED'
+      ? statusFilter
+      : undefined;
+  const { data: applications, isLoading } = useAdminApplications(statusParam);
+  const list = useMemo(() => applications ?? [], [applications]);
   const filtered = useMemo(
     () =>
       q?.trim()
-        ? pending.filter((app) => app.name.toLowerCase().includes(q.trim().toLowerCase()))
-        : pending,
-    [pending, q]
+        ? list.filter((app) => app.name.toLowerCase().includes(q.trim().toLowerCase()))
+        : list,
+    [list, q]
   );
 
   if (isLoading) {
@@ -40,56 +60,80 @@ function ApplicationList() {
   if (filtered.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl bg-white py-12 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500">
-        <p>{q?.trim() ? '검색 결과가 없습니다.' : '대기 중인 신청이 없습니다.'}</p>
+        <p>{q?.trim() ? '검색 결과가 없습니다.' : '신청이 없습니다.'}</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-3 p-4">
-      {filtered.map((app) => (
-        <Link
-          key={app.id}
-          href={`/admin/applications/${app.id}`}
-          className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm transition-all hover:shadow-md dark:bg-zinc-800"
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">상태</span>
+        <Select
+          aria-label="상태 선택"
+          selectedKeys={[statusFilter || 'all']}
+          onSelectionChange={(keys) => {
+            const v = Array.from(keys)[0] as string;
+            setStatusFilter(v === 'all' ? '' : v);
+          }}
+          className="max-w-[120px]"
+          size="sm"
         >
-          <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
-            {app.image ? (
-              <Image src={app.image} alt={app.name} fill className="object-cover" sizes="56px" />
-            ) : (
-              <DefaultClubImage className="object-cover" sizes="56px" />
-            )}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center justify-between gap-2">
+          {STATUS_FILTER_OPTIONS.map((opt) => (
+            <SelectItem key={opt.value || 'all'} textValue={opt.label}>
+              {opt.label}
+            </SelectItem>
+          ))}
+        </Select>
+      </div>
+      <div className="space-y-3">
+        {filtered.map((app) => {
+          const chip = STATUS_CHIP[app.status ?? ''] ?? { label: app.status ?? '-', color: 'warning' as const };
+          return (
+            <Link
+              key={app.id}
+              href={`/admin/applications/${app.id}`}
+              className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm transition-all hover:shadow-md dark:bg-zinc-800"
+            >
+              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
+                {app.image ? (
+                  <Image src={app.image} alt={app.name} fill className="object-cover" sizes="56px" />
+                ) : (
+                  <DefaultClubImage className="object-cover" sizes="56px" />
+                )}
+              </div>
               <div className="min-w-0 flex-1">
-                <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
-                  {app.name}
-                </h4>
-                <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
-                  신청자: {app.applicantName || '(이름 없음)'} · {app.applicantEmail}
-                </div>
-                <div className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
-                  신청일: {new Date(app.createdAt).toLocaleDateString()}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
+                      {app.name}
+                    </h4>
+                    <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
+                      신청자: {app.applicantName || '(이름 없음)'} · {app.applicantEmail}
+                    </div>
+                    <div className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
+                      신청일: {new Date(app.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <Chip size="sm" color={chip.color} variant="soft" className="shrink-0">
+                    {chip.label}
+                  </Chip>
                 </div>
               </div>
-              <Chip size="sm" color="warning" variant="soft" className="shrink-0">
-                승인 대기
-              </Chip>
-            </div>
-          </div>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-          </svg>
-        </Link>
-      ))}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }

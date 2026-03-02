@@ -177,8 +177,8 @@ export const clubApi = {
     return clubApi.createRequest(data);
   },
 
-  getAllClubsForAdmin: async (): Promise<AdminApplicationItem[]> => {
-    const page = await clubApi.getAllRequests({ status: 'PENDING', page: 0, size: 100 });
+  getAllClubsForAdmin: async (status?: 'PENDING' | 'APPROVED' | 'REJECTED'): Promise<AdminApplicationItem[]> => {
+    const page = await clubApi.getAllRequests({ ...(status && { status }), page: 0, size: 100 });
     const content = 'content' in page ? page.content : [];
     return (content ?? []).map((r) => ({
       id: r.requestId as number,
@@ -205,12 +205,12 @@ export const clubApi = {
     return apiClient<void>(`/api/admin/clubs/${clubId}`, { method: 'DELETE' });
   },
 
-  getApplications: async (): Promise<AdminApplicationItem[]> => {
-    return clubApi.getAllClubsForAdmin();
+  getApplications: async (status?: 'PENDING' | 'APPROVED' | 'REJECTED'): Promise<AdminApplicationItem[]> => {
+    return clubApi.getAllClubsForAdmin(status);
   },
 
   getApplicationById: async (applicationId: number): Promise<AdminApplicationItem | null> => {
-    const list = await clubApi.getApplications();
+    const list = await clubApi.getApplications(undefined);
     return list.find((a) => a.id === applicationId) ?? null;
   },
 

@@ -272,10 +272,10 @@ export function useDeleteClub() {
   });
 }
 
-export function useAdminApplications() {
+export function useAdminApplications(status?: 'PENDING' | 'APPROVED' | 'REJECTED') {
   return useQuery({
-    queryKey: [...clubKeys.all, 'admin', 'applications'],
-    queryFn: () => clubApi.getApplications(),
+    queryKey: [...clubKeys.all, 'admin', 'applications', status ?? 'all'],
+    queryFn: () => clubApi.getApplications(status),
     staleTime: 0,
   });
 }

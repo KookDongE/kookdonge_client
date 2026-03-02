@@ -1,8 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 
-import { Button, Chip, Spinner } from '@heroui/react';
+import { Button, Spinner } from '@heroui/react';
 
 import type { ClubCategory, ClubType } from '@/types/api';
 import { useMyRequests } from '@/features/club/hooks';
@@ -24,7 +25,14 @@ const TYPE_LABELS: Record<ClubType, string> = {
   CLUB: '동아리',
 };
 
+const STATUS_CHIP_CLASS: Record<string, string> = {
+  PENDING: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+  APPROVED: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
+  REJECTED: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+};
+
 export default function MyApplicationDetailPage() {
+  const [mounted, setMounted] = useState(false);
   const params = useParams();
   const id = typeof params?.id === 'string' ? params.id : '';
   const requestId = parseInt(id, 10);
@@ -32,6 +40,18 @@ export default function MyApplicationDetailPage() {
   const { data: requests, isLoading } = useMyRequests();
   const application =
     Number.isNaN(requestId) ? undefined : requests?.find((r) => r.requestId === requestId);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[var(--background)] dark:bg-zinc-900">
+        <Spinner />
+      </div>
+    );
+  }
 
   if (!id || Number.isNaN(requestId)) {
     return (
@@ -82,23 +102,15 @@ export default function MyApplicationDetailPage() {
 
       <div className="space-y-6 p-4">
         <div className="flex items-center gap-2">
-          <Chip
-            size="sm"
-            color={
-              application.status === 'PENDING'
-                ? 'warning'
-                : application.status === 'APPROVED'
-                  ? 'success'
-                  : 'danger'
-            }
-            variant="soft"
+          <span
+            className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_CHIP_CLASS[application.status] ?? 'bg-zinc-100 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300'}`}
           >
             {application.status === 'PENDING'
               ? '승인 대기'
               : application.status === 'APPROVED'
                 ? '승인됨'
                 : '거절됨'}
-          </Chip>
+          </span>
         </div>
 
         <div>
