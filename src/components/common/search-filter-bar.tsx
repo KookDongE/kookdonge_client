@@ -97,7 +97,7 @@ type SearchFilterBarProps = {
 
 export function SearchFilterBar({
   placeholder = '어떤 동아리를 찾으시나요?',
-  stickyHideOnScroll = false,
+  stickyHideOnScroll = true,
   useGlass = false,
   className = '',
 }: SearchFilterBarProps) {

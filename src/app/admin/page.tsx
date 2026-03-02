@@ -50,7 +50,7 @@ function ApplicationManagementTab({
       >
         <SearchFilterBar
           placeholder="동아리명 검색"
-          stickyHideOnScroll={false}
+          stickyHideOnScroll
           useGlass
           className="!border-y-0 !border-b-0"
         />
