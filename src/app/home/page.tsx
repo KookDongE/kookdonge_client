@@ -1,6 +1,7 @@
 'use client';
 
 import { Suspense, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -416,31 +417,38 @@ function ClubListSection({ returnTo }: { returnTo?: string }) {
           </div>
         )}
       </div>
-      {deleteModalClubId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-800">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-zinc-100">
-              동아리 삭제
-            </h3>
-            <p className="mb-6 text-sm text-gray-600 dark:text-zinc-400">
-              정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
-            </p>
-            <div className="flex gap-3">
-              <Button variant="ghost" className="flex-1" onPress={() => setDeleteModalClubId(null)}>
-                취소
-              </Button>
-              <Button
-                variant="danger"
-                className="flex-1"
-                onPress={handleDeleteConfirm}
-                isPending={deleteClub.isPending}
-              >
-                삭제
-              </Button>
+      {deleteModalClubId &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+            <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-800">
+              <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-zinc-100">
+                동아리 삭제
+              </h3>
+              <p className="mb-6 text-sm text-gray-600 dark:text-zinc-400">
+                정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  variant="ghost"
+                  className="flex-1"
+                  onPress={() => setDeleteModalClubId(null)}
+                >
+                  취소
+                </Button>
+                <Button
+                  variant="danger"
+                  className="flex-1"
+                  onPress={handleDeleteConfirm}
+                  isPending={deleteClub.isPending}
+                >
+                  삭제
+                </Button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </>
   );
 }
