@@ -1,9 +1,9 @@
 'use client';
 
-import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 import { Button, Chip, Input, Spinner, Tabs } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
@@ -14,13 +14,7 @@ import { useAdminApplications } from '@/features/club/hooks';
 import { DefaultClubImage } from '@/components/common/default-club-image';
 import { SearchFilterBar } from '@/components/common/search-filter-bar';
 
-function ApplicationManagementTab({
-  stickyVisible = true,
-  filterStickyClass = '',
-}: {
-  stickyVisible?: boolean;
-  filterStickyClass?: string;
-} = {}) {
+function ApplicationList() {
   const [q] = useQueryState('q', parseAsString.withDefault(''));
   const { data: applications, isLoading } = useAdminApplications();
   const pending = useMemo(
@@ -43,74 +37,56 @@ function ApplicationManagementTab({
     );
   }
 
+  if (filtered.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-white py-12 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
+        <p>{q?.trim() ? '검색 결과가 없습니다.' : '대기 중인 신청이 없습니다.'}</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="pt-0">
-      <div
-        className={`glass sticky top-[6.5rem] z-20 border-y-0 border-b-0 pt-0 pb-2 ${filterStickyClass}`}
-      >
-        <SearchFilterBar
-          placeholder="동아리명 검색"
-          stickyHideOnScroll
-          useGlass
-          className="!border-y-0 !border-b-0"
-        />
-      </div>
-      <div className="space-y-4 p-4">
-        {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-white py-12 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
-            <p>{q?.trim() ? '검색 결과가 없습니다.' : '대기 중인 신청이 없습니다.'}</p>
+    <div className="space-y-3 p-4">
+      {filtered.map((app) => (
+        <Link
+          key={app.id}
+          href={`/admin/applications/${app.id}`}
+          className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
+        >
+          <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
+            {app.image ? (
+              <Image src={app.image} alt={app.name} fill className="object-cover" sizes="56px" />
+            ) : (
+              <DefaultClubImage className="object-cover" sizes="56px" />
+            )}
           </div>
-        ) : (
-          <div className="space-y-3">
-            {filtered.map((app) => (
-              <Link
-                key={app.id}
-                href={`/admin/applications/${app.id}`}
-                className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
-              >
-                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
-                  {app.image ? (
-                    <Image
-                      src={app.image}
-                      alt={app.name}
-                      fill
-                      className="object-cover"
-                      sizes="56px"
-                    />
-                  ) : (
-                    <DefaultClubImage className="object-cover" sizes="56px" />
-                  )}
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
+                  {app.name}
+                </h4>
+                <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
+                  신청일: {new Date(app.createdAt).toLocaleDateString()}
                 </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
-                        {app.name}
-                      </h4>
-                      <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
-                        신청일: {new Date(app.createdAt).toLocaleDateString()}
-                      </div>
-                    </div>
-                    <Chip size="sm" color="warning" variant="soft" className="shrink-0">
-                      승인 대기
-                    </Chip>
-                  </div>
-                </div>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            ))}
+              </div>
+              <Chip size="sm" color="warning" variant="soft" className="shrink-0">
+                승인 대기
+              </Chip>
+            </div>
           </div>
-        )}
-      </div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </Link>
+      ))}
     </div>
   );
 }
@@ -201,108 +177,8 @@ function AdminSettingsTab() {
 
 function AdminPageContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { data: profile, isLoading: profileLoading } = useMyProfile();
   const [tab, setTab] = useQueryState('tab', parseAsString.withDefault('applications'));
-  const [isStickyVisible, setIsStickyVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-  const didInitialClearCheckRef = useRef(false);
-  const hiddenAtRef = useRef<number | null>(null);
-  const FILTER_CLEAR_PENDING_KEY = 'filterClearPending_admin';
-
-  // 새로고침 시 필터(q 등) 초기화, tab만 유지 (마운트 후 1회만). 앱뷰: pagehide 플래그 있으면 초기화
-  useEffect(() => {
-    if (didInitialClearCheckRef.current) return;
-    didInitialClearCheckRef.current = true;
-    const hasFilter =
-      searchParams.get('q') ??
-      searchParams.get('category') ??
-      searchParams.get('status') ??
-      searchParams.get('clubType') ??
-      searchParams.get('college') ??
-      (searchParams.get('sort') && searchParams.get('sort') !== 'name,asc');
-    const pendingFromReload =
-      typeof sessionStorage !== 'undefined' && sessionStorage.getItem(FILTER_CLEAR_PENDING_KEY);
-    if (hasFilter || pendingFromReload) {
-      if (pendingFromReload) sessionStorage.removeItem(FILTER_CLEAR_PENDING_KEY);
-      if (hasFilter) {
-        const tabVal = searchParams.get('tab') || 'applications';
-        router.replace(`/admin?tab=${tabVal}`, { scroll: false });
-      }
-    }
-  }, [router, searchParams]);
-
-  // 앱뷰 풀리프레시: 페이지가 사라지기 직전에(필터가 있을 때만) 플래그 설정 → 새 문서 로드 시 위 effect에서 초기화
-  useEffect(() => {
-    const handlePagehide = () => {
-      try {
-        if (window.location.pathname !== '/admin') return;
-        const params = new URLSearchParams(window.location.search);
-        const hasFilter =
-          params.get('q') ??
-          params.get('category') ??
-          params.get('status') ??
-          params.get('clubType') ??
-          params.get('college') ??
-          (params.get('sort') && params.get('sort') !== 'name,asc');
-        if (hasFilter) sessionStorage.setItem(FILTER_CLEAR_PENDING_KEY, '1');
-      } catch {
-        // ignore
-      }
-    };
-    window.addEventListener('pagehide', handlePagehide);
-    return () => window.removeEventListener('pagehide', handlePagehide);
-  }, []);
-
-  // 앱뷰 풀리프레시: bfcache 복원 시 pageshow(persisted)에서 필터 초기화
-  useEffect(() => {
-    const handlePageshow = (e: PageTransitionEvent) => {
-      if (e.persisted !== true) return;
-      if (typeof window === 'undefined' || window.location.pathname !== '/admin') return;
-      const params = new URLSearchParams(window.location.search);
-      const hasFilter =
-        params.get('q') ??
-        params.get('category') ??
-        params.get('status') ??
-        params.get('clubType') ??
-        params.get('college') ??
-        (params.get('sort') && params.get('sort') !== 'name,asc');
-      if (hasFilter) {
-        const tabVal = params.get('tab') || 'applications';
-        router.replace(`/admin?tab=${tabVal}`, { scroll: false });
-      }
-    };
-    window.addEventListener('pageshow', handlePageshow);
-    return () => window.removeEventListener('pageshow', handlePageshow);
-  }, [router]);
-
-  // 앱뷰 풀리프레시: 리마운트가 안 되는 WebView는 visibilitychange로 감지 (숨김 → 보임 시 0.8초 이상 지났으면 필터 초기화)
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        hiddenAtRef.current = Date.now();
-      }
-      if (document.visibilityState !== 'visible') return;
-      if (typeof window === 'undefined' || window.location.pathname !== '/admin') return;
-      const hiddenAt = hiddenAtRef.current;
-      if (hiddenAt == null || Date.now() - hiddenAt < 800) return;
-      hiddenAtRef.current = null;
-      const params = new URLSearchParams(window.location.search);
-      const hasFilter =
-        params.get('q') ??
-        params.get('category') ??
-        params.get('status') ??
-        params.get('clubType') ??
-        params.get('college') ??
-        (params.get('sort') && params.get('sort') !== 'name,asc');
-      if (hasFilter) {
-        const tabVal = params.get('tab') || 'applications';
-        router.replace(`/admin?tab=${tabVal}`, { scroll: false });
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [router]);
 
   useEffect(() => {
     if (profileLoading) return;
@@ -310,36 +186,6 @@ function AdminPageContent() {
       router.replace('/home');
     }
   }, [profile, profileLoading, router]);
-
-  useEffect(() => {
-    const scrollEl =
-      document.querySelector('[data-scroll-container]') ??
-      document.querySelector('main') ??
-      document.documentElement;
-    const getScrollY = () =>
-      scrollEl === document.documentElement ? window.scrollY : (scrollEl as HTMLElement).scrollTop;
-    const handleScroll = () => {
-      const currentScrollY = getScrollY();
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        setIsStickyVisible(false);
-      } else if (currentScrollY < lastScrollY) {
-        setIsStickyVisible(true);
-      }
-      setLastScrollY(currentScrollY);
-    };
-    scrollEl.addEventListener('scroll', handleScroll, { passive: true });
-    return () => scrollEl.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    document.querySelector('[data-scroll-container]')?.scrollTo(0, 0);
-  }, [tab]);
-
-  const isApplicationsTab = (tab || 'applications') === 'applications';
-  const stickyTransitionClass = `transition-transform duration-300 ${
-    isStickyVisible ? 'translate-y-0' : '-translate-y-full opacity-0'
-  }`;
 
   if (profileLoading || (profile && !isSystemAdmin(profile))) {
     return (
@@ -350,15 +196,14 @@ function AdminPageContent() {
   }
 
   return (
-    <div className="-mt-4 min-h-screen bg-white pb-20 dark:bg-zinc-900">
+    <div className="min-h-screen bg-white pb-20 dark:bg-zinc-900">
+      {/* 1. 탭: 헤더 바로 밑 */}
       <Tabs
         selectedKey={tab || 'applications'}
         onSelectionChange={(key) => setTab(key as string)}
-        className="mt-0 w-full pt-0 [&_[data-slot=tabs-panel]]:pt-0"
+        className="w-full"
       >
-        <Tabs.ListContainer
-          className={`glass sticky top-[3.5rem] z-30 -mt-[4.5rem] border-y-0 border-b-0 px-4 pt-0 pb-2 ${stickyTransitionClass}`}
-        >
+        <Tabs.ListContainer className="border-b border-zinc-200 bg-[var(--card)] px-4 dark:border-zinc-700">
           <Tabs.List aria-label="관리자 메뉴" className="flex w-full">
             <Tabs.Tab
               id="applications"
@@ -376,13 +221,21 @@ function AdminPageContent() {
             </Tabs.Tab>
           </Tabs.List>
         </Tabs.ListContainer>
-        <Tabs.Panel id="applications">
-          <ApplicationManagementTab
-            stickyVisible={isStickyVisible}
-            filterStickyClass={stickyTransitionClass}
-          />
+
+        {/* 2. 개설 승인: 검색 → 필터 → 신청 목록 */}
+        <Tabs.Panel id="applications" className="pt-0">
+          <div className="border-b border-zinc-200 bg-[var(--card)] px-4 py-2 dark:border-zinc-700">
+            <SearchFilterBar
+              placeholder="동아리명 검색"
+              stickyHideOnScroll={false}
+              className="!border-0"
+            />
+          </div>
+          <ApplicationList />
         </Tabs.Panel>
-        <Tabs.Panel id="admins">
+
+        {/* 3. 관리자 설정: 설정 내용만 */}
+        <Tabs.Panel id="admins" className="pt-0">
           <AdminSettingsTab />
         </Tabs.Panel>
       </Tabs>
