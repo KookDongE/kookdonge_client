@@ -611,8 +611,9 @@ function MyApplicationsSection() {
       ) : (
         <div className="space-y-3">
           {list.slice(0, PREVIEW_LIMIT).map((app) => (
-            <div
+            <Link
               key={app.id}
+              href={`/mypage/applications/${app.id}`}
               className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
             >
               <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
@@ -658,7 +659,7 @@ function MyApplicationsSection() {
                   </Chip>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

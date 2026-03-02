@@ -36,7 +36,7 @@ export default function MyApplicationDetailPage({ params }: PageProps) {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-zinc-900">
+      <div className="flex min-h-screen items-center justify-center bg-[var(--background)] dark:bg-zinc-900">
         <Spinner />
       </div>
     );
@@ -44,7 +44,7 @@ export default function MyApplicationDetailPage({ params }: PageProps) {
 
   if (!application) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-4 dark:bg-zinc-900">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--background)] p-4 dark:bg-zinc-900">
         <p className="text-gray-500 dark:text-zinc-400">신청을 찾을 수 없습니다.</p>
         <Button className="mt-4" variant="ghost" onPress={() => router.push('/mypage/applications')}>
           목록으로
@@ -58,7 +58,7 @@ export default function MyApplicationDetailPage({ params }: PageProps) {
     'w-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100';
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24 dark:bg-zinc-900">
+    <div className="min-h-screen bg-[var(--background)] pb-24 dark:bg-zinc-900">
       <div className="flex items-center gap-2 px-4 pt-3 pb-1">
         <button
           type="button"
