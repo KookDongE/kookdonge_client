@@ -3,7 +3,7 @@
 import { Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Spinner, Tabs } from '@heroui/react';
+import { Spinner } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
 
 import type { QuestionAnswerRes } from '@/types/api';
@@ -170,38 +170,62 @@ const TAB_LABELS: Record<(typeof TAB_IDS)[number], string> = {
 };
 
 function QuestionsPageContent() {
-  const [tab, setTab] = useQueryState('tab', parseAsString.withDefault('questions'));
-  const selectedTab = (TAB_IDS as readonly string[]).includes(tab ?? '') ? tab! : 'questions';
+  const [tabFromUrl, setTabFromUrl] = useQueryState('tab', parseAsString);
+  const selectedTab =
+    tabFromUrl && (TAB_IDS as readonly string[]).includes(tabFromUrl)
+      ? tabFromUrl
+      : 'questions';
+  const setSelectedTab = (id: (typeof TAB_IDS)[number]) => {
+    setTabFromUrl(id);
+  };
 
   return (
     <div className="pb-6">
-      <Tabs
-        selectedKey={selectedTab}
-        onSelectionChange={(key) => setTab(key as string)}
-        className="w-full"
+      <div className="sticky top-0 z-30 bg-[var(--card)] px-4 pt-3" role="tablist" aria-label="Q&A 탭">
+        <div className="flex w-full">
+          {TAB_IDS.map((id) => (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={selectedTab === id}
+              aria-controls={`panel-${id}`}
+              id={`tab-${id}`}
+              onClick={() => setSelectedTab(id)}
+              className={`flex-1 py-3 text-center text-sm font-medium transition-colors ${
+                selectedTab === id
+                  ? 'text-zinc-900 dark:text-zinc-100'
+                  : 'text-zinc-600 dark:text-zinc-400'
+              }`}
+            >
+              {TAB_LABELS[id]}
+              {selectedTab === id && (
+                <span
+                  className="mt-1 block h-0.5 w-full rounded-full bg-zinc-900 dark:bg-zinc-100"
+                  aria-hidden
+                />
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+      <SearchFilterBar stickyHideOnScroll placeholder="질문 검색" />
+      <div
+        id="panel-questions"
+        role="tabpanel"
+        aria-labelledby="tab-questions"
+        hidden={selectedTab !== 'questions'}
       >
-        <Tabs.ListContainer className="sticky top-0 z-30 bg-[var(--card)] px-4 pt-3">
-          <Tabs.List aria-label="Q&A 탭" className="flex w-full">
-            {TAB_IDS.map((id) => (
-              <Tabs.Tab
-                key={id}
-                id={id}
-                className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
-              >
-                {TAB_LABELS[id]}
-                <Tabs.Indicator />
-              </Tabs.Tab>
-            ))}
-          </Tabs.List>
-        </Tabs.ListContainer>
-        <SearchFilterBar stickyHideOnScroll placeholder="질문 검색" />
-        <Tabs.Panel id="questions" className="pt-0">
-          <QuestionsTabContent />
-        </Tabs.Panel>
-        <Tabs.Panel id="answers" className="pt-0">
-          <AnswersTabContent />
-        </Tabs.Panel>
-      </Tabs>
+        {selectedTab === 'questions' && <QuestionsTabContent />}
+      </div>
+      <div
+        id="panel-answers"
+        role="tabpanel"
+        aria-labelledby="tab-answers"
+        hidden={selectedTab !== 'answers'}
+      >
+        {selectedTab === 'answers' && <AnswersTabContent />}
+      </div>
     </div>
   );
 }
