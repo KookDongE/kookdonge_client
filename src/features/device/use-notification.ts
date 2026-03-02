@@ -55,7 +55,7 @@ export function useNotification(): UseNotificationReturn {
       setIsLoading(false);
     }, timeoutMs);
     try {
-      const token = await getFcmToken();
+      const { token, permissionDenied } = await getFcmToken();
       clearTimeout(timeoutId);
       const deviceId = getOrCreateDeviceId();
       if (!deviceId) {
@@ -64,10 +64,11 @@ export function useNotification(): UseNotificationReturn {
         return;
       }
       setPermission(getPermissionState());
-      // 권한 거부 시에도 기기 등록은 하되, 서버에 'web-denied'로 보내 발송 스킵 유도
+      // 권한 거부 시에만 'web-denied', 토큰 발급 실패(네트워크/SW 등)는 'web-pending'으로 구분
+      const fcmTokenValue = token ?? (permissionDenied ? 'web-denied' : 'web-pending');
       await deviceApi.registerDevice({
         deviceId,
-        fcmToken: token ?? 'web-denied',
+        fcmToken: fcmTokenValue,
         platform: 'WEB',
       });
     } catch (e) {

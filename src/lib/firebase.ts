@@ -59,27 +59,46 @@ async function getServiceWorkerRegistration(): Promise<ServiceWorkerRegistration
   }
 }
 
+export type GetFcmTokenResult = {
+  /** 발급된 FCM 토큰. 없으면 null */
+  token: string | null;
+  /** 사용자가 알림 권한을 거부한 경우 true (이때만 서버에 'web-denied' 전달 권장) */
+  permissionDenied: boolean;
+};
+
 /**
  * FCM 토큰 발급. Firebase 설정 및 브라우저 알림 권한이 있을 때만 유효한 토큰 반환.
- * 설정이 없으면 null 반환 (이때 디바이스 등록은 fcmToken: 'web-pending'으로 함).
+ * 설정이 없으면 { token: null, permissionDenied: false } (이때 디바이스 등록은 fcmToken: 'web-pending'으로 함).
  * 서비스 워커를 먼저 등록한 뒤 getToken을 호출해 백그라운드 수신이 동작하도록 함.
  */
-export async function getFcmToken(): Promise<string | null> {
-  if (typeof window === 'undefined') return null;
-  if (!isFirebaseConfigured() || !vapidKey) return null;
+export async function getFcmToken(): Promise<GetFcmTokenResult> {
+  const noToken = (permissionDenied = false): GetFcmTokenResult => ({
+    token: null,
+    permissionDenied,
+  });
+
+  if (typeof window === 'undefined') return noToken();
+  if (!isFirebaseConfigured() || !vapidKey) return noToken();
   const messagingInstance = getMessagingInstance();
-  if (!messagingInstance) return null;
+  if (!messagingInstance) return noToken();
+
   try {
     const permission = await Notification.requestPermission();
-    if (permission !== 'granted') return null;
-    const registration = await getServiceWorkerRegistration().catch(() => null);
+    if (permission !== 'granted') {
+      return noToken(permission === 'denied');
+    }
+    const registration = await getServiceWorkerRegistration().catch((e) => {
+      console.error('[FCM] 서비스 워커 등록 실패:', e);
+      return null;
+    });
     const token = await getToken(messagingInstance, {
       vapidKey,
       ...(registration && { serviceWorkerRegistration: registration }),
     });
-    return token || null;
-  } catch {
-    return null;
+    return { token: token || null, permissionDenied: false };
+  } catch (e) {
+    console.error('[FCM] getToken 실패:', e);
+    return noToken();
   }
 }
 

@@ -14,7 +14,7 @@ export async function registerDeviceWithBackend(): Promise<void> {
   if (typeof window === 'undefined') return;
   const deviceId = getOrCreateDeviceId();
   if (!deviceId) return;
-  const fcmToken = await getFcmToken();
+  const { token: fcmToken } = await getFcmToken();
   await deviceApi.registerDevice({
     deviceId,
     fcmToken: fcmToken ?? 'web-pending',
