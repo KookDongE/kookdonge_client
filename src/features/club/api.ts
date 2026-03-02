@@ -178,7 +178,7 @@ export const clubApi = {
   },
 
   getAllClubsForAdmin: async (): Promise<AdminApplicationItem[]> => {
-    const page = await clubApi.getAllRequests({ page: 0, size: 100 });
+    const page = await clubApi.getAllRequests({ status: 'PENDING', page: 0, size: 100 });
     const content = 'content' in page ? page.content : [];
     return (content ?? []).map((r) => ({
       id: r.requestId as number,
