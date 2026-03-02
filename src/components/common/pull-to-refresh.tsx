@@ -1,10 +1,13 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
 const PULL_THRESHOLD = 60;
 const MAX_PULL = 80;
+
+/** 동아리 관리 페이지 진입 시 스크롤 리셋 (캐시된 페이지 재진입 시에도 동작) */
+const CLUB_MANAGE_PATH = /^\/mypage\/clubs\/[^/]+\/manage$/;
 
 type PullToRefreshProps = {
   children: React.ReactNode;
@@ -21,6 +24,20 @@ export function PullToRefresh({ children, fullScreen = false }: PullToRefreshPro
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const contentHeight = fullScreen ? '100dvh' : 'calc(100dvh - 3.5rem - 4rem)';
+
+  // 동아리 관리 페이지로 진입할 때마다 스크롤 맨 위로 (캐시 재진입 시에도 PullToRefresh는 pathname 갱신을 받음)
+  // 한 프레임 뒤 한 번 더 실행해 스크롤 복원(restoration)을 덮어씀
+  useLayoutEffect(() => {
+    if (!pathname || fullScreen || !CLUB_MANAGE_PATH.test(pathname)) return;
+    const el = scrollRef.current;
+    if (el) el.scrollTo(0, 0);
+    window.scrollTo(0, 0);
+    const id = requestAnimationFrame(() => {
+      scrollRef.current?.scrollTo(0, 0);
+      window.scrollTo(0, 0);
+    });
+    return () => cancelAnimationFrame(id);
+  }, [pathname, fullScreen]);
 
   const onTouchStart = useCallback(
     (e: React.TouchEvent) => {
