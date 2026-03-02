@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { AdminClubListItem, ClubListRes } from '@/types/api';
@@ -21,6 +21,7 @@ export function AdminClubCard({
   onDelete,
 }: AdminClubCardProps) {
   const router = useRouter();
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const [dragX, setDragX] = useState(0);
   const SWIPE_THRESHOLD = -80;
   const [isSwiped, setIsSwiped] = useState(false);
@@ -63,30 +64,24 @@ export function AdminClubCard({
     setIsSwiped(false);
   };
 
-  // 다른 행동 시 스와이프 해제
+  // 다른 행동 시 스와이프 해제 (바깥 클릭/터치, 스크롤)
   useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (isSwiped) {
-        const target = e.target as HTMLElement;
-        // 버튼 영역이 아니면 스와이프 해제
-        if (!target.closest('[data-swipe-button]')) {
-          resetSwipe();
-        }
-      }
-    };
-    const handleScroll = () => {
-      if (isSwiped) {
+    if (!isSwiped) return;
+    const handlePointerDown = (e: PointerEvent) => {
+      const target = e.target as Node;
+      const wrapper = wrapperRef.current;
+      const isButton = (e.target as HTMLElement).closest?.('[data-swipe-button]');
+      if (wrapper && !wrapper.contains(target) && !isButton) {
         resetSwipe();
       }
     };
-    if (isSwiped) {
-      document.addEventListener('click', handleClick);
-      window.addEventListener('scroll', handleScroll);
-      return () => {
-        document.removeEventListener('click', handleClick);
-        window.removeEventListener('scroll', handleScroll);
-      };
-    }
+    const handleScroll = () => resetSwipe();
+    document.addEventListener('pointerdown', handlePointerDown);
+    window.addEventListener('scroll', handleScroll, { capture: true });
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('scroll', handleScroll, { capture: true });
+    };
   }, [isSwiped]);
 
   const handleCardClick = (e: React.MouseEvent) => {
@@ -134,13 +129,13 @@ export function AdminClubCard({
     introduction: club.introduction,
     type: club.type,
     category: club.category,
-    recruitmentStatus: 'RECRUITING',
+    recruitmentStatus: club.recruitmentStatus ?? 'RECRUITING',
     isLikedByMe: false,
     dday: 0,
   };
 
   return (
-    <div className="relative overflow-hidden">
+    <div ref={wrapperRef} className="relative overflow-hidden">
       {/* 스와이프 시 카드 영역만 좁혀서 우측에 버튼이 보이도록 (폰·컴 공통) */}
       <div
         onClick={handleCardClick}

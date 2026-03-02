@@ -130,6 +130,24 @@ html:not(.dark) .club-manage-dropdown-list [data-slot='listbox-item']:hover {
   color: #09090b !important;
 }
 
+/* 다크모드: 동아리 관리 드롭다운(카테고리, 동아리타입, 모집상태) 배경 #18181B */
+.dark .club-manage-dropdown,
+.dark .club-manage-dropdown-list,
+.dark .club-manage-dropdown [data-slot='popover'],
+.dark .club-manage-dropdown [role='listbox'],
+.dark .club-manage-dropdown-list [role='listbox'],
+.dark .club-manage-dropdown [data-slot='listbox-item'],
+.dark .club-manage-dropdown-list [data-slot='listbox-item'] {
+  background-color: #18181b !important;
+  border-color: #3f3f46 !important;
+  color: #e4e4e7 !important;
+}
+.dark .club-manage-dropdown [data-slot='listbox-item']:hover,
+.dark .club-manage-dropdown-list [data-slot='listbox-item']:hover {
+  background-color: #3f3f46 !important;
+  color: #e4e4e7 !important;
+}
+
 /* 라이트 모드: 동아리 관리자 리스트·카드 영역 밝게 */
 html:not(.dark) .club-manage-card,
 html:not(.dark) .club-manage-admin-list,

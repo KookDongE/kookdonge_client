@@ -373,6 +373,7 @@ function ClubListSection() {
                   category: club.category,
                   type: club.type,
                   isHidden: false,
+                  recruitmentStatus: club.recruitmentStatus,
                 };
                 return (
                   <AdminClubCard

@@ -889,23 +889,16 @@ function ClubInfoTab({
                 })}
               </div>
             </div>
-            <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+            <div className="flex items-center justify-between gap-3">
+              <label className="text-sm font-medium text-gray-700 dark:text-zinc-300">
                 휴학생 지원 가능 여부
               </label>
-              <div className="flex items-center gap-3">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={_allowLeaveOfAbsence}
-                    onChange={(e) => _setAllowLeaveOfAbsence(e.target.checked)}
-                    className="h-5 w-5 rounded border-zinc-300 text-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-zinc-600 dark:bg-zinc-800"
-                  />
-                  <span className="text-sm text-gray-700 dark:text-zinc-300">
-                    휴학생 지원 가능
-                  </span>
-                </label>
-              </div>
+              <input
+                type="checkbox"
+                checked={_allowLeaveOfAbsence}
+                onChange={(e) => _setAllowLeaveOfAbsence(e.target.checked)}
+                className="h-5 w-5 shrink-0 rounded border-zinc-300 text-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-zinc-600 dark:bg-zinc-800"
+              />
             </div>
           </div>
         )}
@@ -1200,8 +1193,8 @@ function ClubInfoTab({
                 </Select.Popover>
               </Select>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
+            <div className="space-y-4 sm:grid sm:grid-cols-2 sm:gap-3 sm:space-y-0">
+              <div className="min-w-0">
                 <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
                   모집 시작일
                 </label>
@@ -1214,10 +1207,10 @@ function ClubInfoTab({
                     setRecruitmentStartDate(v);
                     if (recruitmentEndDate && v > recruitmentEndDate) setRecruitmentEndDate(v);
                   }}
-                  className="w-full rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                  className="w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
                 />
               </div>
-              <div>
+              <div className="min-w-0">
                 <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
                   모집 종료일
                 </label>
@@ -1230,7 +1223,7 @@ function ClubInfoTab({
                     if (recruitmentStartDate && v < recruitmentStartDate) return;
                     setRecruitmentEndDate(v);
                   }}
-                  className="w-full rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                  className="w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
                 />
               </div>
             </div>

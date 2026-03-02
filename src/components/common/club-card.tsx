@@ -29,11 +29,11 @@ const TYPE_LABEL: Record<ClubType, string> = {
 const STATUS_CONFIG: Record<RecruitmentStatus, { label: string; className: string }> = {
   RECRUITING: {
     label: '모집중',
-    className: 'bg-lime-400 text-zinc-900 dark:bg-lime-400 dark:text-zinc-900',
+    className: 'bg-lime-200 text-zinc-800 dark:bg-lime-500/70 dark:text-zinc-900',
   },
   SCHEDULED: {
     label: '모집예정',
-    className: 'bg-cyan-400 text-zinc-900 dark:bg-cyan-400 dark:text-zinc-900',
+    className: 'bg-cyan-200 text-zinc-800 dark:bg-cyan-500/70 dark:text-zinc-900',
   },
   CLOSED: {
     label: '마감',

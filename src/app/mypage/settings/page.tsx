@@ -136,7 +136,7 @@ export default function SettingsPage() {
         >
           <div className="relative mb-4 h-8 w-24">
             <Image
-              src="/images/wink-logo.png"
+              src="/images/Group 1999.svg"
               alt="WINK"
               fill
               className="object-contain object-center"

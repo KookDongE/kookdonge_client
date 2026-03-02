@@ -328,6 +328,7 @@ export type AdminClubListItem = {
   category: ClubCategory;
   type: ClubType;
   isHidden: boolean;
+  recruitmentStatus?: RecruitmentStatus;
 };
 
 export type AdminApplicationItem = {
