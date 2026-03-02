@@ -122,7 +122,8 @@ html:not(.dark) .weekly-frequency-buttons button[role='radio'][aria-checked='tru
 .club-manage-card input[type='date'],
 .club-manage-card input[type='time'] {
   min-width: 0;
-  max-width: 100%;
+  max-width: 50%;
+  width: 100%;
   box-sizing: border-box;
 }
 

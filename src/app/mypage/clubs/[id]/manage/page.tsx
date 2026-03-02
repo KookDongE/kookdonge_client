@@ -1239,7 +1239,7 @@ function ClubInfoTab({
             </div>
             <div className="w-full max-w-full min-w-0 space-y-4 overflow-hidden">
               <div className="grid w-full max-w-full min-w-0 grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-                <div className="max-w-full min-w-0">
+                <div className="max-w-full min-w-0 overflow-hidden">
                   <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
                     모집 시작일
                   </label>
@@ -1255,7 +1255,7 @@ function ClubInfoTab({
                     className="box-border w-full max-w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 [&::-webkit-date-and-time-value]:text-left"
                   />
                 </div>
-                <div className="max-w-full min-w-0">
+                <div className="max-w-full min-w-0 overflow-hidden">
                   <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
                     모집 시작 시간
                   </label>
@@ -1268,7 +1268,7 @@ function ClubInfoTab({
                 </div>
               </div>
               <div className="grid w-full max-w-full min-w-0 grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-                <div className="max-w-full min-w-0">
+                <div className="max-w-full min-w-0 overflow-hidden">
                   <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
                     모집 종료일
                   </label>
@@ -1284,7 +1284,7 @@ function ClubInfoTab({
                     className="box-border w-full max-w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 [&::-webkit-date-and-time-value]:text-left"
                   />
                 </div>
-                <div className="max-w-full min-w-0">
+                <div className="max-w-full min-w-0 overflow-hidden">
                   <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
                     모집 종료 시간
                   </label>
