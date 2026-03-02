@@ -1014,7 +1014,7 @@ function ClubInfoTab({
           <>
             {/* 동아리 소개: 사진 크게 → 아래 상세 설명 */}
             {contentImage && (
-              <div className="relative mb-4 aspect-[16/10] w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
+              <div className="relative mb-4 aspect-square w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
                 <Image
                   src={contentImage}
                   alt="동아리 소개"
@@ -1047,7 +1047,7 @@ function ClubInfoTab({
                 disabled={isUploading}
               />
               {contentImage ? (
-                <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
+                <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
                   <Image
                     src={contentImage}
                     alt="동아리 소개"
@@ -1077,7 +1077,7 @@ function ClubInfoTab({
                 </div>
               ) : (
                 <label htmlFor="content-image-upload">
-                  <div className="flex aspect-[16/10] w-full cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:border-gray-400 hover:bg-gray-100 dark:border-zinc-600 dark:bg-zinc-700 dark:hover:border-zinc-500">
+                  <div className="flex aspect-square w-full cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:border-gray-400 hover:bg-gray-100 dark:border-zinc-600 dark:bg-zinc-700 dark:hover:border-zinc-500">
                     {isUploading ? (
                       <Spinner size="sm" />
                     ) : (

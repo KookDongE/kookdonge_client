@@ -89,7 +89,11 @@ export async function getFcmToken(): Promise<GetFcmTokenResult> {
   try {
     const permission = await Notification.requestPermission();
     if (permission !== 'granted') {
-      return noToken(permission === 'denied');
+      // 문서가 숨겨진 상태(백그라운드/탭 전환)에서는 브라우저가 권한을 잘못 'denied'로 보고할 수 있음.
+      // 이때 permissionDenied로 처리하면 서버의 유효한 FCM 토큰이 web-denied로 덮어써져 백그라운드 푸시가 오지 않게 됨.
+      const reportDenied =
+        permission === 'denied' && typeof document !== 'undefined' && document.visibilityState === 'visible';
+      return noToken(reportDenied);
     }
     const registration = await getServiceWorkerRegistration().catch((e) => {
       console.error('[FCM] 서비스 워커 등록 실패:', e);

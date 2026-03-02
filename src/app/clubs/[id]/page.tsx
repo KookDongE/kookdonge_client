@@ -273,7 +273,7 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
         <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
           <h3 className="sr-only">동아리 소개</h3>
           {contentImageUrl && (
-            <div className="relative aspect-[16/10] w-full bg-zinc-100 dark:bg-zinc-800">
+            <div className="relative aspect-square w-full bg-zinc-100 dark:bg-zinc-800">
               <Image
                 src={contentImageUrl}
                 alt="동아리 소개"

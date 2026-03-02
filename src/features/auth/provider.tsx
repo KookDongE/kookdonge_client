@@ -37,12 +37,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // 재수화 후 로그인 상태면 디바이스 등록. Firebase 지원 시 권한 요청 후 FCM 토큰 등록, 미지원 시 web-pending 등록.
+  // 문서가 보일 때만 등록 시도(백그라운드에서 권한이 잘못 보고되어 web-denied로 덮어쓰는 것 방지).
   const accessToken = useAuthStore((s) => s.accessToken);
   const { requestPermissionAndRegister, isSupported } = useNotification();
   useEffect(() => {
     if (!isInitialized || !accessToken) return;
-    if (isSupported) requestPermissionAndRegister().catch(() => {});
-    else registerDeviceWithBackend().catch(() => {});
+    const register = () => {
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return;
+      if (isSupported) requestPermissionAndRegister().catch(() => {});
+      else registerDeviceWithBackend().catch(() => {});
+    };
+    register();
+    if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
+      const onVisible = () => {
+        if (document.visibilityState === 'visible') {
+          document.removeEventListener('visibilitychange', onVisible);
+          if (isSupported) requestPermissionAndRegister().catch(() => {});
+          else registerDeviceWithBackend().catch(() => {});
+        }
+      };
+      document.addEventListener('visibilitychange', onVisible);
+      return () => document.removeEventListener('visibilitychange', onVisible);
+    }
   }, [isInitialized, accessToken, isSupported, requestPermissionAndRegister]);
 
   if (!isInitialized) {

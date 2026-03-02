@@ -64,8 +64,11 @@ export function useNotification(): UseNotificationReturn {
         return;
       }
       setPermission(getPermissionState());
-      // 권한 거부 시에만 'web-denied', 토큰 발급 실패(네트워크/SW 등)는 'web-pending'으로 구분
-      const fcmTokenValue = token ?? (permissionDenied ? 'web-denied' : 'web-pending');
+      // 권한 거부 시에만 'web-denied'. 단 문서가 숨겨진 상태에서는 잘못된 denied 보고일 수 있으므로 web-pending으로 보내 기존 유효 토큰을 덮어쓰지 않음.
+      const isVisible =
+        typeof document !== 'undefined' && document.visibilityState === 'visible';
+      const fcmTokenValue =
+        token ?? (permissionDenied && isVisible ? 'web-denied' : 'web-pending');
       await deviceApi.registerDevice({
         deviceId,
         fcmToken: fcmTokenValue,
