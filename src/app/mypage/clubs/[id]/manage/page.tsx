@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, use, useEffect, useLayoutEffect, useState } from 'react';
+import { Suspense, use, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -1780,6 +1780,18 @@ function ClubQnaTab({
   const deleteQuestion = useDeleteQuestion(clubId);
   const [deleteModalQuestionId, setDeleteModalQuestionId] = useState<number | null>(null);
   const [expandedPendingQuestionId, setExpandedPendingQuestionId] = useState<number | null>(null);
+  const [openMenuQuestionId, setOpenMenuQuestionId] = useState<number | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (openMenuQuestionId == null) return;
+    const close = (e: MouseEvent) => {
+      if (menuRef.current?.contains(e.target as Node)) return;
+      setOpenMenuQuestionId(null);
+    };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [openMenuQuestionId]);
 
   // 질문으로 스크롤
   useEffect(() => {
@@ -1888,15 +1900,53 @@ function ClubQnaTab({
                       >
                         {isExpanded ? '접기' : '답변'}
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onPress={() => handleDeleteClick(qna.id)}
-                        isPending={deleteQuestion.isPending}
-                        className="min-w-0"
+                      <div
+                        className="relative"
+                        ref={openMenuQuestionId === qna.id ? menuRef : undefined}
                       >
-                        삭제
-                      </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onPress={() =>
+                            setOpenMenuQuestionId((prev) => (prev === qna.id ? null : qna.id))
+                          }
+                          isDisabled={deleteQuestion.isPending}
+                          className="min-w-0 px-2"
+                          aria-label="더보기"
+                          aria-expanded={openMenuQuestionId === qna.id}
+                        >
+                          …
+                        </Button>
+                        {openMenuQuestionId === qna.id && (
+                          <div
+                            className="absolute top-full right-0 z-10 mt-1 min-w-[7rem] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-600 dark:bg-zinc-800"
+                            role="menu"
+                          >
+                            <button
+                              type="button"
+                              role="menuitem"
+                              className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                              onClick={() => {
+                                setOpenMenuQuestionId(null);
+                                handleDeleteClick(qna.id);
+                              }}
+                            >
+                              삭제
+                            </button>
+                            <button
+                              type="button"
+                              role="menuitem"
+                              className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                              onClick={() => {
+                                setOpenMenuQuestionId(null);
+                                alert('아직 준비중인 기능입니다.');
+                              }}
+                            >
+                              신고
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                   {isExpanded && (
@@ -1953,14 +2003,53 @@ function ClubQnaTab({
                       {new Date(qna.createdAt).toLocaleDateString()}
                     </p>
                   </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onPress={() => handleDeleteClick(qna.id)}
-                    isPending={deleteQuestion.isPending}
+                  <div
+                    className="relative shrink-0"
+                    ref={openMenuQuestionId === qna.id ? menuRef : undefined}
                   >
-                    삭제
-                  </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onPress={() =>
+                        setOpenMenuQuestionId((prev) => (prev === qna.id ? null : qna.id))
+                      }
+                      isDisabled={deleteQuestion.isPending}
+                      className="min-w-0 px-2"
+                      aria-label="더보기"
+                      aria-expanded={openMenuQuestionId === qna.id}
+                    >
+                      …
+                    </Button>
+                    {openMenuQuestionId === qna.id && (
+                      <div
+                        className="absolute top-full right-0 z-10 mt-1 min-w-[7rem] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-600 dark:bg-zinc-800"
+                        role="menu"
+                      >
+                        <button
+                          type="button"
+                          role="menuitem"
+                          className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                          onClick={() => {
+                            setOpenMenuQuestionId(null);
+                            handleDeleteClick(qna.id);
+                          }}
+                        >
+                          삭제
+                        </button>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                          onClick={() => {
+                            setOpenMenuQuestionId(null);
+                            alert('아직 준비중인 기능입니다.');
+                          }}
+                        >
+                          신고
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 {qna.answer && (
                   <div className="mt-3 flex items-start gap-3 pt-3">

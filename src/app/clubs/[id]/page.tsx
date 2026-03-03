@@ -575,6 +575,18 @@ function ClubQnaTab({
   const createQuestion = useCreateQuestion(clubId);
   const deleteQuestion = useDeleteQuestion(clubId);
   const [questionText, setQuestionText] = useState('');
+  const [openMenuQuestionId, setOpenMenuQuestionId] = useState<number | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (openMenuQuestionId == null) return;
+    const close = (e: MouseEvent) => {
+      if (menuRef.current?.contains(e.target as Node)) return;
+      setOpenMenuQuestionId(null);
+    };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [openMenuQuestionId]);
 
   const questions = data?.content || [];
 
@@ -655,32 +667,63 @@ function ClubQnaTab({
                   {new Date(qna.createdAt).toLocaleDateString()}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  if (confirm('이 질문을 삭제할까요?')) {
-                    deleteQuestion.mutate(qna.id);
-                  }
-                }}
-                disabled={deleteQuestion.isPending}
-                className="shrink-0 rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 disabled:opacity-50 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
-                aria-label="질문 삭제"
+              <div
+                className="relative shrink-0"
+                ref={openMenuQuestionId === qna.id ? menuRef : undefined}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  className="h-4 w-4"
+                <button
+                  type="button"
+                  onClick={() => setOpenMenuQuestionId((prev) => (prev === qna.id ? null : qna.id))}
+                  disabled={deleteQuestion.isPending}
+                  className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 disabled:opacity-50 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                  aria-label="더보기"
+                  aria-expanded={openMenuQuestionId === qna.id}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
-                </svg>
-              </button>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    className="h-4 w-4"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+                    />
+                  </svg>
+                </button>
+                {openMenuQuestionId === qna.id && (
+                  <div
+                    className="absolute top-full right-0 z-10 mt-1 min-w-[7rem] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-600 dark:bg-zinc-800"
+                    role="menu"
+                  >
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                      onClick={() => {
+                        setOpenMenuQuestionId(null);
+                        if (confirm('이 질문을 삭제할까요?')) deleteQuestion.mutate(qna.id);
+                      }}
+                    >
+                      삭제
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                      onClick={() => {
+                        setOpenMenuQuestionId(null);
+                        alert('아직 준비중인 기능입니다.');
+                      }}
+                    >
+                      신고
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
             {qna.answer && (
               <div className="mt-3 flex items-start gap-3 border-t border-t-[#e4e4e7] pt-3 dark:border-t-zinc-700">
