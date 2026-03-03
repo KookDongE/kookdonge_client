@@ -1,6 +1,6 @@
 'use client';
 
-import { Spinner } from '@heroui/react';
+import { FeedItemSkeleton } from '@/components/common/skeletons';
 
 import { FeedItem } from './feed-item';
 
@@ -40,8 +40,10 @@ export function FeedList({
 }: FeedListProps) {
   if (isLoading) {
     return (
-      <div className="flex justify-center py-12">
-        <Spinner />
+      <div className="mx-auto w-full max-w-md space-y-6 px-2">
+        {[1, 2, 3].map((i) => (
+          <FeedItemSkeleton key={i} />
+        ))}
       </div>
     );
   }

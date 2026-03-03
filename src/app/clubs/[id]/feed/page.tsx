@@ -3,8 +3,7 @@
 import { Suspense, use, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Spinner } from '@heroui/react';
-
+import { FeedItemSkeleton } from '@/components/common/skeletons';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isClubManager } from '@/features/auth/permissions';
 import { useClubDetail } from '@/features/club/hooks';
@@ -36,16 +35,20 @@ function FeedPageContent({ clubId }: { clubId: number }) {
 
   if (Number.isNaN(clubId) || clubId < 1 || clubError || (!clubLoading && !club)) {
     return (
-      <div className="flex justify-center py-12">
-        <Spinner />
+      <div className="space-y-6 px-2 py-4">
+        {[1, 2].map((i) => (
+          <FeedItemSkeleton key={i} />
+        ))}
       </div>
     );
   }
 
   if (clubLoading || feedsLoading) {
     return (
-      <div className="flex justify-center py-12">
-        <Spinner />
+      <div className="space-y-6 px-2 py-4">
+        {[1, 2, 3].map((i) => (
+          <FeedItemSkeleton key={i} />
+        ))}
       </div>
     );
   }
@@ -114,8 +117,10 @@ export default function FeedPage({ params }: PageProps) {
   return (
     <Suspense
       fallback={
-        <div className="flex justify-center py-12">
-          <Spinner />
+        <div className="space-y-6 px-2 py-4">
+          {[1, 2, 3].map((i) => (
+            <FeedItemSkeleton key={i} />
+          ))}
         </div>
       }
     >

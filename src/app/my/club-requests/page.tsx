@@ -4,8 +4,9 @@ import { Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { Chip, Spinner } from '@heroui/react';
+import { Chip } from '@heroui/react';
 
+import { ListCardSkeleton } from '@/components/common/skeletons';
 import { useMyApplications } from '@/features/club/hooks';
 import { DefaultClubImage } from '@/components/common/default-club-image';
 
@@ -18,8 +19,10 @@ function MyApplicationsListContent() {
     <div className="pb-6">
       <div className="px-4 py-4">
         {isLoading ? (
-          <div className="flex justify-center py-12">
-            <Spinner size="lg" />
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <ListCardSkeleton key={i} />
+            ))}
           </div>
         ) : list.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-16 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
@@ -89,8 +92,10 @@ export default function MyApplicationsListPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex justify-center py-12">
-          <Spinner size="lg" />
+        <div className="space-y-3 px-4 py-4">
+          {[1, 2, 3].map((i) => (
+            <ListCardSkeleton key={i} />
+          ))}
         </div>
       }
     >

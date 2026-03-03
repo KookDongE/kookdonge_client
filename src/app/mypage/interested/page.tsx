@@ -4,9 +4,8 @@ import { Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { Spinner } from '@heroui/react';
-
 import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api';
+import { ClubCardSkeleton } from '@/components/common/club-card';
 import { useInterestedStore } from '@/features/club/interested-store';
 import { DefaultClubImage } from '@/components/common/default-club-image';
 
@@ -145,8 +144,10 @@ export default function InterestedClubsPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex justify-center py-12">
-          <Spinner />
+        <div className="space-y-3 px-4 py-4">
+          {[1, 2, 3].map((i) => (
+            <ClubCardSkeleton key={i} />
+          ))}
         </div>
       }
     >

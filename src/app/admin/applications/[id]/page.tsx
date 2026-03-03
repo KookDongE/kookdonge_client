@@ -3,7 +3,9 @@
 import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Chip, Spinner, TextArea } from '@heroui/react';
+import { Button, Chip, TextArea } from '@heroui/react';
+
+import { FormPageSkeleton } from '@/components/common/skeletons';
 import { useQueryClient } from '@tanstack/react-query';
 
 import type { ClubCategory, ClubType } from '@/types/api';
@@ -57,16 +59,16 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
 
   if (profileLoading || (profile && !isSystemAdmin(profile))) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[var(--background)] dark:bg-zinc-900">
-        <Spinner />
+      <div className="min-h-screen bg-[var(--background)] dark:bg-zinc-900">
+        <FormPageSkeleton />
       </div>
     );
   }
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[var(--background)] dark:bg-zinc-900">
-        <Spinner />
+      <div className="min-h-screen bg-[var(--background)] dark:bg-zinc-900">
+        <FormPageSkeleton />
       </div>
     );
   }

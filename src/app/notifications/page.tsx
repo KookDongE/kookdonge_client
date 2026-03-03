@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
 import type { NotificationRes } from '@/types/api';
+import { NotificationCardSkeleton } from '@/components/common/skeletons';
 import {
   useMarkAllAsRead,
   useMarkAsRead,
@@ -179,8 +180,10 @@ export default function NotificationsPage() {
       </div>
       <div className="mt-4 flex flex-col gap-4 px-4">
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-16 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
-            <p>알림을 불러오는 중...</p>
+          <div className="flex flex-col gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <NotificationCardSkeleton key={i} />
+            ))}
           </div>
         ) : list.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-16 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">

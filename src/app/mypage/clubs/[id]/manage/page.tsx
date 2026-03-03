@@ -8,6 +8,12 @@ import { Button, Chip, ListBox, Select, Spinner, Tabs, TextArea } from '@heroui/
 import { parseAsString, useQueryState } from 'nuqs';
 
 import { ClubCategory, ClubDetailRes, ClubType, College, RecruitmentStatus } from '@/types/api';
+import {
+  FeedItemSkeleton,
+  FormPageSkeleton,
+  ListCardSkeleton,
+  TablePageSkeleton,
+} from '@/components/common/skeletons';
 import { parseApiIsoToDate } from '@/lib/utils';
 import {
   useAddClubAdmin,
@@ -346,8 +352,8 @@ function ClubManageContent({ clubId }: { clubId: number }) {
 
   if (Number.isNaN(clubId) || clubId < 1 || clubError || !club) {
     return (
-      <div className="flex justify-center py-12">
-        <Spinner />
+      <div className="min-h-screen">
+        <FormPageSkeleton />
       </div>
     );
   }
@@ -785,8 +791,16 @@ function AdminManageSection({
           현재 관리자 목록
         </label>
         {isLoading ? (
-          <div className="flex justify-center py-4">
-            <Spinner size="sm" />
+          <div className="space-y-2">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between rounded-lg border border-zinc-200 p-3 dark:border-zinc-700"
+              >
+                <div className="skeleton h-4 w-32 rounded" />
+                <div className="skeleton h-6 w-16 rounded" />
+              </div>
+            ))}
           </div>
         ) : !members || members.length === 0 ? (
           <div className="club-manage-admin-empty rounded-lg border border-zinc-200 bg-zinc-50 p-4 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
@@ -1718,8 +1732,10 @@ function ClubFeedTab({ clubId }: { clubId: number }) {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-12">
-        <Spinner />
+      <div className="space-y-4 p-4">
+        {[1, 2].map((i) => (
+          <FeedItemSkeleton key={i} />
+        ))}
       </div>
     );
   }
@@ -1862,8 +1878,10 @@ function ClubQnaTab({
 
   if (pendingLoading || allLoading) {
     return (
-      <div className="flex justify-center py-12">
-        <Spinner />
+      <div className="space-y-3 p-4">
+        {[1, 2, 3].map((i) => (
+          <ListCardSkeleton key={i} />
+        ))}
       </div>
     );
   }
@@ -2143,13 +2161,7 @@ export default function ClubManagePage({ params }: PageProps) {
   const clubId = parseInt(id, 10);
 
   return (
-    <Suspense
-      fallback={
-        <div className="flex justify-center py-12">
-          <Spinner />
-        </div>
-      }
-    >
+    <Suspense fallback={<FormPageSkeleton />}>
       <ClubManageContent clubId={clubId} />
     </Suspense>
   );

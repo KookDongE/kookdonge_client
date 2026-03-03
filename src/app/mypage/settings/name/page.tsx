@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { Button, Input, Spinner } from '@heroui/react';
+import { Button, Input } from '@heroui/react';
 
+import { FormPageSkeleton } from '@/components/common/skeletons';
 import { useMyProfile, useUpdateProfile } from '@/features/auth';
 
 export default function NameChangePage() {
@@ -33,8 +34,8 @@ export default function NameChangePage() {
 
   if (isProfileLoading) {
     return (
-      <div className="flex justify-center py-12">
-        <Spinner />
+      <div className="pb-6">
+        <FormPageSkeleton />
       </div>
     );
   }

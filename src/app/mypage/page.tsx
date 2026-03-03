@@ -4,9 +4,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { Chip, Spinner } from '@heroui/react';
+import { Chip } from '@heroui/react';
 
 import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api';
+import { ListCardSkeleton, ProfileSkeleton } from '@/components/common/skeletons';
 import { useMyProfile } from '@/features/auth/hooks';
 import { useManagedClubs, useMyApplications } from '@/features/club/hooks';
 import { useInterestedStore } from '@/features/club/interested-store';
@@ -71,11 +72,7 @@ function ProfileSection() {
   const { data: profile, isLoading } = useMyProfile();
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center py-8">
-        <Spinner />
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   return (
@@ -166,8 +163,10 @@ function AdminSection() {
         </Link>
       </div>
       {clubsLoading ? (
-        <div className="flex justify-center py-8">
-          <Spinner />
+        <div className="space-y-3">
+          {[1, 2].map((i) => (
+            <ListCardSkeleton key={i} />
+          ))}
         </div>
       ) : managedClubs.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-12 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
@@ -268,8 +267,10 @@ function PendingQuestionsSection() {
         </Link>
       </div>
       {isLoading ? (
-        <div className="flex justify-center py-8">
-          <Spinner />
+        <div className="space-y-3">
+          {[1, 2].map((i) => (
+            <ListCardSkeleton key={i} />
+          ))}
         </div>
       ) : (
         <div className="space-y-3">
@@ -341,8 +342,10 @@ function QnAListSection() {
         </Link>
       </div>
       {isLoading ? (
-        <div className="flex justify-center py-8">
-          <Spinner />
+        <div className="space-y-3">
+          {[1, 2].map((i) => (
+            <ListCardSkeleton key={i} />
+          ))}
         </div>
       ) : list.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-12 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
@@ -527,8 +530,13 @@ function MyApplicationsSection() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-8">
-        <Spinner />
+      <div className="px-4 py-5">
+        <div className="mb-4 skeleton h-5 w-24 rounded" />
+        <div className="space-y-3">
+          {[1, 2].map((i) => (
+            <ListCardSkeleton key={i} />
+          ))}
+        </div>
       </div>
     );
   }

@@ -4,9 +4,10 @@ import { Suspense, useState } from 'react';
 import type { Key } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { ListBox, Select, Spinner } from '@heroui/react';
+import { ListBox, Select } from '@heroui/react';
 
 import { ClubCategory, ClubType, College } from '@/types/api';
+import { FormPageSkeleton } from '@/components/common/skeletons';
 import { useApplyClub } from '@/features/club/hooks';
 
 const TYPE_OPTIONS: { value: ClubType; label: string }[] = [
@@ -272,8 +273,8 @@ export default function ClubApplyPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex justify-center py-12">
-          <Spinner />
+        <div className="pb-6">
+          <FormPageSkeleton />
         </div>
       }
     >

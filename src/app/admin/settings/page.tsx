@@ -4,8 +4,9 @@ import { useRouter } from 'next/navigation';
 
 import { useEffect, useState } from 'react';
 
-import { Button, Input, Spinner } from '@heroui/react';
+import { Button, Input } from '@heroui/react';
 
+import { TablePageSkeleton } from '@/components/common/skeletons';
 import { useGrantAdmin, useRevokeAdmin, useSystemAdmins } from '@/features/admin';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
@@ -61,15 +62,15 @@ export default function AdminSettingsPage() {
   if (profileLoading || (profile && !isSystemAdmin(profile))) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <Spinner />
+        <TablePageSkeleton rows={3} />
       </div>
     );
   }
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Spinner />
+      <div className="min-h-screen">
+        <TablePageSkeleton rows={5} />
       </div>
     );
   }

@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 
-import { Button, Spinner } from '@heroui/react';
+import { Button } from '@heroui/react';
 
 import type { ClubCategory, ClubType } from '@/types/api';
+import { FormPageSkeleton } from '@/components/common/skeletons';
 import { useMyRequests } from '@/features/club/hooks';
 
 const CATEGORY_LABELS: Record<ClubCategory, string> = {
@@ -49,8 +50,8 @@ export default function MyApplicationDetailPage() {
 
   if (!mounted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[var(--background)] dark:bg-zinc-900">
-        <Spinner />
+      <div className="min-h-screen bg-[var(--background)] dark:bg-zinc-900">
+        <FormPageSkeleton />
       </div>
     );
   }
@@ -68,8 +69,8 @@ export default function MyApplicationDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[var(--background)] dark:bg-zinc-900">
-        <Spinner />
+      <div className="min-h-screen bg-[var(--background)] dark:bg-zinc-900">
+        <FormPageSkeleton />
       </div>
     );
   }

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { useEffect } from 'react';
 
-import { Spinner } from '@heroui/react';
+import { PageCenteredSkeleton } from '@/components/common/skeletons';
 
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
@@ -24,7 +24,7 @@ export default function AdminPage() {
   if (profileLoading || (profile && !isSystemAdmin(profile))) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <Spinner />
+        <PageCenteredSkeleton />
       </div>
     );
   }

@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { Spinner } from '@heroui/react';
+import { PageCenteredSkeleton } from '@/components/common/skeletons';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { getRedirectUri, OAUTH_STATE_KEY } from '@/lib/google-oauth';
@@ -152,7 +152,7 @@ function CallbackContent() {
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-4">
-      <Spinner size="lg" />
+      <PageCenteredSkeleton />
       <p className="text-sm text-zinc-500 dark:text-zinc-400">로그인 처리 중...</p>
     </div>
   );
@@ -161,7 +161,7 @@ function CallbackContent() {
 function CallbackFallback() {
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-4">
-      <Spinner size="lg" />
+      <PageCenteredSkeleton />
       <p className="text-sm text-zinc-500 dark:text-zinc-400">로그인 처리 중...</p>
     </div>
   );

@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
-import { Button, Input, Spinner } from '@heroui/react';
+import { Button, Input } from '@heroui/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { parseAsString, useQueryState } from 'nuqs';
 import { createPortal } from 'react-dom';
@@ -451,7 +451,7 @@ function ClubListSection({
         <div ref={loadMoreRef} className="min-h-[24px] py-4" aria-hidden />
         {isFetchingNextPage && (
           <div className="flex justify-center py-4">
-            <Spinner size="sm" />
+            <ClubCardSkeleton />
           </div>
         )}
       </div>
@@ -639,8 +639,10 @@ export default function HomePage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-[50vh] items-center justify-center">
-          <Spinner size="lg" />
+        <div className="space-y-4 px-4 py-4">
+          {[1, 2, 3].map((i) => (
+            <ClubCardSkeleton key={i} />
+          ))}
         </div>
       }
     >

@@ -8,6 +8,7 @@ import { Spinner } from '@heroui/react';
 import { Reorder, useDragControls } from 'framer-motion';
 
 import type { ClubFeedRes } from '@/types/api';
+import { FormPageSkeleton } from '@/components/common/skeletons';
 import { useClubDetail } from '@/features/club/hooks';
 import { useFeed, useImageUpload, useUpdateFeed } from '@/features/feed/hooks';
 
@@ -289,16 +290,16 @@ function EditFeedContent({ clubId, feedId }: { clubId: number; feedId: number })
 
   if (Number.isNaN(clubId) || clubId < 1 || Number.isNaN(feedId) || feedId < 1) {
     return (
-      <div className="flex justify-center py-12">
-        <Spinner />
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <FormPageSkeleton />
       </div>
     );
   }
 
   if (clubLoading || clubError || !club || feedLoading || (feedError && !feed)) {
     return (
-      <div className="flex justify-center py-12">
-        <Spinner />
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <FormPageSkeleton />
       </div>
     );
   }
@@ -314,13 +315,7 @@ export default function EditFeedPage({ params }: PageProps) {
   const feedId = parseInt(feedIdStr, 10);
 
   return (
-    <Suspense
-      fallback={
-        <div className="flex justify-center py-12">
-          <Spinner />
-        </div>
-      }
-    >
+    <Suspense fallback={<FormPageSkeleton />}>
       <EditFeedContent clubId={clubId} feedId={feedId} />
     </Suspense>
   );

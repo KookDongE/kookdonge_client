@@ -6,7 +6,9 @@ import { useRouter } from 'next/navigation';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Chip, Spinner, Tabs } from '@heroui/react';
+import { Chip, Tabs } from '@heroui/react';
+
+import { ListCardSkeleton, PageCenteredSkeleton } from '@/components/common/skeletons';
 import { parseAsString, useQueryState } from 'nuqs';
 
 import { useMyProfile } from '@/features/auth/hooks';
@@ -39,8 +41,10 @@ function ApplicationList({
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-12">
-        <Spinner />
+      <div className="space-y-3 p-4">
+        {[1, 2, 3].map((i) => (
+          <ListCardSkeleton key={i} />
+        ))}
       </div>
     );
   }
@@ -163,7 +167,7 @@ export default function AdminApplicationsPage() {
   if (profileLoading || (profile && !isSystemAdmin(profile))) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <Spinner />
+        <PageCenteredSkeleton />
       </div>
     );
   }

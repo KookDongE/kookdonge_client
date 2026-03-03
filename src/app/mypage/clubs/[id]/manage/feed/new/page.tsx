@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Spinner } from '@heroui/react';
 import { Reorder, useDragControls } from 'framer-motion';
 
+import { FormPageSkeleton } from '@/components/common/skeletons';
 import { useClubDetail } from '@/features/club/hooks';
 import { useCreateFeed, useImageUpload } from '@/features/feed/hooks';
 
@@ -113,16 +114,16 @@ function NewFeedContent({ clubId }: { clubId: number }) {
 
   if (Number.isNaN(clubId) || clubId < 1 || clubError || !club) {
     return (
-      <div className="flex justify-center py-12">
-        <Spinner />
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <FormPageSkeleton />
       </div>
     );
   }
 
   if (clubLoading) {
     return (
-      <div className="flex justify-center py-12">
-        <Spinner />
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <FormPageSkeleton />
       </div>
     );
   }
@@ -279,13 +280,7 @@ export default function NewFeedPage({ params }: PageProps) {
   const clubId = parseInt(id, 10);
 
   return (
-    <Suspense
-      fallback={
-        <div className="flex justify-center py-12">
-          <Spinner />
-        </div>
-      }
-    >
+    <Suspense fallback={<FormPageSkeleton />}>
       <NewFeedContent clubId={clubId} />
     </Suspense>
   );

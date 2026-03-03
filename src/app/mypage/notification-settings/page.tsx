@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 
-import { Spinner } from '@heroui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { deviceApi } from '@/features/device/api';
@@ -82,8 +81,17 @@ export default function NotificationSettingsPage() {
             디바이스 정보를 불러오는 중입니다.
           </div>
         ) : isSettingsLoading ? (
-          <div className="flex justify-center py-8">
-            <Spinner />
+          <div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-1 items-center gap-3">
+                <div className="skeleton h-10 w-10 shrink-0 rounded-xl" />
+                <div className="space-y-1">
+                  <div className="skeleton h-4 w-20 rounded" />
+                  <div className="skeleton h-3 w-40 rounded" />
+                </div>
+              </div>
+              <div className="skeleton h-7 w-12 shrink-0 rounded-full" />
+            </div>
           </div>
         ) : (
           <>

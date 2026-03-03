@@ -4,12 +4,13 @@ import { Suspense, use, useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { Button, Spinner, Tabs, TextArea } from '@heroui/react';
+import { Button, Tabs, TextArea } from '@heroui/react';
 import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { parseAsString, useQueryState } from 'nuqs';
 import { createPortal } from 'react-dom';
 
 import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api';
+import { ClubDetailHeaderSkeleton, FeedItemSkeleton } from '@/components/common/skeletons';
 import { parseApiIsoToDate } from '@/lib/utils';
 import { useMyProfile } from '@/features/auth/hooks';
 import { useClubDetail, useLikeClub, useUnlikeClub } from '@/features/club/hooks';
@@ -258,11 +259,7 @@ function ClubHeader({
   }, [actionMessage, clearActionMessage]);
 
   if (isLoading || !club) {
-    return (
-      <div className="flex justify-center py-12">
-        <Spinner />
-      </div>
-    );
+    return <ClubDetailHeaderSkeleton />;
   }
 
   const status = STATUS_CONFIG[club.recruitmentStatus];
@@ -547,8 +544,10 @@ function ClubFeedTab({ clubId }: { clubId: number }) {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-12">
-        <Spinner />
+      <div className="space-y-6 px-2">
+        {[1, 2].map((i) => (
+          <FeedItemSkeleton key={i} />
+        ))}
       </div>
     );
   }
@@ -636,8 +635,10 @@ function ClubQnaTab({
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-12">
-        <Spinner />
+      <div className="space-y-3 p-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="skeleton h-16 w-full rounded-xl" />
+        ))}
       </div>
     );
   }
@@ -901,11 +902,7 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
   };
 
   if (Number.isNaN(clubId) || clubId < 1 || clubError || (!clubLoading && !club)) {
-    return (
-      <div className="flex justify-center py-12">
-        <Spinner />
-      </div>
-    );
+    return <ClubDetailHeaderSkeleton />;
   }
 
   return (
@@ -977,13 +974,7 @@ export default function ClubDetailPage({ params }: PageProps) {
   const clubId = parseInt(id, 10);
 
   return (
-    <Suspense
-      fallback={
-        <div className="flex justify-center py-12">
-          <Spinner />
-        </div>
-      }
-    >
+    <Suspense fallback={<ClubDetailHeaderSkeleton />}>
       <ClubDetailContent clubId={clubId} />
     </Suspense>
   );
