@@ -277,7 +277,7 @@ function EditFeedForm({
 
         {/* 피드 내용 입력: 하단 네비 바로 위까지 채움 */}
         <textarea
-          placeholder="피드 내용을 입력해주세요 (줄바꿈 가능)"
+          placeholder="피드 내용을 입력해주세요"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           className="min-h-0 flex-1 resize-none rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
