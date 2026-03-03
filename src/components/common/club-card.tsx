@@ -130,11 +130,6 @@ export function ClubCard({
           >
             {status.label}
           </span>
-          {club.dday > 0 && club.recruitmentStatus === 'RECRUITING' && (
-            <span className="inline-flex items-center rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-bold text-white">
-              D-{club.dday}
-            </span>
-          )}
           <span className="rounded-md bg-violet-100 px-1.5 py-0.5 text-[10px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
             {TYPE_LABEL[club.type]}
           </span>
