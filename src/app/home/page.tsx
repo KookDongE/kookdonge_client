@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -289,7 +289,14 @@ function ClubListSection({ returnTo }: { returnTo?: string }) {
     size: 20,
   });
 
-  const clubs = data?.pages.flatMap((p) => p.content) ?? [];
+  const rawClubs = data?.pages.flatMap((p) => p.content) ?? [];
+  const sortVal = normalizeSort(sort ?? null);
+  const clubs = useMemo(() => {
+    if (sortVal === 'name,asc') {
+      return [...rawClubs].sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ko'));
+    }
+    return rawClubs;
+  }, [rawClubs, sortVal]);
   const totalElements = data?.pages[0]?.totalElements ?? 0;
 
   useEffect(() => {
