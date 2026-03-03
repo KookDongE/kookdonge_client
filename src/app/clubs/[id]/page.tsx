@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, use, useEffect, useState } from 'react';
+import { Suspense, use, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -11,6 +11,7 @@ import { ClubCategory, ClubType, RecruitmentStatus } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
 import { useClubDetail, useLikeClub, useUnlikeClub } from '@/features/club/hooks';
 import { useInterestedStore } from '@/features/club/interested-store';
+import { useNotification } from '@/features/device/use-notification';
 import { useClubFeeds } from '@/features/feed/hooks';
 import { useCreateQuestion, useDeleteQuestion, useQuestions } from '@/features/question/hooks';
 import {
@@ -18,13 +19,12 @@ import {
   useMyWaitingList,
   useRemoveFromWaitingList,
 } from '@/features/waiting-list/hooks';
+import { DefaultClubImage } from '@/components/common/default-club-image';
 import {
   getNotificationInlinePromptSeen,
   NotificationPermissionInlineModal,
 } from '@/components/common/notification-permission-inline-modal';
-import { DefaultClubImage } from '@/components/common/default-club-image';
 import { BellIcon } from '@/components/icons/notification-icon';
-import { useNotification } from '@/features/device/use-notification';
 
 const CATEGORY_LABEL: Record<ClubCategory, string> = {
   PERFORMING_ARTS: '공연예술',
@@ -140,6 +140,23 @@ function ClubHeader({
 
   const isInterestedByMe = interestedClubs.some((c) => c.id === clubId);
   const isNotificationOn = (subscriptions ?? []).some((s) => s.clubId === clubId);
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const messageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (messageTimeoutRef.current) clearTimeout(messageTimeoutRef.current);
+    };
+  }, []);
+
+  const showActionMessage = (message: string) => {
+    if (messageTimeoutRef.current) clearTimeout(messageTimeoutRef.current);
+    setActionMessage(message);
+    messageTimeoutRef.current = setTimeout(() => {
+      setActionMessage(null);
+      messageTimeoutRef.current = null;
+    }, 2500);
+  };
 
   if (isLoading || !club) {
     return (
@@ -156,14 +173,17 @@ function ClubHeader({
     if (isLiking) return;
     if (club.isLikedByMe) {
       unlikeClub.mutate(clubId);
+      showActionMessage('좋아요를 취소했습니다.');
     } else {
       likeClub.mutate(clubId);
+      showActionMessage('좋아요를 눌렀습니다.');
     }
   };
 
   const handleInterestedToggle = () => {
     if (isInterestedByMe) {
       remove(clubId);
+      showActionMessage('관심 해제를 눌렀습니다.');
     } else {
       add({
         id: club.id,
@@ -173,6 +193,7 @@ function ClubHeader({
         category: club.category,
         recruitmentStatus: club.recruitmentStatus,
       });
+      showActionMessage('관심 동아리를 눌렀습니다.');
     }
   };
 
@@ -180,9 +201,11 @@ function ClubHeader({
     if (addNotification.isPending || removeNotification.isPending) return;
     if (isNotificationOn) {
       removeNotification.mutate(clubId);
+      showActionMessage('알림을 해제했습니다.');
     } else {
       addNotification.mutate(clubId);
       onNotificationTurnOnRequest?.(clubId);
+      showActionMessage('알림을 켰습니다. 동아리 모집 시작 및 마감 전 알림을 받을 수 있습니다.');
     }
   };
 
@@ -261,13 +284,17 @@ function ClubHeader({
                   ? 'bg-red-100 dark:bg-red-500/20'
                   : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'
               }`}
-              aria-label={club.isLikedByMe ? `좋아요 취소 (${club.totalLikeCount})` : `좋아요 (${club.totalLikeCount})`}
+              aria-label={
+                club.isLikedByMe
+                  ? `좋아요 취소 (${club.totalLikeCount})`
+                  : `좋아요 (${club.totalLikeCount})`
+              }
             >
               <HeartIcon
                 filled={club.isLikedByMe}
                 className={`h-4 w-4 shrink-0 ${club.isLikedByMe ? 'text-red-600 dark:text-red-400' : 'text-zinc-400 dark:text-zinc-500'}`}
               />
-              <span className="text-xs tabular-nums text-zinc-600 dark:text-zinc-400">
+              <span className="text-xs text-zinc-600 tabular-nums dark:text-zinc-400">
                 {club.totalLikeCount}
               </span>
             </button>
@@ -279,6 +306,15 @@ function ClubHeader({
               <span className="text-xs tabular-nums">{club.totalViewCount}</span>
             </div>
           </div>
+          {actionMessage && (
+            <p
+              role="status"
+              className="mt-2 text-center text-xs text-zinc-600 dark:text-zinc-400"
+              aria-live="polite"
+            >
+              {actionMessage}
+            </p>
+          )}
         </div>
       </div>
     </div>
@@ -308,13 +344,12 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
   ];
 
   const contentImageUrl = club.contentImageUrl ?? club.descriptionImages?.[0];
-  const hasIntroduction =
-    (club.content != null && club.content.trim() !== '') || !!contentImageUrl;
+  const hasIntroduction = (club.content != null && club.content.trim() !== '') || !!contentImageUrl;
 
   return (
     <div className="min-w-0 space-y-4 p-4">
       {hasIntroduction && (
-        <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+        <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
           <h3 className="mb-3 px-4 pt-4 font-semibold text-zinc-900 dark:text-zinc-100">
             동아리 소개
           </h3>
@@ -578,8 +613,11 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
   const from = searchParams.get('from');
   const [tab, setTab] = useQueryState('tab', parseAsString.withDefault('info'));
   const router = useRouter();
-  const { permission, requestPermissionAndRegister, isLoading: isPermissionLoading } =
-    useNotification();
+  const {
+    permission,
+    requestPermissionAndRegister,
+    isLoading: isPermissionLoading,
+  } = useNotification();
   const [notificationPromptOpen, setNotificationPromptOpen] = useState(false);
 
   useEffect(() => {

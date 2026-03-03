@@ -18,17 +18,17 @@ import {
 import { useInterestedStore } from '@/features/club/interested-store';
 import { useClubFeeds, useUploadFeedFiles } from '@/features/feed/hooks';
 import {
-  useAddToWaitingList,
-  useMyWaitingList,
-  useRemoveFromWaitingList,
-} from '@/features/waiting-list/hooks';
-import {
   useCreateAnswer,
   useDeleteQuestion,
   usePendingQuestions,
   useQuestions,
   useQuestionsForManage,
 } from '@/features/question/hooks';
+import {
+  useAddToWaitingList,
+  useMyWaitingList,
+  useRemoveFromWaitingList,
+} from '@/features/waiting-list/hooks';
 import { DefaultClubImage } from '@/components/common/default-club-image';
 import { BellIcon } from '@/components/icons/notification-icon';
 
@@ -88,6 +88,14 @@ function formatDate(dateString: string | null | undefined): string {
   const month = date.getMonth() + 1;
   const day = date.getDate();
   return `${year}년 ${month}월 ${day}일`;
+}
+
+/** 모집 시간을 1시간 단위로만 사용 (HH:00) */
+function toHourOnly(timeStr: string | undefined): string {
+  if (!timeStr || !/^\d{1,2}:\d{2}$/.test(timeStr)) return '00:00';
+  const [h] = timeStr.split(':');
+  const hour = Math.min(23, Math.max(0, parseInt(h, 10)));
+  return `${String(hour).padStart(2, '0')}:00`;
 }
 
 function StarIcon({ filled, className }: { filled: boolean; className?: string }) {
@@ -220,10 +228,12 @@ function ClubManageContent({ clubId }: { clubId: number }) {
     setRecruitmentStatus(club.recruitmentStatus);
     const startParts = (club.recruitmentStartDate ?? '').split('T');
     setRecruitmentStartDate(startParts[0] || '');
-    setRecruitmentStartTime(startParts[1]?.slice(0, 5) || '00:00');
+    const startTimeRaw = startParts[1]?.slice(0, 5);
+    setRecruitmentStartTime(startTimeRaw ? toHourOnly(startTimeRaw) : '00:00');
     const endParts = (club.recruitmentEndDate ?? '').split('T');
     setRecruitmentEndDate(endParts[0] || '');
-    setRecruitmentEndTime(endParts[1]?.slice(0, 5) || '23:59');
+    const endTimeRaw = endParts[1]?.slice(0, 5);
+    setRecruitmentEndTime(endTimeRaw ? toHourOnly(endTimeRaw) : '23:59');
     setRecruitmentUrl(club.applicationLink || club.recruitmentUrl || '');
   }, [club, isLoading]);
   /* eslint-enable react-hooks/set-state-in-effect */
@@ -449,7 +459,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
                   >
                     <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
                   </svg>
-                  <span className="text-xs tabular-nums text-zinc-600 dark:text-zinc-400">
+                  <span className="text-xs text-zinc-600 tabular-nums dark:text-zinc-400">
                     {club.totalLikeCount}
                   </span>
                 </div>
@@ -1303,7 +1313,9 @@ function ClubInfoTab({
                 모집 상태
               </label>
               <div className={valueBoxClass}>
-                <span className="text-zinc-900 dark:text-zinc-100">
+                <span
+                  className={`inline-flex rounded-md px-2 py-0.5 text-sm font-medium ${STATUS_CONFIG[club.recruitmentStatus as RecruitmentStatus].className}`}
+                >
                   {STATUS_CONFIG[club.recruitmentStatus as RecruitmentStatus].label}
                 </span>
               </div>
@@ -1391,8 +1403,9 @@ function ClubInfoTab({
                   </label>
                   <input
                     type="time"
+                    step={3600}
                     value={recruitmentStartTime}
-                    onChange={(e) => setRecruitmentStartTime(e.target.value)}
+                    onChange={(e) => setRecruitmentStartTime(toHourOnly(e.target.value))}
                     className="club-manage-time-input w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
                     style={{ minWidth: '6.5rem' }}
                   />
@@ -1422,8 +1435,9 @@ function ClubInfoTab({
                   </label>
                   <input
                     type="time"
+                    step={3600}
                     value={recruitmentEndTime}
-                    onChange={(e) => setRecruitmentEndTime(e.target.value)}
+                    onChange={(e) => setRecruitmentEndTime(toHourOnly(e.target.value))}
                     className="club-manage-time-input w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
                     style={{ minWidth: '6.5rem' }}
                   />
