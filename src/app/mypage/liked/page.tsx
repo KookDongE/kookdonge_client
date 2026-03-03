@@ -5,12 +5,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { Spinner } from '@heroui/react';
-import { parseAsString, useQueryState } from 'nuqs';
 
 import { ClubCategory, ClubType, RecruitmentStatus } from '@/types/api';
 import { useLikedClubs } from '@/features/club/hooks';
 import { DefaultClubImage } from '@/components/common/default-club-image';
-import { SearchFilterBar } from '@/components/common/search-filter-bar';
 
 const TYPE_LABEL: Record<ClubType, string> = {
   CENTRAL: '중앙동아리',
@@ -45,34 +43,24 @@ const STATUS_CONFIG: Record<RecruitmentStatus, { label: string; className: strin
 };
 
 function LikedClubsListContent() {
-  const [q] = useQueryState('q', parseAsString.withDefault(''));
-  const [clubType] = useQueryState('clubType', parseAsString.withDefault(''));
   const { data: likedClubs, isLoading } = useLikedClubs();
 
   const list = likedClubs || [];
-  let filtered = list;
-  if (q) {
-    filtered = filtered.filter((c) => c.name.toLowerCase().includes(q.trim().toLowerCase()));
-  }
-  if (clubType && clubType !== 'ALL') {
-    filtered = filtered.filter((c) => c.type === clubType);
-  }
 
   return (
     <div className="pb-6">
-      <SearchFilterBar stickyHideOnScroll placeholder="동아리명 검색" />
       <div className="px-4 py-4">
         {isLoading ? (
           <div className="flex justify-center py-12">
             <Spinner size="lg" />
           </div>
-        ) : filtered.length === 0 ? (
+        ) : list.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-16 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
-            <p>{q || clubType ? '검색 결과가 없습니다.' : '좋아요한 동아리가 없습니다.'}</p>
+            <p>좋아요한 동아리가 없습니다.</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {filtered.map((club) => (
+            {list.map((club) => (
               <Link
                 key={club.id}
                 href={`/clubs/${club.id}`}

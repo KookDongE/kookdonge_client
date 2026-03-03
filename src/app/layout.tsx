@@ -9,10 +9,11 @@ import { ThemeProvider } from '@/lib/theme/provider';
 import { AuthProvider } from '@/features/auth';
 import { FcmForegroundHandler } from '@/features/notifications/fcm-foreground-handler';
 import { AppShell } from '@/components/common/app-shell';
+import { FullscreenBodyLock } from '@/components/common/fullscreen-body-lock';
+import { PortraitLock } from '@/components/common/portrait-lock';
 import { PwaNoticeModal } from '@/components/common/pwa-notice-modal';
 import { PwaNotificationPromptModal } from '@/components/common/pwa-notification-prompt-modal';
 import { ScrollbarOnScroll } from '@/components/common/scrollbar-on-scroll';
-import { FullscreenBodyLock } from '@/components/common/fullscreen-body-lock';
 
 import '@/styles/globals.css';
 
@@ -109,6 +110,7 @@ export default function RootLayout({
               <AuthProvider>
                 <ScrollbarOnScroll />
                 <FullscreenBodyLock />
+                <PortraitLock />
                 <FcmForegroundHandler />
                 <AppShell>{children}</AppShell>
                 <Toaster position="top-center" richColors />

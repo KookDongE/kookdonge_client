@@ -4,9 +4,9 @@ import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
 /** 새로고침이 발동되려면 당겨야 하는 최소 거리 (px). 높을수록 둔감 */
-const PULL_THRESHOLD = 95;
+const PULL_THRESHOLD = 140;
 /** 당김 감도. 낮을수록 부드럽고 둔감 (0.25~0.4 권장) */
-const PULL_DAMPING = 0.28;
+const PULL_DAMPING = 0.22;
 const MAX_PULL = 100;
 /** 손가락 놓았을 때 원위치로 돌아가는 애니메이션 시간 (ms) */
 const RELEASE_DURATION_MS = 320;
@@ -22,7 +22,11 @@ type PullToRefreshProps = {
   disabled?: boolean;
 };
 
-export function PullToRefresh({ children, fullScreen = false, disabled = false }: PullToRefreshProps) {
+export function PullToRefresh({
+  children,
+  fullScreen = false,
+  disabled = false,
+}: PullToRefreshProps) {
   const pathname = usePathname();
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -109,7 +113,7 @@ export function PullToRefresh({ children, fullScreen = false, disabled = false }
     <div
       ref={scrollRef}
       data-scroll-container
-      className={`pb-safe h-full overscroll-y-none ${fullScreen ? 'overflow-hidden no-scrollbar' : 'overflow-y-auto'}`}
+      className={`pb-safe h-full overscroll-y-none ${fullScreen ? 'no-scrollbar overflow-hidden' : 'overflow-y-auto'}`}
       style={{ height: contentHeight }}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}

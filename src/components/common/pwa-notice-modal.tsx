@@ -59,14 +59,10 @@ export function PwaNoticeModal() {
         <div className="mb-6 space-y-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
           <p className="font-medium text-zinc-800 dark:text-zinc-200">· Android (Chrome)</p>
           <p className="pl-2">
-            1) 오른쪽 상단 ⋮ 메뉴 탭 → 2) &apos;홈 화면에 추가&apos; 또는 &apos;앱 설치&apos; 선택 →
-            3) 추가(설치) 확인
+            오른쪽 상단 메뉴 탭 → 홈화면에추가 또는 앱설치 선택 → 추가(설치) 확인
           </p>
           <p className="font-medium text-zinc-800 dark:text-zinc-200">· iOS (Safari)</p>
-          <p className="pl-2">
-            1) 하단 중앙 공유 버튼(□↑) 탭 → 2) 목록에서 &apos;홈 화면에 추가&apos; 선택 → 3) 오른쪽
-            상단 &apos;추가&apos; 탭
-          </p>
+          <p className="pl-2">공유버튼 목록에서 홈화면에 추가</p>
         </div>
         <button
           type="button"

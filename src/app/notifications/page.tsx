@@ -186,7 +186,6 @@ export default function NotificationsPage() {
                       {formatTime(item.createdAt)}
                     </span>
                   </div>
-                  <p className="font-medium text-zinc-900 dark:text-zinc-100">{item.title}</p>
                   <p className="mt-0.5 text-sm text-zinc-600 dark:text-zinc-400">{item.message}</p>
                 </div>
               </div>

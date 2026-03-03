@@ -4,37 +4,30 @@ import { Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { Spinner } from '@heroui/react';
-import { parseAsString, useQueryState } from 'nuqs';
 
 import { useMyQuestions } from '@/features/question/hooks';
-import { SearchFilterBar } from '@/components/common/search-filter-bar';
 
-/** 답변 목록 전체 (3번: 답변 대기 중인 질문만) - GET /api/clubs/questions/me 후 필터 */
+/** 답변 대기 중인 질문만 - GET /api/clubs/questions/me 후 필터 */
 function PendingListContent() {
-  const [q] = useQueryState('q', parseAsString.withDefault(''));
   const router = useRouter();
   const { data, isLoading } = useMyQuestions({ page: 0, size: 200 });
   const allList = data?.content ?? [];
   const pending = allList.filter((item) => !item.answer);
-  const filtered = q
-    ? pending.filter((item) => item.question.toLowerCase().includes(q.trim().toLowerCase()))
-    : pending;
 
   return (
     <div className="pb-6">
-      <SearchFilterBar stickyHideOnScroll placeholder="질문 검색" />
       <div className="px-4 py-4">
         {isLoading ? (
           <div className="flex justify-center py-12">
             <Spinner size="lg" />
           </div>
-        ) : filtered.length === 0 ? (
+        ) : pending.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-16 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
-            <p>{q ? '검색 결과가 없습니다.' : '답변 대기 중인 질문이 없습니다.'}</p>
+            <p>답변 대기 중인 질문이 없습니다.</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {filtered.map((qna) => (
+            {pending.map((qna) => (
               <button
                 type="button"
                 key={qna.id}

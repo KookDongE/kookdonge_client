@@ -4,38 +4,29 @@ import { Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { Chip, Spinner } from '@heroui/react';
-import { parseAsString, useQueryState } from 'nuqs';
 
 import { useMyWaitingList } from '@/features/waiting-list/hooks';
-import { SearchFilterBar } from '@/components/common/search-filter-bar';
 
 function WaitingListContent() {
-  const [q] = useQueryState('q', parseAsString.withDefault(''));
   const router = useRouter();
   const { data: waitingList, isLoading } = useMyWaitingList();
 
   const list = waitingList || [];
-  const filtered = q
-    ? list.filter((c) =>
-        c.clubName.toLowerCase().includes(q.trim().toLowerCase())
-      )
-    : list;
 
   return (
     <div className="pb-6">
-      <SearchFilterBar stickyHideOnScroll placeholder="동아리명 검색" />
       <div className="px-4 py-4">
         {isLoading ? (
           <div className="flex justify-center py-12">
             <Spinner size="lg" />
           </div>
-        ) : filtered.length === 0 ? (
+        ) : list.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-16 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
-            <p>{q ? '검색 결과가 없습니다.' : '답변 대기 목록이 없습니다.'}</p>
+            <p>답변 대기 목록이 없습니다.</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {filtered.map((club) => (
+            {list.map((club) => (
               <button
                 type="button"
                 key={club.clubId}
@@ -51,9 +42,7 @@ function WaitingListContent() {
                       {club.clubName}
                     </p>
                     <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                      {club.createdAt
-                        ? new Date(club.createdAt).toLocaleDateString()
-                        : '-'}
+                      {club.createdAt ? new Date(club.createdAt).toLocaleDateString() : '-'}
                     </p>
                   </div>
                   <svg
@@ -81,7 +70,13 @@ function WaitingListContent() {
 
 export default function WaitingListPage() {
   return (
-    <Suspense fallback={<div className="flex justify-center py-12"><Spinner size="lg" /></div>}>
+    <Suspense
+      fallback={
+        <div className="flex justify-center py-12">
+          <Spinner size="lg" />
+        </div>
+      }
+    >
       <WaitingListContent />
     </Suspense>
   );
