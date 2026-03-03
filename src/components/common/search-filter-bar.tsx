@@ -27,7 +27,7 @@ const TYPE_OPTIONS: { value: ClubType | 'ALL'; label: string }[] = [
 ];
 
 const COLLEGE_OPTIONS: { value: College | 'ALL'; label: string }[] = [
-  { value: 'ALL', label: '단과대 전체' },
+  { value: 'ALL', label: '단과대' },
   { value: 'GLOBAL_HUMANITIES', label: '글로벌인문지역대학' },
   { value: 'SOCIAL_SCIENCE', label: '사회과학대학' },
   { value: 'LAW', label: '법과대학' },
@@ -136,6 +136,8 @@ export function SearchFilterBar({
   const [collegeSelectOpen, setCollegeSelectOpen] = useState(false);
   const lastScrollYRef = useRef(0);
   const filterBarRef = useRef<HTMLDivElement>(null);
+  /** 선택으로 닫은 직후 웹뷰에서 다시 열리는 것 방지 */
+  const collegeClosedBySelectionRef = useRef(false);
 
   const categoryVal = category ?? 'ALL';
   const statusVal = status ?? 'ALL';
@@ -241,8 +243,12 @@ export function SearchFilterBar({
   };
   const handleCollegeChange = (value: Key | null) => {
     setCollege(value === 'ALL' || value === null ? null : (value as string));
+    collegeClosedBySelectionRef.current = true;
     setCollegeSelectOpen(false);
     closeSelectPopover();
+    setTimeout(() => {
+      collegeClosedBySelectionRef.current = false;
+    }, 250);
   };
   const handleSortChange = (value: Key | null) => {
     setSort((value as string) || 'default');
@@ -319,7 +325,13 @@ export function SearchFilterBar({
             aria-label="단과대 선택"
             selectedKey={collegeVal}
             isOpen={collegeSelectOpen}
-            onOpenChange={setCollegeSelectOpen}
+            onOpenChange={(open) => {
+              if (open && collegeClosedBySelectionRef.current) {
+                setCollegeSelectOpen(false);
+                return;
+              }
+              setCollegeSelectOpen(open);
+            }}
             onSelectionChange={(key) => handleCollegeChange(key ?? 'ALL')}
           >
             <Select.Trigger className="min-w-[72px] max-w-[100px] truncate rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 outline-none ring-0 focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0">
@@ -379,8 +391,8 @@ export function SearchFilterBar({
           selectedKey={statusVal}
           onSelectionChange={(key) => handleStatusChange(key ?? 'ALL')}
         >
-          <Select.Trigger className="min-w-[72px] max-w-[72px] rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 outline-none ring-0 focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0">
-            <Select.Value className="[color:rgb(82,82,91)] dark:[color:rgb(228,228,231)]" />
+          <Select.Trigger className="min-w-[88px] max-w-[100px] rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 outline-none ring-0 focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0">
+            <Select.Value className="whitespace-nowrap [color:rgb(82,82,91)] dark:[color:rgb(228,228,231)]" />
             <Select.Indicator className="!text-zinc-500 dark:!text-zinc-400" />
           </Select.Trigger>
           <Select.Popover>

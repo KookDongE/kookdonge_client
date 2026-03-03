@@ -202,7 +202,7 @@ export default function NotificationsPage() {
                 }`}
               >
                 <div className="min-w-0 flex-1">
-                  <div className="mb-1 flex items-center gap-2">
+                  <div className="mb-1 flex items-center gap-2 -ml-1">
                     <span
                       className={`rounded-full px-2 py-0.5 text-xs font-medium ${typeBadgeColor(item.type)}`}
                     >
