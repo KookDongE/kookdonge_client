@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { useEffect, useRef, useState } from 'react';
@@ -76,15 +75,6 @@ export default function AdminReportsPage() {
 
   return (
     <div className="min-h-screen bg-white pb-20 dark:bg-zinc-900">
-      <div className="flex items-center gap-2 px-4 pt-3 pb-1">
-        <Link
-          href="/admin"
-          className="flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-        >
-          <span className="inline-block h-4 w-4">←</span>
-          <span>뒤로가기</span>
-        </Link>
-      </div>
       <Tabs
         selectedKey={tabKey}
         onSelectionChange={(key) => setReportTab(key as ReportTabValue)}
@@ -95,13 +85,13 @@ export default function AdminReportsPage() {
         >
           <Tabs.List
             aria-label="신고 유형"
-            className="no-scrollbar flex w-full gap-0 overflow-x-auto overflow-y-hidden"
+            className="flex w-full min-w-0"
           >
             {REPORT_TABS.map((opt) => (
               <Tabs.Tab
                 key={opt.value}
                 id={opt.value}
-                className="shrink-0 py-3 px-4 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                className="min-w-0 flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
               >
                 {opt.label}
                 <Tabs.Indicator />

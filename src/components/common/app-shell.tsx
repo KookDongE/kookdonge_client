@@ -26,6 +26,9 @@ const PULL_TO_REFRESH_DISABLED_PATHS = [
   /^\/mypage\/settings\/bug-report$/, // 버그 신고
 ];
 
+/** 메인 스크롤 비활성화 경로 (동아리 신청 — 컨테이너 스크롤 막고 페이지 내부만 스크롤) */
+const SCROLL_DISABLED_PATHS = [/^\/mypage\/clubs\/apply$/];
+
 function isFullScreenPath(pathname: string): boolean {
   return FULL_SCREEN_PATHS.includes(pathname) || pathname.startsWith('/login/');
 }
@@ -37,6 +40,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pullToRefreshDisabled = PULL_TO_REFRESH_DISABLED_PATHS.some((re) =>
     re.test(pathname ?? '')
   );
+  const scrollDisabled = SCROLL_DISABLED_PATHS.some((re) => re.test(pathname ?? ''));
 
   return (
     <div
@@ -46,7 +50,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <main
         className={`flex flex-col overflow-hidden ${fullScreen ? 'h-dvh min-h-0' : 'h-[calc(100dvh-4rem)]'} ${!fullScreen && !headerHidden ? 'pt-[4.25rem]' : ''}`}
       >
-        <PullToRefresh fullScreen={fullScreen} disabled={pullToRefreshDisabled}>
+        <PullToRefresh fullScreen={fullScreen} disabled={pullToRefreshDisabled} scrollDisabled={scrollDisabled}>
           {children}
         </PullToRefresh>
       </main>

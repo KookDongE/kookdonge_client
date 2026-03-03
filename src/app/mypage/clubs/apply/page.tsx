@@ -96,9 +96,9 @@ function ClubApplyContent() {
   };
 
   return (
-    <div className="bg-gray-50 dark:bg-zinc-900 min-h-screen">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-gray-50 dark:bg-zinc-900">
       {/* 헤더 */}
-      <div className="sticky top-0 z-50 border-b border-gray-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
+      <div className="shrink-0 border-b border-gray-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
         <div className="flex h-16 items-center justify-between px-4">
           <button
             type="button"
@@ -126,6 +126,7 @@ function ClubApplyContent() {
         </div>
       </div>
 
+      <div className="min-h-0 flex-1 overflow-y-auto">
       <div className="space-y-6 p-4 pb-32">
         {/* 동아리 이름 */}
         <div>
@@ -259,6 +260,7 @@ function ClubApplyContent() {
             className="w-full min-h-[200px] resize-none rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-400 dark:focus:border-blue-500"
           />
         </div>
+      </div>
       </div>
     </div>
   );

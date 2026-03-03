@@ -28,12 +28,15 @@ type PullToRefreshProps = {
   fullScreen?: boolean;
   /** true면 당겨서 새로고침 비활성화 (예: 피드 상세) */
   disabled?: boolean;
+  /** true면 메인 스크롤 컨테이너 스크롤 비활성화 (예: 동아리 신청 — 페이지 내부만 스크롤) */
+  scrollDisabled?: boolean;
 };
 
 export function PullToRefresh({
   children,
   fullScreen = false,
   disabled = false,
+  scrollDisabled = false,
 }: PullToRefreshProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -127,7 +130,7 @@ export function PullToRefresh({
     <div
       ref={scrollRef}
       data-scroll-container
-      className={`pb-safe h-full overscroll-y-none ${fullScreen ? 'no-scrollbar overflow-hidden' : 'overflow-y-auto'}`}
+      className={`pb-safe h-full overscroll-y-none ${fullScreen || scrollDisabled ? 'no-scrollbar overflow-hidden' : 'overflow-y-auto'}`}
       style={{ height: contentHeight }}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}

@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { useEffect, useState } from 'react';
@@ -77,15 +76,6 @@ export default function AdminSettingsPage() {
 
   return (
     <div className="min-h-screen bg-white pb-20 dark:bg-zinc-900">
-      <div className="flex items-center gap-2 px-4 pt-3 pb-1">
-        <Link
-          href="/admin"
-          className="flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-        >
-          <span className="inline-block h-4 w-4">←</span>
-          <span>뒤로가기</span>
-        </Link>
-      </div>
       <div className="space-y-4 p-4">
         <div>
           <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
