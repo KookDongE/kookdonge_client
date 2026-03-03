@@ -24,7 +24,6 @@ import {
   useDeleteQuestion,
   usePendingQuestions,
   useQuestions,
-  useQuestionsForManage,
 } from '@/features/question/hooks';
 import {
   useAddToWaitingList,
@@ -1776,11 +1775,6 @@ function ClubQnaTab({
     page: 0,
     size: 50,
   });
-  const { data: answeredQuestions, isLoading: answeredLoading } = useQuestionsForManage(clubId, {
-    answered: true,
-    page: 0,
-    size: 50,
-  });
   const { data: allQuestions, isLoading: allLoading } = useQuestions(clubId, { page: 0, size: 50 });
   const createAnswer = useCreateAnswer();
   const deleteQuestion = useDeleteQuestion(clubId);
@@ -1835,7 +1829,7 @@ function ClubQnaTab({
     );
   };
 
-  if (pendingLoading || answeredLoading || allLoading) {
+  if (pendingLoading || allLoading) {
     return (
       <div className="flex justify-center py-12">
         <Spinner />
@@ -1844,7 +1838,6 @@ function ClubQnaTab({
   }
 
   const pending = pendingQuestions?.content || [];
-  const answered = answeredQuestions?.content || [];
   const all = allQuestions?.content || [];
 
   return (
@@ -1862,7 +1855,7 @@ function ClubQnaTab({
                 <div
                   key={qna.id}
                   id={`question-${qna.id}`}
-                  className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700"
+                  className="rounded-lg border border-zinc-100 p-4 dark:border-zinc-700"
                 >
                   <div className="flex items-start gap-3">
                     <button
@@ -1934,48 +1927,6 @@ function ClubQnaTab({
         </div>
       )}
 
-      {/* 답변 완료 (API: GET .../questions/manage?answered=true) */}
-      {answered.length > 0 && (
-        <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
-          <h3 className="mb-4 font-semibold text-zinc-900 dark:text-zinc-100">
-            답변 완료 ({answered.length})
-          </h3>
-          <div className="space-y-4">
-            {answered.map((qna) => (
-              <div
-                key={qna.id}
-                id={`question-answered-${qna.id}`}
-                className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700"
-              >
-                <div className="flex items-start gap-3">
-                  <span
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
-                    aria-hidden
-                  >
-                    A
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                      {qna.question}
-                    </p>
-                    <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                      {new Date(qna.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-                {qna.answer && (
-                  <div className="mt-3 flex items-start gap-3 pt-3">
-                    <p className="flex-1 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
-                      {qna.answer}
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* 전체 Q&A */}
       {all.length > 0 && (
         <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
@@ -1985,7 +1936,7 @@ function ClubQnaTab({
               <div
                 key={qna.id}
                 id={`question-${qna.id}`}
-                className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700"
+                className="rounded-lg border border-zinc-100 p-4 dark:border-zinc-700"
               >
                 <div className="flex items-start gap-3">
                   <span
@@ -2030,7 +1981,7 @@ function ClubQnaTab({
         </div>
       )}
 
-      {pending.length === 0 && answered.length === 0 && all.length === 0 && (
+      {pending.length === 0 && all.length === 0 && (
         <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-12 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
           <p>아직 질문이 없습니다.</p>
         </div>
