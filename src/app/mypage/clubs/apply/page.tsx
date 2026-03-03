@@ -126,7 +126,7 @@ function ClubApplyContent() {
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto bg-gray-50 dark:bg-zinc-900">
+      <div className="min-h-0 flex-1 overflow-y-auto">
       <div className="space-y-6 p-4 pb-32">
         {/* 동아리 이름 */}
         <div>
