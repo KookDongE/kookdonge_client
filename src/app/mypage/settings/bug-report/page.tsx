@@ -1,11 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type Key } from 'react';
 import Link from 'next/link';
 
-import { Button, Select, SelectItem, TextArea } from '@heroui/react';
+import { Button, ListBox, Select, TextArea } from '@heroui/react';
 
 type ReportType = 'bug' | 'suggestion';
+
+const REPORT_TYPE_OPTIONS: { value: ReportType; label: string }[] = [
+  { value: 'bug', label: '버그 신고' },
+  { value: 'suggestion', label: '건의사항' },
+];
 
 export default function BugReportPage() {
   const [content, setContent] = useState('');
@@ -40,16 +45,29 @@ export default function BugReportPage() {
           <p className="text-sm text-zinc-500 dark:text-zinc-400">아직 준비중인 기능이에요.</p>
           <Select
             aria-label="유형 선택"
-            selectedKeys={[reportType]}
-            onSelectionChange={(keys) => {
-              const v = Array.from(keys)[0] as ReportType;
-              if (v) setReportType(v);
-            }}
+            placeholder="유형"
+            value={reportType}
+            onChange={(value: Key | null) => value && setReportType(value as ReportType)}
             className="max-w-[140px]"
-            size="sm"
           >
-            <SelectItem key="bug">버그 신고</SelectItem>
-            <SelectItem key="suggestion">건의사항</SelectItem>
+            <Select.Trigger className="rounded-xl border border-zinc-200 bg-white text-sm text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
+              <Select.Value />
+              <Select.Indicator />
+            </Select.Trigger>
+            <Select.Popover>
+              <ListBox>
+                {REPORT_TYPE_OPTIONS.map((opt) => (
+                  <ListBox.Item
+                    key={opt.value}
+                    id={opt.value}
+                    textValue={opt.label}
+                    className="!text-zinc-600 dark:!text-zinc-200"
+                  >
+                    {opt.label}
+                  </ListBox.Item>
+                ))}
+              </ListBox>
+            </Select.Popover>
           </Select>
         </div>
       </div>
