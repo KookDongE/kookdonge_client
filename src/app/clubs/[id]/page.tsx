@@ -708,16 +708,23 @@ function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: str
   const applicationLink = club?.applicationLink || club?.recruitmentUrl;
   const shouldShow = !!club && !!applicationLink && currentTab === 'info';
 
-  // 스크롤 위치 → 스프링으로 부드럽게 변환 (살짝 지연되며 따라오는 Smooth Follow)
+  // 스크롤 시에만 움직이고, 항상 기본 위치(최저·최대 높이의 중간)로 복귀하려는 스프링
   const scrollY = useMotionValue(0);
   const smoothScrollY = useSpring(scrollY, {
-    stiffness: 50, // 스프링 강도 (작을수록 느릿하게 따라옴)
-    damping: 20, // 마찰력 (덜컹거림 방지)
+    stiffness: 45,
+    damping: 22,
     mass: 1,
   });
-  // 부드러워진 스크롤 값을 버튼 y 오프셋에 매핑. 상한으로 네비 바 침범 방지, 스크롤 0이면 0 복귀
-  const FOLLOW_MAX_PX = 20; // 아래로 최대 20px만 이동 (네비 영역 침범 방지)
-  const followY = useTransform(smoothScrollY, (value) => Math.min(value * 0.08, FOLLOW_MAX_PX));
+  const FOLLOW_MAX_PX = 20;
+  const targetOffsetY = useTransform(smoothScrollY, (value) =>
+    Math.min(Math.max(value * 0.08, 0), FOLLOW_MAX_PX)
+  );
+  // 목표 오프셋을 한 번 더 스프링으로 따라가서 “기본 위치로 돌아가려는” 느낌
+  const displayY = useSpring(targetOffsetY, {
+    stiffness: 180,
+    damping: 26,
+    mass: 0.6,
+  });
 
   useEffect(() => {
     if (!shouldShow) return;
@@ -745,7 +752,7 @@ function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: str
         position: 'fixed',
         right: '1rem',
         bottom: bottomOffset,
-        y: followY,
+        y: displayY,
       }}
     >
       <AnimatePresence mode="wait">

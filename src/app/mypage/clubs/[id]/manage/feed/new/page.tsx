@@ -16,7 +16,7 @@ type PageProps = {
 
 type UploadedFile = { uuid: string; fileUrl: string };
 
-/** 핸들을 잡아야만 드래그 가능 (스크롤과 충돌 방지) */
+/** 사진 전체가 드래그 영역, 삭제 버튼만 제외 */
 function FeedImageReorderItem({
   file,
   onRemove,
@@ -35,7 +35,20 @@ function FeedImageReorderItem({
       whileDrag={{ scale: 1.02, zIndex: 50 }}
       className="relative flex shrink-0 flex-col gap-1 rounded-xl"
     >
-      <div className="relative aspect-square w-36 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
+      <div
+        className={`relative aspect-square w-36 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800 ${
+          canReorder ? 'cursor-grab [touch-action:none] touch-none active:cursor-grabbing' : ''
+        }`}
+        onPointerDown={
+          canReorder
+            ? (e) => {
+                if ((e.target as HTMLElement).closest?.('[data-no-drag]')) return;
+                if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
+                controls.start(e);
+              }
+            : undefined
+        }
+      >
         <Image
           src={file.fileUrl}
           alt=""
@@ -46,10 +59,12 @@ function FeedImageReorderItem({
         />
         <button
           type="button"
+          data-no-drag
           onClick={(e) => {
             e.stopPropagation();
             onRemove();
           }}
+          onPointerDown={(e) => e.stopPropagation()}
           className="absolute top-1 right-1 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
           aria-label="이미지 삭제"
         >
@@ -65,26 +80,6 @@ function FeedImageReorderItem({
           </svg>
         </button>
       </div>
-      {canReorder && (
-        <div
-          className="flex cursor-grab [touch-action:none] touch-none justify-center py-1 active:cursor-grabbing"
-          onPointerDown={(e) => {
-            if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
-            controls.start(e);
-          }}
-          aria-label="순서 변경 핸들"
-        >
-          <svg
-            width="24"
-            height="20"
-            viewBox="0 0 24 20"
-            fill="currentColor"
-            className="text-gray-400 dark:text-zinc-500"
-          >
-            <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-12a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z" />
-          </svg>
-        </div>
-      )}
     </Reorder.Item>
   );
 }
