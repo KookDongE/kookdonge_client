@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
-import { Button, Spinner } from '@heroui/react';
+import { Button, Input, Spinner } from '@heroui/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { parseAsString, useQueryState } from 'nuqs';
 import { createPortal } from 'react-dom';
@@ -274,6 +274,7 @@ function ClubListSection({ returnTo }: { returnTo?: string }) {
   const [sort] = useQueryState('sort', parseAsString.withDefault('name,asc'));
   const [query] = useQueryState('q', parseAsString);
   const [deleteModalClubId, setDeleteModalClubId] = useState<number | null>(null);
+  const [deleteConfirmName, setDeleteConfirmName] = useState('');
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useInfiniteClubList({
@@ -326,14 +327,23 @@ function ClubListSection({ returnTo }: { returnTo?: string }) {
 
   const handleDelete = (clubId: number) => {
     setDeleteModalClubId(clubId);
+    setDeleteConfirmName('');
   };
 
   const handleDeleteConfirm = () => {
     if (deleteModalClubId) {
       deleteClub.mutate(deleteModalClubId);
       setDeleteModalClubId(null);
+      setDeleteConfirmName('');
     }
   };
+
+  const deleteModalClub = deleteModalClubId
+    ? clubs.find((c) => c.id === deleteModalClubId)
+    : null;
+  const isDeleteNameMatch =
+    deleteModalClub != null &&
+    deleteConfirmName.trim() === (deleteModalClub.name ?? '').trim();
 
   if (isLoading) {
     return (
@@ -432,22 +442,42 @@ function ClubListSection({ returnTo }: { returnTo?: string }) {
               <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-zinc-100">
                 동아리 삭제
               </h3>
-              <p className="mb-6 text-sm text-gray-600 dark:text-zinc-400">
+              <p className="mb-3 text-sm text-gray-600 dark:text-zinc-400">
                 정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
               </p>
+              {deleteModalClub && (
+                <>
+                  <p className="mb-2 text-sm text-gray-600 dark:text-zinc-400">
+                    삭제하려면 동아리 이름 <strong className="text-gray-900 dark:text-zinc-100">&quot;{deleteModalClub.name}&quot;</strong>을(를) 입력하세요.
+                  </p>
+                  <Input
+                    type="text"
+                    placeholder="동아리 이름 입력"
+                    value={deleteConfirmName}
+                    onChange={(e) => setDeleteConfirmName(e.target.value)}
+                    className="mb-6"
+                    autoComplete="off"
+                    aria-label="동아리 이름 확인"
+                  />
+                </>
+              )}
               <div className="flex gap-3">
                 <Button
                   variant="ghost"
                   className="flex-1"
-                  onPress={() => setDeleteModalClubId(null)}
+                  onPress={() => {
+                    setDeleteModalClubId(null);
+                    setDeleteConfirmName('');
+                  }}
                 >
                   취소
                 </Button>
                 <Button
-                  variant="danger"
-                  className="flex-1"
+                  variant="primary"
+                  className="flex-1 bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
                   onPress={handleDeleteConfirm}
                   isPending={deleteClub.isPending}
+                  isDisabled={!isDeleteNameMatch}
                 >
                   삭제
                 </Button>

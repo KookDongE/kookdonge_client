@@ -1864,9 +1864,9 @@ function ClubFeedTab({ clubId }: { clubId: number }) {
               <Button
                 size="sm"
                 variant="primary"
-                color="danger"
+                className="bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
                 onPress={handleDeleteConfirm}
-                isLoading={deleteFeed.isPending}
+                isPending={deleteFeed.isPending}
               >
                 삭제
               </Button>
@@ -2224,8 +2224,8 @@ function ClubQnaTab({
                 취소
               </Button>
               <Button
-                variant="danger"
-                className="flex-1"
+                variant="primary"
+                className="flex-1 bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
                 onPress={handleDeleteConfirm}
                 isPending={deleteQuestion.isPending}
               >
