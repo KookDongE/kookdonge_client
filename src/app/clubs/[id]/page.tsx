@@ -701,27 +701,31 @@ function ClubQnaTab({
   );
 }
 
-/** 정보 탭에서만 노출, 네비게이션바 바로 아래에 붙어서 따라다니는 동아리 지원 버튼 */
-function ClubCTASticky({ clubId }: { clubId: number }) {
+/** 정보 탭에서만 노출. 하단 고정 — 네비게이션바 바로 위에 붙어서 스크롤해도 따라다님 */
+function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: string }) {
   const { data: club } = useClubDetail(clubId);
   const applicationLink = club?.applicationLink || club?.recruitmentUrl;
   if (!club || !applicationLink) return null;
+  if (currentTab === 'feed' || currentTab === 'qna') return null;
 
   const handleApplyClick = () => {
     window.open(applicationLink, '_blank');
   };
 
+  const bottomOffset = 'calc(72px + env(safe-area-inset-bottom, 0px))';
+
   return (
-    <div className="sticky top-0 z-40 w-full border-b border-zinc-200/80 bg-white/95 p-3 backdrop-blur-sm dark:border-zinc-700/80 dark:bg-zinc-900/95">
-      <div className="mx-auto max-w-md">
-        <Button
-          className="w-full py-3 text-base font-semibold"
-          variant="primary"
-          onPress={handleApplyClick}
-        >
-          동아리 지원
-        </Button>
-      </div>
+    <div
+      className="fixed left-1/2 z-50 w-full max-w-md -translate-x-1/2 border-t border-zinc-200/80 bg-white/95 p-3 backdrop-blur-sm dark:border-zinc-700/80 dark:bg-zinc-900/95"
+      style={{ bottom: bottomOffset }}
+    >
+      <Button
+        className="w-full py-3 text-base font-semibold"
+        variant="primary"
+        onPress={handleApplyClick}
+      >
+        동아리 지원
+      </Button>
     </div>
   );
 }
@@ -821,7 +825,6 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
           </Tabs.List>
         </Tabs.ListContainer>
         <Tabs.Panel id="info" className="min-w-0 overflow-x-hidden">
-          <ClubCTASticky clubId={clubId} />
           <ClubInfoTab clubId={clubId} />
         </Tabs.Panel>
         <Tabs.Panel id="feed">
@@ -835,8 +838,9 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
           />
         </Tabs.Panel>
       </Tabs>
-      {/* 하단 네비 공간 확보 */}
+      {/* 하단 네비 + CTA 공간 확보 (지원 버튼 있을 때) */}
       <div className="h-32" />
+      <ClubCTABottom clubId={clubId} currentTab={tab} />
       <NotificationPermissionInlineModal
         open={notificationPromptOpen}
         onClose={() => setNotificationPromptOpen(false)}
