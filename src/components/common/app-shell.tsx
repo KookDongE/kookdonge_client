@@ -18,16 +18,25 @@ function isHeaderHidden(pathname: string): boolean {
   return false;
 }
 
-/** 풀투리프레시 비활성화 경로 (피드 상세, 피드 생성/수정, 버그 신고 — 스크롤·제스처와 충돌 방지) */
+/** 풀투리프레시 비활성화 경로 (피드 상세, 피드 생성/수정, 버그 신고, 동아리 신청, 설정, 알림설정, 관리자 — 스크롤·제스처와 충돌 방지) */
 const PULL_TO_REFRESH_DISABLED_PATHS = [
   /^\/clubs\/[^/]+\/feed$/, // 피드 상세
   /^\/mypage\/clubs\/[^/]+\/manage\/feed\/new$/, // 피드 생성
   /^\/mypage\/clubs\/[^/]+\/manage\/feed\/[^/]+\/edit$/, // 피드 수정
   /^\/mypage\/settings\/bug-report$/, // 버그 신고
+  /^\/mypage\/clubs\/apply$/, // 동아리 신청
+  /^\/mypage\/settings(\/|$)/, // 설정 (메인·이름변경·버그신고 등 하위 포함)
+  /^\/mypage\/notification-settings(\/|$)/, // 알림설정
+  /^\/admin(\/|$)/, // 관리자 (신청목록·설정·신고 등 하위 포함)
 ];
 
-/** 메인 스크롤 비활성화 경로 (동아리 신청 — 컨테이너 스크롤 막고 페이지 내부만 스크롤) */
-const SCROLL_DISABLED_PATHS = [/^\/mypage\/clubs\/apply$/];
+/** 메인 스크롤 비활성화 경로 (동아리 신청, 설정, 알림설정, 관리자 — 컨테이너 스크롤 막고 페이지 내부만 스크롤) */
+const SCROLL_DISABLED_PATHS = [
+  /^\/mypage\/clubs\/apply$/,
+  /^\/mypage\/settings(\/|$)/,
+  /^\/mypage\/notification-settings(\/|$)/,
+  /^\/admin(\/|$)/,
+];
 
 function isFullScreenPath(pathname: string): boolean {
   return FULL_SCREEN_PATHS.includes(pathname) || pathname.startsWith('/login/');
