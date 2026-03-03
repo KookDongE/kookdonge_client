@@ -1,10 +1,11 @@
 'use client';
 
-import { Suspense, use, useEffect, useRef, useState } from 'react';
+import { Suspense, use, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 import { Spinner } from '@heroui/react';
+import { motion } from 'framer-motion';
 
 import { useClubDetail } from '@/features/club/hooks';
 import { useCreateFeed, useImageUpload } from '@/features/feed/hooks';
@@ -26,6 +27,14 @@ function NewFeedContent({ clubId }: { clubId: number }) {
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const touchStartRef = useRef<{ y: number; x: number; index: number } | null>(null);
   const touchDragActiveRef = useRef(false);
+
+  /** 드래그 중일 때 다른 카드들이 놓을 위치에 맞춰 보여줄 순서 */
+  const displayOrderIndices = useMemo(() => {
+    if (dragIndex === null || uploadedFiles.length <= 1) return null;
+    const without = uploadedFiles.map((_, i) => i).filter((i) => i !== dragIndex);
+    const safeOver = Math.max(0, Math.min(dragOverIndex ?? dragIndex, without.length));
+    return [...without.slice(0, safeOver), dragIndex, ...without.slice(safeOver)];
+  }, [uploadedFiles, dragIndex, dragOverIndex]);
 
   const reorder = (fromIndex: number, toIndex: number) => {
     if (fromIndex < 0 || fromIndex === toIndex) return;
@@ -242,80 +251,89 @@ function NewFeedContent({ clubId }: { clubId: number }) {
             </span>
           </label>
         ) : (
-          <div className="flex flex-wrap items-center gap-3">
-            {uploadedFiles.map((f, index) => {
-              const isDragging = dragIndex === index;
-              const isDragOver = dragOverIndex === index;
-              return (
-                <div
-                  key={f.uuid}
-                  data-drag-index={index}
-                  draggable={uploadedFiles.length > 1}
-                  onDragStart={handleDragStart(index)}
-                  onDragEnd={handleDragEnd}
-                  onDragOver={handleDragOver(index)}
-                  onDragLeave={() => setDragOverIndex(null)}
-                  onDrop={handleDrop(index)}
-                  onTouchStart={handleTouchStart(index)}
-                  onTouchMove={handleTouchMove}
-                  onTouchEnd={handleTouchEnd}
-                  onTouchCancel={handleTouchEnd}
-                  className={`relative flex flex-col gap-1 transition-transform duration-100 ${
-                    uploadedFiles.length > 1 ? 'cursor-grab active:cursor-grabbing' : ''
-                  } ${isDragging ? 'pointer-events-none z-20 scale-[0.92] opacity-70' : ''} ${
-                    isDragOver && !isDragging
-                      ? 'rounded-xl ring-2 ring-blue-400 ring-offset-2 ring-offset-[var(--card)]'
-                      : ''
-                  }`}
-                >
-                  <div className="relative aspect-square w-36 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
-                    <Image
-                      src={f.fileUrl}
-                      alt=""
-                      fill
-                      className="pointer-events-none object-cover select-none"
-                      sizes="144px"
-                      draggable={false}
-                    />
-                    <button
-                      type="button"
-                      data-no-drag
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveImage(index);
-                      }}
-                      onPointerDown={(e) => e.stopPropagation()}
-                      className="absolute top-1 right-1 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
-                      aria-label="이미지 삭제"
+          <div className="-mx-4 overflow-x-auto overflow-y-hidden px-4 pb-2">
+            <div className="flex items-center gap-3" style={{ width: 'max-content' }}>
+              {(displayOrderIndices ?? uploadedFiles.map((_, i) => i)).map((fileIndex, pos) => {
+                const f = uploadedFiles[fileIndex];
+                const isDragging = dragIndex === fileIndex;
+                const isDragOver = dragOverIndex === pos;
+                return (
+                  <div
+                    key={f.uuid}
+                    data-drag-index={pos}
+                    draggable={uploadedFiles.length > 1}
+                    onDragStart={handleDragStart(fileIndex)}
+                    onDragEnd={handleDragEnd}
+                    onDragOver={handleDragOver(pos)}
+                    onDragLeave={() => setDragOverIndex(null)}
+                    onDrop={handleDrop(pos)}
+                    onTouchStart={handleTouchStart(fileIndex)}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
+                    onTouchCancel={handleTouchEnd}
+                    className={`relative flex shrink-0 flex-col gap-1 transition-transform duration-100 ${
+                      uploadedFiles.length > 1 ? 'cursor-grab active:cursor-grabbing' : ''
+                    } ${isDragging ? 'pointer-events-none z-20 scale-[0.92] opacity-70' : ''} ${
+                      isDragOver && !isDragging
+                        ? 'rounded-xl ring-2 ring-blue-400 ring-offset-2 ring-offset-[var(--card)]'
+                        : ''
+                    }`}
+                  >
+                    <motion.div
+                      layout
+                      transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+                      className="relative flex flex-col gap-1"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={2.5}
-                        className="h-4 w-4"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M6 18L18 6M6 6l12 12"
+                      <div className="relative aspect-square w-36 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
+                        <Image
+                          src={f.fileUrl}
+                          alt=""
+                          fill
+                          className="pointer-events-none object-cover select-none"
+                          sizes="144px"
+                          draggable={false}
                         />
-                      </svg>
-                    </button>
+                        <button
+                          type="button"
+                          data-no-drag
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveImage(fileIndex);
+                          }}
+                          onPointerDown={(e) => e.stopPropagation()}
+                          className="absolute top-1 right-1 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
+                          aria-label="이미지 삭제"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2.5}
+                            className="h-4 w-4"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </motion.div>
                   </div>
-                </div>
-              );
-            })}
-            <label htmlFor="feed-images-upload" className="block cursor-pointer">
-              <span className="flex aspect-square w-36 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:border-gray-400 hover:bg-gray-100 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
-                {isUploading ? (
-                  <Spinner size="sm" />
-                ) : (
-                  <span className="text-2xl text-gray-400 dark:text-zinc-400">+</span>
-                )}
-              </span>
-            </label>
+                );
+              })}
+              <label htmlFor="feed-images-upload" className="block shrink-0 cursor-pointer">
+                <span className="flex aspect-square w-36 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:border-gray-400 hover:bg-gray-100 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
+                  {isUploading ? (
+                    <Spinner size="sm" />
+                  ) : (
+                    <span className="text-2xl text-gray-400 dark:text-zinc-400">+</span>
+                  )}
+                </span>
+              </label>
+            </div>
           </div>
         )}
 

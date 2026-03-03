@@ -64,6 +64,7 @@ export function PullToRefresh({
       const el = scrollRef.current;
       if (!el || el.scrollTop > 0) return;
       startYRef.current = e.touches[0].clientY;
+      lastDistanceRef.current = 0; // 새 제스처 시작 시 초기화 — 터치만 할 때 이전 당김 값으로 새로고침되지 않게
       setIsReleasing(false);
     },
     [fullScreen, disabled]
@@ -94,6 +95,7 @@ export function PullToRefresh({
   const onTouchEnd = useCallback(() => {
     if (fullScreen || disabled) return;
     const distance = lastDistanceRef.current;
+    lastDistanceRef.current = 0; // 손 뗀 뒤 초기화 — 다음 터치만 할 때 새로고침 발동 방지
     if (distance >= PULL_THRESHOLD && !isRefreshing) {
       setIsRefreshing(true);
       setIsReleasing(true);
