@@ -13,6 +13,20 @@ import { apiClient } from '@/lib/api';
 
 type PageClubListRes = PageResponse<ClubListRes>;
 
+/** 랭킹 API 응답이 배열이거나 content/data 필드로 감싼 형태일 수 있음. 항상 ClubRankingRes[] 반환 */
+function normalizeRankingList(
+  raw: ClubRankingRes[] | { content?: ClubRankingRes[]; data?: ClubRankingRes[] } | null | undefined
+): ClubRankingRes[] {
+  if (Array.isArray(raw)) return raw;
+  if (raw && typeof raw === 'object') {
+    if (Array.isArray((raw as { content?: ClubRankingRes[] }).content))
+      return (raw as { content: ClubRankingRes[] }).content;
+    if (Array.isArray((raw as { data?: ClubRankingRes[] }).data))
+      return (raw as { data: ClubRankingRes[] }).data;
+  }
+  return [];
+}
+
 function buildClubListParams(
   p: ClubListParams
 ): Record<string, string | number | boolean | undefined> {
@@ -48,13 +62,17 @@ export const clubApi = {
   },
 
   getTopWeeklyView: async (): Promise<ClubRankingRes[]> => {
-    const data = await apiClient<ClubRankingRes[]>('/api/clubs/top/weekly-view');
-    return Array.isArray(data) ? data : [];
+    const raw = await apiClient<ClubRankingRes[] | { content?: ClubRankingRes[]; data?: ClubRankingRes[] }>(
+      '/api/clubs/top/weekly-view'
+    );
+    return normalizeRankingList(raw);
   },
 
   getTopWeeklyLike: async (): Promise<ClubRankingRes[]> => {
-    const data = await apiClient<ClubRankingRes[]>('/api/clubs/top/weekly-like');
-    return Array.isArray(data) ? data : [];
+    const raw = await apiClient<ClubRankingRes[] | { content?: ClubRankingRes[]; data?: ClubRankingRes[] }>(
+      '/api/clubs/top/weekly-like'
+    );
+    return normalizeRankingList(raw);
   },
 
   /** 좋아요 토글 - 응답 liked 로 현재 상태 반영 */

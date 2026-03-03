@@ -33,7 +33,7 @@ export function FeedList({
   isLoading,
   clubId,
   isManager,
-  showManagerMenu = false,
+  showManagerMenu = true,
   onEdit,
   onDelete,
   isDeleting,

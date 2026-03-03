@@ -97,6 +97,7 @@ function FeedPageContent({ clubId }: { clubId: number }) {
           isLoading={feedsLoading}
           clubId={clubId}
           isManager={isManager}
+          showManagerMenu
           onEdit={(feedId) => router.push(`/mypage/clubs/${clubId}/manage/feed/${feedId}/edit`)}
           onDelete={(feedId) => deleteFeed.mutate(feedId)}
           isDeleting={deleteFeed.isPending}
