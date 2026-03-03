@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, use, useEffect, useRef, useState } from 'react';
+import { Suspense, use, useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -144,20 +144,37 @@ function ClubHeader({
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const messageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const clearActionMessage = useCallback(() => {
+    if (messageTimeoutRef.current) {
+      clearTimeout(messageTimeoutRef.current);
+      messageTimeoutRef.current = null;
+    }
+    setActionMessage(null);
+  }, []);
+
+  const showActionMessage = useCallback(
+    (message: string) => {
+      clearActionMessage();
+      setActionMessage(message);
+      messageTimeoutRef.current = setTimeout(clearActionMessage, 2500);
+    },
+    [clearActionMessage]
+  );
+
   useEffect(() => {
     return () => {
       if (messageTimeoutRef.current) clearTimeout(messageTimeoutRef.current);
     };
   }, []);
 
-  const showActionMessage = (message: string) => {
-    if (messageTimeoutRef.current) clearTimeout(messageTimeoutRef.current);
-    setActionMessage(message);
-    messageTimeoutRef.current = setTimeout(() => {
-      setActionMessage(null);
-      messageTimeoutRef.current = null;
-    }, 2500);
-  };
+  // 스크롤·다른 행동 시 스낵바 즉시 닫기
+  useEffect(() => {
+    if (!actionMessage) return;
+    const scrollEl = document.querySelector('[data-scroll-container]');
+    const onScroll = () => clearActionMessage();
+    scrollEl?.addEventListener('scroll', onScroll, { passive: true });
+    return () => scrollEl?.removeEventListener('scroll', onScroll);
+  }, [actionMessage, clearActionMessage]);
 
   if (isLoading || !club) {
     return (
@@ -172,19 +189,19 @@ function ClubHeader({
 
   const handleLikeToggle = () => {
     if (isLiking) return;
+    clearActionMessage();
     if (club.isLikedByMe) {
       unlikeClub.mutate(clubId);
-      showActionMessage('좋아요를 취소했습니다.');
     } else {
       likeClub.mutate(clubId);
-      showActionMessage('좋아요를 눌렀습니다.');
     }
   };
 
   const handleInterestedToggle = () => {
+    clearActionMessage();
     if (isInterestedByMe) {
       remove(clubId);
-      showActionMessage('관심 해제를 눌렀습니다.');
+      showActionMessage('관심 목록에서 해제했어요.');
     } else {
       add({
         id: club.id,
@@ -194,19 +211,20 @@ function ClubHeader({
         category: club.category,
         recruitmentStatus: club.recruitmentStatus,
       });
-      showActionMessage('관심 동아리를 눌렀습니다.');
+      showActionMessage('관심 목록에 추가했어요.');
     }
   };
 
   const handleNotificationToggle = () => {
     if (addNotification.isPending || removeNotification.isPending) return;
+    clearActionMessage();
     if (isNotificationOn) {
       removeNotification.mutate(clubId);
-      showActionMessage('알림을 해제했습니다.');
+      showActionMessage('알림을 해제했어요.');
     } else {
       addNotification.mutate(clubId);
       onNotificationTurnOnRequest?.(clubId);
-      showActionMessage('알림을 켰습니다. 동아리 모집 시작 및 마감 전 알림을 받을 수 있습니다.');
+      showActionMessage('이제 모집 시작 알림, 모집 마감 하루 전 알림을 받을 수 있어요!');
     }
   };
 
@@ -313,14 +331,13 @@ function ClubHeader({
         typeof document !== 'undefined' &&
         createPortal(
           <div
-            className="fixed inset-0 z-[100] flex items-center justify-center px-4"
+            className="fixed bottom-20 left-1/2 z-[100] w-[min(320px,calc(100vw-2rem))] -translate-x-1/2 px-4"
             aria-hidden="true"
           >
-            <div className="absolute inset-0 bg-black/35" aria-hidden="true" />
             <div
               role="status"
               aria-live="polite"
-              className="relative max-w-[min(300px,calc(100%-2rem))] rounded-2xl bg-white/95 px-5 py-3.5 text-center text-sm text-zinc-900 backdrop-blur-sm dark:bg-zinc-100/95 dark:text-zinc-900"
+              className="rounded-xl border border-zinc-200/80 bg-white px-4 py-3 text-center text-sm font-medium text-zinc-800 shadow-lg shadow-zinc-900/10 dark:border-zinc-700/80 dark:bg-zinc-800 dark:text-zinc-100 dark:shadow-none"
             >
               {actionMessage}
             </div>
@@ -649,7 +666,7 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
   };
 
   return (
-    <div className="min-w-0 overflow-x-hidden">
+    <div className="min-h-full min-w-0 overflow-x-hidden">
       <div className="flex items-center gap-2 px-4 pt-3 pb-1">
         <button
           type="button"
@@ -691,7 +708,7 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
             </Tabs.Tab>
           </Tabs.List>
         </Tabs.ListContainer>
-        <Tabs.Panel id="info" className="min-w-0 overflow-hidden">
+        <Tabs.Panel id="info" className="min-w-0 overflow-x-hidden">
           <ClubInfoTab clubId={clubId} />
         </Tabs.Panel>
         <Tabs.Panel id="feed">

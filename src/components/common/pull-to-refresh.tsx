@@ -113,7 +113,7 @@ export function PullToRefresh({
       onTouchCancel={onTouchEnd}
     >
       <div
-        className={isReleasing ? 'transition-transform ease-out' : ''}
+        className={`min-h-full ${isReleasing ? 'transition-transform ease-out' : ''}`}
         style={{
           transform: `translateY(${pullDistance}px)`,
           transitionDuration: isReleasing ? `${RELEASE_DURATION_MS}ms` : undefined,

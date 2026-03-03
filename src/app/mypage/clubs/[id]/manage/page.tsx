@@ -14,6 +14,7 @@ import {
   useClubMembers,
   useRemoveClubAdmin,
   useUpdateClubDetail,
+  useUpdateRecruitmentInfo,
 } from '@/features/club/hooks';
 import { useInterestedStore } from '@/features/club/interested-store';
 import { useClubFeeds, useUploadFeedFiles } from '@/features/feed/hooks';
@@ -132,6 +133,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   );
   const { data: club, isLoading } = useClubDetail(clubId);
   const updateClub = useUpdateClubDetail();
+  const updateRecruitmentInfo = useUpdateRecruitmentInfo();
   const interestedClubs = useInterestedStore((s) => s.clubs);
   const addInterested = useInterestedStore((s) => s.add);
   const removeInterested = useInterestedStore((s) => s.remove);
@@ -321,29 +323,37 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   };
 
   const handleSaveRecruitment = () => {
-    if (recruitmentStartDate && recruitmentEndDate) {
-      const start = new Date(recruitmentStartDate);
-      const end = new Date(recruitmentEndDate);
-      if (end < start) {
-        alert('모집 종료일은 모집 시작일보다 빠를 수 없습니다.');
-        return;
-      }
+    if (
+      !recruitmentStartDate ||
+      !recruitmentEndDate ||
+      !recruitmentStartTime ||
+      !recruitmentEndTime
+    ) {
+      alert('모집 시작일·종료일과 시작·종료 시간을 모두 입력해 주세요.');
+      return;
     }
-    updateClub.mutate(
+    const startDateStr = `${recruitmentStartDate}T${recruitmentStartTime}:00`;
+    const endDateStr = `${recruitmentEndDate}T${recruitmentEndTime}:00`;
+    const startDate = new Date(startDateStr);
+    const endDate = new Date(endDateStr);
+    if (endDate < startDate) {
+      alert('모집 종료일은 모집 시작일보다 빠를 수 없습니다.');
+      return;
+    }
+    const now = new Date().toISOString().slice(0, 19);
+    let recruitmentStartTimeApi = startDateStr;
+    let recruitmentEndTimeApi = endDateStr;
+    if (recruitmentStatus === 'RECRUITING') {
+      recruitmentStartTimeApi = now;
+    } else if (recruitmentStatus === 'CLOSED') {
+      recruitmentEndTimeApi = now;
+    }
+    updateRecruitmentInfo.mutate(
       {
         clubId,
-        data: {
-          recruitmentStatus,
-          recruitmentStartDate:
-            recruitmentStartDate && recruitmentStartTime
-              ? `${recruitmentStartDate}T${recruitmentStartTime}:00`
-              : undefined,
-          recruitmentEndDate:
-            recruitmentEndDate && recruitmentEndTime
-              ? `${recruitmentEndDate}T${recruitmentEndTime}:00`
-              : undefined,
-          recruitmentUrl: recruitmentUrl || undefined,
-        },
+        recruitmentStartTime: recruitmentStartTimeApi,
+        recruitmentEndTime: recruitmentEndTimeApi,
+        applicationLink: recruitmentUrl?.trim() || undefined,
       },
       {
         onSuccess: () => {
@@ -587,7 +597,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
               // 업로드 상태
               isUploading={uploadFeedFiles.isPending}
               // 업데이트 상태
-              isSaving={updateClub.isPending}
+              isSaving={updateClub.isPending || updateRecruitmentInfo.isPending}
             />
           </Tabs.Panel>
 

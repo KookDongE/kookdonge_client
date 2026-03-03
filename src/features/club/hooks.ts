@@ -141,6 +141,34 @@ export function useManagedClubs() {
   });
 }
 
+/** 모집 정보만 수정 (PUT /api/clubs/{clubId}/recruitment) - Swagger UpdateRecruitmentReq */
+export function useUpdateRecruitmentInfo() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      clubId,
+      recruitmentStartTime,
+      recruitmentEndTime,
+      applicationLink,
+    }: {
+      clubId: number;
+      recruitmentStartTime: string;
+      recruitmentEndTime: string;
+      applicationLink?: string;
+    }) =>
+      clubApi.updateRecruitmentInfo(clubId, {
+        recruitmentStartTime,
+        recruitmentEndTime,
+        applicationLink,
+      }),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: clubKeys.detail(variables.clubId) });
+      queryClient.invalidateQueries({ queryKey: clubKeys.all });
+    },
+  });
+}
+
 export function useUpdateClubDetail() {
   const queryClient = useQueryClient();
 
