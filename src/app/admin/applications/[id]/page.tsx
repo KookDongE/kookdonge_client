@@ -75,7 +75,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--background)] p-4 dark:bg-zinc-900">
         <p className="text-gray-500 dark:text-zinc-400">신청을 찾을 수 없습니다.</p>
-        <Button className="mt-4" variant="ghost" onPress={() => router.push('/admin')}>
+        <Button className="mt-4" variant="ghost" onPress={() => router.push('/admin/applications')}>
           목록으로
         </Button>
       </div>
@@ -99,7 +99,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
           // refetch 실패 또는 한줄소개 초기화 실패 시에도 승인 완료 처리
         }
         alert('신청이 승인되었습니다.');
-        router.push('/admin');
+        router.push('/admin/applications');
       },
     });
   };
@@ -114,7 +114,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
       {
         onSuccess: () => {
           alert('신청이 거절되었습니다.');
-          router.push('/admin');
+          router.push('/admin/applications');
         },
       }
     );

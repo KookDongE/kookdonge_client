@@ -105,7 +105,7 @@ export default function SettingsPage() {
           href="/mypage/settings/bug-report"
           className="flex min-h-[56px] w-full items-center gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 text-left text-base font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700/80"
         >
-          버그 신고
+          버그 신고 및 건의사항
         </Link>
         <button
           type="button"

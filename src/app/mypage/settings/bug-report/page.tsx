@@ -3,10 +3,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
-import { Button, TextArea } from '@heroui/react';
+import { Button, Select, SelectItem, TextArea } from '@heroui/react';
+
+type ReportType = 'bug' | 'suggestion';
 
 export default function BugReportPage() {
   const [content, setContent] = useState('');
+  const [reportType, setReportType] = useState<ReportType>('bug');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -32,8 +35,23 @@ export default function BugReportPage() {
         </Link>
       </div>
       <div className="px-4 py-4">
-        <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">버그 신고</h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">아직 준비중인 기능이에요.</p>
+        <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">버그 신고 및 건의사항</h1>
+        <div className="mt-1 flex items-center justify-between gap-3">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">아직 준비중인 기능이에요.</p>
+          <Select
+            aria-label="유형 선택"
+            selectedKeys={[reportType]}
+            onSelectionChange={(keys) => {
+              const v = Array.from(keys)[0] as ReportType;
+              if (v) setReportType(v);
+            }}
+            className="max-w-[140px]"
+            size="sm"
+          >
+            <SelectItem key="bug">버그 신고</SelectItem>
+            <SelectItem key="suggestion">건의사항</SelectItem>
+          </Select>
+        </div>
       </div>
       <form className="space-y-4 px-4" onSubmit={handleSubmit}>
         <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
@@ -42,9 +60,9 @@ export default function BugReportPage() {
         <TextArea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="발견한 버그나 불편한 점을 알려주세요."
-          className="min-h-[6rem] w-full resize-none border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
-          aria-label="버그 신고 내용"
+          placeholder={reportType === 'bug' ? '발견한 버그나 불편한 점을 알려주세요.' : '건의하실 내용을 알려주세요.'}
+          className="min-h-[12rem] w-full resize-none border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+          aria-label="버그 신고 및 건의사항 내용"
         />
         <Button
           type="submit"
