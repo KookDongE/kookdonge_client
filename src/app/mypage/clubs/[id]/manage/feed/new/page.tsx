@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, use, useEffect, useState } from 'react';
+import { Suspense, use, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
@@ -24,6 +24,18 @@ function NewFeedContent({ clubId }: { clubId: number }) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const touchStartRef = useRef<{ y: number; x: number; index: number } | null>(null);
+  const touchDragActiveRef = useRef(false);
+
+  const reorder = (fromIndex: number, toIndex: number) => {
+    if (fromIndex < 0 || fromIndex === toIndex) return;
+    setUploadedFiles((prev) => {
+      const next = [...prev];
+      const [removed] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, removed);
+      return next;
+    });
+  };
 
   const handleDragStart = (index: number) => (e: React.DragEvent) => {
     if ((e.target as HTMLElement).closest?.('[data-no-drag]')) {
@@ -31,9 +43,12 @@ function NewFeedContent({ clubId }: { clubId: number }) {
       return;
     }
     setDragIndex(index);
+    setDragOverIndex(index);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', String(index));
-    e.dataTransfer.setDragImage(e.currentTarget, 72, 72);
+    const el = e.currentTarget as HTMLElement;
+    const rect = el.getBoundingClientRect();
+    e.dataTransfer.setDragImage(el, rect.width / 2, rect.height / 2);
   };
 
   const handleDragEnd = () => {
@@ -52,13 +67,50 @@ function NewFeedContent({ clubId }: { clubId: number }) {
     const fromIndex = dragIndex ?? parseInt(e.dataTransfer.getData('text/plain') ?? '-1', 10);
     setDragIndex(null);
     setDragOverIndex(null);
-    if (fromIndex < 0 || fromIndex === toIndex) return;
-    setUploadedFiles((prev) => {
-      const next = [...prev];
-      const [removed] = next.splice(fromIndex, 1);
-      next.splice(toIndex, 0, removed);
-      return next;
-    });
+    reorder(fromIndex, toIndex);
+  };
+
+  const handleTouchStart = (index: number) => (e: React.TouchEvent) => {
+    if (uploadedFiles.length <= 1) return;
+    if ((e.target as HTMLElement).closest?.('[data-no-drag]')) return;
+    const t = e.touches[0];
+    touchStartRef.current = { x: t.clientX, y: t.clientY, index };
+    touchDragActiveRef.current = false;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchStartRef.current || uploadedFiles.length <= 1) return;
+    const t = e.touches[0];
+    const dx = t.clientX - touchStartRef.current.x;
+    const dy = t.clientY - touchStartRef.current.y;
+    if (!touchDragActiveRef.current) {
+      if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+        touchDragActiveRef.current = true;
+        setDragIndex(touchStartRef.current.index);
+        setDragOverIndex(touchStartRef.current.index);
+      } else return;
+    }
+    e.preventDefault();
+    const under = document.elementFromPoint(t.clientX, t.clientY);
+    const card = under?.closest?.('[data-drag-index]');
+    if (card) {
+      const idx = (card as HTMLElement).getAttribute('data-drag-index');
+      if (idx != null) setDragOverIndex(parseInt(idx, 10));
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStartRef.current || !touchDragActiveRef.current) {
+      touchStartRef.current = null;
+      return;
+    }
+    const fromIndex = touchStartRef.current.index;
+    const toIndex = dragOverIndex ?? fromIndex;
+    reorder(fromIndex, toIndex);
+    setDragIndex(null);
+    setDragOverIndex(null);
+    touchDragActiveRef.current = false;
+    touchStartRef.current = null;
   };
 
   // 없는 동아리 또는 잘못된 id → 홈으로
@@ -197,16 +249,23 @@ function NewFeedContent({ clubId }: { clubId: number }) {
               return (
                 <div
                   key={f.uuid}
+                  data-drag-index={index}
                   draggable={uploadedFiles.length > 1}
                   onDragStart={handleDragStart(index)}
                   onDragEnd={handleDragEnd}
                   onDragOver={handleDragOver(index)}
                   onDragLeave={() => setDragOverIndex(null)}
                   onDrop={handleDrop(index)}
-                  className={`relative flex flex-col gap-1 transition-all duration-150 ${
+                  onTouchStart={handleTouchStart(index)}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                  onTouchCancel={handleTouchEnd}
+                  className={`relative flex flex-col gap-1 transition-transform duration-100 ${
                     uploadedFiles.length > 1 ? 'cursor-grab active:cursor-grabbing' : ''
-                  } ${isDragging ? 'scale-95 opacity-50' : ''} ${
-                    isDragOver ? 'rounded-xl ring-2 ring-blue-500 ring-offset-2' : ''
+                  } ${isDragging ? 'pointer-events-none z-20 scale-[0.92] opacity-70' : ''} ${
+                    isDragOver && !isDragging
+                      ? 'rounded-xl ring-2 ring-blue-400 ring-offset-2 ring-offset-[var(--card)]'
+                      : ''
                   }`}
                 >
                   <div className="relative aspect-square w-36 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
@@ -248,8 +307,8 @@ function NewFeedContent({ clubId }: { clubId: number }) {
                 </div>
               );
             })}
-            <label htmlFor="feed-images-upload">
-              <span className="inline-flex cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-4 transition-colors hover:border-gray-400 hover:bg-gray-100 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
+            <label htmlFor="feed-images-upload" className="block cursor-pointer">
+              <span className="flex aspect-square w-36 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:border-gray-400 hover:bg-gray-100 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
                 {isUploading ? (
                   <Spinner size="sm" />
                 ) : (

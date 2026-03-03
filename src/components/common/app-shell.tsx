@@ -18,8 +18,12 @@ function isHeaderHidden(pathname: string): boolean {
   return false;
 }
 
-/** 풀투리프레시 비활성화 경로 (예: 피드 상세 — 스크롤/제스처와 충돌 방지) */
-const PULL_TO_REFRESH_DISABLED_PATH = /^\/clubs\/[^/]+\/feed$/;
+/** 풀투리프레시 비활성화 경로 (피드 상세, 피드 생성/수정 — 스크롤·제스처와 충돌 방지) */
+const PULL_TO_REFRESH_DISABLED_PATHS = [
+  /^\/clubs\/[^/]+\/feed$/, // 피드 상세
+  /^\/mypage\/clubs\/[^/]+\/manage\/feed\/new$/, // 피드 생성
+  /^\/mypage\/clubs\/[^/]+\/manage\/feed\/[^/]+\/edit$/, // 피드 수정
+];
 
 function isFullScreenPath(pathname: string): boolean {
   return FULL_SCREEN_PATHS.includes(pathname) || pathname.startsWith('/login/');
@@ -29,7 +33,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const fullScreen = isFullScreenPath(pathname ?? '');
   const headerHidden = isHeaderHidden(pathname ?? '');
-  const pullToRefreshDisabled = PULL_TO_REFRESH_DISABLED_PATH.test(pathname ?? '');
+  const pullToRefreshDisabled = PULL_TO_REFRESH_DISABLED_PATHS.some((re) =>
+    re.test(pathname ?? '')
+  );
 
   return (
     <div

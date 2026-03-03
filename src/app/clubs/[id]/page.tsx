@@ -537,7 +537,7 @@ function ClubFeedTab({ clubId }: { clubId: number }) {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-0.5 p-1">
+    <div className="grid grid-cols-3 gap-1.5 p-1.5">
       {feeds.map((feed) => {
         const cover = feed.postUrls?.[0];
         return (
@@ -548,7 +548,7 @@ function ClubFeedTab({ clubId }: { clubId: number }) {
             className="relative aspect-square overflow-hidden bg-zinc-100 dark:bg-zinc-800"
           >
             {cover ? (
-              <Image src={cover} alt="" fill className="object-cover" sizes="200px" />
+              <Image src={cover} alt="" fill className="object-cover" sizes="120px" />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-xs text-zinc-400 dark:text-zinc-500">
                 텍스트
