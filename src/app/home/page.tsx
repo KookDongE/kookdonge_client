@@ -276,7 +276,13 @@ function shuffleArray<T>(arr: T[]): T[] {
   return out;
 }
 
-function ClubListSection({ returnTo }: { returnTo?: string }) {
+function ClubListSection({
+  returnTo,
+  reshuffleKey = 0,
+}: {
+  returnTo?: string;
+  reshuffleKey?: number;
+}) {
   const [category] = useQueryState('category', parseAsString);
   const [status] = useQueryState('status', parseAsString);
   const [clubType] = useQueryState('clubType', parseAsString);
@@ -310,7 +316,7 @@ function ClubListSection({ returnTo }: { returnTo?: string }) {
       return [...rawClubs].sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ko'));
     }
     return rawClubs;
-  }, [rawClubs, sortVal]);
+  }, [rawClubs, sortVal, reshuffleKey]);
   const totalElements = data?.pages[0]?.totalElements ?? 0;
 
   useEffect(() => {
@@ -509,6 +515,8 @@ function HomeContent() {
   const router = useRouter();
   const didInitialClearCheckRef = useRef(false);
   const hiddenAtRef = useRef<number | null>(null);
+  /** bfcache 복원 시 동아리 목록 셔플만 다시 하기 위한 키 (refetch 없음) */
+  const [reshuffleKey, setReshuffleKey] = useState(0);
 
   const FILTER_CLEAR_PENDING_KEY = 'filterClearPending_home';
 
@@ -555,11 +563,12 @@ function HomeContent() {
     return () => window.removeEventListener('pagehide', handlePagehide);
   }, []);
 
-  // 앱뷰 풀리프레시: bfcache 복원 시 pageshow(persisted)에서 필터 초기화
+  // 앱뷰 풀리프레시: bfcache 복원 시 필터 초기화 + 동아리 목록 순서만 다시 셔플
   useEffect(() => {
     const handlePageshow = (e: PageTransitionEvent) => {
       if (e.persisted !== true) return;
       if (typeof window === 'undefined' || window.location.pathname !== '/home') return;
+      setReshuffleKey((k) => k + 1);
       const params = new URLSearchParams(window.location.search);
       const hasFilter =
         params.get('category') ??
@@ -619,7 +628,7 @@ function HomeContent() {
     <>
       <ClubFilters />
       <RankingSection returnTo={returnTo} />
-      <ClubListSection returnTo={returnTo} />
+      <ClubListSection returnTo={returnTo} reshuffleKey={reshuffleKey} />
     </>
   );
 }
