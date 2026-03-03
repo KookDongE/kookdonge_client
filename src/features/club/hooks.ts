@@ -198,6 +198,7 @@ export function useUpdateClubDetail() {
         recruitmentStartDate?: string;
         recruitmentEndDate?: string;
         recruitmentUrl?: string;
+        externalLink?: string;
       };
     }) => clubApi.updateClubDetail(clubId, data),
     onSuccess: (_data, variables) => {
