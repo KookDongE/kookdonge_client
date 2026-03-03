@@ -18,7 +18,7 @@ function isHeaderHidden(pathname: string): boolean {
   return false;
 }
 
-/** 풀투리프레시 비활성화 경로 (피드 상세, 피드 생성/수정, 버그 신고, 동아리 신청, 설정, 알림설정, 관리자 — 스크롤·제스처와 충돌 방지) */
+/** 풀투리프레시 비활성화 경로 (피드 상세, 피드 생성/수정, 버그 신고, 동아리 신청, 설정, 알림설정 — 스크롤·제스처와 충돌 방지) */
 const PULL_TO_REFRESH_DISABLED_PATHS = [
   /^\/clubs\/[^/]+\/feed$/, // 피드 상세
   /^\/mypage\/clubs\/[^/]+\/manage\/feed\/new$/, // 피드 생성
@@ -27,7 +27,6 @@ const PULL_TO_REFRESH_DISABLED_PATHS = [
   /^\/mypage\/clubs\/apply$/, // 동아리 신청
   /^\/mypage\/settings(\/|$)/, // 설정 (메인·이름변경·버그신고 등 하위 포함)
   /^\/mypage\/notification-settings(\/|$)/, // 알림설정
-  /^\/admin(\/|$)/, // 관리자 (신청목록·설정·신고 등 하위 포함)
 ];
 
 /** 메인 스크롤 비활성화 경로 (동아리 신청, 설정, 알림설정, 관리자 — 컨테이너 스크롤 막고 페이지 내부만 스크롤) */
@@ -46,9 +45,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const fullScreen = isFullScreenPath(pathname ?? '');
   const headerHidden = isHeaderHidden(pathname ?? '');
-  const pullToRefreshDisabled = PULL_TO_REFRESH_DISABLED_PATHS.some((re) =>
-    re.test(pathname ?? '')
-  );
+  const pullToRefreshDisabled =
+    PULL_TO_REFRESH_DISABLED_PATHS.some((re) => re.test(pathname ?? '')) ||
+    pathname === '/admin'; // 관리자 메인 페이지만 비활성, 하위(/admin/applications 등)는 풀리프래시 활성
   const scrollDisabled = SCROLL_DISABLED_PATHS.some((re) => re.test(pathname ?? ''));
 
   return (

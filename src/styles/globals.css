@@ -492,3 +492,17 @@ html.fullscreen-page body {
 .dark .select--value[data-placeholder] {
   color: #71717a;
 }
+
+/* Select 트리거 포커스 링 제거 (닫은 후 파란 테두리 안 나오게) */
+[role='combobox'],
+[data-slot='trigger'][role='combobox'] {
+  outline: none !important;
+  box-shadow: none !important;
+}
+[role='combobox']:focus,
+[role='combobox']:focus-visible,
+[data-slot='trigger'][role='combobox']:focus,
+[data-slot='trigger'][role='combobox']:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
