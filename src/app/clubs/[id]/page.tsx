@@ -523,7 +523,7 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
                     ) : (
                       <span className="h-5 w-5 shrink-0 rounded bg-zinc-200 dark:bg-zinc-600" />
                     )}
-                    <span className="min-w-0 truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                    <span className="min-w-0 truncate text-sm font-normal text-zinc-600 dark:text-zinc-400">
                       {getDisplayName(item)}
                     </span>
                   </a>
