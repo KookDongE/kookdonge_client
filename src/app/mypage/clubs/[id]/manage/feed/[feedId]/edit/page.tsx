@@ -141,12 +141,13 @@ function EditFeedForm({
     }
     const currentItems = itemsRef.current;
     const fileUuids = currentItems.map((i) => i.uuid).filter((u): u is string => u != null);
+    // API: fileUuids null이면 파일 유지, 배열이면 해당 순서로 반영(빈 배열이면 전부 삭제)
     updateFeed.mutate(
       {
         feedId,
         data: {
           content: content.trim(),
-          fileUuids: fileUuids.length > 0 ? fileUuids : undefined,
+          fileUuids: fileUuids,
         },
       },
       {

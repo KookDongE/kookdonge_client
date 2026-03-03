@@ -184,7 +184,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
         <div>
           <label className={labelClass}>신청 사유</label>
           <div className={`${valueBoxClass} min-h-[200px] whitespace-pre-wrap`}>
-            {application.description}
+            {application.applicationReason ?? application.description ?? '-'}
           </div>
         </div>
 

@@ -58,17 +58,23 @@ export function useClubDetail(clubId: number) {
   });
 }
 
+/** 주간 조회수 TOP (인기동아리). 조회수 갱신을 위해 캐시 짧게, 포커스 시 refetch */
 export function useTopWeeklyView(_pageable?: Pageable) {
   return useQuery({
     queryKey: clubKeys.topWeeklyView(),
     queryFn: () => clubApi.getTopWeeklyView(),
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
 }
 
+/** 주간 좋아요 TOP (주목받는 동아리). 갱신 반영을 위해 캐시 짧게, 포커스 시 refetch */
 export function useTopWeeklyLike(_pageable?: Pageable) {
   return useQuery({
     queryKey: clubKeys.topWeeklyLike(),
     queryFn: () => clubApi.getTopWeeklyLike(),
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
 }
 

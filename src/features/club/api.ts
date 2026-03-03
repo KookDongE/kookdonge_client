@@ -188,6 +188,7 @@ export const clubApi = {
       name: r.clubName,
       image: '',
       description: r.description ?? '',
+      applicationReason: r.applicationReason ?? '',
       applicantEmail: r.applicantEmail ?? '',
       applicantName: r.applicantName ?? '',
       createdAt: r.createdAt,

@@ -345,7 +345,10 @@ export type AdminApplicationItem = {
   clubId?: number;
   name: string;
   image: string;
-  description: string;
+  /** 한줄 소개 등 */
+  description?: string;
+  /** 신청 사유 (관리자 승인심사 페이지에 표시) */
+  applicationReason?: string;
   applicantEmail: string;
   applicantName: string;
   createdAt: string;
@@ -353,7 +356,7 @@ export type AdminApplicationItem = {
   rejectionReason?: string;
   /** 분야 */
   category?: ClubCategory;
-  /** 단과대 (중앙/학과) */
+  /** 동아리유형 */
   type?: ClubType;
 };
 
@@ -452,6 +455,8 @@ export type ClubCreationRequestRes = {
   clubType: ClubType;
   category: ClubCategory;
   college?: string;
+  /** 신청 사유 (서버 필수 필드) */
+  applicationReason?: string;
   description?: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   rejectionReason?: string;
