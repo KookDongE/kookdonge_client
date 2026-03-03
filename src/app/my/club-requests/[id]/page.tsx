@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 import { Button, Spinner } from '@heroui/react';
 
@@ -38,11 +38,13 @@ export default function MyApplicationDetailPage() {
   const requestId = parseInt(id, 10);
   const router = useRouter();
   const { data: requests, isLoading } = useMyRequests();
-  const application =
-    Number.isNaN(requestId) ? undefined : requests?.find((r) => r.requestId === requestId);
+  const application = Number.isNaN(requestId)
+    ? undefined
+    : requests?.find((r) => r.requestId === requestId);
 
   useEffect(() => {
-    setMounted(true);
+    const t = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(t);
   }, []);
 
   if (!mounted) {

@@ -32,7 +32,10 @@ export default function SplashPage() {
   const accessToken = useAuthStore((s) => s.accessToken);
   const isInitialized = useAuthStore((s) => s.isInitialized);
   const mountedAtRef = useRef<number | null>(null);
-  if (mountedAtRef.current === null) mountedAtRef.current = Date.now();
+
+  useEffect(() => {
+    if (mountedAtRef.current === null) mountedAtRef.current = Date.now();
+  }, []);
 
   useEffect(() => {
     if (!isInitialized) return;

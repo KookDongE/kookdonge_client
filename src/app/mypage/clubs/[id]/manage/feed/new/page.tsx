@@ -1,11 +1,12 @@
 'use client';
 
-import { Suspense, use, useState } from 'react';
+import { Suspense, use, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 import { Spinner } from '@heroui/react';
 
+import { useClubDetail } from '@/features/club/hooks';
 import { useCreateFeed, useImageUpload } from '@/features/feed/hooks';
 
 type PageProps = {
@@ -16,10 +17,38 @@ type UploadedFile = { uuid: string; fileUrl: string };
 
 function NewFeedContent({ clubId }: { clubId: number }) {
   const router = useRouter();
+  const { data: club, isLoading: clubLoading, isError: clubError } = useClubDetail(clubId);
   const createFeed = useCreateFeed(clubId);
   const { uploadImages, isLoading: isUploading, error: uploadError } = useImageUpload(clubId);
   const [content, setContent] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+
+  // 없는 동아리 또는 잘못된 id → 홈으로
+  useEffect(() => {
+    if (Number.isNaN(clubId) || clubId < 1) {
+      router.replace('/home');
+      return;
+    }
+    if (clubError || (!clubLoading && !club)) {
+      router.replace('/home');
+    }
+  }, [clubId, clubError, clubLoading, club, router]);
+
+  if (Number.isNaN(clubId) || clubId < 1 || clubError || !club) {
+    return (
+      <div className="flex justify-center py-12">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (clubLoading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Spinner />
+      </div>
+    );
+  }
 
   const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -156,11 +185,11 @@ function NewFeedContent({ clubId }: { clubId: number }) {
 
         {/* 피드 내용 입력만 */}
         <textarea
-          placeholder="피드 내용을 입력해주세요"
+          placeholder="피드 내용을 입력해주세요 (줄바꿈 가능)"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           rows={8}
-          className="min-h-[150px] w-full resize-none rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
+          className="min-h-[150px] w-full resize-y rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
         />
       </div>
     </div>

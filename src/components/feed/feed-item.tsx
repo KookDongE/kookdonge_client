@@ -13,6 +13,12 @@ type FeedItemProps = {
   imageUrls: string[];
   content: string;
   createdAt: string;
+  /** 동아리 관리자일 때 수정/삭제 노출 */
+  clubId?: number;
+  isManager?: boolean;
+  onEdit?: (feedId: number) => void;
+  onDelete?: (feedId: number) => void;
+  isDeleting?: boolean;
 };
 
 const SWIPE_THRESHOLD = 50;
@@ -39,9 +45,15 @@ export function FeedItem({
   imageUrls,
   content,
   createdAt,
+  clubId,
+  isManager,
+  onEdit,
+  onDelete,
+  isDeleting,
 }: FeedItemProps) {
   const hasMultiple = imageUrls.length > 1;
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
 
@@ -81,6 +93,7 @@ export function FeedItem({
                 fill
                 className="object-cover"
                 sizes="40px"
+                unoptimized
               />
             ) : (
               <DefaultClubImage className="rounded-full object-cover" sizes="40px" />
@@ -90,15 +103,75 @@ export function FeedItem({
             {authorName}
           </span>
         </div>
-        <span className="shrink-0 text-xs text-zinc-400 dark:text-zinc-500">
-          {formatTimeAgo(createdAt)}
-        </span>
+        <div className="flex shrink-0 items-center gap-1">
+          {isManager && clubId != null && (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setMenuOpen((p) => !p)}
+                className="rounded-full p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                aria-label="더보기"
+                aria-expanded={menuOpen}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="h-5 w-5"
+                >
+                  <circle cx="12" cy="6" r="1.5" />
+                  <circle cx="12" cy="12" r="1.5" />
+                  <circle cx="12" cy="18" r="1.5" />
+                </svg>
+              </button>
+              {menuOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    aria-hidden
+                    onClick={() => setMenuOpen(false)}
+                  />
+                  <div className="absolute top-full right-0 z-50 mt-1 min-w-[100px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
+                    {onEdit && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMenuOpen(false);
+                          onEdit(feedId);
+                        }}
+                        className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                      >
+                        수정
+                      </button>
+                    )}
+                    {onDelete && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMenuOpen(false);
+                          if (confirm('이 피드를 삭제할까요?')) onDelete(feedId);
+                        }}
+                        disabled={isDeleting}
+                        className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 disabled:opacity-50 dark:text-red-400 dark:hover:bg-red-950/30"
+                      >
+                        {isDeleting ? '삭제 중...' : '삭제'}
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+          <span className="text-xs text-zinc-400 dark:text-zinc-500">
+            {formatTimeAgo(createdAt)}
+          </span>
+        </div>
       </div>
 
       {/* 미디어 영역: 여러 장이면 스와이프로 넘기기, 한 장이면 단일 */}
       {hasMultiple ? (
         <div
-          className="relative aspect-square w-full touch-pan-y select-none overflow-hidden bg-zinc-100 dark:bg-zinc-800"
+          className="relative aspect-square w-full touch-pan-y overflow-hidden bg-zinc-100 select-none dark:bg-zinc-800"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -125,7 +198,7 @@ export function FeedItem({
             </div>
           ))}
           {/* 인디케이터: 클릭 시 해당 사진으로 이동 */}
-          <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5">
+          <div className="absolute right-0 bottom-2 left-0 flex justify-center gap-1.5">
             {imageUrls.map((_, i) => (
               <button
                 type="button"
@@ -135,10 +208,8 @@ export function FeedItem({
                   setCurrentIndex(i);
                 }}
                 className={`h-1.5 rounded-full transition-all ${
-                  i === currentIndex
-                    ? 'w-3 bg-white/90'
-                    : 'w-1.5 bg-white/50'
-                } hover:bg-white/80 focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-1 focus:ring-offset-transparent`}
+                  i === currentIndex ? 'w-3 bg-white/90' : 'w-1.5 bg-white/50'
+                } hover:bg-white/80 focus:ring-2 focus:ring-white/50 focus:ring-offset-1 focus:ring-offset-transparent focus:outline-none`}
                 aria-label={`${i + 1}번째 사진으로 이동`}
                 aria-current={i === currentIndex ? 'true' : undefined}
               />
@@ -158,9 +229,9 @@ export function FeedItem({
         </div>
       )}
 
-      {/* 정보 영역: 본문글 */}
+      {/* 정보 영역: 본문글 (줄바꿈 유지) */}
       <div className="px-4 pt-2">
-        <p className="text-sm text-zinc-900 dark:text-zinc-100">
+        <p className="text-sm whitespace-pre-wrap text-zinc-900 dark:text-zinc-100">
           <span className="font-semibold">{authorName}</span>{' '}
           <span className="text-zinc-700 dark:text-zinc-300">{content}</span>
         </p>

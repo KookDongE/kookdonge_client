@@ -84,7 +84,7 @@ const TYPE_OPTIONS = Object.entries(TYPE_LABEL).map(([value, label]) => ({
 
 const KST = 'Asia/Seoul';
 
-function formatDate(dateString: string | null | undefined): string {
+function _formatDate(dateString: string | null | undefined): string {
   if (dateString == null || dateString === '') return '-';
   const date = new Date(dateString);
   if (Number.isNaN(date.getTime())) return '-';
@@ -174,7 +174,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
     'questionId',
     parseAsString.withDefault('')
   );
-  const { data: club, isLoading } = useClubDetail(clubId);
+  const { data: club, isLoading, isError: clubError } = useClubDetail(clubId);
   const updateClub = useUpdateClubDetail();
   const updateRecruitmentInfo = useUpdateRecruitmentInfo();
   const interestedClubs = useInterestedStore((s) => s.clubs);
@@ -183,6 +183,17 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   const { data: subscriptions } = useMyWaitingList();
   const addNotification = useAddToWaitingList();
   const removeNotification = useRemoveFromWaitingList();
+
+  // 없는 동아리 또는 잘못된 id → 홈으로
+  useEffect(() => {
+    if (Number.isNaN(clubId) || clubId < 1) {
+      router.replace('/home');
+      return;
+    }
+    if (clubError || (!isLoading && !club)) {
+      router.replace('/home');
+    }
+  }, [clubId, clubError, isLoading, club, router]);
 
   const isInterestedByMe = interestedClubs.some((c) => c.id === clubId);
   const isNotificationOn = (subscriptions ?? []).some((s) => s.clubId === clubId);
@@ -240,7 +251,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   const [weeklyActiveFrequency, setWeeklyActiveFrequency] = useState(1);
   const [allowLeaveOfAbsence, setAllowLeaveOfAbsence] = useState(false);
   const [content, setContent] = useState('');
-  const [description, setDescription] = useState('');
+  const [_description, setDescription] = useState('');
   /** 동아리 소개 대표 이미지 1장 (URL, 프로필과 동일한 업로드 흐름) */
   const [contentImage, setContentImage] = useState('');
   /** 동아리 소개 이미지 UUID (PUT /content 시 서버에 전달) */
@@ -314,7 +325,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   }, [club, isLoading]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  if (isLoading || !club) {
+  if (Number.isNaN(clubId) || clubId < 1 || clubError || !club) {
     return (
       <div className="flex justify-center py-12">
         <Spinner />
@@ -845,10 +856,10 @@ function ClubInfoTab({
   contentImage,
   setContentImage,
   onContentImageUpload,
-  contentFileUuid,
+  contentFileUuid: _contentFileUuid,
   setContentFileUuid,
-  recruitmentStatus,
-  setRecruitmentStatus,
+  recruitmentStatus: _recruitmentStatus,
+  setRecruitmentStatus: _setRecruitmentStatus,
   recruitmentStartDate,
   setRecruitmentStartDate,
   recruitmentStartTime,
@@ -1048,12 +1059,13 @@ function ClubInfoTab({
                         className="flex items-center gap-3 rounded-lg py-1.5 pr-2 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700/50"
                       >
                         {getFaviconUrl(item.url) ? (
-                          <img
+                          <Image
                             src={getFaviconUrl(item.url)}
                             alt=""
                             width={20}
                             height={20}
                             className="h-5 w-5 shrink-0 rounded object-contain"
+                            unoptimized
                           />
                         ) : (
                           <span className="h-5 w-5 shrink-0 rounded bg-zinc-200 dark:bg-zinc-600" />

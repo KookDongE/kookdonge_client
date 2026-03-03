@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { FeedCreatedReq } from '@/types/api';
+import { FeedCreatedReq, FeedUpdateReq } from '@/types/api';
 
 import { feedApi, validateImageFile } from './api';
 
@@ -12,6 +12,7 @@ export const feedKeys = {
   all: ['feeds'] as const,
   lists: () => [...feedKeys.all, 'list'] as const,
   list: (clubId: number) => [...feedKeys.lists(), clubId] as const,
+  detail: (clubId: number, feedId: number) => [...feedKeys.all, clubId, feedId] as const,
 };
 
 export function useClubFeeds(clubId: number, page = 0, size = 10) {
@@ -19,6 +20,14 @@ export function useClubFeeds(clubId: number, page = 0, size = 10) {
     queryKey: feedKeys.list(clubId),
     queryFn: () => feedApi.getClubFeeds(clubId, page, size),
     enabled: !!clubId,
+  });
+}
+
+export function useFeed(clubId: number, feedId: number) {
+  return useQuery({
+    queryKey: feedKeys.detail(clubId, feedId),
+    queryFn: () => feedApi.getFeed(clubId, feedId),
+    enabled: !!clubId && !!feedId,
   });
 }
 
@@ -66,6 +75,19 @@ export function useImageUpload(clubId: number) {
 export function useUploadFeedFiles(clubId: number) {
   return useMutation({
     mutationFn: (files: File[]) => feedApi.uploadFeedFiles(clubId, files),
+  });
+}
+
+export function useUpdateFeed(clubId: number) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ feedId, data }: { feedId: number; data: FeedUpdateReq }) =>
+      feedApi.updateFeed(clubId, feedId, data),
+    onSuccess: (_, { feedId }) => {
+      queryClient.invalidateQueries({ queryKey: feedKeys.list(clubId) });
+      queryClient.invalidateQueries({ queryKey: feedKeys.detail(clubId, feedId) });
+    },
   });
 }
 

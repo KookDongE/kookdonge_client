@@ -17,9 +17,24 @@ export type FeedData = {
 type FeedListProps = {
   feeds: FeedData[];
   isLoading?: boolean;
+  /** 동아리 ID (관리자일 때 수정/삭제 노출) */
+  clubId?: number;
+  /** 동아리 관리자 여부 */
+  isManager?: boolean;
+  onEdit?: (feedId: number) => void;
+  onDelete?: (feedId: number) => void;
+  isDeleting?: boolean;
 };
 
-export function FeedList({ feeds, isLoading }: FeedListProps) {
+export function FeedList({
+  feeds,
+  isLoading,
+  clubId,
+  isManager,
+  onEdit,
+  onDelete,
+  isDeleting,
+}: FeedListProps) {
   if (isLoading) {
     return (
       <div className="flex justify-center py-12">
@@ -39,7 +54,15 @@ export function FeedList({ feeds, isLoading }: FeedListProps) {
   return (
     <div className="mx-auto w-full max-w-md">
       {feeds.map((feed) => (
-        <FeedItem key={feed.feedId} {...feed} />
+        <FeedItem
+          key={feed.feedId}
+          {...feed}
+          clubId={clubId}
+          isManager={isManager}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          isDeleting={isDeleting}
+        />
       ))}
     </div>
   );

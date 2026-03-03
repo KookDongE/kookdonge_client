@@ -115,14 +115,6 @@ function EyeIcon({ className }: { className?: string }) {
   );
 }
 
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  const year = date.getFullYear() % 100;
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-  return `${year}년 ${month}월 ${day}일`;
-}
-
 /** 모집기간 등 날짜+시간 표시 (한국 시간) */
 function formatDateTime(dateString: string | null | undefined): string {
   const date = parseApiIsoToDate(dateString);
@@ -446,13 +438,13 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
             동아리 소개
           </h3>
           {contentImageUrl && (
-            <div className="relative mx-4 mb-4 aspect-square max-w-[calc(100%-2rem)] overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
-              <Image
+            <div className="relative mx-4 mb-4 w-[calc(100%-2rem)] overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
+              {/* 원본 비율 유지 위해 img 사용 (Next/Image는 fill 시 비율 고정 어려움) */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={contentImageUrl}
                 alt="동아리 소개"
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 600px"
+                className="h-auto w-full rounded-lg object-contain"
               />
             </div>
           )}
@@ -497,12 +489,13 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
                     className="flex items-center gap-3 rounded-lg py-1.5 pr-2 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700/50"
                   >
                     {getFaviconUrl(item.url) ? (
-                      <img
+                      <Image
                         src={getFaviconUrl(item.url)}
                         alt=""
                         width={20}
                         height={20}
                         className="h-5 w-5 shrink-0 rounded object-contain"
+                        unoptimized
                       />
                     ) : (
                       <span className="h-5 w-5 shrink-0 rounded bg-zinc-200 dark:bg-zinc-600" />
@@ -708,35 +701,36 @@ function ClubQnaTab({
   );
 }
 
-function ClubCTA({ clubId }: { clubId: number }) {
+function ClubCTA({ clubId, currentTab }: { clubId: number; currentTab: string }) {
   const { data: club } = useClubDetail(clubId);
 
   const applicationLink = club?.applicationLink || club?.recruitmentUrl;
   if (!club || !applicationLink) return null;
 
-  const ctaBottom = 'calc(72px + env(safe-area-inset-bottom))';
+  // 피드·Q&A 탭에서는 동아리 지원 버튼 숨김
+  if (currentTab === 'feed' || currentTab === 'qna') return null;
+
   const handleApplyClick = () => {
     window.open(applicationLink, '_blank');
   };
 
   return (
-    <div
-      className="glass fixed left-1/2 z-50 w-full max-w-md -translate-x-1/2 rounded-t-2xl border-t-0 p-4"
-      style={{ bottom: ctaBottom }}
-    >
-      <Button
-        className="w-full py-3 text-base font-semibold"
-        variant="primary"
-        onPress={handleApplyClick}
-      >
-        동아리 지원
-      </Button>
+    <div className="glass sticky top-0 z-40 w-full border-b border-zinc-200/80 p-3 dark:border-zinc-700/80">
+      <div className="mx-auto max-w-md">
+        <Button
+          className="w-full py-3 text-base font-semibold"
+          variant="primary"
+          onPress={handleApplyClick}
+        >
+          동아리 지원
+        </Button>
+      </div>
     </div>
   );
 }
 
 function ClubDetailContent({ clubId }: { clubId: number }) {
-  const { data: club } = useClubDetail(clubId);
+  const { data: club, isLoading: clubLoading, isError: clubError } = useClubDetail(clubId);
   const searchParams = useSearchParams();
   const questionId = searchParams.get('questionId');
   const from = searchParams.get('from');
@@ -749,7 +743,16 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
   } = useNotification();
   const [notificationPromptOpen, setNotificationPromptOpen] = useState(false);
 
-  const hasApplicationLink = !!(club?.applicationLink || club?.recruitmentUrl);
+  // 없는 동아리 또는 잘못된 id → 홈으로
+  useEffect(() => {
+    if (Number.isNaN(clubId) || clubId < 1) {
+      router.replace('/home');
+      return;
+    }
+    if (clubError || (!clubLoading && !club)) {
+      router.replace('/home');
+    }
+  }, [clubId, clubError, clubLoading, club, router]);
 
   useEffect(() => {
     if (questionId) setTab('qna');
@@ -768,6 +771,14 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
       setNotificationPromptOpen(true);
     }
   };
+
+  if (Number.isNaN(clubId) || clubId < 1 || clubError || (!clubLoading && !club)) {
+    return (
+      <div className="flex justify-center py-12">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-full min-w-0 overflow-x-hidden">
@@ -826,9 +837,9 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
           />
         </Tabs.Panel>
       </Tabs>
-      {/* 하단 네비 + CTA 공간 확보 (지원 링크 있을 때는 CTA 높이만큼 더 확보해 외부 링크 등이 잘리지 않게) */}
-      <div className={hasApplicationLink ? 'h-48' : 'h-32'} />
-      <ClubCTA clubId={clubId} />
+      {/* 하단 네비 공간 확보 */}
+      <div className="h-32" />
+      <ClubCTA clubId={clubId} currentTab={tab} />
       <NotificationPermissionInlineModal
         open={notificationPromptOpen}
         onClose={() => setNotificationPromptOpen(false)}

@@ -1,12 +1,14 @@
 'use client';
 
-import { Suspense, use } from 'react';
+import { Suspense, use, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { Spinner } from '@heroui/react';
 
+import { useMyProfile } from '@/features/auth/hooks';
+import { isClubManager } from '@/features/auth/permissions';
 import { useClubDetail } from '@/features/club/hooks';
-import { useClubFeeds } from '@/features/feed/hooks';
+import { useClubFeeds, useDeleteFeed } from '@/features/feed/hooks';
 import { FeedList } from '@/components/feed/feed-list';
 
 type PageProps = {
@@ -15,8 +17,30 @@ type PageProps = {
 
 function FeedPageContent({ clubId }: { clubId: number }) {
   const router = useRouter();
-  const { data: club, isLoading: clubLoading } = useClubDetail(clubId);
+  const { data: profile } = useMyProfile();
+  const { data: club, isLoading: clubLoading, isError: clubError } = useClubDetail(clubId);
   const { data, isLoading: feedsLoading } = useClubFeeds(clubId);
+  const deleteFeed = useDeleteFeed(clubId);
+  const isManager = isClubManager(profile, clubId);
+
+  // 없는 동아리 또는 잘못된 id → 홈으로
+  useEffect(() => {
+    if (Number.isNaN(clubId) || clubId < 1) {
+      router.replace('/home');
+      return;
+    }
+    if (clubError || (!clubLoading && !club)) {
+      router.replace('/home');
+    }
+  }, [clubId, clubError, clubLoading, club, router]);
+
+  if (Number.isNaN(clubId) || clubId < 1 || clubError || (!clubLoading && !club)) {
+    return (
+      <div className="flex justify-center py-12">
+        <Spinner />
+      </div>
+    );
+  }
 
   if (clubLoading || feedsLoading) {
     return (
@@ -30,7 +54,9 @@ function FeedPageContent({ clubId }: { clubId: number }) {
     const imageUrls =
       feed.postUrls?.length > 0
         ? feed.postUrls
-        : ['https://images.pexels.com/photos/1181263/pexels-photo-1181263.jpeg?auto=compress&cs=tinysrgb&w=800'];
+        : [
+            'https://images.pexels.com/photos/1181263/pexels-photo-1181263.jpeg?auto=compress&cs=tinysrgb&w=800',
+          ];
     return {
       feedId: feed.feedId,
       authorName: club?.name || '동아리',
@@ -71,7 +97,15 @@ function FeedPageContent({ clubId }: { clubId: number }) {
 
       {/* 피드 리스트 */}
       <div className="pb-32">
-        <FeedList feeds={feeds} isLoading={feedsLoading} />
+        <FeedList
+          feeds={feeds}
+          isLoading={feedsLoading}
+          clubId={clubId}
+          isManager={isManager}
+          onEdit={(feedId) => router.push(`/mypage/clubs/${clubId}/manage/feed/${feedId}/edit`)}
+          onDelete={(feedId) => deleteFeed.mutate(feedId)}
+          isDeleting={deleteFeed.isPending}
+        />
       </div>
     </>
   );
