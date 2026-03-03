@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, use, useEffect, useMemo, useState } from 'react';
+import { Suspense, use, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
@@ -18,7 +18,7 @@ type PageProps = {
 /** 리스트 한 칸: url + uuid(있으면 서버에 삭제/순서 반영) */
 type FeedImageItem = { uuid: string | null; url: string };
 
-/** 사진 전체가 드래그 영역, 삭제 버튼만 제외 */
+/** 0.5초 길게 누르면 드래그 시작, 그 전에는 가로 스크롤 가능 */
 function EditFeedImageReorderItem({
   item,
   onRemove,
@@ -29,6 +29,19 @@ function EditFeedImageReorderItem({
   canReorder: boolean;
 }) {
   const controls = useDragControls();
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pointerDownRef = useRef<React.PointerEvent | null>(null);
+
+  const clearLongPress = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+    pointerDownRef.current = null;
+  };
+
+  useEffect(() => () => clearLongPress(), []);
+
   return (
     <Reorder.Item
       value={item}
@@ -39,14 +52,34 @@ function EditFeedImageReorderItem({
     >
       <div
         className={`relative aspect-square w-36 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800 ${
-          canReorder ? 'cursor-grab [touch-action:none] touch-none active:cursor-grabbing' : ''
+          canReorder ? 'cursor-grab touch-pan-x active:cursor-grabbing' : ''
         }`}
         onPointerDown={
           canReorder
             ? (e) => {
                 if ((e.target as HTMLElement).closest?.('[data-no-drag]')) return;
-                if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
-                controls.start(e);
+                pointerDownRef.current = e;
+                longPressTimerRef.current = setTimeout(() => {
+                  longPressTimerRef.current = null;
+                  const ev = pointerDownRef.current;
+                  pointerDownRef.current = null;
+                  if (ev && typeof navigator !== 'undefined' && navigator.vibrate)
+                    navigator.vibrate(10);
+                  if (ev) controls.start(ev);
+                }, 500);
+              }
+            : undefined
+        }
+        onPointerUp={canReorder ? clearLongPress : undefined}
+        onPointerLeave={canReorder ? clearLongPress : undefined}
+        onPointerMove={
+          canReorder
+            ? () => {
+                if (longPressTimerRef.current) {
+                  clearTimeout(longPressTimerRef.current);
+                  longPressTimerRef.current = null;
+                  pointerDownRef.current = null;
+                }
               }
             : undefined
         }
