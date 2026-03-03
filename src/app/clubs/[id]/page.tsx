@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { Button, Spinner, Tabs, TextArea } from '@heroui/react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { parseAsString, useQueryState } from 'nuqs';
 import { createPortal } from 'react-dom';
 
@@ -702,41 +702,43 @@ function ClubQnaTab({
   );
 }
 
-/** 정보 탭에서만 노출. 우측 하단 작은 버튼, body 포탈로 뷰포트 고정, 부드럽게 따라오는 느낌 */
+/** 정보 탭에서만 노출. 우측 하단 작은 버튼, body 포탈로 뷰포트 고정. Framer Motion으로 등장/퇴장 부드럽게 따라오는 느낌 */
 function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: string }) {
   const { data: club } = useClubDetail(clubId);
   const applicationLink = club?.applicationLink || club?.recruitmentUrl;
+  const show = !!club && !!applicationLink && currentTab === 'info';
   if (!club || !applicationLink) return null;
-  if (currentTab === 'feed' || currentTab === 'qna') return null;
 
   const handleApplyClick = () => {
-    window.open(applicationLink, '_blank');
+    window.open(applicationLink!, '_blank');
   };
 
   const bottomOffset = 'calc(72px + env(safe-area-inset-bottom, 0px))';
+  const spring = { type: 'spring' as const, stiffness: 200, damping: 22 };
 
   const cta = (
-    <motion.div
-      initial={{ opacity: 0, y: 8, scale: 0.96 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 4, scale: 0.96 }}
-      transition={{
-        type: 'spring',
-        stiffness: 260,
-        damping: 24,
-      }}
-      className="fixed right-4 z-50 rounded-full border border-zinc-200/80 bg-white/95 shadow-lg backdrop-blur-sm dark:border-zinc-700/80 dark:bg-zinc-900/95"
-      style={{ bottom: bottomOffset }}
-    >
-      <Button
-        size="sm"
-        className="min-w-0 rounded-full px-4 py-2 text-sm font-semibold"
-        variant="primary"
-        onPress={handleApplyClick}
-      >
-        동아리 지원
-      </Button>
-    </motion.div>
+    <AnimatePresence mode="wait">
+      {show && (
+        <motion.div
+          key="club-cta"
+          initial={{ opacity: 0, y: 12, scale: 0.92 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 8, scale: 0.92 }}
+          transition={spring}
+          className="fixed right-4 z-50 rounded-full border border-zinc-200/80 bg-white/95 shadow-lg backdrop-blur-sm dark:border-zinc-700/80 dark:bg-zinc-900/95"
+          style={{ bottom: bottomOffset }}
+        >
+          <Button
+            size="sm"
+            className="min-w-0 rounded-full px-4 py-2 text-sm font-semibold"
+            variant="primary"
+            onPress={handleApplyClick}
+          >
+            동아리 지원
+          </Button>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 
   if (typeof document !== 'undefined') {
