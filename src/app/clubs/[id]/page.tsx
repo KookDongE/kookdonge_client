@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import { Button, Spinner, Tabs, TextArea } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
+import { createPortal } from 'react-dom';
 
 import { ClubCategory, ClubType, RecruitmentStatus } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
@@ -308,21 +309,24 @@ function ClubHeader({
           </div>
         </div>
       </div>
-      {actionMessage && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center px-4"
-          aria-hidden="true"
-        >
-          <div className="absolute inset-0 bg-black/40" aria-hidden="true" />
+      {actionMessage &&
+        typeof document !== 'undefined' &&
+        createPortal(
           <div
-            role="status"
-            aria-live="polite"
-            className="relative max-w-[min(320px,calc(100%-2rem))] rounded-xl bg-white px-4 py-3 text-center text-sm text-zinc-800 shadow-sm dark:bg-zinc-100 dark:text-zinc-800"
+            className="fixed inset-0 z-[100] flex items-center justify-center px-4"
+            aria-hidden="true"
           >
-            {actionMessage}
-          </div>
-        </div>
-      )}
+            <div className="absolute inset-0 bg-black/35" aria-hidden="true" />
+            <div
+              role="status"
+              aria-live="polite"
+              className="relative max-w-[min(300px,calc(100%-2rem))] rounded-2xl bg-white/95 px-5 py-3.5 text-center text-sm text-zinc-900 backdrop-blur-sm dark:bg-zinc-100/95 dark:text-zinc-900"
+            >
+              {actionMessage}
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }

@@ -1315,7 +1315,7 @@ function ClubInfoTab({
                 모집 상태
               </label>
               <div className={valueBoxClass}>
-                <span className="text-zinc-900 dark:text-zinc-100">
+                <span className="font-semibold text-zinc-900 dark:text-zinc-100">
                   {STATUS_CONFIG[club.recruitmentStatus as RecruitmentStatus].label}
                 </span>
               </div>
