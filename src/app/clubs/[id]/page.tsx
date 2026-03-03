@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { Button, Spinner, Tabs, TextArea } from '@heroui/react';
+import { motion } from 'framer-motion';
 import { parseAsString, useQueryState } from 'nuqs';
 import { createPortal } from 'react-dom';
 
@@ -701,7 +702,7 @@ function ClubQnaTab({
   );
 }
 
-/** 정보 탭에서만 노출. body에 포탈해 뷰포트 기준 fixed — 스크롤해도 네비 바로 위에 따라다님 */
+/** 정보 탭에서만 노출. 우측 하단 작은 버튼, body 포탈로 뷰포트 고정, 부드럽게 따라오는 느낌 */
 function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: string }) {
   const { data: club } = useClubDetail(clubId);
   const applicationLink = club?.applicationLink || club?.recruitmentUrl;
@@ -715,18 +716,27 @@ function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: str
   const bottomOffset = 'calc(72px + env(safe-area-inset-bottom, 0px))';
 
   const cta = (
-    <div
-      className="fixed left-1/2 z-50 w-full max-w-md -translate-x-1/2 border-t border-zinc-200/80 bg-white/95 p-3 backdrop-blur-sm dark:border-zinc-700/80 dark:bg-zinc-900/95"
+    <motion.div
+      initial={{ opacity: 0, y: 8, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 4, scale: 0.96 }}
+      transition={{
+        type: 'spring',
+        stiffness: 260,
+        damping: 24,
+      }}
+      className="fixed right-4 z-50 rounded-full border border-zinc-200/80 bg-white/95 shadow-lg backdrop-blur-sm dark:border-zinc-700/80 dark:bg-zinc-900/95"
       style={{ bottom: bottomOffset }}
     >
       <Button
-        className="w-full py-3 text-base font-semibold"
+        size="sm"
+        className="min-w-0 rounded-full px-4 py-2 text-sm font-semibold"
         variant="primary"
         onPress={handleApplyClick}
       >
         동아리 지원
       </Button>
-    </div>
+    </motion.div>
   );
 
   if (typeof document !== 'undefined') {
