@@ -330,14 +330,11 @@ function ClubHeader({
       {actionMessage &&
         typeof document !== 'undefined' &&
         createPortal(
-          <div
-            className="fixed bottom-20 left-1/2 z-[100] w-[min(320px,calc(100vw-2rem))] -translate-x-1/2 px-4"
-            aria-hidden="true"
-          >
+          <div className="fixed right-0 bottom-20 left-0 z-[100] px-4" aria-hidden="true">
             <div
               role="status"
               aria-live="polite"
-              className="rounded-xl border border-zinc-200/80 bg-white px-4 py-3 text-center text-sm font-medium text-zinc-800 shadow-lg shadow-zinc-900/10 dark:border-zinc-700/80 dark:bg-zinc-800 dark:text-zinc-100 dark:shadow-none"
+              className="mx-auto max-w-2xl rounded-lg bg-zinc-600/95 px-4 py-2.5 text-center text-sm text-white dark:bg-zinc-700/95 dark:text-zinc-100"
             >
               {actionMessage}
             </div>

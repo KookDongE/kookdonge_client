@@ -340,13 +340,13 @@ function ClubManageContent({ clubId }: { clubId: number }) {
       alert('모집 종료일은 모집 시작일보다 빠를 수 없습니다.');
       return;
     }
-    const now = new Date().toISOString().slice(0, 19);
-    let recruitmentStartTimeApi = startDateStr;
-    let recruitmentEndTimeApi = endDateStr;
+    const nowIso = new Date().toISOString();
+    let recruitmentStartTimeApi = startDate.toISOString();
+    let recruitmentEndTimeApi = endDate.toISOString();
     if (recruitmentStatus === 'RECRUITING') {
-      recruitmentStartTimeApi = now;
+      recruitmentStartTimeApi = nowIso;
     } else if (recruitmentStatus === 'CLOSED') {
-      recruitmentEndTimeApi = now;
+      recruitmentEndTimeApi = nowIso;
     }
     updateRecruitmentInfo.mutate(
       {

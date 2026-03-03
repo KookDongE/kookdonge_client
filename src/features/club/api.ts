@@ -358,18 +358,18 @@ export const clubApi = {
       });
     }
 
-    // 즉시 시작/마감: 삭제된 POST /start, /close 대신 시간 변경(PUT)으로 처리
-    const now = new Date().toISOString().slice(0, 19);
+    // 즉시 시작/마감: 삭제된 POST /start, /close 대신 시간 변경(PUT)으로 처리. 서버 검증(현재 시간 이후)을 위해 ISO 8601 UTC 형식으로 전송.
+    const nowIso = new Date().toISOString();
     if (recruitmentStatus === 'RECRUITING' && end) {
       await clubApi.updateRecruitmentInfo(clubId, {
-        recruitmentStartTime: now,
+        recruitmentStartTime: nowIso,
         recruitmentEndTime: end,
         applicationLink,
       });
     } else if (recruitmentStatus === 'CLOSED' && start) {
       await clubApi.updateRecruitmentInfo(clubId, {
         recruitmentStartTime: start,
-        recruitmentEndTime: now,
+        recruitmentEndTime: nowIso,
         applicationLink,
       });
     }

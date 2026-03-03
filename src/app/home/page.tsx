@@ -1,7 +1,6 @@
 'use client';
 
 import { Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -9,6 +8,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Button, Spinner } from '@heroui/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { parseAsString, useQueryState } from 'nuqs';
+import { createPortal } from 'react-dom';
 
 import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
@@ -117,7 +117,7 @@ function RankingSection({ returnTo }: { returnTo?: string }) {
     );
   }
 
-  const top5 = rankings?.slice(0, 5) || [];
+  const top10 = rankings?.slice(0, 10) || [];
   const isEmpty = !rankings || rankings.length === 0;
 
   return (
@@ -189,7 +189,7 @@ function RankingSection({ returnTo }: { returnTo?: string }) {
             aria-label="인기 동아리 가로 스크롤"
             className="no-scrollbar flex w-full min-w-0 cursor-grab [touch-action:pan-x] gap-3 overflow-x-auto overflow-y-hidden pt-2 pb-2 pl-2 [-webkit-overflow-scrolling:touch] active:cursor-grabbing"
           >
-            {top5.map((club, index) => (
+            {top10.map((club, index) => (
               <motion.div
                 key={club.id}
                 initial={{ opacity: 0, scale: 0.9 }}
