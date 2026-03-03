@@ -273,6 +273,20 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* 모든 페이지 바운스(오버스크롤) 효과 비활성화 — 커스텀 풀리프레시와 브라우저 기본 동작 충돌 방지 */
+html,
+body {
+  overscroll-behavior-y: none;
+  overflow: hidden;
+}
+[data-scroll-container] {
+  overscroll-behavior: none;
+}
+.overflow-y-auto,
+.overflow-auto {
+  overscroll-behavior-y: none;
+}
+
 /* 풀스크린(스플래시·로그인)에서 body/html 스크롤·스크롤바 완전 차단 (윈도우) */
 html.fullscreen-page,
 html.fullscreen-page body {
