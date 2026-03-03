@@ -5,9 +5,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { Button, Chip, Input, Spinner, Tabs } from '@heroui/react';
+import { Button, Chip, Input, ListBox, Select, Spinner, Tabs } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
 
+import { useGrantAdmin, useRevokeAdmin, useSystemAdmins } from '@/features/admin';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
 import { useAdminApplications } from '@/features/club/hooks';
@@ -57,7 +58,10 @@ function ApplicationList() {
     <div className="space-y-3 p-4">
       <div className="space-y-3">
         {filtered.map((app) => {
-          const chip = STATUS_CHIP[app.status ?? ''] ?? { label: app.status ?? '-', color: 'warning' as const };
+          const chip = STATUS_CHIP[app.status ?? ''] ?? {
+            label: app.status ?? '-',
+            color: 'warning' as const,
+          };
           return (
             <Link
               key={app.id}
@@ -66,7 +70,13 @@ function ApplicationList() {
             >
               <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
                 {app.image ? (
-                  <Image src={app.image} alt={app.name} fill className="object-cover" sizes="56px" />
+                  <Image
+                    src={app.image}
+                    alt={app.name}
+                    fill
+                    className="object-cover"
+                    sizes="56px"
+                  />
                 ) : (
                   <DefaultClubImage className="object-cover" sizes="56px" />
                 )}
@@ -108,34 +118,51 @@ function ApplicationList() {
 }
 
 function AdminSettingsTab() {
-  const [systemAdmins, setSystemAdmins] = useState<string[]>([]);
   const [newAdminEmail, setNewAdminEmail] = useState('');
+  const { data: admins = [], isLoading } = useSystemAdmins();
+  const grantAdmin = useGrantAdmin();
+  const revokeAdmin = useRevokeAdmin();
 
-  const handleAddAdmin = () => {
-    if (!newAdminEmail.trim()) {
+  const handleAddAdmin = async () => {
+    const email = newAdminEmail.trim();
+    if (!email) {
       alert('이메일을 입력해주세요.');
       return;
     }
-    if (!newAdminEmail.includes('@')) {
+    if (!email.includes('@')) {
       alert('올바른 이메일 형식을 입력해주세요.');
       return;
     }
-    if (systemAdmins.includes(newAdminEmail.trim())) {
+    if (admins.some((a) => a.email === email)) {
       alert('이미 등록된 관리자입니다.');
       return;
     }
-
-    setSystemAdmins([...systemAdmins, newAdminEmail.trim()]);
-    setNewAdminEmail('');
-    alert('시스템 관리자가 추가되었습니다.');
-  };
-
-  const handleRemoveAdmin = (email: string) => {
-    if (confirm(`정말 ${email} 시스템 관리자 권한을 제거하시겠습니까?`)) {
-      setSystemAdmins(systemAdmins.filter((e) => e !== email));
-      alert('시스템 관리자가 제거되었습니다.');
+    try {
+      await grantAdmin.mutateAsync(email);
+      setNewAdminEmail('');
+      alert('시스템 관리자가 추가되었습니다.');
+    } catch {
+      // 에러 메시지는 apiClient에서 toast로 표시됨
     }
   };
+
+  const handleRemoveAdmin = async (userId: number, email: string) => {
+    if (!confirm(`정말 ${email} 시스템 관리자 권한을 제거하시겠습니까?`)) return;
+    try {
+      await revokeAdmin.mutateAsync(userId);
+      alert('시스템 관리자가 제거되었습니다.');
+    } catch {
+      // 에러 메시지는 apiClient에서 toast로 표시됨
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 p-4">
@@ -155,8 +182,9 @@ function AdminSettingsTab() {
                 handleAddAdmin();
               }
             }}
+            disabled={grantAdmin.isPending}
           />
-          <Button variant="primary" onPress={handleAddAdmin}>
+          <Button variant="primary" onPress={handleAddAdmin} isDisabled={grantAdmin.isPending}>
             추가
           </Button>
         </div>
@@ -165,21 +193,31 @@ function AdminSettingsTab() {
         <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
           현재 시스템 관리자 목록
         </label>
-        {systemAdmins.length === 0 ? (
+        {admins.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-xl bg-white py-12 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500">
             <p>시스템 관리자가 없습니다.</p>
           </div>
         ) : (
           <div className="space-y-2">
-            {systemAdmins.map((email) => (
+            {admins.map((admin) => (
               <div
-                key={email}
+                key={admin.userId}
                 className="flex items-center justify-between rounded-xl bg-white p-4 dark:bg-zinc-800"
               >
-                <span className="text-sm font-medium text-gray-900 dark:text-zinc-100">
-                  {email}
-                </span>
-                <Button size="sm" variant="ghost" onPress={() => handleRemoveAdmin(email)}>
+                <div className="min-w-0 flex-1">
+                  <span className="block text-sm font-medium text-gray-900 dark:text-zinc-100">
+                    {admin.name || admin.email}
+                  </span>
+                  <span className="block truncate text-xs text-zinc-500 dark:text-zinc-400">
+                    {admin.email}
+                  </span>
+                </div>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onPress={() => handleRemoveAdmin(admin.userId, admin.email)}
+                  isDisabled={revokeAdmin.isPending}
+                >
                   제거
                 </Button>
               </div>
@@ -191,10 +229,61 @@ function AdminSettingsTab() {
   );
 }
 
+const REPORT_FILTER_OPTIONS = [
+  { value: 'all', label: '전체' },
+  { value: 'SYSTEM_ERROR', label: '시스템 오류' },
+  { value: 'USER_REPORT', label: '유저 신고' },
+] as const;
+
+function ReportsTab() {
+  const [filter, setFilter] = useState<string>('all');
+
+  return (
+    <div className="space-y-4 p-4">
+      <div>
+        <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+          유형 필터
+        </label>
+        <Select
+          selectedKey={filter || 'all'}
+          onSelectionChange={(key) => setFilter(key != null ? String(key) : 'all')}
+          placeholder="유형 선택"
+          className="max-w-xs"
+          aria-label="신고 유형 필터"
+        >
+          <Select.Trigger className="rounded-xl border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
+            <Select.Value />
+            <Select.Indicator />
+          </Select.Trigger>
+          <Select.Popover>
+            <ListBox>
+              {REPORT_FILTER_OPTIONS.map((opt) => (
+                <ListBox.Item
+                  key={opt.value}
+                  id={opt.value}
+                  textValue={opt.label}
+                  className="text-zinc-900 dark:text-zinc-100"
+                >
+                  {opt.label}
+                </ListBox.Item>
+              ))}
+            </ListBox>
+          </Select.Popover>
+        </Select>
+      </div>
+      <div className="flex flex-col items-center justify-center rounded-xl bg-white py-12 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500">
+        <p>신고 목록이 없습니다.</p>
+      </div>
+    </div>
+  );
+}
+
 function AdminPageContent() {
   const router = useRouter();
   const { data: profile, isLoading: profileLoading } = useMyProfile();
   const [tab, setTab] = useQueryState('tab', parseAsString.withDefault('applications'));
+  const tabKey =
+    tab === 'applications' || tab === 'admins' || tab === 'reports' ? tab : 'applications';
   const [stickyVisible, setStickyVisible] = useState(true);
   const lastScrollY = useRef(0);
 
@@ -233,7 +322,7 @@ function AdminPageContent() {
   return (
     <div className="min-h-screen bg-white pb-20 dark:bg-zinc-900">
       <Tabs
-        selectedKey={tab || 'applications'}
+        selectedKey={tabKey}
         onSelectionChange={(key) => setTab(key as string)}
         className="w-full"
       >
@@ -255,6 +344,13 @@ function AdminPageContent() {
               관리자 설정
               <Tabs.Indicator />
             </Tabs.Tab>
+            <Tabs.Tab
+              id="reports"
+              className="flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
+            >
+              신고
+              <Tabs.Indicator />
+            </Tabs.Tab>
           </Tabs.List>
         </Tabs.ListContainer>
 
@@ -273,6 +369,9 @@ function AdminPageContent() {
         </Tabs.Panel>
         <Tabs.Panel id="admins" className="pt-0">
           <AdminSettingsTab />
+        </Tabs.Panel>
+        <Tabs.Panel id="reports" className="pt-0">
+          <ReportsTab />
         </Tabs.Panel>
       </Tabs>
     </div>

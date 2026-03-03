@@ -4,11 +4,18 @@ import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { Button, Chip, Spinner, TextArea } from '@heroui/react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import type { ClubCategory, ClubType } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
-import { useAdminApplication, useApproveApplication, useRejectApplication } from '@/features/club/hooks';
+import { clubApi } from '@/features/club/api';
+import {
+  clubKeys,
+  useAdminApplication,
+  useApproveApplication,
+  useRejectApplication,
+} from '@/features/club/hooks';
 
 const CATEGORY_LABELS: Record<ClubCategory, string> = {
   PERFORMING_ARTS: '공연',
@@ -33,6 +40,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
   const { id } = use(params);
   const applicationId = parseInt(id, 10);
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { data: profile, isLoading: profileLoading } = useMyProfile();
   const { data: application, isLoading } = useAdminApplication(applicationId);
   const approveApplication = useApproveApplication();
@@ -78,7 +86,18 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
 
   const handleApprove = () => {
     approveApplication.mutate(applicationId, {
-      onSuccess: () => {
+      onSuccess: async () => {
+        try {
+          const updated = await queryClient.fetchQuery({
+            queryKey: [...clubKeys.all, 'admin', 'application', applicationId],
+            queryFn: () => clubApi.getApplicationById(applicationId),
+          });
+          if (updated?.clubId != null) {
+            await clubApi.updateClubInfo(updated.clubId, { description: '' });
+          }
+        } catch {
+          // refetch 실패 또는 한줄소개 초기화 실패 시에도 승인 완료 처리
+        }
         alert('신청이 승인되었습니다.');
         router.push('/admin');
       },
@@ -123,7 +142,11 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
         {/* 상태 칩 */}
         <div className="flex items-center gap-2">
           <Chip size="sm" color={isPending ? 'warning' : 'success'} variant="soft">
-            {application.status === 'PENDING' ? '승인 대기' : application.status === 'APPROVED' ? '승인됨' : '거절됨'}
+            {application.status === 'PENDING'
+              ? '승인 대기'
+              : application.status === 'APPROVED'
+                ? '승인됨'
+                : '거절됨'}
           </Chip>
         </div>
 
@@ -160,7 +183,9 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
         {/* 5. 신청 사유 */}
         <div>
           <label className={labelClass}>신청 사유</label>
-          <div className={`${valueBoxClass} min-h-[200px] whitespace-pre-wrap`}>{application.description}</div>
+          <div className={`${valueBoxClass} min-h-[200px] whitespace-pre-wrap`}>
+            {application.description}
+          </div>
         </div>
 
         {/* 신청일 (참고) */}

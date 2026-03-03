@@ -367,6 +367,16 @@ export type MyApplicationItem = {
   rejectionReason?: string;
 };
 
+/** 시스템 관리자 단건 (GET /api/admin/admins, POST 응답) */
+export type AdminRes = {
+  userId: number;
+  name: string;
+  email: string;
+};
+
+/** 시스템 관리자 권한 부여 요청 (POST /api/admin/admins). 스웨거 AddMemberReq */
+export type GrantAdminReq = { email: string };
+
 /** 좋아요 토글 응답 */
 export type ClubLikeRes = { liked: boolean };
 
