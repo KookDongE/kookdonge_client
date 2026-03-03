@@ -16,6 +16,8 @@ type FeedItemProps = {
   /** 동아리 관리자일 때 수정/삭제 노출 */
   clubId?: number;
   isManager?: boolean;
+  /** ... 메뉴(수정/삭제) 노출 여부. 피드 그리드/리스트에서는 false로 숨김 */
+  showManagerMenu?: boolean;
   onEdit?: (feedId: number) => void;
   onDelete?: (feedId: number) => void;
   isDeleting?: boolean;
@@ -49,11 +51,13 @@ export function FeedItem({
   createdAt,
   clubId,
   isManager,
+  showManagerMenu = true,
   onEdit,
   onDelete,
   isDeleting,
 }: FeedItemProps) {
   const hasMultiple = imageUrls.length > 1;
+  const hasNoImage = imageUrls.length === 0 || !imageUrls[0]?.trim();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [contentExpanded, setContentExpanded] = useState(false);
@@ -118,7 +122,7 @@ export function FeedItem({
           </span>
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          {isManager && clubId != null && (
+          {showManagerMenu && isManager && clubId != null && (
             <div className="relative">
               <button
                 type="button"
@@ -182,8 +186,10 @@ export function FeedItem({
         </div>
       </div>
 
-      {/* 미디어 영역: 여러 장이면 스와이프로 넘기기, 한 장이면 단일 */}
-      {hasMultiple ? (
+      {/* 미디어 영역: 이미지 없음 → 회색, 여러 장 → 스와이프, 한 장 → 단일 */}
+      {hasNoImage ? (
+        <div className="relative aspect-square w-full bg-zinc-200 dark:bg-zinc-700" />
+      ) : hasMultiple ? (
         <div
           className="relative aspect-square w-full touch-pan-y overflow-hidden bg-zinc-100 select-none dark:bg-zinc-800"
           onTouchStart={handleTouchStart}
@@ -237,7 +243,9 @@ export function FeedItem({
         </div>
       ) : (
         <div className="relative aspect-square w-full bg-zinc-200 dark:bg-zinc-700">
-          {failedImageIndices.has(0) ? null : (
+          {failedImageIndices.has(0) ? (
+            <div className="absolute inset-0 bg-zinc-200 dark:bg-zinc-700" />
+          ) : (
             <Image
               src={imageUrls[0] ?? ''}
               alt=""

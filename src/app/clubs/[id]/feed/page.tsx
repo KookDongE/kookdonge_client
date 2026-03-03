@@ -51,12 +51,7 @@ function FeedPageContent({ clubId }: { clubId: number }) {
   }
 
   const feeds = (data?.clubFeedList || []).map((feed) => {
-    const imageUrls =
-      feed.postUrls?.length > 0
-        ? feed.postUrls
-        : [
-            'https://images.pexels.com/photos/1181263/pexels-photo-1181263.jpeg?auto=compress&cs=tinysrgb&w=800',
-          ];
+    const imageUrls = feed.postUrls?.length ? feed.postUrls : [];
     return {
       feedId: feed.feedId,
       authorName: club?.name || '동아리',

@@ -21,6 +21,8 @@ type FeedListProps = {
   clubId?: number;
   /** 동아리 관리자 여부 */
   isManager?: boolean;
+  /** ... 메뉴(수정/삭제) 노출 여부. 피드 그리드에서는 false */
+  showManagerMenu?: boolean;
   onEdit?: (feedId: number) => void;
   onDelete?: (feedId: number) => void;
   isDeleting?: boolean;
@@ -31,6 +33,7 @@ export function FeedList({
   isLoading,
   clubId,
   isManager,
+  showManagerMenu = false,
   onEdit,
   onDelete,
   isDeleting,
@@ -59,6 +62,7 @@ export function FeedList({
           {...feed}
           clubId={clubId}
           isManager={isManager}
+          showManagerMenu={showManagerMenu}
           onEdit={onEdit}
           onDelete={onDelete}
           isDeleting={isDeleting}
