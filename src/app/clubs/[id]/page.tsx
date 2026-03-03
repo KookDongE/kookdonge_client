@@ -771,7 +771,7 @@ function ClubQnaTab({
   );
 }
 
-/** 정보 탭에서만 노출. position:fixed 우측 하단(조금 높게), body 포탈. 스크롤 시 스프링으로 부드럽게 따라오는 느낌 */
+/** 정보 탭에서만 노출. 앱 뷰 안 우측 하단(absolute). 스크롤 시 스프링으로 부드럽게 따라오는 느낌 */
 function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: string }) {
   const { data: club } = useClubDetail(clubId);
   const applicationLink = club?.applicationLink || club?.recruitmentUrl;
@@ -814,44 +814,45 @@ function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: str
   // 네비 바로 위보다 조금 더 높게 (72 → 96)
   const bottomOffset = 'calc(96px + env(safe-area-inset-bottom, 0px))';
 
-  const cta = (
+  return (
     <motion.div
-      className="z-50"
-      style={{
-        position: 'fixed',
-        right: '1rem',
-        bottom: bottomOffset,
-        y: displayY,
-      }}
+      className="pointer-events-none absolute inset-0 z-50 flex justify-end"
+      style={{ bottom: 0, top: 0 }}
+      aria-hidden
     >
-      <AnimatePresence mode="wait">
-        {shouldShow && (
-          <motion.div
-            key="club-cta"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="rounded-full border border-zinc-200/80 bg-white/95 shadow-lg backdrop-blur-sm dark:border-zinc-700/80 dark:bg-zinc-900/95"
-          >
-            <Button
-              size="sm"
-              className="min-w-0 rounded-full px-4 py-2 text-sm font-semibold"
-              variant="primary"
-              onPress={handleApplyClick}
+      <motion.div
+        className="pointer-events-auto"
+        style={{
+          position: 'absolute',
+          right: '1rem',
+          bottom: bottomOffset,
+          y: displayY,
+        }}
+      >
+        <AnimatePresence mode="wait">
+          {shouldShow && (
+            <motion.div
+              key="club-cta"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="rounded-full border border-zinc-200/80 bg-white/95 shadow-lg backdrop-blur-sm dark:border-zinc-700/80 dark:bg-zinc-900/95"
             >
-              지원하기
-            </Button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <Button
+                size="sm"
+                className="min-w-0 rounded-full px-4 py-2 text-sm font-semibold"
+                variant="primary"
+                onPress={handleApplyClick}
+              >
+                지원하기
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
     </motion.div>
   );
-
-  if (typeof document !== 'undefined') {
-    return createPortal(cta, document.body);
-  }
-  return cta;
 }
 
 function ClubDetailContent({ clubId }: { clubId: number }) {
@@ -898,7 +899,7 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
   }
 
   return (
-    <div className="min-h-full min-w-0 overflow-x-hidden">
+    <div className="relative min-h-full min-w-0 overflow-x-hidden">
       <ClubHeader clubId={clubId} onNotificationTurnOnRequest={tryShowNotificationPrompt} />
       <Tabs
         selectedKey={tab}
