@@ -811,8 +811,9 @@ function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: str
     window.open(applicationLink, '_blank');
   };
 
-  // 네비 바로 위보다 조금 더 높게 (72 → 96)
-  const bottomOffset = 'calc(96px + env(safe-area-inset-bottom, 0px))';
+  // 네비(4rem) + safe-area + 여유 공간 위에 배치해 네비와 겹치지 않게
+  const bottomOffset = 'calc(8rem + env(safe-area-inset-bottom, 0px))';
+  const buttonBottom = 'calc(4rem + 1.5rem + env(safe-area-inset-bottom, 0px))';
 
   // 앱 뷰와 동일한 max-w-md 영역 안에만 버튼이 오도록: fixed 래퍼 + 내부 max-w-md mx-auto, 스크롤 따라다니는 y 애니메이션 유지
   const cta = (
@@ -825,7 +826,7 @@ function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: str
         <motion.div
           className="pointer-events-auto absolute right-4"
           style={{
-            bottom: '1rem',
+            bottom: buttonBottom,
             y: displayY,
           }}
         >

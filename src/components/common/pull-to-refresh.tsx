@@ -110,6 +110,7 @@ export function PullToRefresh({
       router.refresh();
       if (pathname === '/home') {
         queryClient.invalidateQueries({ queryKey: clubKeys.lists() });
+        queryClient.refetchQueries({ queryKey: clubKeys.lists() });
       }
       setTimeout(() => {
         setIsRefreshing(false);
