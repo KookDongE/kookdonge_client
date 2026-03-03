@@ -87,7 +87,7 @@ function formatDate(dateString: string | null | undefined): string {
   if (dateString == null || dateString === '') return '-';
   const date = new Date(dateString);
   if (Number.isNaN(date.getTime())) return '-';
-  const year = date.getFullYear();
+  const year = date.getFullYear() % 100;
   const month = date.getMonth() + 1;
   const day = date.getDate();
   return `${year}년 ${month}월 ${day}일`;
@@ -100,7 +100,7 @@ function formatDateTimeReadMode(dateString: string | null | undefined): string {
   if (Number.isNaN(date.getTime())) return '-';
   return date.toLocaleString('ko-KR', {
     timeZone: KST,
-    year: 'numeric',
+    year: '2-digit',
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
@@ -264,7 +264,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
     if (!club || isLoading) return;
     setName(club.name || '');
     setImage(club.image || '');
-    setSummary(club.summary || '');
+    setSummary((club.summary ?? club.description) || '');
     setCategory(club.category);
     setType(club.type);
     setTargetGraduate(club.targetGraduate || '');
@@ -488,8 +488,10 @@ function ClubManageContent({ clubId }: { clubId: number }) {
               <h1 className="mt-1.5 text-xl font-bold text-zinc-900 dark:text-zinc-100">
                 {club.name}
               </h1>
-              {club.summary && (
-                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{club.summary}</p>
+              {(club.summary ?? club.description) && (
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                  {club.summary ?? club.description}
+                </p>
               )}
               {/* 관심, 알림, 좋아요(숫자), 조회수(숫자): 사진 하단 우측 1열 */}
               <div className="mt-auto flex items-center justify-end gap-2 pt-2">

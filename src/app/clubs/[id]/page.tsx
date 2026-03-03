@@ -116,7 +116,7 @@ function EyeIcon({ className }: { className?: string }) {
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
-  const year = date.getFullYear();
+  const year = date.getFullYear() % 100;
   const month = date.getMonth() + 1;
   const day = date.getDate();
   return `${year}년 ${month}월 ${day}일`;
@@ -129,7 +129,7 @@ function formatDateTime(dateString: string | null | undefined): string {
   if (Number.isNaN(date.getTime())) return '-';
   return date.toLocaleString('ko-KR', {
     timeZone: 'Asia/Seoul',
-    year: 'numeric',
+    year: '2-digit',
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
