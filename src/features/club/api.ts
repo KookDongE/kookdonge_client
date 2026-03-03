@@ -177,7 +177,9 @@ export const clubApi = {
     return clubApi.createRequest(data);
   },
 
-  getAllClubsForAdmin: async (status?: 'PENDING' | 'APPROVED' | 'REJECTED'): Promise<AdminApplicationItem[]> => {
+  getAllClubsForAdmin: async (
+    status?: 'PENDING' | 'APPROVED' | 'REJECTED'
+  ): Promise<AdminApplicationItem[]> => {
     const page = await clubApi.getAllRequests({ ...(status && { status }), page: 0, size: 100 });
     const content = 'content' in page ? page.content : [];
     return (content ?? []).map((r) => ({
@@ -205,7 +207,9 @@ export const clubApi = {
     return apiClient<void>(`/api/admin/clubs/${clubId}`, { method: 'DELETE' });
   },
 
-  getApplications: async (status?: 'PENDING' | 'APPROVED' | 'REJECTED'): Promise<AdminApplicationItem[]> => {
+  getApplications: async (
+    status?: 'PENDING' | 'APPROVED' | 'REJECTED'
+  ): Promise<AdminApplicationItem[]> => {
     return clubApi.getAllClubsForAdmin(status);
   },
 
@@ -236,10 +240,7 @@ export const clubApi = {
   },
 
   /** (LEADER) 동아리 정보 수정. PUT /api/clubs/{clubId}/info - 이름, 한줄소개, 기본정보 등 */
-  updateClubInfo: async (
-    clubId: number,
-    data: UpdateClubInfoReq
-  ): Promise<void> => {
+  updateClubInfo: async (clubId: number, data: UpdateClubInfoReq): Promise<void> => {
     return apiClient<void>(`/api/clubs/${clubId}/info`, {
       method: 'PUT',
       body: data,
@@ -302,14 +303,6 @@ export const clubApi = {
     });
   },
 
-  startRecruitment: async (clubId: number): Promise<void> => {
-    return apiClient<void>(`/api/clubs/${clubId}/recruitment/start`, { method: 'POST' });
-  },
-
-  closeRecruitment: async (clubId: number): Promise<void> => {
-    return apiClient<void>(`/api/clubs/${clubId}/recruitment/close`, { method: 'POST' });
-  },
-
   updateClubDetail: async (
     clubId: number,
     data: Record<string, unknown>
@@ -321,7 +314,8 @@ export const clubApi = {
     if (data.profileFileUuid !== undefined)
       infoFields.profileFileUuid = data.profileFileUuid as string;
     if (data.leaderName !== undefined) infoFields.leaderName = data.leaderName as string;
-    if (data.targetGraduate !== undefined) infoFields.targetGraduate = data.targetGraduate as string;
+    if (data.targetGraduate !== undefined)
+      infoFields.targetGraduate = data.targetGraduate as string;
     if (data.location !== undefined) infoFields.clubRoomLocation = data.location as string;
     if (data.weeklyActiveFrequency !== undefined)
       infoFields.weeklyActivity = String(data.weeklyActiveFrequency);
@@ -351,21 +345,33 @@ export const clubApi = {
       typeof data.recruitmentStartDate === 'string' ? data.recruitmentStartDate : undefined;
     const end = typeof data.recruitmentEndDate === 'string' ? data.recruitmentEndDate : undefined;
 
+    const applicationLink =
+      typeof data.recruitmentUrl === 'string' && data.recruitmentUrl
+        ? data.recruitmentUrl
+        : undefined;
+
     if (hasRecruitmentDates && start && end) {
       await clubApi.updateRecruitmentInfo(clubId, {
         recruitmentStartTime: start,
         recruitmentEndTime: end,
-        applicationLink:
-          typeof data.recruitmentUrl === 'string' && data.recruitmentUrl
-            ? data.recruitmentUrl
-            : undefined,
+        applicationLink,
       });
     }
 
-    if (recruitmentStatus === 'RECRUITING') {
-      await clubApi.startRecruitment(clubId);
-    } else if (recruitmentStatus === 'CLOSED') {
-      await clubApi.closeRecruitment(clubId);
+    // 즉시 시작/마감: 삭제된 POST /start, /close 대신 시간 변경(PUT)으로 처리
+    const now = new Date().toISOString().slice(0, 19);
+    if (recruitmentStatus === 'RECRUITING' && end) {
+      await clubApi.updateRecruitmentInfo(clubId, {
+        recruitmentStartTime: now,
+        recruitmentEndTime: end,
+        applicationLink,
+      });
+    } else if (recruitmentStatus === 'CLOSED' && start) {
+      await clubApi.updateRecruitmentInfo(clubId, {
+        recruitmentStartTime: start,
+        recruitmentEndTime: now,
+        applicationLink,
+      });
     }
 
     return clubApi.getClubDetail(clubId);

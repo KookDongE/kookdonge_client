@@ -4,10 +4,11 @@ import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
 /** 새로고침이 발동되려면 당겨야 하는 최소 거리 (px). 높을수록 둔감 */
-const PULL_THRESHOLD = 140;
-/** 당김 감도. 낮을수록 부드럽고 둔감 (0.25~0.4 권장) */
-const PULL_DAMPING = 0.22;
-const MAX_PULL = 100;
+const PULL_THRESHOLD = 95;
+/** 당김 감도. 낮을수록 부드럽고 둔감 (0.3~0.4 권장) */
+const PULL_DAMPING = 0.35;
+/** 당김 최대 표시 거리 (px). THRESHOLD보다 커야 새로고침 발동 가능 */
+const MAX_PULL = 130;
 /** 손가락 놓았을 때 원위치로 돌아가는 애니메이션 시간 (ms) */
 const RELEASE_DURATION_MS = 320;
 
@@ -31,7 +32,6 @@ export function PullToRefresh({
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef(0);
-  const rafIdRef = useRef<number | null>(null);
   const lastDistanceRef = useRef(0);
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -74,21 +74,13 @@ export function PullToRefresh({
       const delta = Math.max(0, y - startYRef.current);
       const distance = Math.min(delta * PULL_DAMPING, MAX_PULL);
       lastDistanceRef.current = distance;
-      if (rafIdRef.current !== null) return;
-      rafIdRef.current = requestAnimationFrame(() => {
-        rafIdRef.current = null;
-        setPullDistance(lastDistanceRef.current);
-      });
+      setPullDistance(distance);
     },
     [fullScreen, disabled, isRefreshing]
   );
 
   const onTouchEnd = useCallback(() => {
     if (fullScreen || disabled) return;
-    if (rafIdRef.current !== null) {
-      cancelAnimationFrame(rafIdRef.current);
-      rafIdRef.current = null;
-    }
     const distance = lastDistanceRef.current;
     if (distance >= PULL_THRESHOLD && !isRefreshing) {
       setIsRefreshing(true);
@@ -125,6 +117,7 @@ export function PullToRefresh({
         style={{
           transform: `translateY(${pullDistance}px)`,
           transitionDuration: isReleasing ? `${RELEASE_DURATION_MS}ms` : undefined,
+          willChange: pullDistance > 0 || isRefreshing ? 'transform' : undefined,
         }}
       >
         <div
