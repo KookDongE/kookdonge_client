@@ -378,6 +378,8 @@ export type NotificationRes = {
   message: string;
   redirectUrl?: string;
   clubId?: number;
+  /** Q&A 알림 시 해당 질문 ID (스크롤 이동용, API에서 내려주는 경우 사용) */
+  questionId?: number;
   isRead: boolean;
   createdAt: string;
 };

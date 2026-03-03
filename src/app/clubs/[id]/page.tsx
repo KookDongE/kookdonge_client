@@ -715,8 +715,9 @@ function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: str
     damping: 20, // 마찰력 (덜컹거림 방지)
     mass: 1,
   });
-  // 부드러워진 스크롤 값을 버튼 y 오프셋에 매핑 (숫자 작을수록 더 늦게 따라옴)
-  const followY = useTransform(smoothScrollY, (value) => value * 0.08);
+  // 부드러워진 스크롤 값을 버튼 y 오프셋에 매핑. 상한으로 네비 바 침범 방지, 스크롤 0이면 0 복귀
+  const FOLLOW_MAX_PX = 20; // 아래로 최대 20px만 이동 (네비 영역 침범 방지)
+  const followY = useTransform(smoothScrollY, (value) => Math.min(value * 0.08, FOLLOW_MAX_PX));
 
   useEffect(() => {
     if (!shouldShow) return;
@@ -763,7 +764,7 @@ function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: str
               variant="primary"
               onPress={handleApplyClick}
             >
-              동아리 지원
+              지원하기
             </Button>
           </motion.div>
         )}

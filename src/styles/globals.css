@@ -288,6 +288,13 @@ html.fullscreen-page body {
   width: 100%;
 }
 
+/* PWA: 이미지/드래그 영역에서 '선택됨' 콜아웃 방지 */
+.drag-area-no-select {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
 /* Touch-friendly interactions */
 .touch-btn {
   min-height: 48px;

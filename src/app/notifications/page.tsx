@@ -76,31 +76,57 @@ export default function NotificationsPage() {
     }
   };
 
-  /** API redirectUrl 우선 사용, 없으면 type + clubId로 이동 경로 생성 */
+  /** redirectUrl에서 questionId 쿼리 추출 (백엔드가 URL로만 내려줄 때) */
+  function parseQuestionIdFromUrl(url: string): number | undefined {
+    try {
+      const match = url.match(/[?&]questionId=(\d+)/);
+      return match ? parseInt(match[1], 10) : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  /** Q&A 알림: 항상 앱 경로로 이동(404 방지), questionId 있으면 해당 질문까지 스크롤 */
+  function buildQnaRedirectUrl(
+    type: 'QNA_QUESTION_CREATED' | 'QNA_ANSWER_CREATED',
+    clubId: number,
+    questionId?: number
+  ): string {
+    const q = new URLSearchParams();
+    q.set('tab', 'qna');
+    if (questionId != null && Number.isInteger(questionId)) q.set('questionId', String(questionId));
+    const query = q.toString();
+    if (type === 'QNA_QUESTION_CREATED') {
+      return `/mypage/clubs/${clubId}/manage${query ? `?${query}` : ''}`;
+    }
+    return `/clubs/${clubId}${query ? `?${query}` : ''}`;
+  }
+
+  /** API redirectUrl 우선 사용. Q&A는 앱 경로로 직접 구성해 404 방지 + 질문 스크롤 지원 */
   function goToRedirect(item: NotificationRes) {
-    if (item.redirectUrl?.trim()) {
-      const url = item.redirectUrl.startsWith('/') ? item.redirectUrl : `/${item.redirectUrl}`;
-      router.push(url);
+    const { type, clubId, redirectUrl, questionId: resQuestionId } = item;
+    const isQna = type === 'QNA_QUESTION_CREATED' || type === 'QNA_ANSWER_CREATED';
+
+    if (isQna && clubId != null) {
+      const questionId =
+        resQuestionId ?? (redirectUrl?.trim() ? parseQuestionIdFromUrl(redirectUrl) : undefined);
+      router.push(buildQnaRedirectUrl(type, clubId, questionId));
       return;
     }
-    const { type, clubId } = item;
+
+    if (redirectUrl?.trim()) {
+      const url = redirectUrl.startsWith('/') ? redirectUrl : `/${redirectUrl}`;
+      if (!url.startsWith('http')) {
+        router.push(url);
+        return;
+      }
+    }
+
     switch (type) {
       case 'RECRUITMENT_START':
       case 'RECRUITMENT_DEADLINE':
         if (clubId != null) {
           router.push(`/clubs/${clubId}`);
-          return;
-        }
-        break;
-      case 'QNA_QUESTION_CREATED':
-        if (clubId != null) {
-          router.push(`/mypage/clubs/${clubId}/manage?tab=qna`);
-          return;
-        }
-        break;
-      case 'QNA_ANSWER_CREATED':
-        if (clubId != null) {
-          router.push(`/clubs/${clubId}?tab=qna`);
           return;
         }
         break;

@@ -1,11 +1,11 @@
 'use client';
 
-import { Suspense, use, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, use, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 import { Spinner } from '@heroui/react';
-import { motion } from 'framer-motion';
+import { Reorder, useDragControls } from 'framer-motion';
 
 import type { ClubFeedRes } from '@/types/api';
 import { useClubDetail } from '@/features/club/hooks';
@@ -17,6 +17,80 @@ type PageProps = {
 
 /** 리스트 한 칸: url + uuid(있으면 서버에 삭제/순서 반영) */
 type FeedImageItem = { uuid: string | null; url: string };
+
+/** 핸들을 잡아야만 드래그 가능 (스크롤과 충돌 방지) */
+function EditFeedImageReorderItem({
+  item,
+  onRemove,
+  canReorder,
+}: {
+  item: FeedImageItem;
+  onRemove: () => void;
+  canReorder: boolean;
+}) {
+  const controls = useDragControls();
+  return (
+    <Reorder.Item
+      value={item}
+      dragListener={false}
+      dragControls={controls}
+      whileDrag={{ scale: 1.02, zIndex: 50 }}
+      className="relative flex shrink-0 flex-col gap-1 rounded-xl"
+    >
+      <div className="relative aspect-square w-36 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
+        <Image
+          src={item.url}
+          alt=""
+          fill
+          className="pointer-events-none object-cover select-none"
+          sizes="144px"
+          unoptimized={!item.uuid}
+          draggable={false}
+        />
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove();
+          }}
+          className="absolute top-1 right-1 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
+          aria-label="이미지 삭제"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2.5}
+            className="h-4 w-4"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      {canReorder && (
+        <div
+          className="flex cursor-grab [touch-action:none] touch-none justify-center py-1 active:cursor-grabbing"
+          onPointerDown={(e) => {
+            if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
+            controls.start(e);
+          }}
+          aria-label="순서 변경 핸들"
+        >
+          <svg
+            width="24"
+            height="20"
+            viewBox="0 0 24 20"
+            fill="currentColor"
+            className="text-gray-400 dark:text-zinc-500"
+          >
+            <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-12a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z" />
+          </svg>
+        </div>
+      )}
+    </Reorder.Item>
+  );
+}
 
 function EditFeedForm({
   clubId,
@@ -37,110 +111,8 @@ function EditFeedForm({
     return urls.map((url, i) => ({ uuid: uuids[i] ?? null, url }));
   }, [feed.postUrls, feed.fileUuids]);
   const [items, setItems] = useState<FeedImageItem[]>(() => initialItems);
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
-  const touchStartRef = useRef<{ y: number; x: number; index: number } | null>(null);
-  const touchDragActiveRef = useRef(false);
 
   const hasAnyImages = items.length > 0;
-
-  /** 드래그 중일 때 다른 카드들이 놓을 위치에 맞춰 보여줄 순서 (드롭 전 미리보기) */
-  const displayOrderIndices = useMemo(() => {
-    if (dragIndex === null || items.length <= 1) return null;
-    const without = items.map((_, i) => i).filter((i) => i !== dragIndex);
-    const safeOver = Math.max(0, Math.min(dragOverIndex ?? dragIndex, without.length));
-    return [...without.slice(0, safeOver), dragIndex, ...without.slice(safeOver)];
-  }, [items, dragIndex, dragOverIndex]);
-
-  const reorder = (fromIndex: number, toIndex: number) => {
-    if (fromIndex < 0 || fromIndex === toIndex) return;
-    setItems((prev) => {
-      const next = [...prev];
-      const [removed] = next.splice(fromIndex, 1);
-      next.splice(toIndex, 0, removed);
-      return next;
-    });
-  };
-
-  const handleDragStart = (index: number) => (e: React.DragEvent) => {
-    if ((e.target as HTMLElement).closest?.('[data-no-drag]')) {
-      e.preventDefault();
-      return;
-    }
-    setDragIndex(index);
-    setDragOverIndex(index);
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', String(index));
-    const el = e.currentTarget as HTMLElement;
-    const rect = el.getBoundingClientRect();
-    e.dataTransfer.setDragImage(el, rect.width / 2, rect.height / 2);
-  };
-
-  const handleDragEnd = () => {
-    setDragIndex(null);
-    setDragOverIndex(null);
-  };
-
-  const handleDragOver = (index: number) => (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    setDragOverIndex(index);
-  };
-
-  const handleDragLeave = () => {
-    setDragOverIndex(null);
-  };
-
-  const handleDrop = (toIndex: number) => (e: React.DragEvent) => {
-    e.preventDefault();
-    const fromIndex = dragIndex ?? parseInt(e.dataTransfer.getData('text/plain') ?? '-1', 10);
-    setDragIndex(null);
-    setDragOverIndex(null);
-    reorder(fromIndex, toIndex);
-  };
-
-  const handleTouchStart = (index: number) => (e: React.TouchEvent) => {
-    if (items.length <= 1) return;
-    if ((e.target as HTMLElement).closest?.('[data-no-drag]')) return;
-    const t = e.touches[0];
-    touchStartRef.current = { x: t.clientX, y: t.clientY, index };
-    touchDragActiveRef.current = false;
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!touchStartRef.current || items.length <= 1) return;
-    const t = e.touches[0];
-    const dx = t.clientX - touchStartRef.current.x;
-    const dy = t.clientY - touchStartRef.current.y;
-    if (!touchDragActiveRef.current) {
-      if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
-        touchDragActiveRef.current = true;
-        setDragIndex(touchStartRef.current.index);
-        setDragOverIndex(touchStartRef.current.index);
-      } else return;
-    }
-    e.preventDefault();
-    const under = document.elementFromPoint(t.clientX, t.clientY);
-    const card = under?.closest?.('[data-drag-index]');
-    if (card) {
-      const idx = (card as HTMLElement).getAttribute('data-drag-index');
-      if (idx != null) setDragOverIndex(parseInt(idx, 10));
-    }
-  };
-
-  const handleTouchEnd = () => {
-    if (!touchStartRef.current || !touchDragActiveRef.current) {
-      touchStartRef.current = null;
-      return;
-    }
-    const fromIndex = touchStartRef.current.index;
-    const toIndex = dragOverIndex ?? fromIndex;
-    reorder(fromIndex, toIndex);
-    setDragIndex(null);
-    setDragOverIndex(null);
-    touchDragActiveRef.current = false;
-    touchStartRef.current = null;
-  };
 
   const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -155,8 +127,8 @@ function EditFeedForm({
     }
   };
 
-  const handleRemoveImage = (index: number) => {
-    setItems((prev) => prev.filter((_, i) => i !== index));
+  const handleRemoveImage = (item: FeedImageItem) => {
+    setItems((prev) => prev.filter((x) => x !== item));
   };
 
   const handleSubmit = () => {
@@ -245,80 +217,23 @@ function EditFeedForm({
             </span>
           </label>
         ) : (
-          <div className="-mx-4 overflow-x-auto overflow-y-hidden px-4 pb-2">
+          <div className="drag-area-no-select -mx-4 overflow-x-auto overflow-y-hidden px-4 pb-2">
             <div className="flex items-center gap-3" style={{ width: 'max-content' }}>
-              {(displayOrderIndices ?? items.map((_, i) => i)).map((itemIndex, pos) => {
-                const item = items[itemIndex];
-                const isDragging = dragIndex === itemIndex;
-                const isDragOver = dragOverIndex === pos;
-                return (
-                  <div
-                    key={item.uuid ?? `img-${itemIndex}`}
-                    data-drag-index={pos}
-                    draggable={items.length > 1}
-                    onDragStart={handleDragStart(itemIndex)}
-                    onDragEnd={handleDragEnd}
-                    onDragOver={handleDragOver(pos)}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop(pos)}
-                    onTouchStart={handleTouchStart(itemIndex)}
-                    onTouchMove={handleTouchMove}
-                    onTouchEnd={handleTouchEnd}
-                    onTouchCancel={handleTouchEnd}
-                    className={`relative flex shrink-0 flex-col gap-1 transition-transform duration-100 ${
-                      items.length > 1 ? 'cursor-grab active:cursor-grabbing' : ''
-                    } ${isDragging ? 'pointer-events-none z-20 scale-[0.92] opacity-70' : ''} ${
-                      isDragOver && !isDragging
-                        ? 'rounded-xl ring-2 ring-blue-400 ring-offset-2 ring-offset-[var(--card)]'
-                        : ''
-                    }`}
-                  >
-                    <motion.div
-                      layout
-                      transition={{ type: 'spring', stiffness: 400, damping: 35 }}
-                      className="relative flex flex-col gap-1"
-                    >
-                      <div className="relative aspect-square w-36 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
-                        <Image
-                          src={item.url}
-                          alt=""
-                          fill
-                          className="pointer-events-none object-cover select-none"
-                          sizes="144px"
-                          unoptimized={!item.uuid}
-                          draggable={false}
-                        />
-                        <button
-                          type="button"
-                          data-no-drag
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveImage(itemIndex);
-                          }}
-                          onPointerDown={(e) => e.stopPropagation()}
-                          className="absolute top-1 right-1 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
-                          aria-label="이미지 삭제"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth={2.5}
-                            className="h-4 w-4"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M6 18L18 6M6 6l12 12"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                    </motion.div>
-                  </div>
-                );
-              })}
+              <Reorder.Group
+                axis="x"
+                values={items}
+                onReorder={setItems}
+                className="flex items-center gap-3"
+              >
+                {items.map((item) => (
+                  <EditFeedImageReorderItem
+                    key={item.uuid ?? item.url}
+                    item={item}
+                    onRemove={() => handleRemoveImage(item)}
+                    canReorder={items.length > 1}
+                  />
+                ))}
+              </Reorder.Group>
               <label htmlFor="feed-images-upload" className="block shrink-0 cursor-pointer">
                 <span className="flex aspect-square w-36 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:border-gray-400 hover:bg-gray-100 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
                   {isUploading ? (
