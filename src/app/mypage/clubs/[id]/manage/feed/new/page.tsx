@@ -189,10 +189,10 @@ function NewFeedContent({ clubId }: { clubId: number }) {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--card)]">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-[var(--card)]">
       {/* 헤더: 테마 변수 사용으로 앱뷰 라이트모드에서도 올바른 배경/글자색 유지 */}
       <div
-        className="sticky top-0 z-50 border-b bg-[var(--card)] text-[var(--foreground)]"
+        className="sticky top-0 z-50 shrink-0 border-b bg-[var(--card)] text-[var(--foreground)]"
         style={{ borderColor: 'var(--border)' }}
       >
         <div className="flex h-16 items-center justify-between px-4">
@@ -215,7 +215,7 @@ function NewFeedContent({ clubId }: { clubId: number }) {
         </div>
       </div>
 
-      <div className="space-y-5 p-4">
+      <div className="flex min-h-0 flex-1 flex-col space-y-5 p-4">
         {/* 이미지 추가 버튼만 */}
         <input
           type="file"
@@ -227,13 +227,13 @@ function NewFeedContent({ clubId }: { clubId: number }) {
           disabled={isUploading}
         />
         {uploadError && (
-          <p className="text-sm text-red-600 dark:text-red-400">
+          <p className="shrink-0 text-sm text-red-600 dark:text-red-400">
             {uploadError instanceof Error ? uploadError.message : '업로드 오류'}
           </p>
         )}
         {uploadedFiles.length === 0 ? (
-          <label htmlFor="feed-images-upload" className="block w-full cursor-pointer">
-            <span className="flex aspect-square w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 text-gray-600 transition-colors hover:border-gray-400 hover:bg-gray-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
+          <label htmlFor="feed-images-upload" className="block w-36 shrink-0 cursor-pointer">
+            <span className="flex aspect-square w-36 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 text-gray-600 transition-colors hover:border-gray-400 hover:bg-gray-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
               {isUploading ? (
                 <Spinner size="sm" />
               ) : (
@@ -254,7 +254,7 @@ function NewFeedContent({ clubId }: { clubId: number }) {
             </span>
           </label>
         ) : (
-          <div className="drag-area-no-select -mx-4 overflow-x-auto overflow-y-hidden px-4 pb-2">
+          <div className="drag-area-no-select -mx-4 shrink-0 overflow-x-auto overflow-y-hidden px-4 pb-2">
             <div className="flex items-center gap-3" style={{ width: 'max-content' }}>
               <Reorder.Group
                 axis="x"
@@ -284,13 +284,12 @@ function NewFeedContent({ clubId }: { clubId: number }) {
           </div>
         )}
 
-        {/* 피드 내용 입력만 */}
+        {/* 피드 내용 입력: 하단 네비 바로 위까지 채움 */}
         <textarea
           placeholder="피드 내용을 입력해주세요 (줄바꿈 가능)"
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          rows={8}
-          className="min-h-[150px] w-full resize-y rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
+          className="min-h-0 flex-1 resize-none rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
         />
       </div>
     </div>
