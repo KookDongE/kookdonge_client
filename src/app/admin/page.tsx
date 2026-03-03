@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { Button, Chip, Input, ListBox, Select, Spinner, Tabs } from '@heroui/react';
+import { Chip, ListBox, Select, Spinner, Tabs } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
 
 import { useGrantAdmin, useRevokeAdmin, useSystemAdmins } from '@/features/admin';
@@ -13,7 +13,6 @@ import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
 import { useAdminApplications } from '@/features/club/hooks';
 import { DefaultClubImage } from '@/components/common/default-club-image';
-import { SearchFilterBar } from '@/components/common/search-filter-bar';
 
 const STATUS_CHIP: Record<string, { label: string; color: 'warning' | 'success' | 'danger' }> = {
   PENDING: { label: '대기', color: 'warning' },
@@ -21,22 +20,16 @@ const STATUS_CHIP: Record<string, { label: string; color: 'warning' | 'success' 
   REJECTED: { label: '거절', color: 'danger' },
 };
 
-function ApplicationList() {
-  const [q] = useQueryState('q', parseAsString.withDefault(''));
-  const [statusFilter] = useQueryState('status', parseAsString);
-  const statusParam =
-    statusFilter === 'PENDING' || statusFilter === 'APPROVED' || statusFilter === 'REJECTED'
-      ? statusFilter
-      : undefined;
+const APPLICATION_STATUS_OPTIONS: { value: 'PENDING' | 'APPROVED' | 'REJECTED' | 'ALL'; label: string }[] = [
+  { value: 'ALL', label: '상태' },
+  { value: 'PENDING', label: '대기' },
+  { value: 'APPROVED', label: '승인' },
+  { value: 'REJECTED', label: '거절' },
+];
+
+function ApplicationList({ statusParam }: { statusParam?: string }) {
   const { data: applications, isLoading } = useAdminApplications(statusParam);
   const list = useMemo(() => applications ?? [], [applications]);
-  const filtered = useMemo(
-    () =>
-      q?.trim()
-        ? list.filter((app) => app.name.toLowerCase().includes(q.trim().toLowerCase()))
-        : list,
-    [list, q]
-  );
 
   if (isLoading) {
     return (
@@ -46,10 +39,10 @@ function ApplicationList() {
     );
   }
 
-  if (filtered.length === 0) {
+  if (list.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl bg-white py-12 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500">
-        <p>{q?.trim() ? '검색 결과가 없습니다.' : '신청이 없습니다.'}</p>
+        <p>신청이 없습니다.</p>
       </div>
     );
   }
@@ -57,7 +50,7 @@ function ApplicationList() {
   return (
     <div className="space-y-3 p-4">
       <div className="space-y-3">
-        {filtered.map((app) => {
+        {list.map((app) => {
           const chip = STATUS_CHIP[app.status ?? ''] ?? {
             label: app.status ?? '-',
             color: 'warning' as const,
@@ -91,7 +84,7 @@ function ApplicationList() {
                       신청자: {app.applicantName || '(이름 없음)'} · {app.applicantEmail}
                     </div>
                     <div className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
-                      신청일: {new Date(app.createdAt).toLocaleDateString()}
+                      신청일: {new Date(app.createdAt).toLocaleString('ko-KR')}
                     </div>
                   </div>
                   <Chip size="sm" color={chip.color} variant="soft" className="shrink-0">
@@ -277,6 +270,11 @@ function AdminPageContent() {
   const router = useRouter();
   const { data: profile, isLoading: profileLoading } = useMyProfile();
   const [tab, setTab] = useQueryState('tab', parseAsString.withDefault('applications'));
+  const [statusFilter, setStatusFilter] = useQueryState('status', parseAsString);
+  const statusParam =
+    statusFilter === 'PENDING' || statusFilter === 'APPROVED' || statusFilter === 'REJECTED'
+      ? statusFilter
+      : undefined;
   const tabKey =
     tab === 'applications' || tab === 'admins' || tab === 'reports' ? tab : 'applications';
   const [stickyVisible, setStickyVisible] = useState(true);
@@ -351,16 +349,31 @@ function AdminPageContent() {
 
         <Tabs.Panel id="applications" className="px-3 pt-0">
           <div
-            className={`sticky top-14 z-30 bg-[var(--card)] px-0 pb-2 transition-transform duration-300 ${stickyVisible ? 'translate-y-0' : '-translate-y-full opacity-0'}`}
+            className={`sticky top-14 z-30 bg-[var(--card)] px-4 pb-2 transition-transform duration-300 ${stickyVisible ? 'translate-y-0' : '-translate-y-full opacity-0'}`}
           >
-            <SearchFilterBar
-              placeholder="동아리명 검색"
-              stickyHideOnScroll={false}
-              className="!border-0 !px-0"
-              applicationStatusFilter
-            />
+            <Select
+              selectedKey={statusFilter ?? 'ALL'}
+              onSelectionChange={(key) => setStatusFilter(key === 'ALL' || key == null ? null : (key as string))}
+              placeholder="승인상태"
+              className="w-full max-w-[140px]"
+              aria-label="승인상태 필터"
+            >
+              <Select.Trigger className="rounded-xl border border-zinc-300 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
+                <Select.Value />
+                <Select.Indicator />
+              </Select.Trigger>
+              <Select.Popover>
+                <ListBox>
+                  {APPLICATION_STATUS_OPTIONS.map((opt) => (
+                    <ListBox.Item key={opt.value} id={opt.value} textValue={opt.label}>
+                      {opt.label}
+                    </ListBox.Item>
+                  ))}
+                </ListBox>
+              </Select.Popover>
+            </Select>
           </div>
-          <ApplicationList />
+          <ApplicationList statusParam={statusParam} />
         </Tabs.Panel>
         <Tabs.Panel id="admins" className="pt-0">
           <AdminSettingsTab />

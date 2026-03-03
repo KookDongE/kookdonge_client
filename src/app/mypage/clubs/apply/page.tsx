@@ -65,7 +65,8 @@ function ClubApplyContent() {
       alert('동아리유형을 선택해주세요.');
       return;
     }
-    if (clubType === 'DEPARTMENTAL' && !college) {
+    const needsCollege = clubType === 'DEPARTMENTAL' || clubType === 'ACADEMIC_SOCIETY' || clubType === 'CLUB';
+    if (needsCollege && !college) {
       alert('과를 선택해주세요.');
       return;
     }
@@ -115,7 +116,7 @@ function ClubApplyContent() {
               !applicationReason.trim() ||
               !clubType ||
               !category ||
-              (clubType === 'DEPARTMENTAL' && !college) ||
+              ((clubType === 'DEPARTMENTAL' || clubType === 'ACADEMIC_SOCIETY' || clubType === 'CLUB') && !college) ||
               applyClub.isPending
             }
             className="text-base font-semibold text-blue-500 disabled:opacity-50 dark:text-blue-400"
@@ -152,7 +153,8 @@ function ClubApplyContent() {
               onChange={(value: Key | null) => {
                 const next = (value as ClubType) || '';
                 setClubType(next);
-                if (next !== 'DEPARTMENTAL') setCollege('');
+                const needsCollege = next === 'DEPARTMENTAL' || next === 'ACADEMIC_SOCIETY' || next === 'CLUB';
+                if (!needsCollege) setCollege('');
               }}
               className="w-full"
             >
@@ -176,7 +178,7 @@ function ClubApplyContent() {
               </Select.Popover>
             </Select>
           </div>
-          {clubType === 'DEPARTMENTAL' && (
+          {(clubType === 'DEPARTMENTAL' || clubType === 'ACADEMIC_SOCIETY' || clubType === 'CLUB') && (
             <div className="min-w-0 flex-1">
               <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
                 과 <span className="text-red-500">*</span>

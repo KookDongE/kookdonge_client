@@ -134,6 +134,8 @@ export type ClubListRes = {
   recruitmentStatus: RecruitmentStatus;
   isLikedByMe: boolean;
   dday: number;
+  /** 학과동아리일 때 단과대(과) */
+  college?: College;
 };
 
 export type ClubDetailRes = {
@@ -169,6 +171,8 @@ export type ClubDetailRes = {
   recruitmentUrl?: string;
   /** 외부 링크 (JSON 배열 문자열 또는 단일 URL). 예: [{"name":"인스타그램","url":"https://..."}] */
   externalLink?: string;
+  /** 학과동아리일 때 단과대(과) */
+  college?: College;
 };
 
 export type ClubRankingRes = {

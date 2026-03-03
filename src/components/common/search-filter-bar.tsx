@@ -79,6 +79,17 @@ function SearchInput({
 }) {
   const [searchInput, setSearchInput] = useState(initialQuery ?? '');
 
+  // URL이 바뀌었을 때 입력이 비어 있으면 URL 값으로 동기화 (뒤로가기 등). 입력 중인 값은 덮어쓰지 않음
+  useEffect(() => {
+    const fromUrl = initialQuery ?? '';
+    setSearchInput((prev) => {
+      const trimmed = prev.trim() || '';
+      if (fromUrl === trimmed) return prev;
+      if (trimmed !== '') return prev;
+      return fromUrl;
+    });
+  }, [initialQuery]);
+
   useEffect(() => {
     const timer = setTimeout(() => setQuery(searchInput.trim() || null), 300);
     return () => clearTimeout(timer);
@@ -127,7 +138,10 @@ export function SearchFilterBar({
   const clubTypeVal = clubType ?? 'ALL';
   const collegeVal = college ?? 'ALL';
   const sortVal = sort != null && VALID_SORT_SET.has(sort) ? sort : 'name,asc';
-  const isDepartmental = clubTypeVal === 'DEPARTMENTAL';
+  const needsCollege =
+    clubTypeVal === 'DEPARTMENTAL' ||
+    clubTypeVal === 'ACADEMIC_SOCIETY' ||
+    clubTypeVal === 'CLUB';
 
   // URL에 제거된 정렬(latest, deadline)이 있으면 name,asc로 정규화
   useEffect(() => {
@@ -136,12 +150,12 @@ export function SearchFilterBar({
     }
   }, [sort, setSort]);
 
-  // 과동아리 해제 시 단과대 선택 초기화
+  // 학과동아리/학회/소모임이 아닐 때 단과대 선택 초기화
   useEffect(() => {
-    if (!isDepartmental && college != null && college !== '') {
+    if (!needsCollege && college != null && college !== '') {
       setCollege(null);
     }
-  }, [isDepartmental, college, setCollege]);
+  }, [needsCollege, college, setCollege]);
 
   // 스크롤·외부 클릭 시 필터 드롭다운 닫기 (포커스 해제로 팝오버 닫힘)
   useEffect(() => {
@@ -248,7 +262,6 @@ export function SearchFilterBar({
           </svg>
         </div>
         <SearchInput
-          key={query ?? ''}
           initialQuery={query}
           setQuery={setQuery}
           placeholder={placeholder}
@@ -285,8 +298,8 @@ export function SearchFilterBar({
           </Select.Popover>
         </Select>
 
-        {/* 2. 단과대 선택 (과동아리 선택 시에만 노출) */}
-        {isDepartmental && (
+        {/* 2. 단과대 선택 (학과동아리/학회/소모임 선택 시 노출) */}
+        {needsCollege && (
           <Select
             className="shrink-0"
             placeholder="단과대"

@@ -281,7 +281,11 @@ function ClubListSection({ returnTo }: { returnTo?: string }) {
     category: category && category !== 'ALL' ? (category as ClubCategory) : undefined,
     type: clubType && clubType !== 'ALL' ? (clubType as ClubType) : undefined,
     college:
-      clubType === 'DEPARTMENTAL' && college && college !== 'ALL'
+      (clubType === 'DEPARTMENTAL' ||
+        clubType === 'ACADEMIC_SOCIETY' ||
+        clubType === 'CLUB') &&
+      college &&
+      college !== 'ALL'
         ? (college as College)
         : undefined,
     recruitmentStatus: status && status !== 'ALL' ? (status as RecruitmentStatus) : undefined,

@@ -9,7 +9,7 @@ import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from
 import { parseAsString, useQueryState } from 'nuqs';
 import { createPortal } from 'react-dom';
 
-import { ClubCategory, ClubType, RecruitmentStatus } from '@/types/api';
+import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api';
 import { parseApiIsoToDate } from '@/lib/utils';
 import { useMyProfile } from '@/features/auth/hooks';
 import { useClubDetail, useLikeClub, useUnlikeClub } from '@/features/club/hooks';
@@ -45,6 +45,23 @@ const TYPE_LABEL: Record<ClubType, string> = {
   DEPARTMENTAL: '학과동아리',
   ACADEMIC_SOCIETY: '학회',
   CLUB: '소모임',
+};
+
+const COLLEGE_LABEL: Record<College, string> = {
+  GLOBAL_HUMANITIES: '글로벌인문대학',
+  SOCIAL_SCIENCE: '사회과학대학',
+  LAW: '법과대학',
+  ECONOMICS: '경제대학',
+  BUSINESS: '경영대학',
+  INDEPENDENT: '자유전공',
+  ENGINEERING: '공과대학',
+  SOFTWARE: '소프트웨어융합대학',
+  AUTOMOTIVE: '자동차융합대학',
+  SCIENCE: '과학기술대학',
+  ARCHITECTURE: '건축대학',
+  DESIGN: '디자인대학',
+  ARTS: '예술대학',
+  PHYSICAL_EDUCATION: '체육대학',
 };
 
 const STATUS_CONFIG: Record<RecruitmentStatus, { label: string; className: string }> = {
@@ -311,6 +328,11 @@ function ClubHeader({
             <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
               {TYPE_LABEL[club.type]}
             </span>
+            {club.type === 'DEPARTMENTAL' && club.college && (
+              <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
+                {COLLEGE_LABEL[club.college]}
+              </span>
+            )}
             <span className="rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
               {CATEGORY_LABEL[club.category]}
             </span>
@@ -861,14 +883,6 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
     if (questionId) setTab('qna');
   }, [questionId, setTab]);
 
-  const handleBack = () => {
-    if (from) {
-      router.push(from);
-    } else {
-      router.back();
-    }
-  };
-
   const tryShowNotificationPrompt = () => {
     if (permission !== 'granted' && !getNotificationInlinePromptSeen()) {
       setNotificationPromptOpen(true);
@@ -885,16 +899,6 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
 
   return (
     <div className="min-h-full min-w-0 overflow-x-hidden">
-      <div className="flex items-center gap-2 px-4 pt-3 pb-1">
-        <button
-          type="button"
-          onClick={handleBack}
-          className="flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-        >
-          <span className="inline-block h-4 w-4">←</span>
-          <span>뒤로가기</span>
-        </button>
-      </div>
       <ClubHeader clubId={clubId} onNotificationTurnOnRequest={tryShowNotificationPrompt} />
       <Tabs
         selectedKey={tab}
