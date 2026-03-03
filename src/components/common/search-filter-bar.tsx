@@ -138,10 +138,8 @@ export function SearchFilterBar({
   const clubTypeVal = clubType ?? 'ALL';
   const collegeVal = college ?? 'ALL';
   const sortVal = sort != null && VALID_SORT_SET.has(sort) ? sort : 'name,asc';
-  const needsCollege =
-    clubTypeVal === 'DEPARTMENTAL' ||
-    clubTypeVal === 'ACADEMIC_SOCIETY' ||
-    clubTypeVal === 'CLUB';
+  /** 과 필터: 중앙동아리 선택 시에만 숨김 (전체/학과동아리/학회/소모임일 때는 항상 노출) */
+  const showCollegeFilter = clubTypeVal !== 'CENTRAL';
 
   // URL에 제거된 정렬(latest, deadline)이 있으면 name,asc로 정규화
   useEffect(() => {
@@ -150,12 +148,12 @@ export function SearchFilterBar({
     }
   }, [sort, setSort]);
 
-  // 학과동아리/학회/소모임이 아닐 때 단과대 선택 초기화
+  // 중앙동아리 선택 시 단과대 선택 초기화
   useEffect(() => {
-    if (!needsCollege && college != null && college !== '') {
+    if (!showCollegeFilter && college != null && college !== '') {
       setCollege(null);
     }
-  }, [needsCollege, college, setCollege]);
+  }, [showCollegeFilter, college, setCollege]);
 
   // 스크롤·외부 클릭 시 필터 드롭다운 닫기 (포커스 해제로 팝오버 닫힘)
   useEffect(() => {
@@ -220,20 +218,30 @@ export function SearchFilterBar({
     return () => scrollEl.removeEventListener('scroll', handleScroll);
   }, [stickyHideOnScroll]);
 
+  /** 선택 직후 Select 팝오버가 닫히도록 포커스 해제 */
+  const closeSelectPopover = () => {
+    setTimeout(() => (document.activeElement as HTMLElement | null)?.blur(), 0);
+  };
+
   const handleCategoryChange = (value: Key | null) => {
     setCategory(value === 'ALL' || value === null ? null : (value as string));
+    closeSelectPopover();
   };
   const handleStatusChange = (value: Key | null) => {
     setStatus(value === 'ALL' || value === null ? null : (value as string));
+    closeSelectPopover();
   };
   const handleClubTypeChange = (value: Key | null) => {
     setClubType(value === 'ALL' || value === null ? null : (value as string));
+    closeSelectPopover();
   };
   const handleCollegeChange = (value: Key | null) => {
     setCollege(value === 'ALL' || value === null ? null : (value as string));
+    closeSelectPopover();
   };
   const handleSortChange = (value: Key | null) => {
     setSort((value as string) || 'name,asc');
+    closeSelectPopover();
   };
 
   const bgClass = stickyHideOnScroll || useGlass ? 'glass' : 'bg-[var(--card)]';
@@ -298,8 +306,8 @@ export function SearchFilterBar({
           </Select.Popover>
         </Select>
 
-        {/* 2. 단과대 선택 (학과동아리/학회/소모임 선택 시 노출) */}
-        {needsCollege && (
+        {/* 2. 단과대 선택 (중앙동아리 선택 시에만 숨김) */}
+        {showCollegeFilter && (
           <Select
             className="shrink-0"
             placeholder="단과대"

@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { Chip, ListBox, Select, Spinner, Tabs } from '@heroui/react';
+import { Button, Chip, Input, ListBox, Select, Spinner, Tabs } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
 
 import { useGrantAdmin, useRevokeAdmin, useSystemAdmins } from '@/features/admin';
@@ -27,7 +27,9 @@ const APPLICATION_STATUS_OPTIONS: { value: 'PENDING' | 'APPROVED' | 'REJECTED' |
   { value: 'REJECTED', label: '거절' },
 ];
 
-function ApplicationList({ statusParam }: { statusParam?: string }) {
+type ApplicationStatusFilter = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+function ApplicationList({ statusParam }: { statusParam?: ApplicationStatusFilter }) {
   const { data: applications, isLoading } = useAdminApplications(statusParam);
   const list = useMemo(() => applications ?? [], [applications]);
 
