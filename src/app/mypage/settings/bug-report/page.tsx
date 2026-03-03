@@ -43,9 +43,7 @@ export default function BugReportPage() {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="발견한 버그나 불편한 점을 알려주세요."
-          minRows={4}
-          maxLength={1000}
-          className="w-full resize-none border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+          className="min-h-[6rem] w-full resize-none border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
           aria-label="버그 신고 내용"
         />
         <Button

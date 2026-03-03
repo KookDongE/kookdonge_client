@@ -240,37 +240,32 @@ function ReportsTab() {
 
   return (
     <div className="space-y-4 p-4">
-      <div>
-        <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-          유형 필터
-        </label>
-        <Select
-          selectedKey={filter || 'all'}
-          onSelectionChange={(key) => setFilter(key != null ? String(key) : 'all')}
-          placeholder="유형 선택"
-          className="max-w-xs"
-          aria-label="신고 유형 필터"
-        >
-          <Select.Trigger className="rounded-xl border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
-            <Select.Value />
-            <Select.Indicator />
-          </Select.Trigger>
-          <Select.Popover>
-            <ListBox>
-              {REPORT_FILTER_OPTIONS.map((opt) => (
-                <ListBox.Item
-                  key={opt.value}
-                  id={opt.value}
-                  textValue={opt.label}
-                  className="text-zinc-900 dark:text-zinc-100"
-                >
-                  {opt.label}
-                </ListBox.Item>
-              ))}
-            </ListBox>
-          </Select.Popover>
-        </Select>
-      </div>
+      <Select
+        selectedKey={filter || 'all'}
+        onSelectionChange={(key) => setFilter(key != null ? String(key) : 'all')}
+        placeholder="유형 선택"
+        className="w-1/2 min-w-[120px]"
+        aria-label="신고 유형 필터"
+      >
+        <Select.Trigger className="rounded-xl border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
+          <Select.Value />
+          <Select.Indicator />
+        </Select.Trigger>
+        <Select.Popover>
+          <ListBox>
+            {REPORT_FILTER_OPTIONS.map((opt) => (
+              <ListBox.Item
+                key={opt.value}
+                id={opt.value}
+                textValue={opt.label}
+                className="text-zinc-900 dark:text-zinc-100"
+              >
+                {opt.label}
+              </ListBox.Item>
+            ))}
+          </ListBox>
+        </Select.Popover>
+      </Select>
       <div className="flex flex-col items-center justify-center rounded-xl bg-white py-12 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500">
         <p>신고 목록이 없습니다.</p>
       </div>
