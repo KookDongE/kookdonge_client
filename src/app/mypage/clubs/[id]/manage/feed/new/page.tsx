@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, use, useEffect, useRef, useState } from 'react';
+import { Suspense, use, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
@@ -16,7 +16,7 @@ type PageProps = {
 
 type UploadedFile = { uuid: string; fileUrl: string };
 
-/** 0.3초 길게 누르면 드래그 시작, 그 전에는 가로 스크롤 가능 */
+/** 드래그는 밑 그립에서만 가능, 사진 영역은 그립 안 켜짐 */
 function FeedImageReorderItem({
   file,
   onRemove,
@@ -27,18 +27,6 @@ function FeedImageReorderItem({
   canReorder: boolean;
 }) {
   const controls = useDragControls();
-  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pointerDownRef = useRef<React.PointerEvent | null>(null);
-
-  const clearLongPress = () => {
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
-    }
-    pointerDownRef.current = null;
-  };
-
-  useEffect(() => () => clearLongPress(), []);
 
   return (
     <Reorder.Item
@@ -48,40 +36,7 @@ function FeedImageReorderItem({
       whileDrag={{ scale: 1.02, zIndex: 50 }}
       className="relative flex shrink-0 flex-col gap-1 rounded-xl"
     >
-      <div
-        className={`relative aspect-square w-36 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800 ${
-          canReorder ? 'cursor-grab touch-pan-x active:cursor-grabbing' : ''
-        }`}
-        onPointerDown={
-          canReorder
-            ? (e) => {
-                if ((e.target as HTMLElement).closest?.('[data-no-drag]')) return;
-                pointerDownRef.current = e;
-                longPressTimerRef.current = setTimeout(() => {
-                  longPressTimerRef.current = null;
-                  const ev = pointerDownRef.current;
-                  pointerDownRef.current = null;
-                  if (ev && typeof navigator !== 'undefined' && navigator.vibrate)
-                    navigator.vibrate(10);
-                  if (ev) controls.start(ev);
-                }, 300);
-              }
-            : undefined
-        }
-        onPointerUp={canReorder ? clearLongPress : undefined}
-        onPointerLeave={canReorder ? clearLongPress : undefined}
-        onPointerMove={
-          canReorder
-            ? () => {
-                if (longPressTimerRef.current) {
-                  clearTimeout(longPressTimerRef.current);
-                  longPressTimerRef.current = null;
-                  pointerDownRef.current = null;
-                }
-              }
-            : undefined
-        }
-      >
+      <div className="relative aspect-square w-36 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
         <Image
           src={file.fileUrl}
           alt=""
@@ -113,6 +68,22 @@ function FeedImageReorderItem({
           </svg>
         </button>
       </div>
+      {canReorder && (
+        <div
+          role="button"
+          tabIndex={0}
+          onPointerDown={(e) => {
+            if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
+            controls.start(e);
+          }}
+          className="flex cursor-grab touch-none items-center justify-center gap-0.5 rounded-b-xl py-1.5 text-zinc-400 active:cursor-grabbing dark:text-zinc-500"
+          aria-label="드래그하여 순서 변경"
+        >
+          <span className="inline-block h-1 w-1 rounded-full bg-current" />
+          <span className="inline-block h-1 w-1 rounded-full bg-current" />
+          <span className="inline-block h-1 w-1 rounded-full bg-current" />
+        </div>
+      )}
     </Reorder.Item>
   );
 }
