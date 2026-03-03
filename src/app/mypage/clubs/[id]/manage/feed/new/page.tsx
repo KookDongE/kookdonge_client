@@ -22,6 +22,44 @@ function NewFeedContent({ clubId }: { clubId: number }) {
   const { uploadImages, isLoading: isUploading, error: uploadError } = useImageUpload(clubId);
   const [content, setContent] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  const handleDragStart = (index: number) => (e: React.DragEvent) => {
+    if ((e.target as HTMLElement).closest?.('[data-no-drag]')) {
+      e.preventDefault();
+      return;
+    }
+    setDragIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(index));
+    e.dataTransfer.setDragImage(e.currentTarget, 72, 72);
+  };
+
+  const handleDragEnd = () => {
+    setDragIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragOver = (index: number) => (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverIndex(index);
+  };
+
+  const handleDrop = (toIndex: number) => (e: React.DragEvent) => {
+    e.preventDefault();
+    const fromIndex = dragIndex ?? parseInt(e.dataTransfer.getData('text/plain') ?? '-1', 10);
+    setDragIndex(null);
+    setDragOverIndex(null);
+    if (fromIndex < 0 || fromIndex === toIndex) return;
+    setUploadedFiles((prev) => {
+      const next = [...prev];
+      const [removed] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, removed);
+      return next;
+    });
+  };
 
   // 없는 동아리 또는 잘못된 id → 홈으로
   useEffect(() => {
@@ -80,7 +118,7 @@ function NewFeedContent({ clubId }: { clubId: number }) {
       },
       {
         onSuccess: () => {
-          router.back();
+          router.push(`/mypage/clubs/${clubId}/manage`);
         },
       }
     );
@@ -153,27 +191,63 @@ function NewFeedContent({ clubId }: { clubId: number }) {
           </label>
         ) : (
           <div className="flex flex-wrap items-center gap-3">
-            {uploadedFiles.map((f, index) => (
-              <div key={f.uuid} className="relative aspect-square w-24 overflow-hidden rounded-xl">
-                <Image src={f.fileUrl} alt="" fill className="object-cover" sizes="96px" />
-                <button
-                  type="button"
-                  onClick={() => handleRemoveImage(index)}
-                  className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
+            {uploadedFiles.map((f, index) => {
+              const isDragging = dragIndex === index;
+              const isDragOver = dragOverIndex === index;
+              return (
+                <div
+                  key={f.uuid}
+                  draggable={uploadedFiles.length > 1}
+                  onDragStart={handleDragStart(index)}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={handleDragOver(index)}
+                  onDragLeave={() => setDragOverIndex(null)}
+                  onDrop={handleDrop(index)}
+                  className={`relative flex flex-col gap-1 transition-all duration-150 ${
+                    uploadedFiles.length > 1 ? 'cursor-grab active:cursor-grabbing' : ''
+                  } ${isDragging ? 'scale-95 opacity-50' : ''} ${
+                    isDragOver ? 'rounded-xl ring-2 ring-blue-500 ring-offset-2' : ''
+                  }`}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2.5}
-                    className="h-4 w-4"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            ))}
+                  <div className="relative aspect-square w-36 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
+                    <Image
+                      src={f.fileUrl}
+                      alt=""
+                      fill
+                      className="pointer-events-none object-cover select-none"
+                      sizes="144px"
+                      draggable={false}
+                    />
+                    <button
+                      type="button"
+                      data-no-drag
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveImage(index);
+                      }}
+                      onPointerDown={(e) => e.stopPropagation()}
+                      className="absolute top-1 right-1 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
+                      aria-label="이미지 삭제"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2.5}
+                        className="h-4 w-4"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
             <label htmlFor="feed-images-upload">
               <span className="inline-flex cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-4 transition-colors hover:border-gray-400 hover:bg-gray-100 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
                 {isUploading ? (

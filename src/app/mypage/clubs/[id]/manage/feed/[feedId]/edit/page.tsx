@@ -42,10 +42,14 @@ function EditFeedForm({
   const hasAnyImages = items.length > 0;
 
   const handleDragStart = (index: number) => (e: React.DragEvent) => {
+    if ((e.target as HTMLElement).closest?.('[data-no-drag]')) {
+      e.preventDefault();
+      return;
+    }
     setDragIndex(index);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', String(index));
-    e.dataTransfer.setDragImage(e.currentTarget, 48, 48);
+    e.dataTransfer.setDragImage(e.currentTarget, 72, 72);
   };
 
   const handleDragEnd = () => {
@@ -110,7 +114,7 @@ function EditFeedForm({
       },
       {
         onSuccess: () => {
-          router.back();
+          router.push(`/mypage/clubs/${clubId}/manage`);
         },
       }
     );
@@ -199,35 +203,25 @@ function EditFeedForm({
                     isDragOver ? 'rounded-xl ring-2 ring-blue-500 ring-offset-2' : ''
                   }`}
                 >
-                  <div className="relative aspect-square w-24 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
+                  <div className="relative aspect-square w-36 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
                     <Image
                       src={item.url}
                       alt=""
                       fill
                       className="pointer-events-none object-cover select-none"
-                      sizes="96px"
+                      sizes="144px"
                       unoptimized={!item.uuid}
                       draggable={false}
                     />
-                    {items.length > 1 && (
-                      <div className="pointer-events-none absolute top-1 left-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-white">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          className="h-3.5 w-3.5"
-                        >
-                          <path d="M8 6h2v2H8V6zm0 5h2v2H8v-2zm0 5h2v2H8v-2zm5-10h2v2h-2V6zm0 5h2v2h-2v-2zm0 5h2v2h-2v-2z" />
-                        </svg>
-                      </div>
-                    )}
                     <button
                       type="button"
+                      data-no-drag
                       onClick={(e) => {
                         e.stopPropagation();
                         handleRemoveImage(index);
                       }}
-                      className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
+                      onPointerDown={(e) => e.stopPropagation()}
+                      className="absolute top-1 right-1 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
                       aria-label="이미지 삭제"
                     >
                       <svg

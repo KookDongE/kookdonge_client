@@ -5,10 +5,10 @@ import { usePathname, useRouter } from 'next/navigation';
 
 /** 이 거리(px) 이상 드래그해야 인디케이터가 보이기 시작 — 살짝 터치만 할 때 움직임 방지 */
 const DRAG_START_THRESHOLD = 12;
-/** 새로고침이 발동되려면 당겨야 하는 최소 거리 (px). 높을수록 둔감 */
-const PULL_THRESHOLD = 95;
+/** 새로고침이 발동되려면 당겨야 하는 최소 거리 (px). 높을수록 더 당겨야 새로고침됨 */
+const PULL_THRESHOLD = 112;
 /** 당김 최대 표시 거리 (px). THRESHOLD보다 커야 새로고침 발동 가능 */
-const MAX_PULL = 130;
+const MAX_PULL = 145;
 /** 저항 곡선: (delta - DRAG_START_THRESHOLD) * 이 값으로 거리 계산. sqrt 쓰면 초반에 더 완만 */
 const PULL_RESISTANCE_FACTOR = 104;
 /** 손가락 놓았을 때 원위치로 돌아가는 애니메이션 시간 (ms) */
