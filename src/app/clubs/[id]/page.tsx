@@ -306,17 +306,19 @@ function ClubHeader({
               <span className="text-xs tabular-nums">{club.totalViewCount}</span>
             </div>
           </div>
-          {actionMessage && (
-            <p
-              role="status"
-              className="mt-2 text-center text-xs text-zinc-600 dark:text-zinc-400"
-              aria-live="polite"
-            >
-              {actionMessage}
-            </p>
-          )}
         </div>
       </div>
+      {actionMessage && (
+        <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom)+1.5rem)] z-50 flex justify-center px-4">
+          <div
+            role="status"
+            aria-live="polite"
+            className="max-w-[calc(100%-2rem)] rounded-2xl bg-white px-5 py-3 text-center text-sm font-medium text-zinc-900 shadow-lg dark:bg-white dark:text-zinc-900"
+          >
+            {actionMessage}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
