@@ -12,6 +12,7 @@ import { authKeys } from '@/features/auth/hooks';
 import { useAuthStore } from '@/features/auth/store';
 import { deviceApi } from '@/features/device/api';
 import { getOrCreateDeviceId } from '@/features/device/device-id';
+import { getPlatform } from '@/features/device/platform';
 
 function registerDeviceAfterLogin() {
   const deviceId = getOrCreateDeviceId();
@@ -20,7 +21,7 @@ function registerDeviceAfterLogin() {
     .registerDevice({
       deviceId,
       fcmToken: 'web-pending',
-      platform: 'WEB',
+      platform: getPlatform(),
     })
     .catch(() => {});
 }

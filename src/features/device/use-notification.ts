@@ -6,6 +6,7 @@ import { getFcmToken } from '@/lib/firebase';
 
 import { deviceApi } from './api';
 import { getOrCreateDeviceId } from './device-id';
+import { getPlatform } from './platform';
 
 export type NotificationPermissionState = 'default' | 'granted' | 'denied';
 
@@ -65,14 +66,12 @@ export function useNotification(): UseNotificationReturn {
       }
       setPermission(getPermissionState());
       // 권한 거부 시에만 'web-denied'. 단 문서가 숨겨진 상태에서는 잘못된 denied 보고일 수 있으므로 web-pending으로 보내 기존 유효 토큰을 덮어쓰지 않음.
-      const isVisible =
-        typeof document !== 'undefined' && document.visibilityState === 'visible';
-      const fcmTokenValue =
-        token ?? (permissionDenied && isVisible ? 'web-denied' : 'web-pending');
+      const isVisible = typeof document !== 'undefined' && document.visibilityState === 'visible';
+      const fcmTokenValue = token ?? (permissionDenied && isVisible ? 'web-denied' : 'web-pending');
       await deviceApi.registerDevice({
         deviceId,
         fcmToken: fcmTokenValue,
-        platform: 'WEB',
+        platform: getPlatform(),
       });
     } catch (e) {
       clearTimeout(timeoutId);

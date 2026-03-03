@@ -18,6 +18,44 @@ function redirectToSplashIfNeeded(): void {
   window.location.replace('/');
 }
 
+/** 401 발생 시 Refresh Token으로 재발급 시도. 동시 요청은 하나의 reissue만 수행 */
+let reissuePromise: Promise<boolean> | null = null;
+
+async function tryReissue(): Promise<boolean> {
+  const refreshToken = useAuthStore.getState().refreshToken;
+  if (!refreshToken) return false;
+
+  const body = {
+    timestamp: new Date().toISOString(),
+    data: { refreshToken },
+  };
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/auth/reissue`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const json = (await res.json()) as ResponseDTO<{ accessToken: string; refreshToken: string }>;
+    if (json.status === 200 && json.data?.accessToken && json.data?.refreshToken) {
+      useAuthStore.getState().setTokens(json.data.accessToken, json.data.refreshToken);
+      return true;
+    }
+  } catch {
+    // ignore
+  }
+  return false;
+}
+
+async function reissueAndWait(): Promise<boolean> {
+  if (!reissuePromise) reissuePromise = tryReissue();
+  try {
+    return await reissuePromise;
+  } finally {
+    reissuePromise = null;
+  }
+}
+
 type RequestOptions<TBody = unknown> = {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   headers?: Record<string, string>;
@@ -59,7 +97,11 @@ function wrapRequest<T>(body: T) {
   };
 }
 
-export async function apiClient<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
+export async function apiClient<T>(
+  endpoint: string,
+  options: RequestOptions = {},
+  isRetry = false
+): Promise<T> {
   const { method = 'GET', headers = {}, body, params, wrapRequestBody = true } = options;
   const token = getAuthToken();
 
@@ -84,7 +126,13 @@ export async function apiClient<T>(endpoint: string, options: RequestOptions = {
     const isAuthHeaderMissing =
       /헤더가\s*존재하지\s*않습니다/i.test(message) ||
       (/authorization/i.test(message) && /헤더|header/i.test(message));
+
     if (isUnauthorized || isAuthHeaderMissing) {
+      // Access Token 만료 시 재발급 시도 (한 번만). 재발급 API는 apiClient를 쓰지 않으므로 401 시 여기서만 처리.
+      if (!isRetry) {
+        const reissued = await reissueAndWait();
+        if (reissued) return apiClient<T>(endpoint, options, true);
+      }
       redirectToSplashIfNeeded();
     } else {
       toast.error(message || '오류가 발생했습니다');
