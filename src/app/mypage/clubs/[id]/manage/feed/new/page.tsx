@@ -16,7 +16,7 @@ type PageProps = {
 
 type UploadedFile = { uuid: string; fileUrl: string };
 
-/** 0.5초 길게 누르면 드래그 시작, 그 전에는 가로 스크롤 가능 */
+/** 0.3초 길게 누르면 드래그 시작, 그 전에는 가로 스크롤 가능 */
 function FeedImageReorderItem({
   file,
   onRemove,
@@ -64,7 +64,7 @@ function FeedImageReorderItem({
                   if (ev && typeof navigator !== 'undefined' && navigator.vibrate)
                     navigator.vibrate(10);
                   if (ev) controls.start(ev);
-                }, 500);
+                }, 300);
               }
             : undefined
         }
@@ -189,10 +189,13 @@ function NewFeedContent({ clubId }: { clubId: number }) {
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-[var(--card)]">
+    <div
+      className="flex flex-col overflow-hidden bg-[var(--card)]"
+      style={{ height: 'calc(100dvh - 3.5rem - 4rem)' }}
+    >
       {/* 헤더: 테마 변수 사용으로 앱뷰 라이트모드에서도 올바른 배경/글자색 유지 */}
       <div
-        className="sticky top-0 z-50 shrink-0 border-b bg-[var(--card)] text-[var(--foreground)]"
+        className="shrink-0 border-b bg-[var(--card)] text-[var(--foreground)]"
         style={{ borderColor: 'var(--border)' }}
       >
         <div className="flex h-16 items-center justify-between px-4">
@@ -215,7 +218,7 @@ function NewFeedContent({ clubId }: { clubId: number }) {
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col space-y-5 p-4">
+      <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-hidden p-4">
         {/* 이미지 추가 버튼만 */}
         <input
           type="file"
@@ -284,12 +287,12 @@ function NewFeedContent({ clubId }: { clubId: number }) {
           </div>
         )}
 
-        {/* 피드 내용 입력: 하단 네비 바로 위까지 채움 */}
+        {/* 피드 내용 입력: 이미지 밑 ~ 네비 바로 위까지 세로 꽉 채움 */}
         <textarea
           placeholder="피드 내용을 입력해주세요"
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className="min-h-0 flex-1 resize-none rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
+          className="min-h-[120px] flex-1 resize-none rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
         />
       </div>
     </div>
