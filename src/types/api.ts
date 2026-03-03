@@ -167,6 +167,8 @@ export type ClubDetailRes = {
   applicationLink?: string;
   /** 하위 호환 */
   recruitmentUrl?: string;
+  /** 외부 링크 (JSON 배열 문자열 또는 단일 URL). 예: [{"name":"인스타그램","url":"https://..."}] */
+  externalLink?: string;
 };
 
 export type ClubRankingRes = {
@@ -410,6 +412,8 @@ export type UpdateClubInfoReq = {
   weeklyActivity?: string;
   isLeaveOfAbsenceActive?: boolean;
   college?: string;
+  /** 외부 링크 (JSON 배열 문자열). 예: [{"name":"인스타그램","url":"https://..."}] */
+  externalLink?: string;
 };
 
 /** 동아리 생성 신청 요청 */

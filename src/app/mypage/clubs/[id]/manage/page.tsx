@@ -208,6 +208,8 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   const [recruitmentEndDate, setRecruitmentEndDate] = useState('');
   const [recruitmentEndTime, setRecruitmentEndTime] = useState('23:59');
   const [recruitmentUrl, setRecruitmentUrl] = useState('');
+  /** 외부 링크 (이름, URL). API에는 JSON 문자열로 저장 */
+  const [externalLinks, setExternalLinks] = useState<{ name: string; url: string }[]>([]);
 
   // Q&A 답변 상태
   const [answerTexts, setAnswerTexts] = useState<Record<number, string>>({});
@@ -239,6 +241,35 @@ function ClubManageContent({ clubId }: { clubId: number }) {
     const endTimeRaw = endParts[1]?.slice(0, 5);
     setRecruitmentEndTime(endTimeRaw ? toHourOnly(endTimeRaw) : '23:59');
     setRecruitmentUrl(club.applicationLink || club.recruitmentUrl || '');
+    const raw = club.externalLink?.trim();
+    if (!raw) {
+      setExternalLinks([]);
+    } else {
+      try {
+        const parsed = JSON.parse(raw) as unknown;
+        if (Array.isArray(parsed)) {
+          setExternalLinks(
+            parsed
+              .filter(
+                (x): x is { name: string; url: string } =>
+                  x != null &&
+                  typeof x === 'object' &&
+                  typeof (x as { url?: string }).url === 'string'
+              )
+              .map((x) => ({ name: x.name ?? '', url: (x.url as string).trim() }))
+              .filter((x) => x.url !== '')
+          );
+        } else {
+          setExternalLinks([]);
+        }
+      } catch {
+        if (/^https?:\/\//i.test(raw)) {
+          setExternalLinks([{ name: '', url: raw }]);
+        } else {
+          setExternalLinks([]);
+        }
+      }
+    }
   }, [club, isLoading]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
@@ -251,6 +282,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   }
 
   const handleSaveBasic = async () => {
+    const linkPayload = externalLinks.filter((e) => e.url.trim());
     updateClub.mutate(
       {
         clubId,
@@ -266,6 +298,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
           weeklyActiveFrequency,
           allowLeaveOfAbsence,
           profileFileUuid: profileFileUuid ?? undefined,
+          externalLink: linkPayload.length > 0 ? JSON.stringify(linkPayload) : '',
         },
       },
       {
@@ -590,6 +623,8 @@ function ClubManageContent({ clubId }: { clubId: number }) {
               setRecruitmentEndTime={setRecruitmentEndTime}
               recruitmentUrl={recruitmentUrl}
               setRecruitmentUrl={setRecruitmentUrl}
+              externalLinks={externalLinks}
+              setExternalLinks={setExternalLinks}
               // 관리자 관리
               adminSectionExpanded={adminSectionExpanded}
               onManageAdmins={() => setAdminSectionExpanded(true)}
@@ -785,6 +820,8 @@ function ClubInfoTab({
   setRecruitmentEndTime,
   recruitmentUrl,
   setRecruitmentUrl,
+  externalLinks,
+  setExternalLinks,
   // 관리자 관리
   adminSectionExpanded,
   onManageAdmins,
@@ -846,12 +883,31 @@ function ClubInfoTab({
   setRecruitmentEndTime: (value: string) => void;
   recruitmentUrl: string;
   setRecruitmentUrl: (value: string) => void;
+  externalLinks: { name: string; url: string }[];
+  setExternalLinks: React.Dispatch<React.SetStateAction<{ name: string; url: string }[]>>;
   adminSectionExpanded: boolean;
   onManageAdmins: () => void;
   onCloseAdmins: () => void;
   isUploading: boolean;
   isSaving: boolean;
 }) {
+  const getFaviconUrl = (url: string) => {
+    try {
+      const host = new URL(url).hostname;
+      return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=32`;
+    } catch {
+      return '';
+    }
+  };
+  const getLinkDisplayName = (item: { name: string; url: string }) => {
+    if (item.name.trim()) return item.name.trim();
+    try {
+      return new URL(item.url).hostname.replace(/^www\./, '');
+    } catch {
+      return item.url;
+    }
+  };
+
   const infoItems = [
     { label: '동아리 이름', value: club.name || '-' },
     { label: '한 줄 소개', value: club.summary || club.description || '-' },
@@ -938,6 +994,40 @@ function ClubInfoTab({
                 <div className={valueBoxClass}>{item.value}</div>
               </div>
             ))}
+            {externalLinks.length > 0 && (
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                  외부 링크
+                </label>
+                <ul className="space-y-2">
+                  {externalLinks.map((item, i) => (
+                    <li key={`${item.url}-${i}`}>
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 rounded-lg py-1.5 pr-2 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700/50"
+                      >
+                        {getFaviconUrl(item.url) ? (
+                          <img
+                            src={getFaviconUrl(item.url)}
+                            alt=""
+                            width={20}
+                            height={20}
+                            className="h-5 w-5 shrink-0 rounded object-contain"
+                          />
+                        ) : (
+                          <span className="h-5 w-5 shrink-0 rounded bg-zinc-200 dark:bg-zinc-600" />
+                        )}
+                        <span className="min-w-0 truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                          {getLinkDisplayName(item)}
+                        </span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         ) : (
           <div className="space-y-5">
@@ -1123,6 +1213,57 @@ function ClubInfoTab({
                 onChange={(e) => _setAllowLeaveOfAbsence(e.target.checked)}
                 className="h-5 w-5 shrink-0 rounded border-zinc-300 text-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-zinc-600 dark:bg-zinc-800"
               />
+            </div>
+            <div className="mt-6">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                외부 링크
+              </label>
+              <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
+                이름과 링크를 입력하세요. (예: 인스타그램, https://instagram.com/...)
+              </p>
+              <div className="space-y-3">
+                {externalLinks.map((item, index) => (
+                  <div key={index} className="flex flex-wrap items-center gap-2">
+                    <input
+                      type="text"
+                      placeholder="이름"
+                      value={item.name}
+                      onChange={(e) => {
+                        const next = [...externalLinks];
+                        next[index] = { ...next[index], name: e.target.value };
+                        setExternalLinks(next);
+                      }}
+                      className="w-28 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                    />
+                    <input
+                      type="url"
+                      placeholder="https://..."
+                      value={item.url}
+                      onChange={(e) => {
+                        const next = [...externalLinks];
+                        next[index] = { ...next[index], url: e.target.value };
+                        setExternalLinks(next);
+                      }}
+                      className="min-w-0 flex-1 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setExternalLinks((prev) => prev.filter((_, i) => i !== index))}
+                      className="rounded-lg px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
+                      aria-label="삭제"
+                    >
+                      삭제
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setExternalLinks((prev) => [...prev, { name: '', url: '' }])}
+                  className="rounded-lg border border-dashed border-zinc-300 px-3 py-2 text-sm text-zinc-500 hover:border-zinc-400 hover:text-zinc-700 dark:border-zinc-600 dark:text-zinc-400 dark:hover:border-zinc-500 dark:hover:text-zinc-300"
+                >
+                  + 링크 추가
+                </button>
+              </div>
             </div>
           </div>
         )}

@@ -325,6 +325,7 @@ export const clubApi = {
     if (data.type !== undefined) infoFields.clubType = data.type as UpdateClubInfoReq['clubType'];
     if (data.category !== undefined)
       infoFields.category = data.category as UpdateClubInfoReq['category'];
+    if (data.externalLink !== undefined) infoFields.externalLink = data.externalLink as string;
     if (Object.keys(infoFields).length > 0) {
       await clubApi.updateClubInfo(clubId, infoFields);
     }

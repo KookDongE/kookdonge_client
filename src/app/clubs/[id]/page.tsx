@@ -122,6 +122,58 @@ function formatDate(dateString: string): string {
   return `${year}년 ${month}월 ${day}일`;
 }
 
+export type ExternalLinkItem = { name: string; url: string };
+
+function parseExternalLinks(externalLink: string | undefined): ExternalLinkItem[] {
+  if (!externalLink || typeof externalLink !== 'string') return [];
+  const trimmed = externalLink.trim();
+  if (!trimmed) return [];
+  try {
+    const parsed = JSON.parse(trimmed) as unknown;
+    if (Array.isArray(parsed)) {
+      return parsed
+        .filter(
+          (item): item is ExternalLinkItem =>
+            item != null &&
+            typeof item === 'object' &&
+            typeof (item as ExternalLinkItem).url === 'string' &&
+            (item as ExternalLinkItem).url.trim() !== ''
+        )
+        .map((item) => ({
+          name:
+            typeof (item as ExternalLinkItem).name === 'string'
+              ? (item as ExternalLinkItem).name
+              : '',
+          url: (item as ExternalLinkItem).url.trim(),
+        }));
+    }
+  } catch {
+    // single URL
+  }
+  if (/^https?:\/\//i.test(trimmed)) {
+    return [{ name: '', url: trimmed }];
+  }
+  return [];
+}
+
+function getFaviconUrl(url: string): string {
+  try {
+    const host = new URL(url).hostname;
+    return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=32`;
+  } catch {
+    return '';
+  }
+}
+
+function getDisplayName(item: ExternalLinkItem): string {
+  if (item.name.trim()) return item.name.trim();
+  try {
+    return new URL(item.url).hostname.replace(/^www\./, '');
+  } catch {
+    return item.url;
+  }
+}
+
 function ClubHeader({
   clubId,
   onNotificationTurnOnRequest,
@@ -413,6 +465,42 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
           ))}
         </div>
       </div>
+      {(() => {
+        const links = parseExternalLinks(club.externalLink);
+        if (links.length === 0) return null;
+        return (
+          <div className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+            <h3 className="mb-3 font-semibold text-zinc-900 dark:text-zinc-100">외부 링크</h3>
+            <ul className="space-y-2">
+              {links.map((item, i) => (
+                <li key={`${item.url}-${i}`}>
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 rounded-lg py-1.5 pr-2 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700/50"
+                  >
+                    {getFaviconUrl(item.url) ? (
+                      <img
+                        src={getFaviconUrl(item.url)}
+                        alt=""
+                        width={20}
+                        height={20}
+                        className="h-5 w-5 shrink-0 rounded object-contain"
+                      />
+                    ) : (
+                      <span className="h-5 w-5 shrink-0 rounded bg-zinc-200 dark:bg-zinc-600" />
+                    )}
+                    <span className="min-w-0 truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                      {getDisplayName(item)}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      })()}
     </div>
   );
 }
