@@ -21,10 +21,30 @@ const appUrl = typeof process !== 'undefined' ? process.env.NEXT_PUBLIC_APP_URL 
 const appBase = typeof appUrl === 'string' ? appUrl.replace(/\/$/, '') : '';
 const iconBase = appBase || '';
 
+const ogImageUrl = appBase ? `${appBase}/og-image.png` : '/og-image.png';
+
 export const metadata: Metadata = {
   title: 'KookDongE',
   description: '국민대 동아리 정보 모음이',
   manifest: '/manifest.webmanifest',
+  openGraph: {
+    title: 'KookDongE',
+    description: '국민대의 모든 동아리, 국동이에서 만나보세요!',
+    images: [
+      {
+        url: ogImageUrl,
+        width: 1200,
+        height: 630,
+        alt: '국민대의 모든 동아리, 국동이에서 만나보세요!',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'KookDongE',
+    description: '국민대의 모든 동아리, 국동이에서 만나보세요!',
+    images: [ogImageUrl],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',

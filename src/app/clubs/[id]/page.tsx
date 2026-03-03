@@ -720,6 +720,7 @@ function ClubCTA({ clubId }: { clubId: number }) {
 }
 
 function ClubDetailContent({ clubId }: { clubId: number }) {
+  const { data: club } = useClubDetail(clubId);
   const searchParams = useSearchParams();
   const questionId = searchParams.get('questionId');
   const from = searchParams.get('from');
@@ -731,6 +732,8 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
     isLoading: isPermissionLoading,
   } = useNotification();
   const [notificationPromptOpen, setNotificationPromptOpen] = useState(false);
+
+  const hasApplicationLink = !!(club?.applicationLink || club?.recruitmentUrl);
 
   useEffect(() => {
     if (questionId) setTab('qna');
@@ -807,8 +810,8 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
           />
         </Tabs.Panel>
       </Tabs>
-      {/* 하단 네비 + CTA 공간 확보 */}
-      <div className="h-32" />
+      {/* 하단 네비 + CTA 공간 확보 (지원 링크 있을 때는 CTA 높이만큼 더 확보해 외부 링크 등이 잘리지 않게) */}
+      <div className={hasApplicationLink ? 'h-48' : 'h-32'} />
       <ClubCTA clubId={clubId} />
       <NotificationPermissionInlineModal
         open={notificationPromptOpen}
