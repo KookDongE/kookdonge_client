@@ -189,7 +189,7 @@ function QuestionsPageContent() {
             </Tabs.Tab>
           </Tabs.List>
         </Tabs.ListContainer>
-        <Tabs.Panel id="questions" className="px-3 pt-0">
+        <Tabs.Panel id="questions" className="pt-0">
           <QuestionsTabContent />
         </Tabs.Panel>
         <Tabs.Panel id="answers" className="pt-0">

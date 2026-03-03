@@ -18,7 +18,8 @@ export function Header() {
     pathname.startsWith('/login/') ||
     pathname === '/welcome' ||
     pathname.startsWith('/welcome/') ||
-    pathname.includes('/feed');
+    pathname.includes('/feed') ||
+    pathname === '/mypage/clubs/apply';
   if (isHidden) return null;
 
   return (

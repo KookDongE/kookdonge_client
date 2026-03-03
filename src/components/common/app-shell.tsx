@@ -9,7 +9,7 @@ import { PullToRefresh } from '@/components/common/pull-to-refresh';
 const FULL_SCREEN_PATHS = ['/', '/login'];
 
 /** 앱 헤더를 숨기는 경로 (Header 컴포넌트와 동일). 헤더 숨길 때 main 상단 패딩 제거해 컨텐츠가 상단에 붙도록 */
-const HEADER_HIDDEN_PATHS = ['/', '/login', '/welcome'];
+const HEADER_HIDDEN_PATHS = ['/', '/login', '/welcome', '/mypage/clubs/apply'];
 function isHeaderHidden(pathname: string): boolean {
   if (!pathname) return false;
   if (HEADER_HIDDEN_PATHS.includes(pathname)) return true;

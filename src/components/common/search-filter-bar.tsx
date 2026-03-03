@@ -133,6 +133,7 @@ export function SearchFilterBar({
   const [sort, setSort] = useQueryState('sort', parseAsString.withDefault('default'));
   const [query, setQuery] = useQueryState('q', parseAsString);
   const [isVisible, setIsVisible] = useState(true);
+  const [collegeSelectOpen, setCollegeSelectOpen] = useState(false);
   const lastScrollYRef = useRef(0);
   const filterBarRef = useRef<HTMLDivElement>(null);
 
@@ -240,6 +241,7 @@ export function SearchFilterBar({
   };
   const handleCollegeChange = (value: Key | null) => {
     setCollege(value === 'ALL' || value === null ? null : (value as string));
+    setCollegeSelectOpen(false);
     closeSelectPopover();
   };
   const handleSortChange = (value: Key | null) => {
@@ -316,6 +318,8 @@ export function SearchFilterBar({
             placeholder="단과대"
             aria-label="단과대 선택"
             selectedKey={collegeVal}
+            isOpen={collegeSelectOpen}
+            onOpenChange={setCollegeSelectOpen}
             onSelectionChange={(key) => handleCollegeChange(key ?? 'ALL')}
           >
             <Select.Trigger className="min-w-[72px] max-w-[100px] truncate rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 outline-none ring-0 focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0">

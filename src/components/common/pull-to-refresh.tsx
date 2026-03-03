@@ -8,13 +8,15 @@ import { motion, useMotionValue, useSpring } from 'framer-motion';
 import { clubKeys } from '@/features/club/hooks';
 
 /** 이 거리(px) 이상 드래그해야 당김 시작 */
-const DRAG_START_THRESHOLD = 20;
-/** 새로고침 발동 임계값 (px). 이 거리 이상 당기면 발동 */
-const PULL_THRESHOLD = 72;
+const DRAG_START_THRESHOLD = 28;
+/** 새로고침 발동 임계값 (px) */
+const PULL_THRESHOLD = 120;
 /** 당김 최대 표시 거리 (px) */
-const MAX_PULL = 100;
-/** 저항 계수: 손가락 이동의 이 비율만 화면이 따라옴 (낮을수록 가벼운 느낌) */
-const PULL_RESISTANCE = 0.35;
+const MAX_PULL = 160;
+/** 저항 계수 (쫀득한 느낌) */
+const PULL_RESISTANCE = 0.4;
+/** 인디케이터 영역 최대 높이 (px) */
+const INDICATOR_HEIGHT = 52;
 
 /** 동아리 관리 페이지 진입 시 스크롤 리셋 */
 const CLUB_MANAGE_PATH = /^\/mypage\/clubs\/[^/]+\/manage$/;
@@ -37,14 +39,13 @@ export function PullToRefresh({
   const queryClient = useQueryClient();
   const scrollRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef(0);
+  const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const contentHeight = fullScreen ? '100dvh' : 'calc(100dvh - 3.5rem - 4rem)';
 
-  // Framer Motion: 당기는 거리 (손가락이 움직이면 이 값을 갱신)
   const y = useMotionValue(0);
-  // 스프링으로 가볍게 복귀 (손 놓으면 빠르게 제자리로)
-  const smoothY = useSpring(y, { damping: 28, stiffness: 220 });
+  const smoothY = useSpring(y, { damping: 20, stiffness: 150 });
 
   useLayoutEffect(() => {
     if (!pathname || fullScreen || !CLUB_MANAGE_PATH.test(pathname)) return;
@@ -87,11 +88,13 @@ export function PullToRefresh({
       const delta = Math.max(0, e.touches[0].clientY - startYRef.current);
       if (delta < DRAG_START_THRESHOLD) {
         y.set(0);
+        setPullDistance(0);
         return;
       }
       const raw = delta - DRAG_START_THRESHOLD;
       const distance = Math.min(MAX_PULL, raw * PULL_RESISTANCE);
       y.set(distance);
+      setPullDistance(distance);
     },
     [fullScreen, disabled, isRefreshing, y]
   );
@@ -99,9 +102,10 @@ export function PullToRefresh({
   const onTouchEnd = useCallback(() => {
     if (fullScreen || disabled) return;
     const currentY = y.get();
-    if (currentY >= PULL_THRESHOLD - 8 && !isRefreshing) {
+    if (currentY >= PULL_THRESHOLD - 10 && !isRefreshing) {
       triggerRefresh();
     }
+    setPullDistance(0);
     y.set(0);
   }, [fullScreen, disabled, isRefreshing, y, triggerRefresh]);
 
@@ -111,15 +115,34 @@ export function PullToRefresh({
     <div
       ref={scrollRef}
       data-scroll-container
-      className={`relative pb-safe h-full overscroll-y-none ${fullScreen || scrollDisabled ? 'no-scrollbar overflow-hidden' : 'overflow-y-auto'}`}
+      className={`pb-safe h-full overscroll-y-none ${fullScreen || scrollDisabled ? 'no-scrollbar overflow-hidden' : 'overflow-y-auto'}`}
       style={{ height: contentHeight }}
       onTouchStart={canPull ? onTouchStart : undefined}
       onTouchMove={canPull ? onTouchMove : undefined}
       onTouchEnd={canPull ? onTouchEnd : undefined}
       onTouchCancel={canPull ? onTouchEnd : undefined}
     >
-      {/* 콘텐츠 영역 (당김 시 y만 스프링으로 움직임, 아이콘 없음) */}
       <motion.div className="min-h-full" style={{ y: smoothY }}>
+        {/* 인디케이터: 당길 때/새로고침 중에만 높이 있음 (예전 UI) */}
+        <div
+          className="flex items-center justify-center overflow-hidden"
+          style={{
+            minHeight: isRefreshing ? INDICATOR_HEIGHT : Math.min(INDICATOR_HEIGHT, pullDistance),
+          }}
+        >
+          {pullDistance > 0 || isRefreshing ? (
+            isRefreshing ? (
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-300 border-t-blue-500 dark:border-zinc-600 dark:border-t-lime-400" />
+            ) : (
+              <span
+                className="text-xs text-zinc-500 dark:text-zinc-400"
+                style={{ opacity: Math.min(1, pullDistance / 36) }}
+              >
+                {pullDistance >= PULL_THRESHOLD ? '놓아서 새로고침' : '당겨서 새로고침'}
+              </span>
+            )
+          ) : null}
+        </div>
         {children}
       </motion.div>
     </div>
