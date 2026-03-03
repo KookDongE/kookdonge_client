@@ -1,7 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { ClubCategory, ClubType, RecruitmentStatus } from '@/types/api';
+import {
+  ClubCategory,
+  ClubType,
+  College,
+  RecruitmentStatus,
+} from '@/types/api';
 
 export type InterestedClubItem = {
   id: number;
@@ -9,6 +14,7 @@ export type InterestedClubItem = {
   logoImage: string;
   type: ClubType;
   category?: ClubCategory;
+  college?: College;
   recruitmentStatus?: RecruitmentStatus;
 };
 
