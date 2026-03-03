@@ -122,6 +122,22 @@ function formatDate(dateString: string): string {
   return `${year}년 ${month}월 ${day}일`;
 }
 
+/** 모집기간 등 날짜+시간 표시 (한국 시간) */
+function formatDateTime(dateString: string | null | undefined): string {
+  if (dateString == null || dateString === '') return '-';
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return '-';
+  return date.toLocaleString('ko-KR', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+}
+
 export type ExternalLinkItem = { name: string; url: string };
 
 function parseExternalLinks(externalLink: string | undefined): ExternalLinkItem[] {
@@ -405,7 +421,7 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
   const infoItems = [
     {
       label: '모집 기간',
-      value: `${formatDate(club.recruitmentStartDate)} ~ ${formatDate(club.recruitmentEndDate)}`,
+      value: `${formatDateTime(club.recruitmentStartDate)} ~ ${formatDateTime(club.recruitmentEndDate)}`,
     },
     { label: '대상', value: club.targetGraduate },
     { label: '동아리장', value: club.leaderName },

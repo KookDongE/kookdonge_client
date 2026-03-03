@@ -81,6 +81,8 @@ const TYPE_OPTIONS = Object.entries(TYPE_LABEL).map(([value, label]) => ({
   label,
 }));
 
+const KST = 'Asia/Seoul';
+
 function formatDate(dateString: string | null | undefined): string {
   if (dateString == null || dateString === '') return '-';
   const date = new Date(dateString);
@@ -89,6 +91,48 @@ function formatDate(dateString: string | null | undefined): string {
   const month = date.getMonth() + 1;
   const day = date.getDate();
   return `${year}년 ${month}월 ${day}일`;
+}
+
+/** 모집기간 읽기 모드: 한국 시간으로 날짜+시간 표시 */
+function formatDateTimeReadMode(dateString: string | null | undefined): string {
+  if (dateString == null || dateString === '') return '-';
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return '-';
+  return date.toLocaleString('ko-KR', {
+    timeZone: KST,
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+}
+
+/** API ISO 문자열을 한국 시간(KST) 기준 날짜(YYYY-MM-DD)와 시간(HH:mm)으로 반환 */
+function parseIsoToKstDateAndTime(iso: string | null | undefined): { date: string; time: string } {
+  if (!iso || iso.trim() === '') return { date: '', time: '00:00' };
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return { date: '', time: '00:00' };
+  const dateStr = new Intl.DateTimeFormat('en-CA', {
+    timeZone: KST,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(d);
+  const timeStr = new Intl.DateTimeFormat('en-GB', {
+    timeZone: KST,
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(d);
+  return { date: dateStr, time: timeStr };
+}
+
+/** 사용자 입력(한국 시간)을 ISO 문자열(UTC)로 변환해 API에 전달 */
+function kstToIso(date: string, time: string): string {
+  if (!date || !time) return '';
+  return new Date(`${date}T${time}:00+09:00`).toISOString();
 }
 
 /** 모집 시간을 1시간 단위로만 사용 (HH:00) */
@@ -232,14 +276,12 @@ function ClubManageContent({ clubId }: { clubId: number }) {
     setDescription(club.description || '');
     setContentImage(club.contentImageUrl ?? club.descriptionImages?.[0] ?? '');
     setRecruitmentStatus(club.recruitmentStatus);
-    const startParts = (club.recruitmentStartDate ?? '').split('T');
-    setRecruitmentStartDate(startParts[0] || '');
-    const startTimeRaw = startParts[1]?.slice(0, 5);
-    setRecruitmentStartTime(startTimeRaw ? toHourOnly(startTimeRaw) : '00:00');
-    const endParts = (club.recruitmentEndDate ?? '').split('T');
-    setRecruitmentEndDate(endParts[0] || '');
-    const endTimeRaw = endParts[1]?.slice(0, 5);
-    setRecruitmentEndTime(endTimeRaw ? toHourOnly(endTimeRaw) : '23:59');
+    const startKst = parseIsoToKstDateAndTime(club.recruitmentStartDate);
+    setRecruitmentStartDate(startKst.date);
+    setRecruitmentStartTime(startKst.time ? toHourOnly(startKst.time) : '00:00');
+    const endKst = parseIsoToKstDateAndTime(club.recruitmentEndDate);
+    setRecruitmentEndDate(endKst.date);
+    setRecruitmentEndTime(endKst.time ? toHourOnly(endKst.time) : '23:59');
     setRecruitmentUrl(club.applicationLink || club.recruitmentUrl || '');
     const raw = club.externalLink?.trim();
     if (!raw) {
@@ -365,21 +407,17 @@ function ClubManageContent({ clubId }: { clubId: number }) {
       alert('모집 시작일·종료일과 시작·종료 시간을 모두 입력해 주세요.');
       return;
     }
-    const startDateStr = `${recruitmentStartDate}T${recruitmentStartTime}:00`;
-    const endDateStr = `${recruitmentEndDate}T${recruitmentEndTime}:00`;
-    const startDate = new Date(startDateStr);
-    const endDate = new Date(endDateStr);
+    const recruitmentStartTimeApi = kstToIso(recruitmentStartDate, recruitmentStartTime);
+    const recruitmentEndTimeApi = kstToIso(recruitmentEndDate, recruitmentEndTime);
+    if (!recruitmentStartTimeApi || !recruitmentEndTimeApi) {
+      alert('모집 시작일·종료일과 시작·종료 시간을 모두 입력해 주세요.');
+      return;
+    }
+    const startDate = new Date(recruitmentStartTimeApi);
+    const endDate = new Date(recruitmentEndTimeApi);
     if (endDate < startDate) {
       alert('모집 종료일은 모집 시작일보다 빠를 수 없습니다.');
       return;
-    }
-    const nowIso = new Date().toISOString();
-    let recruitmentStartTimeApi = startDate.toISOString();
-    let recruitmentEndTimeApi = endDate.toISOString();
-    if (recruitmentStatus === 'RECRUITING') {
-      recruitmentStartTimeApi = nowIso;
-    } else if (recruitmentStatus === 'CLOSED') {
-      recruitmentEndTimeApi = nowIso;
     }
     updateRecruitmentInfo.mutate(
       {
@@ -1466,9 +1504,14 @@ function ClubInfoTab({
                 모집 상태
               </label>
               <div className={valueBoxClass}>
-                <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                <Chip
+                  size="sm"
+                  color={STATUS_CONFIG[club.recruitmentStatus as RecruitmentStatus].color}
+                  variant="flat"
+                  className="font-medium"
+                >
                   {STATUS_CONFIG[club.recruitmentStatus as RecruitmentStatus].label}
-                </span>
+                </Chip>
               </div>
             </div>
             <div>
@@ -1476,7 +1519,8 @@ function ClubInfoTab({
                 모집 기간
               </label>
               <div className={`${valueBoxClass} min-w-0 truncate`}>
-                {formatDate(club.recruitmentStartDate)} ~ {formatDate(club.recruitmentEndDate)}
+                {formatDateTimeReadMode(club.recruitmentStartDate)} ~{' '}
+                {formatDateTimeReadMode(club.recruitmentEndDate)}
               </div>
             </div>
             <div>
@@ -1501,34 +1545,6 @@ function ClubInfoTab({
           </div>
         ) : (
           <div className="w-full max-w-full min-w-0 space-y-5 overflow-hidden">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-                모집 상태
-              </label>
-              <Select
-                value={recruitmentStatus}
-                onChange={(value) => value && setRecruitmentStatus(value as RecruitmentStatus)}
-              >
-                <Select.Trigger className="club-manage-select-trigger rounded-xl border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
-                  <Select.Value />
-                  <Select.Indicator />
-                </Select.Trigger>
-                <Select.Popover className="club-manage-dropdown bg-white dark:!bg-[#18181B]">
-                  <ListBox className="club-manage-dropdown-list bg-white dark:!bg-[#18181B]">
-                    {Object.entries(STATUS_CONFIG).map(([value, config]) => (
-                      <ListBox.Item
-                        key={value}
-                        id={value}
-                        textValue={config.label}
-                        className="text-zinc-900 dark:text-zinc-100"
-                      >
-                        {config.label}
-                      </ListBox.Item>
-                    ))}
-                  </ListBox>
-                </Select.Popover>
-              </Select>
-            </div>
             <div className="w-full max-w-full min-w-0 space-y-4 overflow-hidden">
               <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-[minmax(10rem,1fr)_minmax(8rem,1fr)]">
                 <div className="min-w-0 sm:min-w-[10rem]">
