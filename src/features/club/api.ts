@@ -43,9 +43,11 @@ function buildClubListParams(
   if (p.targetGraduate != null) params.targetGraduate = p.targetGraduate;
   if (p.isLeaveOfAbsenceActive != null) params.isLeaveOfAbsenceActive = p.isLeaveOfAbsenceActive;
   if (p.query) params.query = p.query;
-  // API 정렬: latest, popularity, viewCount, deadline 만 지원. name,asc는 백엔드에 보내지 않고 클라이언트에서 정렬
+  // API 정렬: latest, popularity, viewCount, deadline 지원. default/기본순 → latest 후 클라이언트에서 무작위, name,asc → 클라이언트에서 이름순
   const apiSort =
-    p.sort && p.sort !== 'name,asc' ? p.sort : 'latest';
+    p.sort && p.sort !== 'name,asc' && p.sort !== 'default'
+      ? p.sort
+      : 'latest';
   params.sort = apiSort;
   return params;
 }

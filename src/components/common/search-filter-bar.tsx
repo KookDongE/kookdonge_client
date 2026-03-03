@@ -59,8 +59,9 @@ const APPLICATION_STATUS_OPTIONS: { value: 'PENDING' | 'APPROVED' | 'REJECTED' |
   { value: 'REJECTED', label: '거절' },
 ];
 
-/** 백엔드 sort 파라미터 값 (이름순, 좋아요순, 조회수순만 노출. 최신순/마감순 제거) */
+/** 정렬: 기본순(무작위) 항상 첫 번째, 그 다음 이름순/좋아요순/조회수순 */
 const SORT_OPTIONS: { value: string; label: string }[] = [
+  { value: 'default', label: '기본순' },
   { value: 'name,asc', label: '이름순' },
   { value: 'popularity', label: '좋아요순' },
   { value: 'viewCount', label: '조회수순' },
@@ -127,7 +128,7 @@ export function SearchFilterBar({
   const [status, setStatus] = useQueryState('status', parseAsString);
   const [clubType, setClubType] = useQueryState('clubType', parseAsString);
   const [college, setCollege] = useQueryState('college', parseAsString);
-  const [sort, setSort] = useQueryState('sort', parseAsString.withDefault('name,asc'));
+  const [sort, setSort] = useQueryState('sort', parseAsString.withDefault('default'));
   const [query, setQuery] = useQueryState('q', parseAsString);
   const [isVisible, setIsVisible] = useState(true);
   const lastScrollYRef = useRef(0);
@@ -137,14 +138,14 @@ export function SearchFilterBar({
   const statusVal = status ?? 'ALL';
   const clubTypeVal = clubType ?? 'ALL';
   const collegeVal = college ?? 'ALL';
-  const sortVal = sort != null && VALID_SORT_SET.has(sort) ? sort : 'name,asc';
+  const sortVal = sort != null && VALID_SORT_SET.has(sort) ? sort : 'default';
   /** 과 필터: 중앙동아리 선택 시에만 숨김 (전체/학과동아리/학회/소모임일 때는 항상 노출) */
   const showCollegeFilter = clubTypeVal !== 'CENTRAL';
 
-  // URL에 제거된 정렬(latest, deadline)이 있으면 name,asc로 정규화
+  // URL에 없는 정렬 값이면 기본순으로 정규화
   useEffect(() => {
     if (sort != null && sort !== '' && !VALID_SORT_SET.has(sort)) {
-      setSort('name,asc');
+      setSort('default');
     }
   }, [sort, setSort]);
 
@@ -240,7 +241,7 @@ export function SearchFilterBar({
     closeSelectPopover();
   };
   const handleSortChange = (value: Key | null) => {
-    setSort((value as string) || 'name,asc');
+    setSort((value as string) || 'default');
     closeSelectPopover();
   };
 
@@ -398,7 +399,7 @@ export function SearchFilterBar({
           placeholder="정렬"
           aria-label="정렬 선택"
           selectedKey={sortVal}
-          onSelectionChange={(key) => handleSortChange(key ?? 'name,asc')}
+          onSelectionChange={(key) => handleSortChange(key ?? 'default')}
         >
           <Select.Trigger className="min-w-[88px] rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200">
             <Select.Value className="[color:rgb(82,82,91)] dark:[color:rgb(228,228,231)]" />

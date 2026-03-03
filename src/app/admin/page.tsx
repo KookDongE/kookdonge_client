@@ -20,8 +20,7 @@ const STATUS_CHIP: Record<string, { label: string; color: 'warning' | 'success' 
   REJECTED: { label: '거절', color: 'danger' },
 };
 
-const APPLICATION_STATUS_OPTIONS: { value: 'PENDING' | 'APPROVED' | 'REJECTED' | 'ALL'; label: string }[] = [
-  { value: 'ALL', label: '상태' },
+const APPLICATION_STATUS_OPTIONS: { value: 'PENDING' | 'APPROVED' | 'REJECTED'; label: string }[] = [
   { value: 'PENDING', label: '대기' },
   { value: 'APPROVED', label: '승인' },
   { value: 'REJECTED', label: '거절' },
@@ -272,11 +271,11 @@ function AdminPageContent() {
   const router = useRouter();
   const { data: profile, isLoading: profileLoading } = useMyProfile();
   const [tab, setTab] = useQueryState('tab', parseAsString.withDefault('applications'));
-  const [statusFilter, setStatusFilter] = useQueryState('status', parseAsString);
-  const statusParam =
+  const [statusFilter, setStatusFilter] = useQueryState('status', parseAsString.withDefault('PENDING'));
+  const statusParam: ApplicationStatusFilter =
     statusFilter === 'PENDING' || statusFilter === 'APPROVED' || statusFilter === 'REJECTED'
       ? statusFilter
-      : undefined;
+      : 'PENDING';
   const tabKey =
     tab === 'applications' || tab === 'admins' || tab === 'reports' ? tab : 'applications';
   const [stickyVisible, setStickyVisible] = useState(true);
@@ -354,8 +353,8 @@ function AdminPageContent() {
             className={`sticky top-14 z-30 bg-[var(--card)] px-4 pb-2 transition-transform duration-300 ${stickyVisible ? 'translate-y-0' : '-translate-y-full opacity-0'}`}
           >
             <Select
-              selectedKey={statusFilter ?? 'ALL'}
-              onSelectionChange={(key) => setStatusFilter(key === 'ALL' || key == null ? null : (key as string))}
+              selectedKey={statusFilter ?? 'PENDING'}
+              onSelectionChange={(key) => setStatusFilter((key as 'PENDING' | 'APPROVED' | 'REJECTED') ?? 'PENDING')}
               placeholder="승인상태"
               className="w-full max-w-[140px]"
               aria-label="승인상태 필터"

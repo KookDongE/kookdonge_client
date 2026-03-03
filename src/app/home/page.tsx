@@ -260,10 +260,20 @@ function ClubFilters() {
   return <SearchFilterBar stickyHideOnScroll placeholder="어떤 동아리를 찾으시나요?" />;
 }
 
-const VALID_SORT_VALUES = ['name,asc', 'popularity', 'viewCount'] as const;
+const VALID_SORT_VALUES = ['default', 'name,asc', 'popularity', 'viewCount'] as const;
 function normalizeSort(sort: string | null): string {
-  if (!sort) return 'name,asc';
-  return VALID_SORT_VALUES.includes(sort as (typeof VALID_SORT_VALUES)[number]) ? sort : 'name,asc';
+  if (!sort) return 'default';
+  return VALID_SORT_VALUES.includes(sort as (typeof VALID_SORT_VALUES)[number]) ? sort : 'default';
+}
+
+/** Fisher-Yates 셔플. 기본순일 때 무작위 표시용 */
+function shuffleArray<T>(arr: T[]): T[] {
+  const out = [...arr];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
 }
 
 function ClubListSection({ returnTo }: { returnTo?: string }) {
@@ -271,7 +281,7 @@ function ClubListSection({ returnTo }: { returnTo?: string }) {
   const [status] = useQueryState('status', parseAsString);
   const [clubType] = useQueryState('clubType', parseAsString);
   const [college] = useQueryState('college', parseAsString);
-  const [sort] = useQueryState('sort', parseAsString.withDefault('name,asc'));
+  const [sort] = useQueryState('sort', parseAsString.withDefault('default'));
   const [query] = useQueryState('q', parseAsString);
   const [deleteModalClubId, setDeleteModalClubId] = useState<number | null>(null);
   const [deleteConfirmName, setDeleteConfirmName] = useState('');
@@ -293,6 +303,9 @@ function ClubListSection({ returnTo }: { returnTo?: string }) {
   const rawClubs = data?.pages.flatMap((p) => p.content) ?? [];
   const sortVal = normalizeSort(sort ?? null);
   const clubs = useMemo(() => {
+    if (sortVal === 'default') {
+      return shuffleArray(rawClubs);
+    }
     if (sortVal === 'name,asc') {
       return [...rawClubs].sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ko'));
     }
