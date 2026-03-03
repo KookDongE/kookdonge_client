@@ -2,6 +2,9 @@
 
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
+
+import { clubKeys } from '@/features/club/hooks';
 
 /** 이 거리(px) 이상 드래그해야 인디케이터가 보이기 시작 — 살짝 터치만 할 때 움직임 방지 */
 const DRAG_START_THRESHOLD = 12;
@@ -34,6 +37,7 @@ export function PullToRefresh({
 }: PullToRefreshProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const scrollRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef(0);
   const lastDistanceRef = useRef(0);
@@ -104,6 +108,9 @@ export function PullToRefresh({
         router.replace(pathname, { scroll: false });
       }
       router.refresh();
+      if (pathname === '/home') {
+        queryClient.invalidateQueries({ queryKey: clubKeys.lists() });
+      }
       setTimeout(() => {
         setIsRefreshing(false);
         setIsReleasing(false);
@@ -113,7 +120,7 @@ export function PullToRefresh({
       setPullDistance(0);
       setTimeout(() => setIsReleasing(false), RELEASE_DURATION_MS);
     }
-  }, [fullScreen, disabled, pathname, isRefreshing, router]);
+  }, [fullScreen, disabled, pathname, isRefreshing, router, queryClient]);
 
   return (
     <div
