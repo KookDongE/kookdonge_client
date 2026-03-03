@@ -717,7 +717,7 @@ function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: str
   const transition = {
     type: 'tween' as const,
     duration: 0.4,
-    ease: [0.32, 0.72, 0, 1],
+    ease: [0.32, 0.72, 0, 1] as const,
   };
 
   const cta = (
