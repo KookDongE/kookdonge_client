@@ -195,7 +195,7 @@ export type College =
   | 'LAW'
   | 'ECONOMICS'
   | 'BUSINESS'
-  | 'INDEPENDENT'
+  | 'FREE_MAJOR'
   | 'ENGINEERING'
   | 'SOFTWARE'
   | 'AUTOMOTIVE'
@@ -203,7 +203,9 @@ export type College =
   | 'ARCHITECTURE'
   | 'DESIGN'
   | 'ARTS'
-  | 'PHYSICAL_EDUCATION';
+  | 'PHYSICAL_EDUCATION'
+  | 'FUTURE_MOBILITY'
+  | 'LIBERAL_ARTS';
 
 export type ClubListParams = {
   category?: ClubCategory;
@@ -342,6 +344,9 @@ export type AdminClubListItem = {
   type: ClubType;
   isHidden: boolean;
   recruitmentStatus?: RecruitmentStatus;
+  /** 학과동아리일 때 단과대(과) - 목록에서 태그로 표시 */
+  college?: College;
+  dday?: number;
 };
 
 export type AdminApplicationItem = {

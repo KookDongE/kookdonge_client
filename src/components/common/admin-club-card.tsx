@@ -128,7 +128,7 @@ export function AdminClubCard({
     resetSwipe();
   };
 
-  // AdminClubListItem을 ClubListRes로 변환
+  // AdminClubListItem을 ClubListRes로 변환 (과 태그 등 그대로 표시)
   const clubData: ClubListRes = {
     id: club.id,
     name: club.name,
@@ -138,7 +138,8 @@ export function AdminClubCard({
     category: club.category,
     recruitmentStatus: club.recruitmentStatus ?? 'RECRUITING',
     isLikedByMe: false,
-    dday: 0,
+    dday: club.dday ?? 0,
+    college: club.college,
   };
 
   return (

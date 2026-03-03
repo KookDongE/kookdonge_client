@@ -11,20 +11,22 @@ import type { College } from '@/types/api';
 import { DefaultClubImage } from '@/components/common/default-club-image';
 
 const COLLEGE_LABEL: Record<College, string> = {
-  GLOBAL_HUMANITIES: '글로벌인문대학',
+  GLOBAL_HUMANITIES: '글로벌인문지역대학',
   SOCIAL_SCIENCE: '사회과학대학',
   LAW: '법과대학',
-  ECONOMICS: '경제대학',
+  ECONOMICS: '경상대학',
   BUSINESS: '경영대학',
-  INDEPENDENT: '자유전공',
-  ENGINEERING: '공과대학',
+  FREE_MAJOR: '자유전공',
+  ENGINEERING: '창의공과대학',
   SOFTWARE: '소프트웨어융합대학',
   AUTOMOTIVE: '자동차융합대학',
   SCIENCE: '과학기술대학',
   ARCHITECTURE: '건축대학',
-  DESIGN: '디자인대학',
+  DESIGN: '조형대학',
   ARTS: '예술대학',
   PHYSICAL_EDUCATION: '체육대학',
+  FUTURE_MOBILITY: '미래모빌리티학과',
+  LIBERAL_ARTS: '교양대학',
 };
 
 const CATEGORY_LABEL: Record<ClubCategory, string> = {
@@ -136,7 +138,7 @@ export function ClubCard({
           <span className="rounded-md bg-violet-100 px-1.5 py-0.5 text-[10px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
             {TYPE_LABEL[club.type]}
           </span>
-          {club.type === 'DEPARTMENTAL' && club.college && (
+          {club.college && COLLEGE_LABEL[club.college] != null && (
             <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
               {COLLEGE_LABEL[club.college]}
             </span>

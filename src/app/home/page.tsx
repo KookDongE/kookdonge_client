@@ -426,6 +426,8 @@ function ClubListSection({
                   type: club.type,
                   isHidden: false,
                   recruitmentStatus: club.recruitmentStatus,
+                  college: club.college,
+                  dday: club.dday ?? 0,
                 };
                 return (
                   <AdminClubCard

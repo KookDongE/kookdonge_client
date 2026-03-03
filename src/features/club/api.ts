@@ -162,6 +162,7 @@ export const clubApi = {
       recruitmentStatus: d.recruitmentStatus,
       isLikedByMe: d.isLikedByMe,
       dday: 0,
+      college: d.college,
     }));
   },
 

@@ -48,20 +48,22 @@ const TYPE_LABEL: Record<ClubType, string> = {
 };
 
 const COLLEGE_LABEL: Record<College, string> = {
-  GLOBAL_HUMANITIES: '글로벌인문대학',
+  GLOBAL_HUMANITIES: '글로벌인문지역대학',
   SOCIAL_SCIENCE: '사회과학대학',
   LAW: '법과대학',
-  ECONOMICS: '경제대학',
+  ECONOMICS: '경상대학',
   BUSINESS: '경영대학',
-  INDEPENDENT: '자유전공',
-  ENGINEERING: '공과대학',
+  FREE_MAJOR: '자유전공',
+  ENGINEERING: '창의공과대학',
   SOFTWARE: '소프트웨어융합대학',
   AUTOMOTIVE: '자동차융합대학',
   SCIENCE: '과학기술대학',
   ARCHITECTURE: '건축대학',
-  DESIGN: '디자인대학',
+  DESIGN: '조형대학',
   ARTS: '예술대학',
   PHYSICAL_EDUCATION: '체육대학',
+  FUTURE_MOBILITY: '미래모빌리티학과',
+  LIBERAL_ARTS: '교양대학',
 };
 
 const STATUS_CONFIG: Record<RecruitmentStatus, { label: string; className: string }> = {

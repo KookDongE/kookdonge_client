@@ -28,20 +28,22 @@ const TYPE_OPTIONS: { value: ClubType | 'ALL'; label: string }[] = [
 
 const COLLEGE_OPTIONS: { value: College | 'ALL'; label: string }[] = [
   { value: 'ALL', label: '단과대 전체' },
-  { value: 'GLOBAL_HUMANITIES', label: '글로벌인문대학' },
+  { value: 'GLOBAL_HUMANITIES', label: '글로벌인문지역대학' },
   { value: 'SOCIAL_SCIENCE', label: '사회과학대학' },
   { value: 'LAW', label: '법과대학' },
-  { value: 'ECONOMICS', label: '경제대학' },
+  { value: 'ECONOMICS', label: '경상대학' },
   { value: 'BUSINESS', label: '경영대학' },
-  { value: 'INDEPENDENT', label: '자유전공' },
-  { value: 'ENGINEERING', label: '공과대학' },
+  { value: 'FREE_MAJOR', label: '자유전공' },
+  { value: 'ENGINEERING', label: '창의공과대학' },
   { value: 'SOFTWARE', label: '소프트웨어융합대학' },
   { value: 'AUTOMOTIVE', label: '자동차융합대학' },
   { value: 'SCIENCE', label: '과학기술대학' },
   { value: 'ARCHITECTURE', label: '건축대학' },
-  { value: 'DESIGN', label: '디자인대학' },
+  { value: 'DESIGN', label: '조형대학' },
   { value: 'ARTS', label: '예술대학' },
   { value: 'PHYSICAL_EDUCATION', label: '체육대학' },
+  { value: 'FUTURE_MOBILITY', label: '미래모빌리티학과' },
+  { value: 'LIBERAL_ARTS', label: '교양대학' },
 ];
 
 const STATUS_OPTIONS: { value: RecruitmentStatus | 'ALL'; label: string }[] = [

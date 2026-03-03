@@ -17,20 +17,22 @@ const TYPE_OPTIONS: { value: ClubType; label: string }[] = [
 ];
 
 const COLLEGE_OPTIONS: { value: College; label: string }[] = [
-  { value: 'GLOBAL_HUMANITIES', label: '글로벌인문대학' },
+  { value: 'GLOBAL_HUMANITIES', label: '글로벌인문지역대학' },
   { value: 'SOCIAL_SCIENCE', label: '사회과학대학' },
   { value: 'LAW', label: '법과대학' },
-  { value: 'ECONOMICS', label: '경제대학' },
+  { value: 'ECONOMICS', label: '경상대학' },
   { value: 'BUSINESS', label: '경영대학' },
-  { value: 'INDEPENDENT', label: '자유전공' },
-  { value: 'ENGINEERING', label: '공과대학' },
+  { value: 'FREE_MAJOR', label: '자유전공' },
+  { value: 'ENGINEERING', label: '창의공과대학' },
   { value: 'SOFTWARE', label: '소프트웨어융합대학' },
   { value: 'AUTOMOTIVE', label: '자동차융합대학' },
   { value: 'SCIENCE', label: '과학기술대학' },
   { value: 'ARCHITECTURE', label: '건축대학' },
-  { value: 'DESIGN', label: '디자인대학' },
+  { value: 'DESIGN', label: '조형대학' },
   { value: 'ARTS', label: '예술대학' },
   { value: 'PHYSICAL_EDUCATION', label: '체육대학' },
+  { value: 'FUTURE_MOBILITY', label: '미래모빌리티학과' },
+  { value: 'LIBERAL_ARTS', label: '교양대학' },
 ];
 
 const CATEGORY_OPTIONS: { value: ClubCategory; label: string }[] = [
@@ -138,7 +140,7 @@ function ClubApplyContent() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="동아리 이름을 입력해주세요"
-            className="w-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-400 dark:focus:border-blue-500"
+            className="w-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-0 focus:border-gray-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-400 dark:focus:border-zinc-600"
           />
         </div>
 
@@ -159,7 +161,7 @@ function ClubApplyContent() {
               }}
               className="w-full"
             >
-              <Select.Trigger className="rounded-xl border border-gray-200 bg-white text-sm text-gray-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
+              <Select.Trigger className="rounded-xl border border-gray-200 bg-white text-sm text-gray-900 outline-none ring-0 focus:outline-none focus:ring-0 focus:border-gray-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:border-zinc-600 [&[data-focus]]:outline-none [&[data-focus]]:ring-0 [&[data-focus]]:border-gray-200 dark:[&[data-focus]]:border-zinc-600">
                 <Select.Value />
                 <Select.Indicator />
               </Select.Trigger>
@@ -192,7 +194,7 @@ function ClubApplyContent() {
                 }}
                 className="w-full"
               >
-                <Select.Trigger className="rounded-xl border border-gray-200 bg-white text-sm text-gray-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
+                <Select.Trigger className="rounded-xl border border-gray-200 bg-white text-sm text-gray-900 outline-none ring-0 focus:outline-none focus:ring-0 focus:border-gray-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:border-zinc-600 [&[data-focus]]:outline-none [&[data-focus]]:ring-0 [&[data-focus]]:border-gray-200 dark:[&[data-focus]]:border-zinc-600">
                   <Select.Value />
                   <Select.Indicator />
                 </Select.Trigger>
@@ -225,7 +227,7 @@ function ClubApplyContent() {
               }}
               className="w-full"
             >
-              <Select.Trigger className="rounded-xl border border-gray-200 bg-white text-sm text-gray-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
+              <Select.Trigger className="rounded-xl border border-gray-200 bg-white text-sm text-gray-900 outline-none ring-0 focus:outline-none focus:ring-0 focus:border-gray-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:border-zinc-600 [&[data-focus]]:outline-none [&[data-focus]]:ring-0 [&[data-focus]]:border-gray-200 dark:[&[data-focus]]:border-zinc-600">
                 <Select.Value />
                 <Select.Indicator />
               </Select.Trigger>
@@ -257,7 +259,7 @@ function ClubApplyContent() {
             value={applicationReason}
             onChange={(e) => setApplicationReason(e.target.value)}
             rows={10}
-            className="w-full min-h-[200px] resize-none rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-400 dark:focus:border-blue-500"
+            className="w-full min-h-[200px] resize-none rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-0 focus:border-gray-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-400 dark:focus:border-zinc-600"
           />
         </div>
       </div>
