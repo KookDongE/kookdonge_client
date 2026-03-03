@@ -701,21 +701,18 @@ function ClubQnaTab({
   );
 }
 
-function ClubCTA({ clubId, currentTab }: { clubId: number; currentTab: string }) {
+/** 정보 탭에서만 노출, 네비게이션바 바로 아래에 붙어서 따라다니는 동아리 지원 버튼 */
+function ClubCTASticky({ clubId }: { clubId: number }) {
   const { data: club } = useClubDetail(clubId);
-
   const applicationLink = club?.applicationLink || club?.recruitmentUrl;
   if (!club || !applicationLink) return null;
-
-  // 피드·Q&A 탭에서는 동아리 지원 버튼 숨김
-  if (currentTab === 'feed' || currentTab === 'qna') return null;
 
   const handleApplyClick = () => {
     window.open(applicationLink, '_blank');
   };
 
   return (
-    <div className="glass sticky top-0 z-40 w-full border-b border-zinc-200/80 p-3 dark:border-zinc-700/80">
+    <div className="sticky top-0 z-40 w-full border-b border-zinc-200/80 bg-white/95 p-3 backdrop-blur-sm dark:border-zinc-700/80 dark:bg-zinc-900/95">
       <div className="mx-auto max-w-md">
         <Button
           className="w-full py-3 text-base font-semibold"
@@ -824,6 +821,7 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
           </Tabs.List>
         </Tabs.ListContainer>
         <Tabs.Panel id="info" className="min-w-0 overflow-x-hidden">
+          <ClubCTASticky clubId={clubId} />
           <ClubInfoTab clubId={clubId} />
         </Tabs.Panel>
         <Tabs.Panel id="feed">
@@ -839,7 +837,6 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
       </Tabs>
       {/* 하단 네비 공간 확보 */}
       <div className="h-32" />
-      <ClubCTA clubId={clubId} currentTab={tab} />
       <NotificationPermissionInlineModal
         open={notificationPromptOpen}
         onClose={() => setNotificationPromptOpen(false)}

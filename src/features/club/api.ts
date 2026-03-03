@@ -303,10 +303,7 @@ export const clubApi = {
     });
   },
 
-  updateClubDetail: async (
-    clubId: number,
-    data: Record<string, unknown>
-  ): Promise<ClubDetailRes> => {
+  updateClubDetail: async (clubId: number, data: Record<string, unknown>): Promise<void> => {
     const infoFields: UpdateClubInfoReq = {};
     if (data.name !== undefined) infoFields.clubName = data.name as string;
     if (data.description !== undefined || data.summary !== undefined)
@@ -375,6 +372,6 @@ export const clubApi = {
       });
     }
 
-    return clubApi.getClubDetail(clubId);
+    // 스웨거: 동아리 수정은 PUT만 지원. 수정 후 갱신은 클라이언트에서 query invalidation으로 refetch (GET /api/clubs/{id} 사용).
   },
 };
