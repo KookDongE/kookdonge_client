@@ -701,7 +701,7 @@ function ClubQnaTab({
   );
 }
 
-/** 정보 탭에서만 노출. 하단 고정 — 네비게이션바 바로 위에 붙어서 스크롤해도 따라다님 */
+/** 정보 탭에서만 노출. body에 포탈해 뷰포트 기준 fixed — 스크롤해도 네비 바로 위에 따라다님 */
 function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: string }) {
   const { data: club } = useClubDetail(clubId);
   const applicationLink = club?.applicationLink || club?.recruitmentUrl;
@@ -714,7 +714,7 @@ function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: str
 
   const bottomOffset = 'calc(72px + env(safe-area-inset-bottom, 0px))';
 
-  return (
+  const cta = (
     <div
       className="fixed left-1/2 z-50 w-full max-w-md -translate-x-1/2 border-t border-zinc-200/80 bg-white/95 p-3 backdrop-blur-sm dark:border-zinc-700/80 dark:bg-zinc-900/95"
       style={{ bottom: bottomOffset }}
@@ -728,6 +728,11 @@ function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: str
       </Button>
     </div>
   );
+
+  if (typeof document !== 'undefined') {
+    return createPortal(cta, document.body);
+  }
+  return cta;
 }
 
 function ClubDetailContent({ clubId }: { clubId: number }) {

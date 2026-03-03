@@ -22,6 +22,8 @@ type FeedItemProps = {
 };
 
 const SWIPE_THRESHOLD = 50;
+/** 이 길이를 넘으면 더보기/접기 노출 (인스타 스타일) */
+const CONTENT_MORE_THRESHOLD = 100;
 
 function formatTimeAgo(dateString: string): string {
   const now = new Date();
@@ -54,8 +56,14 @@ export function FeedItem({
   const hasMultiple = imageUrls.length > 1;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [contentExpanded, setContentExpanded] = useState(false);
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
+
+  const showMoreToggle =
+    content.length > CONTENT_MORE_THRESHOLD ||
+    (content.includes('\n') && content.split('\n').length > 3);
+  const isContentCollapsed = showMoreToggle && !contentExpanded;
 
   const goNext = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % imageUrls.length);
@@ -229,12 +237,26 @@ export function FeedItem({
         </div>
       )}
 
-      {/* 정보 영역: 본문글 (줄바꿈 유지) */}
+      {/* 정보 영역: 본문글 (줄바꿈 유지) + 더보기/접기 */}
       <div className="px-4 pt-2">
-        <p className="text-sm whitespace-pre-wrap text-zinc-900 dark:text-zinc-100">
+        <p
+          className={`text-sm whitespace-pre-wrap text-zinc-900 dark:text-zinc-100 ${
+            isContentCollapsed ? 'line-clamp-3' : ''
+          }`}
+        >
           <span className="font-semibold">{authorName}</span>{' '}
           <span className="text-zinc-700 dark:text-zinc-300">{content}</span>
         </p>
+        {showMoreToggle && (
+          <button
+            type="button"
+            onClick={() => setContentExpanded((prev) => !prev)}
+            className="mt-0.5 text-left text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300"
+            aria-expanded={contentExpanded}
+          >
+            {contentExpanded ? '접기' : '더보기'}
+          </button>
+        )}
       </div>
     </article>
   );
