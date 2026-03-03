@@ -27,6 +27,7 @@ import {
   getNotificationInlinePromptSeen,
   NotificationPermissionInlineModal,
 } from '@/components/common/notification-permission-inline-modal';
+import { FeedCoverImage } from '@/components/feed/feed-cover-image';
 import { BellIcon } from '@/components/icons/notification-icon';
 
 const CATEGORY_LABEL: Record<ClubCategory, string> = {
@@ -545,10 +546,10 @@ function ClubFeedTab({ clubId }: { clubId: number }) {
             key={feed.feedId}
             type="button"
             onClick={() => router.push(`/clubs/${clubId}/feed`)}
-            className="relative aspect-square overflow-hidden bg-zinc-100 dark:bg-zinc-800"
+            className="relative aspect-square overflow-hidden bg-zinc-200 dark:bg-zinc-700"
           >
             {cover ? (
-              <Image src={cover} alt="" fill className="object-cover" sizes="120px" />
+              <FeedCoverImage src={cover} />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-xs text-zinc-400 dark:text-zinc-500">
                 텍스트

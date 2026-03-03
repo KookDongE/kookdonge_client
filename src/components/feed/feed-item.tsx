@@ -57,8 +57,14 @@ export function FeedItem({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [contentExpanded, setContentExpanded] = useState(false);
+  /** 로드 실패한 이미지 인덱스 → 회색 배경으로 대체 */
+  const [failedImageIndices, setFailedImageIndices] = useState<Set<number>>(new Set());
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
+
+  const handleImageError = useCallback((index: number) => {
+    setFailedImageIndices((prev) => new Set(prev).add(index));
+  }, []);
 
   const showMoreToggle =
     content.length > CONTENT_MORE_THRESHOLD ||
@@ -194,15 +200,20 @@ export function FeedItem({
                 pointerEvents: i === currentIndex ? 'auto' : 'none',
               }}
             >
-              <Image
-                src={url}
-                alt=""
-                fill
-                className="object-cover"
-                sizes="100vw"
-                priority={i === 0}
-                draggable={false}
-              />
+              {failedImageIndices.has(i) ? (
+                <div className="absolute inset-0 bg-zinc-200 dark:bg-zinc-700" />
+              ) : (
+                <Image
+                  src={url}
+                  alt=""
+                  fill
+                  className="object-cover"
+                  sizes="100vw"
+                  priority={i === 0}
+                  draggable={false}
+                  onError={() => handleImageError(i)}
+                />
+              )}
             </div>
           ))}
           {/* 인디케이터: 클릭 시 해당 사진으로 이동 */}
@@ -225,15 +236,18 @@ export function FeedItem({
           </div>
         </div>
       ) : (
-        <div className="relative aspect-square w-full bg-zinc-100 dark:bg-zinc-800">
-          <Image
-            src={imageUrls[0] ?? ''}
-            alt=""
-            fill
-            className="object-cover"
-            sizes="100vw"
-            priority
-          />
+        <div className="relative aspect-square w-full bg-zinc-200 dark:bg-zinc-700">
+          {failedImageIndices.has(0) ? null : (
+            <Image
+              src={imageUrls[0] ?? ''}
+              alt=""
+              fill
+              className="object-cover"
+              sizes="100vw"
+              priority
+              onError={() => handleImageError(0)}
+            />
+          )}
         </div>
       )}
 

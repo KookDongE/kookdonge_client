@@ -18,7 +18,7 @@ import {
   useUpdateRecruitmentInfo,
 } from '@/features/club/hooks';
 import { useInterestedStore } from '@/features/club/interested-store';
-import { useClubFeeds, useUploadFeedFiles } from '@/features/feed/hooks';
+import { useClubFeeds, useDeleteFeed, useUploadFeedFiles } from '@/features/feed/hooks';
 import {
   useCreateAnswer,
   useDeleteQuestion,
@@ -31,6 +31,7 @@ import {
   useRemoveFromWaitingList,
 } from '@/features/waiting-list/hooks';
 import { DefaultClubImage } from '@/components/common/default-club-image';
+import { FeedCoverImage } from '@/components/feed/feed-cover-image';
 import { BellIcon } from '@/components/icons/notification-icon';
 
 const CATEGORY_LABEL: Record<ClubCategory, string> = {
@@ -1701,7 +1702,30 @@ function ClubInfoTab({
 function ClubFeedTab({ clubId }: { clubId: number }) {
   const router = useRouter();
   const { data, isLoading } = useClubFeeds(clubId);
+  const deleteFeed = useDeleteFeed(clubId);
+  const [openMenuFeedId, setOpenMenuFeedId] = useState<number | null>(null);
+  const [deleteModalFeedId, setDeleteModalFeedId] = useState<number | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
   const feeds = data?.clubFeedList || [];
+
+  useEffect(() => {
+    if (openMenuFeedId == null) return;
+    const close = (e: MouseEvent) => {
+      if (menuRef.current?.contains(e.target as Node)) return;
+      setOpenMenuFeedId(null);
+    };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [openMenuFeedId]);
+
+  const handleDeleteConfirm = () => {
+    if (deleteModalFeedId != null) {
+      deleteFeed.mutate(deleteModalFeedId, {
+        onSettled: () => setDeleteModalFeedId(null),
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -1712,48 +1736,144 @@ function ClubFeedTab({ clubId }: { clubId: number }) {
   }
 
   return (
-    <div className="grid grid-cols-3 gap-1.5 p-1.5">
-      {/* 피드 추가 버튼 */}
-      <button
-        type="button"
-        onClick={() => router.push(`/mypage/clubs/${clubId}/manage/feed/new`)}
-        className="relative aspect-square overflow-hidden rounded-lg border-2 border-dashed border-zinc-300 bg-zinc-50 transition-colors hover:border-zinc-400 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-zinc-700"
-      >
-        <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-zinc-400 dark:text-zinc-500">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            className="h-8 w-8"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-          </svg>
-          <span className="text-xs font-medium">피드 추가</span>
-        </div>
-      </button>
+    <div className="p-1.5">
+      <div className="grid grid-cols-3 gap-1.5">
+        {/* 피드 추가 버튼 */}
+        <button
+          type="button"
+          onClick={() => router.push(`/mypage/clubs/${clubId}/manage/feed/new`)}
+          className="relative aspect-square overflow-hidden rounded-lg border-2 border-dashed border-zinc-300 bg-zinc-50 transition-colors hover:border-zinc-400 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-zinc-700"
+        >
+          <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-zinc-400 dark:text-zinc-500">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              className="h-8 w-8"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            <span className="text-xs font-medium">피드 추가</span>
+          </div>
+        </button>
 
-      {/* 피드 목록 */}
-      {feeds.map((feed) => {
-        const cover = feed.postUrls?.[0];
-        return (
-          <button
-            key={feed.feedId}
-            type="button"
-            onClick={() => router.push(`/clubs/${clubId}/feed`)}
-            className="relative aspect-square overflow-hidden bg-zinc-100 dark:bg-zinc-800"
-          >
-            {cover ? (
-              <Image src={cover} alt="" fill className="object-cover" sizes="120px" />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-xs text-zinc-400 dark:text-zinc-500">
-                텍스트
+        {/* 피드 목록 */}
+        {feeds.map((feed) => {
+          const cover = feed.postUrls?.[0];
+          const isMenuOpen = openMenuFeedId === feed.feedId;
+          return (
+            <div
+              key={feed.feedId}
+              className="relative aspect-square overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800"
+            >
+              <button
+                type="button"
+                onClick={() => router.push(`/clubs/${clubId}/feed`)}
+                className="absolute inset-0"
+              >
+                {cover ? (
+                  <FeedCoverImage src={cover} />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-xs text-zinc-400 dark:text-zinc-500">
+                    텍스트
+                  </div>
+                )}
+              </button>
+              <div
+                className="absolute top-1 right-1 z-10"
+                ref={isMenuOpen ? menuRef : undefined}
+              >
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onPress={() => setOpenMenuFeedId((prev) => (prev === feed.feedId ? null : feed.feedId))}
+                  isDisabled={deleteFeed.isPending}
+                  className="min-h-8 min-w-8 bg-black/50 px-2 text-white hover:bg-black/70 dark:bg-black/60 dark:hover:bg-black/80"
+                  aria-label="더보기"
+                  aria-expanded={isMenuOpen}
+                >
+                  …
+                </Button>
+                {isMenuOpen && (
+                  <div
+                    className="absolute top-full right-0 z-20 mt-1 min-w-[7rem] rounded-lg border bg-[var(--card)] py-1 shadow-lg"
+                    style={{ borderColor: 'var(--border)' }}
+                    role="menu"
+                  >
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="w-full px-3 py-2 text-left text-sm hover:bg-[var(--muted)]"
+                      style={{ color: 'var(--card-foreground)' }}
+                      onClick={() => {
+                        setOpenMenuFeedId(null);
+                        router.push(`/mypage/clubs/${clubId}/manage/feed/${feed.feedId}/edit`);
+                      }}
+                    >
+                      수정
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="w-full px-3 py-2 text-left text-sm hover:bg-[var(--muted)]"
+                      style={{ color: 'var(--card-foreground)' }}
+                      onClick={() => {
+                        setOpenMenuFeedId(null);
+                        setDeleteModalFeedId(feed.feedId);
+                      }}
+                    >
+                      삭제
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
-          </button>
-        );
-      })}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* 피드 삭제 확인 모달 */}
+      {deleteModalFeedId != null && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="feed-delete-modal-title"
+        >
+          <div
+            className="w-full max-w-sm rounded-xl bg-[var(--card)] p-5 shadow-xl"
+            style={{ color: 'var(--card-foreground)' }}
+          >
+            <h2 id="feed-delete-modal-title" className="text-lg font-semibold">
+              피드 삭제
+            </h2>
+            <p className="mt-2 text-sm opacity-90">
+              정말 이 피드를 삭제하시겠습니까?
+            </p>
+            <div className="mt-4 flex justify-end gap-2">
+              <Button
+                size="sm"
+                variant="ghost"
+                onPress={() => setDeleteModalFeedId(null)}
+                isDisabled={deleteFeed.isPending}
+              >
+                취소
+              </Button>
+              <Button
+                size="sm"
+                variant="primary"
+                color="danger"
+                onPress={handleDeleteConfirm}
+                isLoading={deleteFeed.isPending}
+              >
+                삭제
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

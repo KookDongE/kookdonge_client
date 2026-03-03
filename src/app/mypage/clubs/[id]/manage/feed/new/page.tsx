@@ -27,6 +27,7 @@ function FeedImageReorderItem({
   canReorder: boolean;
 }) {
   const controls = useDragControls();
+  const [imageError, setImageError] = useState(false);
 
   return (
     <Reorder.Item
@@ -36,15 +37,18 @@ function FeedImageReorderItem({
       whileDrag={{ scale: 1.02, zIndex: 50 }}
       className="relative flex shrink-0 flex-col gap-1 rounded-xl"
     >
-      <div className="relative aspect-square w-36 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
-        <Image
-          src={file.fileUrl}
-          alt=""
-          fill
-          className="pointer-events-none object-cover select-none"
-          sizes="144px"
-          draggable={false}
-        />
+      <div className="relative aspect-square w-36 overflow-hidden rounded-xl bg-zinc-200 dark:bg-zinc-700">
+        {!imageError && (
+          <Image
+            src={file.fileUrl}
+            alt=""
+            fill
+            className="pointer-events-none object-cover select-none"
+            sizes="144px"
+            draggable={false}
+            onError={() => setImageError(true)}
+          />
+        )}
         <button
           type="button"
           data-no-drag
