@@ -77,14 +77,21 @@ export const feedApi = {
   getFeed: async (clubId: number, feedId: number): Promise<ClubFeedRes> => {
     const raw = await apiClient<unknown>(`/api/clubs/${clubId}/feeds/${feedId}`);
     const o = (raw ?? {}) as Record<string, unknown>;
+    const postUrls = Array.isArray(o.postUrls)
+      ? (o.postUrls as string[])
+      : Array.isArray(o.post_urls)
+        ? (o.post_urls as string[])
+        : [];
+    const fileUuids = Array.isArray(o.fileUuids)
+      ? (o.fileUuids as string[])
+      : Array.isArray(o.file_uuids)
+        ? (o.file_uuids as string[])
+        : undefined;
     return {
       feedId: Number(o.feedId ?? o.feed_id ?? feedId),
       content: typeof o.content === 'string' ? o.content : '',
-      postUrls: Array.isArray(o.postUrls)
-        ? (o.postUrls as string[])
-        : Array.isArray(o.post_urls)
-          ? (o.post_urls as string[])
-          : [],
+      postUrls,
+      fileUuids: fileUuids?.length === postUrls.length ? fileUuids : undefined,
       createdAt:
         typeof o.createdAt === 'string'
           ? o.createdAt

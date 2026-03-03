@@ -1855,7 +1855,7 @@ function ClubQnaTab({
                 <div
                   key={qna.id}
                   id={`question-${qna.id}`}
-                  className="rounded-lg border border-zinc-100 p-4 dark:border-zinc-700"
+                  className="rounded-lg border border-[#e4e4e7] p-4 dark:border-zinc-700"
                 >
                   <div className="flex items-start gap-3">
                     <button
@@ -1936,7 +1936,7 @@ function ClubQnaTab({
               <div
                 key={qna.id}
                 id={`question-${qna.id}`}
-                className="rounded-lg border border-zinc-100 p-4 dark:border-zinc-700"
+                className="rounded-lg border border-[#e4e4e7] p-4 dark:border-zinc-700"
               >
                 <div className="flex items-start gap-3">
                   <span

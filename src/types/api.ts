@@ -227,6 +227,8 @@ export type ClubFeedRes = {
   feedId: number;
   content: string;
   postUrls: string[];
+  /** postUrls와 동일 순서의 파일 UUID (있으면 수정 시 삭제/순서 변경 가능) */
+  fileUuids?: string[];
   /** 피드 작성 시간 (ISO date-time) */
   createdAt?: string;
 };

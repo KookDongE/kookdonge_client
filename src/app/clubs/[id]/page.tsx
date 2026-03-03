@@ -683,7 +683,7 @@ function ClubQnaTab({
               </button>
             </div>
             {qna.answer && (
-              <div className="mt-3 flex items-start gap-3 border-t border-zinc-100 pt-3 dark:border-zinc-700">
+              <div className="mt-3 flex items-start gap-3 border-t border-t-[#e4e4e7] pt-3 dark:border-t-zinc-700">
                 <span
                   className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
                   aria-hidden
@@ -714,31 +714,36 @@ function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: str
   };
 
   const bottomOffset = 'calc(72px + env(safe-area-inset-bottom, 0px))';
-  const spring = { type: 'spring' as const, stiffness: 200, damping: 22 };
+  const transition = {
+    type: 'tween' as const,
+    duration: 0.4,
+    ease: [0.32, 0.72, 0, 1],
+  };
 
   const cta = (
-    <AnimatePresence mode="wait">
-      {show && (
-        <motion.div
-          key="club-cta"
-          initial={{ opacity: 0, y: 12, scale: 0.92 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 8, scale: 0.92 }}
-          transition={spring}
-          className="fixed right-4 z-50 rounded-full border border-zinc-200/80 bg-white/95 shadow-lg backdrop-blur-sm dark:border-zinc-700/80 dark:bg-zinc-900/95"
-          style={{ bottom: bottomOffset }}
-        >
-          <Button
-            size="sm"
-            className="min-w-0 rounded-full px-4 py-2 text-sm font-semibold"
-            variant="primary"
-            onPress={handleApplyClick}
+    <div className="fixed right-4 z-50" style={{ bottom: bottomOffset }}>
+      <AnimatePresence mode="wait">
+        {show && (
+          <motion.div
+            key="club-cta"
+            initial={{ opacity: 0, y: 24, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 16, scale: 0.9 }}
+            transition={transition}
+            className="rounded-full border border-zinc-200/80 bg-white/95 shadow-lg backdrop-blur-sm dark:border-zinc-700/80 dark:bg-zinc-900/95"
           >
-            동아리 지원
-          </Button>
-        </motion.div>
-      )}
-    </AnimatePresence>
+            <Button
+              size="sm"
+              className="min-w-0 rounded-full px-4 py-2 text-sm font-semibold"
+              variant="primary"
+              onPress={handleApplyClick}
+            >
+              동아리 지원
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 
   if (typeof document !== 'undefined') {
