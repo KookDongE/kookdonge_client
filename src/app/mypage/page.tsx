@@ -8,7 +8,7 @@ import { Chip, Spinner } from '@heroui/react';
 
 import { ClubCategory, ClubType, RecruitmentStatus } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
-import { useLikedClubs, useManagedClubs, useMyApplications } from '@/features/club/hooks';
+import { useManagedClubs, useMyApplications } from '@/features/club/hooks';
 import { useInterestedStore } from '@/features/club/interested-store';
 import { useMyQuestions, usePendingQuestions, useQuestions } from '@/features/question/hooks';
 import { DefaultClubImage } from '@/components/common/default-club-image';
@@ -371,92 +371,6 @@ function QnAListSection() {
   );
 }
 
-function LikedClubsSection() {
-  const { data: likedClubs, isLoading } = useLikedClubs();
-
-  return (
-    <div className="px-4 py-5">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">좋아요한 동아리</h3>
-        <Link
-          href="/mypage/liked"
-          className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-        >
-          전체보기
-        </Link>
-      </div>
-      {isLoading ? (
-        <div className="flex justify-center py-8">
-          <Spinner />
-        </div>
-      ) : !likedClubs || likedClubs.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-12 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
-          <p>좋아요한 동아리가 없습니다.</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {likedClubs.slice(0, PREVIEW_LIMIT).map((club) => (
-            <Link
-              key={club.id}
-              href={`/clubs/${club.id}`}
-              className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
-            >
-              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
-                {club.logoImage ? (
-                  <Image
-                    src={club.logoImage}
-                    alt={club.name}
-                    fill
-                    className="object-cover"
-                    sizes="56px"
-                  />
-                ) : (
-                  <DefaultClubImage className="object-cover" sizes="56px" />
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="mb-1 flex flex-wrap items-center gap-1.5">
-                  {club.recruitmentStatus && (
-                    <span
-                      className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium ${STATUS_CONFIG[club.recruitmentStatus].className}`}
-                    >
-                      {STATUS_CONFIG[club.recruitmentStatus].label}
-                    </span>
-                  )}
-                  <span className="mypage-club-tag-type rounded-md bg-violet-100 px-1.5 py-0.5 text-[10px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
-                    {TYPE_LABEL[club.type]}
-                  </span>
-                  {club.category && (
-                    <span className="mypage-club-tag-category rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-                      {CATEGORY_LABEL[club.category]}
-                    </span>
-                  )}
-                </div>
-                <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
-                  {club.name}
-                </h4>
-              </div>
-              <svg
-                className="h-5 w-5 text-zinc-400 dark:text-zinc-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
 function InterestedClubsSection() {
   const interestedClubs = useInterestedStore((s) => s.getList());
 
@@ -677,7 +591,6 @@ export default function MyPage() {
       <QnAListSection />
       <PendingQuestionsSection />
       <InterestedClubsSection />
-      <LikedClubsSection />
     </div>
   );
 }

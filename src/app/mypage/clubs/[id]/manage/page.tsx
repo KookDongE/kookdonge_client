@@ -98,6 +98,8 @@ function toHourOnly(timeStr: string | undefined): string {
   return `${String(hour).padStart(2, '0')}:00`;
 }
 
+const HOUR_OPTIONS = Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}:00`);
+
 function StarIcon({ filled, className }: { filled: boolean; className?: string }) {
   return (
     <svg
@@ -1313,9 +1315,7 @@ function ClubInfoTab({
                 모집 상태
               </label>
               <div className={valueBoxClass}>
-                <span
-                  className={`inline-flex rounded-md px-2 py-0.5 text-sm font-medium ${STATUS_CONFIG[club.recruitmentStatus as RecruitmentStatus].className}`}
-                >
+                <span className="text-zinc-900 dark:text-zinc-100">
                   {STATUS_CONFIG[club.recruitmentStatus as RecruitmentStatus].label}
                 </span>
               </div>
@@ -1401,14 +1401,18 @@ function ClubInfoTab({
                   <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
                     모집 시작 시간
                   </label>
-                  <input
-                    type="time"
-                    step={3600}
+                  <select
                     value={recruitmentStartTime}
-                    onChange={(e) => setRecruitmentStartTime(toHourOnly(e.target.value))}
+                    onChange={(e) => setRecruitmentStartTime(e.target.value)}
                     className="club-manage-time-input w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
                     style={{ minWidth: '6.5rem' }}
-                  />
+                  >
+                    {HOUR_OPTIONS.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt.slice(0, 2)}시
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
               <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-[minmax(10rem,1fr)_minmax(8rem,1fr)]">
@@ -1433,14 +1437,18 @@ function ClubInfoTab({
                   <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
                     모집 종료 시간
                   </label>
-                  <input
-                    type="time"
-                    step={3600}
+                  <select
                     value={recruitmentEndTime}
-                    onChange={(e) => setRecruitmentEndTime(toHourOnly(e.target.value))}
+                    onChange={(e) => setRecruitmentEndTime(e.target.value)}
                     className="club-manage-time-input w-full min-w-0 rounded-xl border border-zinc-200 bg-white p-3 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
                     style={{ minWidth: '6.5rem' }}
-                  />
+                  >
+                    {HOUR_OPTIONS.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt.slice(0, 2)}시
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>

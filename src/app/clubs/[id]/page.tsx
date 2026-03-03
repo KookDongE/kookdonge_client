@@ -309,11 +309,15 @@ function ClubHeader({
         </div>
       </div>
       {actionMessage && (
-        <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom)+1.5rem)] z-50 flex justify-center px-4">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center px-4"
+          aria-hidden="true"
+        >
+          <div className="absolute inset-0 bg-black/40" aria-hidden="true" />
           <div
             role="status"
             aria-live="polite"
-            className="max-w-[calc(100%-2rem)] rounded-2xl bg-white px-5 py-3 text-center text-sm font-medium text-zinc-900 shadow-lg dark:bg-white dark:text-zinc-900"
+            className="relative max-w-[min(320px,calc(100%-2rem))] rounded-xl bg-white px-4 py-3 text-center text-sm text-zinc-800 shadow-sm dark:bg-zinc-100 dark:text-zinc-800"
           >
             {actionMessage}
           </div>
