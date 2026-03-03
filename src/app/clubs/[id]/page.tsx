@@ -708,15 +708,21 @@ function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: str
   const applicationLink = club?.applicationLink || club?.recruitmentUrl;
   const shouldShow = !!club && !!applicationLink && currentTab === 'info';
 
-  // 스크롤 위치 → 스프링으로 부드럽게 따라오는 y 오프셋 (스크롤 따라다닐 때 지연 후 따라오는 느낌)
+  // 스크롤 위치 → 스프링으로 부드럽게 따라오는 y 오프셋 (범위 제한 + 부드러운 스프링)
   const scrollY = useMotionValue(0);
   const smoothScrollY = useSpring(scrollY, {
-    stiffness: 45,
-    damping: 22,
-    mass: 0.5,
+    stiffness: 18,
+    damping: 26,
+    mass: 0.8,
   });
-  // 스크롤 시 버튼이 살짝 위에 있다가 부드럽게 따라 내려오는 느낌 (smoothScroll이 지연되므로 smoothScroll - scroll = 음수 → 위로 있다가 0으로)
-  const followY = useTransform(() => smoothScrollY.get() - scrollY.get());
+  // 차이를 매우 작은 범위로 제한해 살짝만 따라오는 느낌 (최대 ±6px)
+  const followY = useTransform(() => {
+    const delta = smoothScrollY.get() - scrollY.get();
+    const maxPx = 6;
+    const sign = delta < 0 ? -1 : 1;
+    const abs = Math.min(Math.abs(delta), 80);
+    return sign * Math.min(maxPx, abs * 0.12);
+  });
 
   useEffect(() => {
     if (!shouldShow) return;

@@ -3,14 +3,18 @@
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
+/** 이 거리(px) 이상 드래그해야 인디케이터가 보이기 시작 — 살짝 터치만 할 때 움직임 방지 */
+const DRAG_START_THRESHOLD = 12;
 /** 새로고침이 발동되려면 당겨야 하는 최소 거리 (px). 높을수록 둔감 */
 const PULL_THRESHOLD = 95;
-/** 당김 감도. 낮을수록 부드럽고 둔감 (0.3~0.4 권장) */
-const PULL_DAMPING = 0.35;
 /** 당김 최대 표시 거리 (px). THRESHOLD보다 커야 새로고침 발동 가능 */
 const MAX_PULL = 130;
+/** 저항 곡선: (delta - DRAG_START_THRESHOLD) * 이 값으로 거리 계산. sqrt 쓰면 초반에 더 완만 */
+const PULL_RESISTANCE_FACTOR = 104;
 /** 손가락 놓았을 때 원위치로 돌아가는 애니메이션 시간 (ms) */
 const RELEASE_DURATION_MS = 320;
+/** 인디케이터 영역 최대 높이 (px) */
+const INDICATOR_HEIGHT = 52;
 
 /** 동아리 관리 페이지 진입 시 스크롤 리셋 (캐시된 페이지 재진입 시에도 동작) */
 const CLUB_MANAGE_PATH = /^\/mypage\/clubs\/[^/]+\/manage$/;
@@ -72,7 +76,15 @@ export function PullToRefresh({
       if (!el || el.scrollTop > 0 || isRefreshing) return;
       const y = e.touches[0].clientY;
       const delta = Math.max(0, y - startYRef.current);
-      const distance = Math.min(delta * PULL_DAMPING, MAX_PULL);
+      // 초반 드래그는 무시해 터치만 할 때 화면이 움직이지 않게 함
+      if (delta < DRAG_START_THRESHOLD) {
+        lastDistanceRef.current = 0;
+        setPullDistance(0);
+        return;
+      }
+      // 저항 곡선: sqrt 사용해 당길수록 서서히 따라오는 느낌
+      const raw = delta - DRAG_START_THRESHOLD;
+      const distance = Math.min(MAX_PULL, Math.sqrt(raw * PULL_RESISTANCE_FACTOR));
       lastDistanceRef.current = distance;
       setPullDistance(distance);
     },
@@ -121,14 +133,19 @@ export function PullToRefresh({
         }}
       >
         <div
-          className="flex items-center justify-center"
-          style={{ minHeight: pullDistance > 0 || isRefreshing ? 52 : 0 }}
+          className="flex items-center justify-center overflow-hidden"
+          style={{
+            minHeight: isRefreshing ? INDICATOR_HEIGHT : Math.min(INDICATOR_HEIGHT, pullDistance),
+          }}
         >
           {pullDistance > 0 || isRefreshing ? (
             isRefreshing ? (
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-300 border-t-blue-500 dark:border-zinc-600 dark:border-t-lime-400" />
             ) : (
-              <span className="text-xs text-zinc-500 dark:text-zinc-400">
+              <span
+                className="text-xs text-zinc-500 dark:text-zinc-400"
+                style={{ opacity: Math.min(1, pullDistance / 36) }}
+              >
                 {pullDistance >= PULL_THRESHOLD ? '놓아서 새로고침' : '당겨서 새로고침'}
               </span>
             )
