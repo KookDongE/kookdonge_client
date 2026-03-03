@@ -785,8 +785,9 @@ function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: str
     mass: 1,
   });
   const FOLLOW_MAX_PX = 20;
+  const FOLLOW_MIN_HEIGHT_PX = 12; // 최저 높이를 조금 더 높게 (스크롤 시 버튼이 내려가는 한계를 줄임)
   const targetOffsetY = useTransform(smoothScrollY, (value) =>
-    Math.min(Math.max(value * 0.08, 0), FOLLOW_MAX_PX)
+    Math.min(value * 0.08, FOLLOW_MAX_PX - FOLLOW_MIN_HEIGHT_PX)
   );
   // 목표 오프셋을 한 번 더 스프링으로 따라가서 “기본 위치로 돌아가려는” 느낌
   const displayY = useSpring(targetOffsetY, {
