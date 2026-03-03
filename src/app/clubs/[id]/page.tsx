@@ -696,13 +696,15 @@ function ClubQnaTab({
                 </button>
                 {openMenuQuestionId === qna.id && (
                   <div
-                    className="absolute top-full right-0 z-10 mt-1 min-w-[7rem] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-600 dark:bg-zinc-800"
+                    className="absolute top-full right-0 z-10 mt-1 min-w-[7rem] rounded-lg border bg-[var(--card)] py-1 shadow-lg"
+                    style={{ borderColor: 'var(--border)' }}
                     role="menu"
                   >
                     <button
                       type="button"
                       role="menuitem"
-                      className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                      className="w-full px-3 py-2 text-left text-sm hover:bg-[var(--muted)]"
+                      style={{ color: 'var(--card-foreground)' }}
                       onClick={() => {
                         setOpenMenuQuestionId(null);
                         if (confirm('이 질문을 삭제할까요?')) deleteQuestion.mutate(qna.id);
@@ -713,7 +715,8 @@ function ClubQnaTab({
                     <button
                       type="button"
                       role="menuitem"
-                      className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                      className="w-full px-3 py-2 text-left text-sm hover:bg-[var(--muted)]"
+                      style={{ color: 'var(--card-foreground)' }}
                       onClick={() => {
                         setOpenMenuQuestionId(null);
                         alert('아직 준비중인 기능입니다.');
