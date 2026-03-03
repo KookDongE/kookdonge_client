@@ -47,7 +47,7 @@ function ClubApplyContent() {
   const router = useRouter();
   const applyClub = useApplyClub();
   const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const [applicationReason, setApplicationReason] = useState('');
   const [clubType, setClubType] = useState<ClubType | ''>('');
   const [college, setCollege] = useState<College | ''>('');
   const [category, setCategory] = useState<ClubCategory | ''>('');
@@ -57,7 +57,7 @@ function ClubApplyContent() {
       alert('동아리 이름을 입력해주세요.');
       return;
     }
-    if (!description.trim()) {
+    if (!applicationReason.trim()) {
       alert('신청 사유를 입력해주세요.');
       return;
     }
@@ -79,8 +79,8 @@ function ClubApplyContent() {
         clubName: name.trim(),
         clubType: clubType as ClubType,
         category: category as ClubCategory,
+        applicationReason: applicationReason.trim(),
         college: college || undefined,
-        description: description.trim(),
       },
       {
         onSuccess: () => {
@@ -112,7 +112,7 @@ function ClubApplyContent() {
             onClick={handleSubmit}
             disabled={
               !name.trim() ||
-              !description.trim() ||
+              !applicationReason.trim() ||
               !clubType ||
               !category ||
               (clubType === 'DEPARTMENTAL' && !college) ||
@@ -251,8 +251,8 @@ function ClubApplyContent() {
           </label>
           <textarea
             placeholder="신청 사유를 입력해주세요"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            value={applicationReason}
+            onChange={(e) => setApplicationReason(e.target.value)}
             rows={10}
             className="w-full min-h-[200px] resize-none rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-400 dark:focus:border-blue-500"
           />

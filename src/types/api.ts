@@ -435,6 +435,8 @@ export type ClubCreationReq = {
   clubName: string;
   clubType: ClubType;
   category: ClubCategory;
+  /** 신청 사유 (필수) */
+  applicationReason: string;
   college?: string;
   description?: string;
   image?: string;
