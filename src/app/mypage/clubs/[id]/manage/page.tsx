@@ -8,6 +8,7 @@ import { Button, Chip, ListBox, Select, Spinner, Tabs, TextArea } from '@heroui/
 import { parseAsString, useQueryState } from 'nuqs';
 
 import { ClubCategory, ClubDetailRes, ClubType, RecruitmentStatus } from '@/types/api';
+import { parseApiIsoToDate } from '@/lib/utils';
 import {
   useAddClubAdmin,
   useClubDetail,
@@ -95,9 +96,8 @@ function formatDate(dateString: string | null | undefined): string {
 
 /** 모집기간 읽기 모드: 한국 시간으로 날짜+시간 표시 */
 function formatDateTimeReadMode(dateString: string | null | undefined): string {
-  if (dateString == null || dateString === '') return '-';
-  const date = new Date(dateString);
-  if (Number.isNaN(date.getTime())) return '-';
+  const date = parseApiIsoToDate(dateString);
+  if (!date) return '-';
   return date.toLocaleString('ko-KR', {
     timeZone: KST,
     year: '2-digit',
@@ -111,9 +111,8 @@ function formatDateTimeReadMode(dateString: string | null | undefined): string {
 
 /** API ISO 문자열을 한국 시간(KST) 기준 날짜(YYYY-MM-DD)와 시간(HH:mm)으로 반환 */
 function parseIsoToKstDateAndTime(iso: string | null | undefined): { date: string; time: string } {
-  if (!iso || iso.trim() === '') return { date: '', time: '00:00' };
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return { date: '', time: '00:00' };
+  const d = parseApiIsoToDate(iso);
+  if (!d) return { date: '', time: '00:00' };
   const dateStr = new Intl.DateTimeFormat('en-CA', {
     timeZone: KST,
     year: 'numeric',

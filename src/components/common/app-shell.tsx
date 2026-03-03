@@ -26,7 +26,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     >
       <Header />
       <main
-        className={`flex flex-col overflow-hidden ${fullScreen ? 'h-dvh min-h-0' : 'h-[calc(100dvh-3.5rem-4rem)]'}`}
+        className={`flex flex-col overflow-hidden ${fullScreen ? 'h-dvh min-h-0' : 'h-[calc(100dvh-4rem)] pt-14'}`}
       >
         <PullToRefresh fullScreen={fullScreen} disabled={pullToRefreshDisabled}>
           {children}

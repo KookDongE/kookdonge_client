@@ -9,6 +9,7 @@ import { parseAsString, useQueryState } from 'nuqs';
 import { createPortal } from 'react-dom';
 
 import { ClubCategory, ClubType, RecruitmentStatus } from '@/types/api';
+import { parseApiIsoToDate } from '@/lib/utils';
 import { useMyProfile } from '@/features/auth/hooks';
 import { useClubDetail, useLikeClub, useUnlikeClub } from '@/features/club/hooks';
 import { useInterestedStore } from '@/features/club/interested-store';
@@ -124,9 +125,8 @@ function formatDate(dateString: string): string {
 
 /** 모집기간 등 날짜+시간 표시 (한국 시간) */
 function formatDateTime(dateString: string | null | undefined): string {
-  if (dateString == null || dateString === '') return '-';
-  const date = new Date(dateString);
-  if (Number.isNaN(date.getTime())) return '-';
+  const date = parseApiIsoToDate(dateString);
+  if (!date) return '-';
   return date.toLocaleString('ko-KR', {
     timeZone: 'Asia/Seoul',
     year: '2-digit',
