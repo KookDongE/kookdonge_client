@@ -36,8 +36,46 @@ function EditFeedForm({
     return urls.map((url, i) => ({ uuid: uuids[i] ?? null, url }));
   }, [feed.postUrls, feed.fileUuids]);
   const [items, setItems] = useState<FeedImageItem[]>(() => initialItems);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const hasAnyImages = items.length > 0;
+
+  const handleDragStart = (index: number) => (e: React.DragEvent) => {
+    setDragIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(index));
+    e.dataTransfer.setDragImage(e.currentTarget, 48, 48);
+  };
+
+  const handleDragEnd = () => {
+    setDragIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragOver = (index: number) => (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverIndex(index);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = (toIndex: number) => (e: React.DragEvent) => {
+    e.preventDefault();
+    const fromIndex = dragIndex ?? parseInt(e.dataTransfer.getData('text/plain') ?? '-1', 10);
+    setDragIndex(null);
+    setDragOverIndex(null);
+    if (fromIndex < 0 || fromIndex === toIndex) return;
+    setItems((prev) => {
+      const next = [...prev];
+      const [removed] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, removed);
+      return next;
+    });
+  };
 
   const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -54,16 +92,6 @@ function EditFeedForm({
 
   const handleRemoveImage = (index: number) => {
     setItems((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const handleMove = (index: number, direction: 'up' | 'down') => {
-    const target = direction === 'up' ? index - 1 : index + 1;
-    if (target < 0 || target >= items.length) return;
-    setItems((prev) => {
-      const next = [...prev];
-      [next[index], next[target]] = [next[target], next[index]];
-      return next;
-    });
   };
 
   const handleSubmit = () => {
@@ -153,73 +181,74 @@ function EditFeedForm({
           </label>
         ) : (
           <div className="flex flex-wrap items-center gap-3">
-            {items.map((item, index) => (
-              <div key={item.uuid ?? `img-${index}`} className="relative flex flex-col gap-1">
-                <div className="relative aspect-square w-24 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
-                  <Image
-                    src={item.url}
-                    alt=""
-                    fill
-                    className="object-cover"
-                    sizes="96px"
-                    unoptimized={!item.uuid}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveImage(index)}
-                    className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
-                    aria-label="이미지 삭제"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={2.5}
-                      className="h-4 w-4"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-                {items.length > 1 && (
-                  <div className="flex justify-center gap-0.5">
+            {items.map((item, index) => {
+              const isDragging = dragIndex === index;
+              const isDragOver = dragOverIndex === index;
+              return (
+                <div
+                  key={item.uuid ?? `img-${index}`}
+                  draggable={items.length > 1}
+                  onDragStart={handleDragStart(index)}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={handleDragOver(index)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop(index)}
+                  className={`relative flex flex-col gap-1 transition-all duration-150 ${
+                    items.length > 1 ? 'cursor-grab active:cursor-grabbing' : ''
+                  } ${isDragging ? 'scale-95 opacity-50' : ''} ${
+                    isDragOver ? 'rounded-xl ring-2 ring-blue-500 ring-offset-2' : ''
+                  }`}
+                >
+                  <div className="relative aspect-square w-24 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
+                    <Image
+                      src={item.url}
+                      alt=""
+                      fill
+                      className="pointer-events-none object-cover select-none"
+                      sizes="96px"
+                      unoptimized={!item.uuid}
+                      draggable={false}
+                    />
+                    {items.length > 1 && (
+                      <div className="pointer-events-none absolute top-1 left-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-white">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          className="h-3.5 w-3.5"
+                        >
+                          <path d="M8 6h2v2H8V6zm0 5h2v2H8v-2zm0 5h2v2H8v-2zm5-10h2v2h-2V6zm0 5h2v2h-2v-2zm0 5h2v2h-2v-2z" />
+                        </svg>
+                      </div>
+                    )}
                     <button
                       type="button"
-                      onClick={() => handleMove(index, 'up')}
-                      disabled={index === 0}
-                      className="rounded p-1 text-zinc-500 hover:bg-zinc-200 hover:text-zinc-700 disabled:opacity-30 dark:hover:bg-zinc-600 dark:hover:text-zinc-200"
-                      aria-label="위로"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveImage(index);
+                      }}
+                      className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
+                      aria-label="이미지 삭제"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
-                        fill="currentColor"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2.5}
                         className="h-4 w-4"
                       >
-                        <path d="M7 14l5-5 5 5H7z" />
-                      </svg>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleMove(index, 'down')}
-                      disabled={index === items.length - 1}
-                      className="rounded p-1 text-zinc-500 hover:bg-zinc-200 hover:text-zinc-700 disabled:opacity-30 dark:hover:bg-zinc-600 dark:hover:text-zinc-200"
-                      aria-label="아래로"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        className="h-4 w-4"
-                      >
-                        <path d="M7 10l5 5 5-5H7z" />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
                       </svg>
                     </button>
                   </div>
-                )}
-              </div>
-            ))}
+                </div>
+              );
+            })}
             <label htmlFor="feed-images-upload">
               <span className="inline-flex cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-4 transition-colors hover:border-gray-400 hover:bg-gray-100 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
                 {isUploading ? (

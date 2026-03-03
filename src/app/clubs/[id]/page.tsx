@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { Button, Spinner, Tabs, TextArea } from '@heroui/react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { parseAsString, useQueryState } from 'nuqs';
 import { createPortal } from 'react-dom';
 
@@ -702,34 +702,59 @@ function ClubQnaTab({
   );
 }
 
-/** 정보 탭에서만 노출. 우측 하단 작은 버튼, body 포탈로 뷰포트 고정. Framer Motion으로 등장/퇴장 부드럽게 따라오는 느낌 */
+/** 정보 탭에서만 노출. position:fixed 우측 하단(조금 높게), body 포탈. 스크롤 시 스프링으로 부드럽게 따라오는 느낌 */
 function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: string }) {
   const { data: club } = useClubDetail(clubId);
   const applicationLink = club?.applicationLink || club?.recruitmentUrl;
-  const show = !!club && !!applicationLink && currentTab === 'info';
+  const shouldShow = !!club && !!applicationLink && currentTab === 'info';
+
+  // 스크롤 위치 → 스프링으로 부드럽게 따라오는 y 오프셋 (스크롤 따라다닐 때 지연 후 따라오는 느낌)
+  const scrollY = useMotionValue(0);
+  const smoothScrollY = useSpring(scrollY, {
+    stiffness: 45,
+    damping: 22,
+    mass: 0.5,
+  });
+  // 스크롤 시 버튼이 살짝 위에 있다가 부드럽게 따라 내려오는 느낌 (smoothScroll이 지연되므로 smoothScroll - scroll = 음수 → 위로 있다가 0으로)
+  const followY = useTransform(() => smoothScrollY.get() - scrollY.get());
+
+  useEffect(() => {
+    if (!shouldShow) return;
+    const el = document.querySelector('[data-scroll-container]');
+    if (!el) return;
+    const onScroll = () => scrollY.set(el.scrollTop);
+    onScroll(); // 초기값
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [shouldShow, scrollY]);
+
   if (!club || !applicationLink) return null;
 
   const handleApplyClick = () => {
-    window.open(applicationLink!, '_blank');
+    window.open(applicationLink, '_blank');
   };
 
-  const bottomOffset = 'calc(72px + env(safe-area-inset-bottom, 0px))';
-  const transition = {
-    type: 'tween' as const,
-    duration: 0.4,
-    ease: [0.32, 0.72, 0, 1] as const,
-  };
+  // 네비 바로 위보다 조금 더 높게 (72 → 96)
+  const bottomOffset = 'calc(96px + env(safe-area-inset-bottom, 0px))';
 
   const cta = (
-    <div className="fixed right-4 z-50" style={{ bottom: bottomOffset }}>
+    <motion.div
+      className="z-50"
+      style={{
+        position: 'fixed',
+        right: '1rem',
+        bottom: bottomOffset,
+        y: followY,
+      }}
+    >
       <AnimatePresence mode="wait">
-        {show && (
+        {shouldShow && (
           <motion.div
             key="club-cta"
-            initial={{ opacity: 0, y: 24, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 16, scale: 0.9 }}
-            transition={transition}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             className="rounded-full border border-zinc-200/80 bg-white/95 shadow-lg backdrop-blur-sm dark:border-zinc-700/80 dark:bg-zinc-900/95"
           >
             <Button
@@ -743,7 +768,7 @@ function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: str
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 
   if (typeof document !== 'undefined') {
