@@ -73,8 +73,25 @@ export const feedApi = {
     return normalizeClubFeedListRes(raw);
   },
 
+  /** 단일 피드 조회 (GET /api/clubs/{clubId}/feeds/{feedId}) - 스웨거 ResponseDTOClubFeedRes → data: ClubFeedRes */
   getFeed: async (clubId: number, feedId: number): Promise<ClubFeedRes> => {
-    return apiClient<ClubFeedRes>(`/api/clubs/${clubId}/feeds/${feedId}`);
+    const raw = await apiClient<unknown>(`/api/clubs/${clubId}/feeds/${feedId}`);
+    const o = (raw ?? {}) as Record<string, unknown>;
+    return {
+      feedId: Number(o.feedId ?? o.feed_id ?? feedId),
+      content: typeof o.content === 'string' ? o.content : '',
+      postUrls: Array.isArray(o.postUrls)
+        ? (o.postUrls as string[])
+        : Array.isArray(o.post_urls)
+          ? (o.post_urls as string[])
+          : [],
+      createdAt:
+        typeof o.createdAt === 'string'
+          ? o.createdAt
+          : typeof o.created_at === 'string'
+            ? o.created_at
+            : undefined,
+    };
   },
 
   createFeed: async (clubId: number, data: FeedCreatedReq): Promise<void> => {
