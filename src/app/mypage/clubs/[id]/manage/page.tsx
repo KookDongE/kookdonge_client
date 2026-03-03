@@ -1507,7 +1507,7 @@ function ClubInfoTab({
                 <Chip
                   size="sm"
                   color={STATUS_CONFIG[club.recruitmentStatus as RecruitmentStatus].color}
-                  variant="flat"
+                  variant="soft"
                   className="font-medium"
                 >
                   {STATUS_CONFIG[club.recruitmentStatus as RecruitmentStatus].label}
