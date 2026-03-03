@@ -87,18 +87,21 @@ function NewFeedContent({ clubId }: { clubId: number }) {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-900">
-      {/* 헤더 */}
-      <div className="sticky top-0 z-50 border-b border-gray-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+    <div className="min-h-screen bg-[var(--card)]">
+      {/* 헤더: 테마 변수 사용으로 앱뷰 라이트모드에서도 올바른 배경/글자색 유지 */}
+      <div
+        className="sticky top-0 z-50 border-b bg-[var(--card)] text-[var(--foreground)]"
+        style={{ borderColor: 'var(--border)' }}
+      >
         <div className="flex h-16 items-center justify-between px-4">
           <button
             type="button"
             onClick={() => router.back()}
-            className="text-base font-medium text-gray-700 dark:text-zinc-300"
+            className="text-base font-medium text-[var(--foreground)] opacity-90 hover:opacity-100"
           >
             취소
           </button>
-          <h1 className="text-lg font-semibold text-gray-900 dark:text-zinc-100">피드 추가</h1>
+          <h1 className="text-lg font-semibold text-[var(--foreground)]">피드 추가</h1>
           <button
             type="button"
             onClick={handleSubmit}
