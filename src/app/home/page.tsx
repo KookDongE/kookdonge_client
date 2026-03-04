@@ -186,7 +186,7 @@ function RankingSection({ returnTo }: { returnTo?: string }) {
             onClickCapture={onRankingClickCapture}
             role="region"
             aria-label="인기 동아리 가로 스크롤"
-            className="no-scrollbar flex w-full min-w-0 cursor-grab [touch-action:pan-x] gap-3 overflow-x-auto overflow-y-hidden pt-2 pb-2 pl-2 [-webkit-overflow-scrolling:touch] active:cursor-grabbing"
+            className="no-scrollbar -mr-4 flex w-full min-w-0 cursor-grab [touch-action:pan-x] gap-3 overflow-x-auto overflow-y-hidden pt-2 pb-2 pl-2 [-webkit-overflow-scrolling:touch] active:cursor-grabbing"
           >
             {top10.map((club, index) => (
               <motion.div

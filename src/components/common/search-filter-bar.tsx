@@ -293,7 +293,7 @@ export function SearchFilterBar({
       </div>
 
       {/* 필터: 기본 = 동아리 유형만, 과동아리 선택 시 단과대 추가 노출 */}
-      <div className="no-scrollbar flex items-center gap-2 overflow-x-auto p-1">
+      <div className="no-scrollbar -mr-4 flex items-center gap-2 overflow-x-auto p-1">
         {/* 1. 동아리 유형 (기본 노출) */}
         <Select
           className="shrink-0"
