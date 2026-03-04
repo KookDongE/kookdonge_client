@@ -21,7 +21,8 @@ export function Header() {
     pathname === '/welcome' ||
     pathname.startsWith('/welcome/') ||
     pathname.includes('/feed') ||
-    pathname === '/mypage/clubs/apply';
+    pathname === '/mypage/clubs/apply' ||
+    pathname === '/admin/community/write';
   if (isHidden) return null;
 
   return (

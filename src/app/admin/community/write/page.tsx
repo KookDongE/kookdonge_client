@@ -170,11 +170,8 @@ export default function CommunityWritePage() {
 
   return (
     <div className="flex min-h-[calc(100dvh-4rem)] flex-col overflow-hidden bg-white dark:bg-zinc-900">
-      {/* 헤더: 동아리 신청/피드 추가와 동일 (취소 | 제목 | 작성) */}
-      <div
-        className="shrink-0 border-b bg-[var(--card)] text-[var(--foreground)]"
-        style={{ borderColor: 'var(--border)' }}
-      >
+      {/* 헤더: 동아리 신청/피드 추가와 동일 (취소 | 제목 | 작성), 외곽선 없음 */}
+      <div className="shrink-0 bg-[var(--card)] text-[var(--foreground)]">
         <div className="flex h-16 items-center justify-between px-4">
           <button
             type="button"
@@ -196,7 +193,7 @@ export default function CommunityWritePage() {
       </div>
 
       <form
-        className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4 pb-20"
+        className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden px-4 py-4"
         onSubmit={handleSubmit}
       >
         {/* 분류 / 계정 선택 2열 */}
@@ -281,17 +278,17 @@ export default function CommunityWritePage() {
           />
         </div>
 
-        {/* 내용: 남는 세로 공간 채우기 */}
-        <div className="flex min-h-0 flex-1 flex-col">
+        {/* 내용: 높이 제한 후 textarea가 영역 전체 채움 */}
+        <div className="flex h-[11rem] shrink-0 flex-col">
           <label className="mb-2 shrink-0 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
             내용
           </label>
-          <div className="min-h-0 flex-1">
+          <div className="min-h-0 flex-1 overflow-hidden rounded-xl [&_textarea]:h-full [&_textarea]:min-h-0">
             <TextArea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="내용을 입력하세요"
-              className="h-full min-h-[8rem] w-full resize-none rounded-xl border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 [&_textarea]:min-h-[8rem]"
+              className="h-full w-full resize-none rounded-xl border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
               aria-label="내용"
             />
           </div>
@@ -352,9 +349,12 @@ export default function CommunityWritePage() {
             </div>
           )}
           <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-            최대 10장까지 첨부할 수 있습니다. 드래그 그립으로 순서를 변경할 수 있습니다.
+            최대 10장까지 첨부할 수 있습니다.
           </p>
         </div>
+
+        {/* 내용 영역 줄인 만큼 하단 여백 */}
+        <div className="min-h-[11rem] flex-1 shrink-0" aria-hidden />
       </form>
     </div>
   );
