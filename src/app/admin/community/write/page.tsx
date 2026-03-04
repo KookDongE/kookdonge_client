@@ -270,7 +270,7 @@ export default function CommunityWritePage() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="제목을 입력하세요"
-            className="w-full rounded-lg border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+            className="w-full rounded-lg border border-zinc-200 bg-white text-gray-900 placeholder-gray-400 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
             aria-label="제목"
           />
         </div>
@@ -283,7 +283,7 @@ export default function CommunityWritePage() {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="내용을 입력하세요"
-              className="size-full min-h-0 flex-1 resize-none rounded-lg border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+              className="size-full min-h-0 flex-1 resize-none rounded-lg border border-zinc-200 bg-white text-gray-900 placeholder-gray-400 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
               aria-label="내용"
             />
           </div>
@@ -306,8 +306,7 @@ export default function CommunityWritePage() {
               className="block w-36 shrink-0 cursor-pointer"
             >
               <span className="flex aspect-square w-36 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 text-zinc-600 transition-colors hover:border-zinc-400 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
-                <span className="text-2xl">+</span>
-                <span className="text-sm font-medium">이미지 추가</span>
+                <img src="/icons/stash_image-open-light.svg" alt="" className="h-12 w-12" />
               </span>
             </label>
           ) : (
@@ -333,8 +332,8 @@ export default function CommunityWritePage() {
                     htmlFor="community-write-photo"
                     className="block shrink-0 cursor-pointer"
                   >
-                    <span className="flex aspect-square w-36 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 text-2xl text-zinc-400 transition-colors hover:border-zinc-500 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
-                      +
+                    <span className="flex aspect-square w-36 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 text-zinc-400 transition-colors hover:border-zinc-500 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
+                      <img src="/icons/stash_image-open-light.svg" alt="" className="h-12 w-12" />
                     </span>
                   </label>
                 )}

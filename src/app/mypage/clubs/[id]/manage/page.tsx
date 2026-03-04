@@ -725,6 +725,23 @@ function ClubManageContent({ clubId }: { clubId: number }) {
         </Tabs>
       </div>
 
+      {/* 피드 탭에서만 노출: 피드 추가 플로팅 버튼 (지원하기·글쓰기와 동일 UI) */}
+      {tab === 'feed' && (
+        <div
+          className="fixed right-4 bottom-[calc(4rem+1.5rem+env(safe-area-inset-bottom,0px))] z-[100] rounded-full border border-zinc-200/80 bg-white/95 shadow-lg backdrop-blur-sm dark:border-zinc-700/80 dark:bg-zinc-900/95"
+          aria-hidden
+        >
+          <Button
+            size="sm"
+            className="min-w-0 rounded-full px-4 py-2 text-sm font-semibold"
+            variant="primary"
+            onPress={() => router.push(`/mypage/clubs/${clubId}/manage/feed/new`)}
+          >
+            피드 추가
+          </Button>
+        </div>
+      )}
+
       {/* 하단 네비 공간 확보 */}
       <div className="h-32" />
     </>
@@ -1775,28 +1792,6 @@ function ClubFeedTab({ clubId }: { clubId: number }) {
   return (
     <div className="p-1.5">
       <div className="grid grid-cols-3 gap-1.5">
-        {/* 피드 추가 버튼 */}
-        <button
-          type="button"
-          onClick={() => router.push(`/mypage/clubs/${clubId}/manage/feed/new`)}
-          className="relative aspect-square overflow-hidden rounded-lg border-2 border-dashed border-zinc-300 bg-zinc-50 transition-colors hover:border-zinc-400 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-zinc-700"
-        >
-          <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-zinc-400 dark:text-zinc-500">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              className="h-8 w-8"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            <span className="text-xs font-medium">피드 추가</span>
-          </div>
-        </button>
-
-        {/* 피드 목록 */}
         {feeds.map((feed) => {
           const cover = feed.postUrls?.[0];
           return (
