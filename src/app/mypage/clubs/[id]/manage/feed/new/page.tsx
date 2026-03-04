@@ -233,7 +233,7 @@ function NewFeedContent({ clubId }: { clubId: number }) {
             </span>
           </label>
         ) : (
-          <div className="drag-area-no-select -mx-4 shrink-0 overflow-x-auto overflow-y-hidden px-4 pb-2">
+          <div className="drag-area-no-select no-scrollbar -mx-4 shrink-0 overflow-x-auto overflow-y-hidden px-4 pb-2">
             <div className="flex items-center gap-3" style={{ width: 'max-content' }}>
               <Reorder.Group
                 axis="x"
