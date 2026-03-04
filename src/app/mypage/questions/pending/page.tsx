@@ -4,7 +4,7 @@ import { Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { ListCardSkeleton } from '@/components/common/skeletons';
-
+import { formatQnaDateTime } from '@/lib/utils';
 import { useMyQuestions } from '@/features/question/hooks';
 
 /** 답변 대기 중인 질문만 - GET /api/clubs/questions/me 후 필터 */
@@ -54,10 +54,9 @@ function PendingListContent() {
                       {qna.question}
                     </p>
                     <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                      답변 대기중
+                      {formatQnaDateTime(qna.createdAt)}
+                      {' · 답변 대기중'}
                       {qna.clubName ? ` · ${qna.clubName}` : ''}
-                      {' · '}
-                      {new Date(qna.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                   <svg

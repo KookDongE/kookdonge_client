@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 
 import { Chip } from '@heroui/react';
 
+import { formatQnaDateTime } from '@/lib/utils';
 import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
 import { useManagedClubs, useMyApplications } from '@/features/club/hooks';
@@ -298,7 +299,7 @@ function PendingQuestionsSection() {
                     {qna.question}
                   </p>
                   <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                    {new Date(qna.createdAt).toLocaleDateString()}
+                    {formatQnaDateTime(qna.createdAt)}
                   </p>
                 </div>
                 <svg
@@ -373,7 +374,7 @@ function QnAListSection() {
                     {qna.question}
                   </p>
                   <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                    {new Date(qna.createdAt).toLocaleDateString()}
+                    {formatQnaDateTime(qna.createdAt)}
                     {qna.answer ? ' · 답변완료' : ' · 대기중'}
                   </p>
                 </div>

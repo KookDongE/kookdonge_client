@@ -8,6 +8,7 @@ import { Tabs } from '@heroui/react';
 import { ListCardSkeleton } from '@/components/common/skeletons';
 import { parseAsString, useQueryState } from 'nuqs';
 
+import { formatQnaDateTime } from '@/lib/utils';
 import type { QuestionAnswerRes } from '@/types/api';
 import {
   useMyQuestions,
@@ -22,7 +23,6 @@ function QnaCard({
   onClick: () => void;
 }) {
   const hasAnswer = qna.answer != null && qna.answer !== '';
-  const dateStr = new Date(qna.createdAt).toLocaleDateString('ko-KR');
 
   return (
     <button
@@ -43,7 +43,7 @@ function QnaCard({
             {qna.question}
           </p>
           <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
-            {dateStr}
+            {formatQnaDateTime(qna.createdAt)}
             {hasAnswer ? ' · 답변완료' : ' · 대기중'}
             {qna.clubName ? ` · ${qna.clubName}` : ''}
           </p>
