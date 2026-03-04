@@ -123,7 +123,7 @@ export function ClubCard({
 
       {/* Content Section - 이름/한줄소개 겹침 방지: min-h-0 overflow-hidden + 한 줄씩 고정 */}
       <div className="flex min-h-0 min-w-0 flex-1 flex-col justify-start overflow-hidden p-3">
-        <div className="mb-1 flex shrink-0 flex-wrap items-center gap-1.5">
+        <div className="mb-2 flex shrink-0 flex-wrap items-center gap-1.5">
           <span
             className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium ${status.className}`}
           >
@@ -142,7 +142,7 @@ export function ClubCard({
           </span>
         </div>
 
-        <h3 className="min-h-[1.25rem] shrink-0 truncate text-base leading-tight font-bold text-zinc-900 dark:text-zinc-100">
+        <h3 className="mb-1.5 min-h-[1.25rem] shrink-0 truncate text-base leading-tight font-bold text-zinc-900 dark:text-zinc-100">
           {club.name}
         </h3>
 
