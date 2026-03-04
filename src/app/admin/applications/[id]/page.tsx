@@ -4,8 +4,6 @@ import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { Button, Chip, TextArea } from '@heroui/react';
-
-import { FormPageSkeleton } from '@/components/common/skeletons';
 import { useQueryClient } from '@tanstack/react-query';
 
 import type { ClubCategory, ClubType } from '@/types/api';
@@ -18,6 +16,7 @@ import {
   useApproveApplication,
   useRejectApplication,
 } from '@/features/club/hooks';
+import { FormPageSkeleton } from '@/components/common/skeletons';
 
 const CATEGORY_LABELS: Record<ClubCategory, string> = {
   PERFORMING_ARTS: '공연',
@@ -127,9 +126,9 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
     'w-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100';
 
   return (
-    <div className="min-h-screen bg-[var(--background)] pb-24 dark:bg-zinc-900">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-[var(--background)] dark:bg-zinc-900">
       {/* 뒤로가기 - 동아리 상세와 동일 */}
-      <div className="flex items-center gap-2 px-4 pt-3 pb-1">
+      <div className="flex shrink-0 items-center gap-2 px-4 pt-3 pb-1">
         <button
           type="button"
           onClick={() => router.back()}
@@ -140,117 +139,119 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
         </button>
       </div>
 
-      <div className="space-y-6 p-4">
-        {/* 상태 칩 */}
-        <div className="flex items-center gap-2">
-          <Chip size="sm" color={isPending ? 'warning' : 'success'} variant="soft">
-            {application.status === 'PENDING'
-              ? '승인 대기'
-              : application.status === 'APPROVED'
-                ? '승인됨'
-                : '거절됨'}
-          </Chip>
-        </div>
-
-        {/* 1. 동아리 이름 */}
-        <div>
-          <label className={labelClass}>동아리 이름</label>
-          <div className={valueBoxClass}>{application.name}</div>
-        </div>
-
-        {/* 신청자 이름 · 이메일 */}
-        <div>
-          <label className={labelClass}>신청자</label>
-          <div className={valueBoxClass}>
-            {application.applicantName || '(이름 없음)'} · {application.applicantEmail}
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="space-y-6 p-4 pb-24">
+          {/* 상태 칩 */}
+          <div className="flex items-center gap-2">
+            <Chip size="sm" color={isPending ? 'warning' : 'success'} variant="soft">
+              {application.status === 'PENDING'
+                ? '승인 대기'
+                : application.status === 'APPROVED'
+                  ? '승인됨'
+                  : '거절됨'}
+            </Chip>
           </div>
-        </div>
 
-        {/* 동아리유형 · 분야 (가로 배치 - 폼과 동일) */}
-        <div className="flex flex-wrap items-start gap-4">
-          <div className="min-w-0 flex-1">
-            <label className={labelClass}>동아리유형</label>
+          {/* 1. 동아리 이름 */}
+          <div>
+            <label className={labelClass}>동아리 이름</label>
+            <div className={valueBoxClass}>{application.name}</div>
+          </div>
+
+          {/* 신청자 이름 · 이메일 */}
+          <div>
+            <label className={labelClass}>신청자</label>
             <div className={valueBoxClass}>
-              {application.type ? TYPE_LABELS[application.type] : '미기재'}
+              {application.applicantName || '(이름 없음)'} · {application.applicantEmail}
             </div>
           </div>
-          <div className="min-w-0 flex-1">
-            <label className={labelClass}>분야</label>
-            <div className={valueBoxClass}>
-              {application.category ? CATEGORY_LABELS[application.category] : '미기재'}
+
+          {/* 동아리유형 · 분야 (가로 배치 - 폼과 동일) */}
+          <div className="flex flex-wrap items-start gap-4">
+            <div className="min-w-0 flex-1">
+              <label className={labelClass}>동아리유형</label>
+              <div className={valueBoxClass}>
+                {application.type ? TYPE_LABELS[application.type] : '미기재'}
+              </div>
+            </div>
+            <div className="min-w-0 flex-1">
+              <label className={labelClass}>분야</label>
+              <div className={valueBoxClass}>
+                {application.category ? CATEGORY_LABELS[application.category] : '미기재'}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* 5. 신청 사유 */}
-        <div>
-          <label className={labelClass}>신청 사유</label>
-          <div className={`${valueBoxClass} min-h-[200px] whitespace-pre-wrap`}>
-            {application.applicationReason ?? application.description ?? '-'}
+          {/* 5. 신청 사유 */}
+          <div>
+            <label className={labelClass}>신청 사유</label>
+            <div className={`${valueBoxClass} min-h-[200px] whitespace-pre-wrap`}>
+              {application.applicationReason ?? application.description ?? '-'}
+            </div>
           </div>
-        </div>
 
-        {/* 신청일 (참고) */}
-        <div>
-          <label className={labelClass}>신청일</label>
-          <div className={valueBoxClass}>{new Date(application.createdAt).toLocaleString()}</div>
-        </div>
+          {/* 신청일 (참고) */}
+          <div>
+            <label className={labelClass}>신청일</label>
+            <div className={valueBoxClass}>{new Date(application.createdAt).toLocaleString()}</div>
+          </div>
 
-        {isPending && (
-          <div className="space-y-4 pt-2">
-            {showRejectInput ? (
-              <div className="space-y-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
-                <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300">
-                  거절 사유 (선택)
-                </label>
-                <TextArea
-                  placeholder="거절 사유를 입력하세요. 신청자에게 전달됩니다."
-                  value={rejectReason}
-                  onChange={(e) => setRejectReason(e.target.value)}
-                  className="min-h-[80px] w-full resize-y"
-                />
-                <div className="flex gap-2">
-                  <Button
-                    variant="ghost"
-                    className="flex-1"
-                    onPress={() => {
-                      setShowRejectInput(false);
-                      setRejectReason('');
-                    }}
-                  >
-                    취소
-                  </Button>
+          {isPending && (
+            <div className="space-y-4 pt-2">
+              {showRejectInput ? (
+                <div className="space-y-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                    거절 사유 (선택)
+                  </label>
+                  <TextArea
+                    placeholder="거절 사유를 입력하세요. 신청자에게 전달됩니다."
+                    value={rejectReason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                    className="min-h-[80px] w-full resize-y"
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      className="flex-1"
+                      onPress={() => {
+                        setShowRejectInput(false);
+                        setRejectReason('');
+                      }}
+                    >
+                      취소
+                    </Button>
+                    <Button
+                      variant="danger-soft"
+                      className="flex-1 bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300"
+                      onPress={handleRejectSubmit}
+                      isPending={rejectApplication.isPending}
+                    >
+                      거절하기
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex gap-3">
                   <Button
                     variant="danger-soft"
                     className="flex-1 bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300"
-                    onPress={handleRejectSubmit}
-                    isPending={rejectApplication.isPending}
+                    onPress={handleRejectClick}
                   >
-                    거절하기
+                    거절
+                  </Button>
+                  <Button
+                    variant="primary"
+                    className="flex-1 bg-blue-500 text-white"
+                    onPress={handleApprove}
+                    isPending={approveApplication.isPending}
+                  >
+                    수락
                   </Button>
                 </div>
-              </div>
-            ) : (
-              <div className="flex gap-3">
-                <Button
-                  variant="danger-soft"
-                  className="flex-1 bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300"
-                  onPress={handleRejectClick}
-                >
-                  거절
-                </Button>
-                <Button
-                  variant="primary"
-                  className="flex-1 bg-blue-500 text-white"
-                  onPress={handleApprove}
-                  isPending={approveApplication.isPending}
-                >
-                  수락
-                </Button>
-              </div>
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
