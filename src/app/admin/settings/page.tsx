@@ -27,19 +27,20 @@ export default function AdminSettingsPage() {
   }, [profile, profileLoading, router]);
 
   const handleAddAdmin = async () => {
-    const email = newAdminEmail.trim();
+    const email = newAdminEmail.trim().toLowerCase();
     if (!email) {
       alert('이메일을 입력해주세요.');
       return;
     }
-    if (!email.includes('@')) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       alert('올바른 이메일 형식을 입력해주세요.');
       return;
     }
-    if (admins.some((a) => a.email === email)) {
+    if (admins.some((a) => a.email.toLowerCase() === email)) {
       alert('이미 등록된 관리자입니다.');
       return;
     }
+    if (!confirm(`"${email}"을(를) 시스템 관리자로 추가하시겠습니까?`)) return;
     try {
       await grantAdmin.mutateAsync(email);
       setNewAdminEmail('');
@@ -50,7 +51,11 @@ export default function AdminSettingsPage() {
   };
 
   const handleRemoveAdmin = async (userId: number, email: string) => {
-    if (!confirm(`정말 ${email} 시스템 관리자 권한을 제거하시겠습니까?`)) return;
+    if (profile?.email && profile.email.toLowerCase() === email.toLowerCase()) {
+      alert('본인 계정의 관리자 권한은 제거할 수 없습니다.');
+      return;
+    }
+    if (!confirm(`정말 "${email}" 시스템 관리자 권한을 제거하시겠습니까?`)) return;
     try {
       await revokeAdmin.mutateAsync(userId);
       alert('시스템 관리자가 제거되었습니다.');
@@ -102,7 +107,7 @@ export default function AdminSettingsPage() {
               onPress={handleAddAdmin}
               isDisabled={grantAdmin.isPending}
               isPending={grantAdmin.isPending}
-              className="absolute top-1/2 right-1.5 shrink-0 -translate-y-1/2"
+              className="absolute top-1/2 right-1.5 h-7 min-h-7 shrink-0 -translate-y-1/2 px-2 text-xs"
             >
               추가
             </Button>
