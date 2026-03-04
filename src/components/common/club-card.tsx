@@ -98,10 +98,10 @@ export function ClubCard({
   const cardContent = (
     <motion.div
       whileTap={disableLink ? undefined : { scale: 0.98 }}
-      className={`flex min-h-24 overflow-hidden rounded-2xl border border-zinc-100 bg-[var(--card)] dark:border-zinc-800 ${!disableLink ? 'card-hover' : ''}`}
+      className={`flex h-24 items-stretch overflow-hidden rounded-2xl border border-zinc-100 bg-[var(--card)] dark:border-zinc-800 ${!disableLink ? 'card-hover' : ''}`}
     >
-      {/* Image Section - 한줄소개 밑 여백이 태그 상단 여백과 맞도록 높이 축소 */}
-      <div className="club-logo-wrap relative h-24 min-h-24 w-24 shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800">
+      {/* Image Section - 카드와 동일 높이(h-24)로 맞춰 사진 밑 흰 여백 방지 */}
+      <div className="club-logo-wrap relative h-24 w-24 shrink-0 overflow-hidden rounded-l-2xl bg-zinc-100 dark:bg-zinc-800">
         {club.logoImage ? (
           <>
             {!imageLoaded && <div className="skeleton absolute inset-0" />}
@@ -121,9 +121,9 @@ export function ClubCard({
         )}
       </div>
 
-      {/* Content Section - 태그/제목은 항상 동일 위치(한줄소개 유무와 무관) */}
-      <div className="flex min-w-0 flex-1 flex-col justify-start p-3">
-        <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
+      {/* Content Section - 이름/한줄소개 겹침 방지: min-h-0 overflow-hidden + 한 줄씩 고정 */}
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col justify-start overflow-hidden p-3">
+        <div className="mb-1 flex shrink-0 flex-wrap items-center gap-1.5">
           <span
             className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium ${status.className}`}
           >
@@ -142,11 +142,11 @@ export function ClubCard({
           </span>
         </div>
 
-        <h3 className="mb-1 line-clamp-2 text-base font-bold break-words text-zinc-900 dark:text-zinc-100">
+        <h3 className="min-h-[1.25rem] shrink-0 truncate text-base leading-tight font-bold text-zinc-900 dark:text-zinc-100">
           {club.name}
         </h3>
 
-        <p className="line-clamp-1 min-h-[1.5rem] text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
+        <p className="line-clamp-1 min-h-0 shrink overflow-hidden text-xs leading-tight text-zinc-500 dark:text-zinc-400">
           {club.introduction || '\u00A0'}
         </p>
       </div>

@@ -339,7 +339,7 @@ function ClubHeader({
           {/* 동아리 이름: 태그 바로 아래 */}
           <h1 className="mt-1.5 text-xl font-bold text-zinc-900 dark:text-zinc-100">{club.name}</h1>
           <p className="mt-1 line-clamp-1 min-h-[1.5rem] text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
-            {club.summary || '\u00A0'}
+            {club.description ?? club.summary ?? '\u00A0'}
           </p>
           {/* 관심, 알림, 좋아요(숫자), 조회수(숫자): 사진 하단 우측 1열 */}
           <div className="mt-auto flex items-center justify-end gap-2 pt-2">
