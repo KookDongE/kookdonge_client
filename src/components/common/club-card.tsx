@@ -98,10 +98,10 @@ export function ClubCard({
   const cardContent = (
     <motion.div
       whileTap={disableLink ? undefined : { scale: 0.98 }}
-      className={`flex h-24 overflow-hidden rounded-2xl border border-zinc-100 bg-[var(--card)] dark:border-zinc-800 ${!disableLink ? 'card-hover' : ''}`}
+      className={`flex min-h-24 overflow-hidden rounded-2xl border border-zinc-100 bg-[var(--card)] dark:border-zinc-800 ${!disableLink ? 'card-hover' : ''}`}
     >
       {/* Image Section - 한줄소개 밑 여백이 태그 상단 여백과 맞도록 높이 축소 */}
-      <div className="club-logo-wrap relative h-24 w-24 shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800">
+      <div className="club-logo-wrap relative h-24 min-h-24 w-24 shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800">
         {club.logoImage ? (
           <>
             {!imageLoaded && <div className="skeleton absolute inset-0" />}
@@ -142,7 +142,7 @@ export function ClubCard({
           </span>
         </div>
 
-        <h3 className="mb-1 truncate text-base font-bold text-zinc-900 dark:text-zinc-100">
+        <h3 className="mb-1 line-clamp-2 text-base font-bold break-words text-zinc-900 dark:text-zinc-100">
           {club.name}
         </h3>
 
