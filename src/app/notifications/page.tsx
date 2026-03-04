@@ -68,6 +68,30 @@ export default function NotificationsPage() {
   const hasNext = hasNextPage ?? false;
   const hasUnread = unreadCount > 0;
 
+  // 날짜 기준 그룹핑: 어제 / 최근 7일 / 이전
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfYesterday = new Date(startOfToday);
+  startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+  const startOf7DaysAgo = new Date(startOfToday);
+  startOf7DaysAgo.setDate(startOf7DaysAgo.getDate() - 7);
+
+  const yesterdayList: NotificationRes[] = [];
+  const recent7List: NotificationRes[] = [];
+  const olderList: NotificationRes[] = [];
+
+  for (const item of list) {
+    const createdAt = new Date(item.createdAt);
+    if (createdAt >= startOfYesterday && createdAt < startOfToday) {
+      yesterdayList.push(item);
+    } else if (createdAt >= startOf7DaysAgo) {
+      // 오늘 포함 최근 7일
+      recent7List.push(item);
+    } else {
+      olderList.push(item);
+    }
+  }
+
   const handleItemClick = (item: NotificationRes) => {
     if (!item.isRead) {
       markAsRead.mutate(item.id, {
@@ -169,7 +193,7 @@ export default function NotificationsPage() {
   return (
     <div className="pb-6">
       <div className="flex items-center justify-between gap-3 px-4 py-3">
-        <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">알림</h1>
+        <h1 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">어제</h1>
         {hasUnread && (
           <button
             type="button"
@@ -193,18 +217,69 @@ export default function NotificationsPage() {
             <p>알림이 없습니다.</p>
           </div>
         ) : (
-          list.map((item) => (
-            <SwipeableNotificationItem
-              key={item.id}
-              item={item}
-              typeLabel={typeLabel}
-              typeBadgeColor={typeBadgeColor}
-              formatTime={formatTime}
-              onTap={() => handleItemClick(item)}
-              onDelete={(id) => deleteNotification.mutate(id)}
-              isDeleting={deleteNotification.isPending && deleteNotification.variables === item.id}
-            />
-          ))
+          <>
+            {/* 어제 */}
+            {yesterdayList.map((item) => (
+              <SwipeableNotificationItem
+                key={item.id}
+                item={item}
+                typeLabel={typeLabel}
+                typeBadgeColor={typeBadgeColor}
+                formatTime={formatTime}
+                onTap={() => handleItemClick(item)}
+                onDelete={(id) => deleteNotification.mutate(id)}
+                isDeleting={
+                  deleteNotification.isPending && deleteNotification.variables === item.id
+                }
+              />
+            ))}
+
+            {/* 최근 7일 (오늘 포함) */}
+            {recent7List.length > 0 && (
+              <>
+                <div className="mt-4 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                  최근 7일
+                </div>
+                {recent7List.map((item) => (
+                  <SwipeableNotificationItem
+                    key={item.id}
+                    item={item}
+                    typeLabel={typeLabel}
+                    typeBadgeColor={typeBadgeColor}
+                    formatTime={formatTime}
+                    onTap={() => handleItemClick(item)}
+                    onDelete={(id) => deleteNotification.mutate(id)}
+                    isDeleting={
+                      deleteNotification.isPending && deleteNotification.variables === item.id
+                    }
+                  />
+                ))}
+              </>
+            )}
+
+            {/* 이전 */}
+            {olderList.length > 0 && (
+              <>
+                <div className="mt-4 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                  이전
+                </div>
+                {olderList.map((item) => (
+                  <SwipeableNotificationItem
+                    key={item.id}
+                    item={item}
+                    typeLabel={typeLabel}
+                    typeBadgeColor={typeBadgeColor}
+                    formatTime={formatTime}
+                    onTap={() => handleItemClick(item)}
+                    onDelete={(id) => deleteNotification.mutate(id)}
+                    isDeleting={
+                      deleteNotification.isPending && deleteNotification.variables === item.id
+                    }
+                  />
+                ))}
+              </>
+            )}
+          </>
         )}
         {hasNext && list.length > 0 && (
           <div ref={sentinelRef} className="flex justify-center py-4">

@@ -35,10 +35,10 @@ export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
       <p className="mt-1 line-clamp-1 text-[13px] leading-snug text-zinc-500 dark:text-zinc-400">
         {contentPreview}
       </p>
-      {/* 좋아요 / 댓글 / 저장 아이콘+숫자 + 시간 + 작성자 (연한 톤) */}
+      {/* 좋아요 / 댓글 / 저장 아이콘+숫자 (색상 있되 연하게) + 시간 + 작성자 */}
       <div className="mt-2 flex items-center gap-3 text-[12px] text-zinc-500 dark:text-zinc-500">
         <span
-          className="flex items-center gap-1 text-zinc-500 dark:text-zinc-500"
+          className="flex items-center gap-1 text-red-400/80 dark:text-red-400/70"
           aria-label={`좋아요 ${post.likeCount}개`}
         >
           <svg
@@ -58,27 +58,7 @@ export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
           {post.likeCount}
         </span>
         <span
-          className="flex items-center gap-1 text-zinc-500 dark:text-zinc-500"
-          aria-label={`댓글 ${post.commentCount}개`}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.5}
-            className="h-3.5 w-3.5"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
-            />
-          </svg>
-          {post.commentCount}
-        </span>
-        <span
-          className="flex items-center gap-1 text-zinc-500 dark:text-zinc-500"
+          className="flex items-center gap-1 text-amber-400/80 dark:text-amber-400/70"
           aria-label={`저장 ${post.saveCount}개`}
         >
           <svg
@@ -96,6 +76,26 @@ export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
             />
           </svg>
           {post.saveCount}
+        </span>
+        <span
+          className="flex items-center gap-1 text-sky-400/80 dark:text-sky-400/70"
+          aria-label={`댓글 ${post.commentCount}개`}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            className="h-3.5 w-3.5"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
+            />
+          </svg>
+          {post.commentCount}
         </span>
         <span className="text-zinc-500 dark:text-zinc-500">{formatDate(post.createdAt)}</span>
         <span className="text-zinc-500 dark:text-zinc-500">{post.authorName}</span>

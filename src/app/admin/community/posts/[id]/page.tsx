@@ -93,10 +93,11 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
           {post.content}
         </div>
 
-        {/* 액션 바: 아이콘+숫자만, 색상 연하게 */}
+        {/* 액션 바: 좋아요·저장 버튼, 댓글은 표시만. 순서: 좋아요 → 저장 → 댓글. 아이콘 색상 있되 연하게 */}
         <div className="mt-6 flex items-center gap-6 pt-4">
-          <span
-            className="flex items-center gap-1.5 text-sm text-zinc-400 dark:text-zinc-500"
+          <button
+            type="button"
+            className="flex items-center gap-1.5 text-sm text-red-400/80 transition-opacity hover:opacity-80 dark:text-red-400/70"
             aria-label="공감"
           >
             <svg
@@ -114,29 +115,10 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
               />
             </svg>
             {post.likeCount}
-          </span>
-          <span
-            className="flex items-center gap-1.5 text-sm text-zinc-400 dark:text-zinc-500"
-            aria-label="댓글"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.5}
-              className="h-5 w-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
-              />
-            </svg>
-            {post.commentCount}
-          </span>
-          <span
-            className="flex items-center gap-1.5 text-sm text-zinc-400 dark:text-zinc-500"
+          </button>
+          <button
+            type="button"
+            className="flex items-center gap-1.5 text-sm text-amber-400/80 transition-opacity hover:opacity-80 dark:text-amber-400/70"
             aria-label="저장"
           >
             <svg
@@ -154,6 +136,26 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
               />
             </svg>
             {post.saveCount}
+          </button>
+          <span
+            className="flex items-center gap-1.5 text-sm text-sky-400/80 dark:text-sky-400/70"
+            aria-label="댓글"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.5}
+              className="h-5 w-5"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
+              />
+            </svg>
+            {post.commentCount}
           </span>
         </div>
       </article>
@@ -190,21 +192,38 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
         )}
       </section>
 
-      {/* 하단 고정 댓글 입력창 */}
-      <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-md -translate-x-1/2 border-t border-zinc-100 bg-white px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            placeholder="댓글을 입력하세요"
-            className="min-w-0 flex-1 rounded-full border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-500"
-            aria-label="댓글 입력"
-          />
-          <button
-            type="button"
-            className="shrink-0 rounded-full bg-blue-500 px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 dark:bg-lime-500 dark:text-zinc-900"
+      {/* 하단 고정 댓글 입력창: 좌측 계정 드롭다운, 가로 꽉 차는 입력창 안에 종이비행기 버튼 */}
+      <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-md -translate-x-1/2 bg-white px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] dark:bg-zinc-900">
+        <div className="flex w-full items-center gap-2">
+          <select
+            className="shrink-0 rounded-lg border border-zinc-200 bg-zinc-50 py-2.5 pr-8 pl-3 text-sm text-zinc-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+            aria-label="댓글 작성 계정 선택"
+            title="계정 선택"
           >
-            등록
-          </button>
+            <option value="me">내 계정</option>
+          </select>
+          <div className="relative flex min-w-0 flex-1 items-center rounded-lg border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800">
+            <input
+              type="text"
+              placeholder="댓글을 입력하세요"
+              className="min-w-0 flex-1 rounded-lg border-0 bg-transparent px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:ring-0 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
+              aria-label="댓글 입력"
+            />
+            <button
+              type="button"
+              className="shrink-0 rounded-full p-2 text-blue-500 transition-opacity hover:opacity-80 dark:text-lime-500"
+              aria-label="댓글 등록"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="h-5 w-5"
+              >
+                <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>

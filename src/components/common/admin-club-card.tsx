@@ -7,26 +7,22 @@ import { AdminClubListItem, ClubListRes } from '@/types/api';
 
 import { ClubCard } from './club-card';
 
+const ACTION_WIDTH = 72;
+/** 삭제 버튼 너비만큼만 스와이프 (알림 삭제와 동일) */
+
 type AdminClubCardProps = {
   club: AdminClubListItem;
   index?: number;
   /** 홈 필터 유지용: 뒤로가기 시 이동할 URL */
   returnTo?: string;
-  onToggleVisibility: (clubId: number, isHidden: boolean) => void;
   onDelete: (clubId: number) => void;
 };
 
-export function AdminClubCard({
-  club,
-  index = 0,
-  returnTo,
-  onToggleVisibility,
-  onDelete,
-}: AdminClubCardProps) {
+export function AdminClubCard({ club, index = 0, returnTo, onDelete }: AdminClubCardProps) {
   const router = useRouter();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [dragX, setDragX] = useState(0);
-  const SWIPE_THRESHOLD = -80;
+  const SWIPE_THRESHOLD = -ACTION_WIDTH;
   const [isSwiped, setIsSwiped] = useState(false);
   const [hasDragged, setHasDragged] = useState(false);
   const [dragStartTime, setDragStartTime] = useState<number | null>(null);
@@ -48,13 +44,12 @@ export function AdminClubCard({
   const handleDragEnd = (_event: unknown, info: { offset: { x: number } }) => {
     const currentX = info.offset.x;
     if (currentX < SWIPE_THRESHOLD) {
-      setDragX(-120);
+      setDragX(-ACTION_WIDTH);
       setIsSwiped(true);
     } else {
       setDragX(0);
       setIsSwiped(false);
     }
-    // 드래그가 끝난 후 약간의 딜레이를 두고 상태 리셋
     setTimeout(() => {
       setHasDragged(false);
       setDragStartTime(null);
@@ -114,13 +109,6 @@ export function AdminClubCard({
     );
   };
 
-  const handleHideClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onToggleVisibility(club.id, club.isHidden);
-    resetSwipe();
-  };
-
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -143,20 +131,20 @@ export function AdminClubCard({
   };
 
   return (
-    <div ref={wrapperRef} className="relative overflow-hidden">
-      {/* 스와이프 시 카드 영역만 좁혀서 우측에 버튼이 보이도록 (폰·컴 공통) */}
+    <div ref={wrapperRef} className="relative overflow-hidden rounded-2xl">
+      {/* 스와이프 시 카드 영역만 버튼 너비(ACTION_WIDTH)만큼 좁혀서 우측에 삭제 버튼만 노출 (알림 삭제와 동일 패턴, Framer Motion은 ClubCard 내부 motion 사용) */}
       <div
         onClick={handleCardClick}
-        className="relative z-0 cursor-pointer transition-[width] duration-150"
-        style={{ width: isSwiped ? 'calc(100% - 120px)' : '100%' }}
+        className="relative z-0 cursor-pointer transition-[width] duration-150 ease-out"
+        style={{ width: isSwiped ? `calc(100% - ${ACTION_WIDTH}px)` : '100%' }}
       >
         <ClubCard
           club={clubData}
           index={index}
           disableLink={true}
           drag="x"
-          dragConstraints={{ left: -120, right: 0 }}
-          dragElastic={0.1}
+          dragConstraints={{ left: -ACTION_WIDTH, right: 0 }}
+          dragElastic={0}
           onDragStart={handleDragStart}
           onDrag={handleDrag}
           onDragEnd={handleDragEnd}
@@ -166,41 +154,20 @@ export function AdminClubCard({
         />
       </div>
 
-      {/* 숨기기/삭제 버튼: 스와이프로 노출 (z-10, 배경 있어서 컴에서도 가려지지 않음) */}
+      {/* 삭제 버튼: 알림 삭제와 동일 UI (휴지통 아이콘 + 삭제), 스와이프 시에만 노출 */}
       <div
-        className={`absolute top-0 right-0 z-10 flex h-full w-[120px] flex-col justify-center gap-2 bg-white px-2 py-2 transition-opacity dark:bg-zinc-900 ${
+        className={`absolute top-0 right-0 z-10 flex h-full items-center justify-center bg-white transition-opacity duration-150 dark:bg-zinc-900 ${
           isSwiped ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
         }`}
+        style={{ width: ACTION_WIDTH }}
       >
-        <button
-          type="button"
-          onClick={handleHideClick}
-          disabled={!isSwiped}
-          data-swipe-button
-          className="flex flex-col items-center justify-center gap-1 rounded-2xl bg-gray-200 px-2.5 py-1.5 text-gray-700 transition-colors hover:bg-gray-300 disabled:pointer-events-none dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            className="h-4 w-4"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 11-4.243-4.243m4.242 4.242L9.88 9.88"
-            />
-          </svg>
-          <span className="text-[10px] font-medium">숨기기</span>
-        </button>
         <button
           type="button"
           onClick={handleDeleteClick}
           disabled={!isSwiped}
           data-swipe-button
           className="flex flex-col items-center justify-center gap-1 rounded-2xl bg-red-100 px-2.5 py-1.5 text-red-600 transition-colors hover:bg-red-200 disabled:pointer-events-none dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-950/50"
+          aria-label="동아리 삭제"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -208,9 +175,14 @@ export function AdminClubCard({
             fill="none"
             stroke="currentColor"
             strokeWidth={2}
-            className="h-4 w-4"
+            className="h-4 w-4 shrink-0"
+            aria-hidden
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+            />
           </svg>
           <span className="text-[10px] font-medium">삭제</span>
         </button>

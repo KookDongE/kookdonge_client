@@ -16,7 +16,6 @@ import { isSystemAdmin } from '@/features/auth/permissions';
 import {
   useDeleteClub,
   useInfiniteClubList,
-  useToggleClubVisibility,
   useTopWeeklyLike,
   useTopWeeklyView,
 } from '@/features/club/hooks';
@@ -297,9 +296,7 @@ function ClubListSection({
     category: category && category !== 'ALL' ? (category as ClubCategory) : undefined,
     type: clubType && clubType !== 'ALL' ? (clubType as ClubType) : undefined,
     college:
-      clubType !== 'CENTRAL' && college && college !== 'ALL'
-        ? (college as College)
-        : undefined,
+      clubType !== 'CENTRAL' && college && college !== 'ALL' ? (college as College) : undefined,
     recruitmentStatus: status && status !== 'ALL' ? (status as RecruitmentStatus) : undefined,
     query: (query && query.trim()) || undefined,
     sort: normalizeSort(sort ?? null),
@@ -316,6 +313,7 @@ function ClubListSection({
       return [...rawClubs].sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ko'));
     }
     return rawClubs;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reshuffleKey: 버튼 클릭 시 셔플 재실행용
   }, [rawClubs, sortVal, reshuffleKey]);
   const totalElements = data?.pages[0]?.totalElements ?? 0;
 
@@ -334,15 +332,10 @@ function ClubListSection({
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const { data: profile } = useMyProfile();
-  /** 시스템 관리자(ADMIN)만 홈 검색 결과 카드에서 스와이프(숨기기/삭제) 노출. 리더(managedClubIds)는 동아리 상세·관리 페이지에서만 사용 */
+  /** 시스템 관리자(ADMIN)만 홈 검색 결과 카드에서 스와이프(삭제) 노출. 리더(managedClubIds)는 동아리 상세·관리 페이지에서만 사용 */
   const isAdmin = isSystemAdmin(profile);
 
-  const toggleVisibility = useToggleClubVisibility();
   const deleteClub = useDeleteClub();
-
-  const handleToggleVisibility = (clubId: number, isHidden: boolean) => {
-    toggleVisibility.mutate({ clubId, isHidden: !isHidden });
-  };
 
   const handleDelete = (clubId: number) => {
     setDeleteModalClubId(clubId);
@@ -357,12 +350,9 @@ function ClubListSection({
     }
   };
 
-  const deleteModalClub = deleteModalClubId
-    ? clubs.find((c) => c.id === deleteModalClubId)
-    : null;
+  const deleteModalClub = deleteModalClubId ? clubs.find((c) => c.id === deleteModalClubId) : null;
   const isDeleteNameMatch =
-    deleteModalClub != null &&
-    deleteConfirmName.trim() === (deleteModalClub.name ?? '').trim();
+    deleteModalClub != null && deleteConfirmName.trim() === (deleteModalClub.name ?? '').trim();
 
   if (isLoading) {
     return (
@@ -434,7 +424,6 @@ function ClubListSection({
                     key={club.id}
                     club={adminClubData}
                     index={index}
-                    onToggleVisibility={handleToggleVisibility}
                     onDelete={handleDelete}
                     returnTo={returnTo}
                   />
@@ -469,7 +458,11 @@ function ClubListSection({
               {deleteModalClub && (
                 <>
                   <p className="mb-2 text-sm text-gray-600 dark:text-zinc-400">
-                    삭제하려면 동아리 이름 <strong className="text-gray-900 dark:text-zinc-100">&quot;{deleteModalClub.name}&quot;</strong>을(를) 입력하세요.
+                    삭제하려면 동아리 이름{' '}
+                    <strong className="text-gray-900 dark:text-zinc-100">
+                      &quot;{deleteModalClub.name}&quot;
+                    </strong>
+                    을(를) 입력하세요.
                   </p>
                   <Input
                     type="text"

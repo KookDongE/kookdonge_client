@@ -6,8 +6,9 @@ import { motion } from 'framer-motion';
 
 import type { NotificationRes } from '@/types/api';
 
-const SWIPE_THRESHOLD = -80;
 const ACTION_WIDTH = 72;
+/** 삭제 버튼 너비만큼만 스와이프 (더 넘어가지 않음) */
+const SWIPE_THRESHOLD = -ACTION_WIDTH;
 
 interface SwipeableNotificationItemProps {
   item: NotificationRes;
@@ -132,7 +133,7 @@ export function SwipeableNotificationItem({
         <motion.div
           drag="x"
           dragConstraints={{ left: -ACTION_WIDTH, right: 0 }}
-          dragElastic={0.1}
+          dragElastic={0}
           onDragStart={handleDragStart}
           onDrag={handleDrag}
           onDragEnd={handleDragEnd}
