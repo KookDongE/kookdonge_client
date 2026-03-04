@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 
 import type { CommunityPost } from '@/features/community/types';
@@ -26,7 +27,9 @@ export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
   const contentPreview = post.content.slice(0, 80) + (post.content.length > 80 ? '...' : '');
 
   const cardContent = (
-    <article className="border-b border-zinc-100 px-4 py-3 dark:border-zinc-800">
+    <article className="flex gap-3 border-b border-zinc-100 px-4 py-3 dark:border-zinc-800">
+      {/* 왼쪽: 제목·본문·메타 */}
+      <div className="min-w-0 flex-1">
       {/* 제목 */}
       <h3 className="line-clamp-2 text-[15px] leading-snug font-semibold text-zinc-900 dark:text-zinc-100">
         {post.title}
@@ -99,6 +102,23 @@ export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
         </span>
         <span className="text-zinc-500 dark:text-zinc-500">{formatDate(post.createdAt)}</span>
         <span className="text-zinc-500 dark:text-zinc-500">{post.authorName}</span>
+      </div>
+      </div>
+      {/* 오른쪽: 썸네일 */}
+      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
+        {post.imageUrl ? (
+          <Image
+            src={post.imageUrl}
+            alt=""
+            fill
+            className="object-cover"
+            sizes="64px"
+          />
+        ) : (
+          <div className="flex size-full items-center justify-center text-[10px] font-medium text-zinc-400 dark:text-zinc-500">
+            {post.title.slice(0, 1)}
+          </div>
+        )}
       </div>
     </article>
   );

@@ -278,8 +278,8 @@ export default function CommunityWritePage() {
           />
         </div>
 
-        {/* 내용: 높이 제한 후 textarea가 영역 전체 채움 */}
-        <div className="flex h-[11rem] shrink-0 flex-col">
+        {/* 내용: 남는 세로 공간 전부 사용 */}
+        <div className="flex min-h-0 flex-1 flex-col">
           <label className="mb-2 shrink-0 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
             내용
           </label>
@@ -295,7 +295,7 @@ export default function CommunityWritePage() {
         </div>
 
         {/* 사진: 동아리 피드와 동일하게 가로 스크롤 + 드래그 순서 변경 */}
-        <div className="shrink-0">
+        <div className="shrink-0 mb-4">
           <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
             사진
           </label>
@@ -352,9 +352,6 @@ export default function CommunityWritePage() {
             최대 10장까지 첨부할 수 있습니다.
           </p>
         </div>
-
-        {/* 내용 영역 줄인 만큼 하단 여백 */}
-        <div className="min-h-[11rem] flex-1 shrink-0" aria-hidden />
       </form>
     </div>
   );

@@ -16,4 +16,6 @@ export type CommunityPost = {
   liked?: boolean;
   /** 현재 사용자가 저장했는지 */
   saved?: boolean;
+  /** 목록 썸네일 이미지 URL (없으면 placeholder) */
+  imageUrl?: string | null;
 };
