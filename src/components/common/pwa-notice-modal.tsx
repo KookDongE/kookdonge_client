@@ -32,11 +32,19 @@ async function isPWAInstalled(): Promise<boolean> {
   }
 }
 
+function getAppLaunchUrl(): string {
+  if (typeof window === 'undefined') return '/';
+  const base = process.env.NEXT_PUBLIC_APP_URL;
+  if (base && typeof base === 'string') return base.replace(/\/$/, '') || window.location.origin;
+  return window.location.origin;
+}
+
 export function PwaNoticeModal() {
   const accessToken = useAuthStore((s) => s.accessToken);
   const [open, setOpen] = useState(false);
   const [installing, setInstalling] = useState(false);
   const [hasInstallPrompt, setHasInstallPrompt] = useState(false);
+  const [pwaInstalled, setPwaInstalled] = useState(false);
   const deferredPromptRef = useRef<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
@@ -65,7 +73,7 @@ export function PwaNoticeModal() {
         const lastLogin = sessionStorage.getItem(PWA_NOTICE_LAST_LOGIN_KEY);
         if (dismissed && lastLogin === accessToken) return;
         const installed = await isPWAInstalled();
-        if (cancelled || installed) return;
+        if (!cancelled) setPwaInstalled(installed);
         sessionStorage.setItem(PWA_NOTICE_LAST_LOGIN_KEY, accessToken);
         if (!cancelled) setOpen(true);
       } catch {
@@ -106,6 +114,11 @@ export function PwaNoticeModal() {
     }
   }, [handleClose]);
 
+  const handleOpenInApp = useCallback(() => {
+    handleClose();
+    window.location.href = getAppLaunchUrl();
+  }, [handleClose]);
+
   const platform = getPlatform();
   const isIOS = platform === 'IOS';
   const isAndroid = platform === 'ANDROID';
@@ -135,7 +148,7 @@ export function PwaNoticeModal() {
             앱처럼 사용해 보세요
           </h2>
           <p className="mb-5 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            KookDongE을 홈 화면에 추가하여 알림을 받을 수 있습니다.
+            국동이를 홈 화면에 추가하여 알림을 받을 수 있습니다.
           </p>
           {isIOS && (
             <div className="mb-5 rounded-xl bg-zinc-100 px-4 py-3 text-sm leading-relaxed text-zinc-700 dark:bg-zinc-700/50 dark:text-zinc-300">
@@ -174,6 +187,14 @@ export function PwaNoticeModal() {
               >
                 가이드 보러가기
               </Link>
+            ) : pwaInstalled ? (
+              <button
+                type="button"
+                onClick={handleOpenInApp}
+                className="mb-4 w-full rounded-xl bg-blue-500 py-3.5 font-semibold text-white transition-colors hover:bg-blue-600 dark:bg-lime-400 dark:text-zinc-900 dark:hover:bg-lime-300"
+              >
+                앱에서 보기
+              </button>
             ) : (
               <button
                 type="button"

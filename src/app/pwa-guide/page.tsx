@@ -1,12 +1,15 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function PwaGuidePage() {
+  const router = useRouter();
+
   useEffect(() => {
-    document.title = '앱 설치 가이드 | KookDongE';
+    document.title = '앱 설치 가이드 | 국동이';
     return () => {
-      document.title = 'KookDongE';
+      document.title = '국동이';
     };
   }, []);
 
@@ -44,13 +47,20 @@ export default function PwaGuidePage() {
           </span>
           <span>
             오른쪽 상단 <strong className="text-zinc-900 dark:text-zinc-100">추가</strong>를 누르면
-            홈 화면에 KookDongE 아이콘이 생겨요. 이제 앱처럼 실행할 수 있습니다.
+            홈 화면에 국동이 아이콘이 생겨요. 이제 앱처럼 실행할 수 있습니다.
           </span>
         </li>
       </ol>
       <p className="mt-8 text-xs text-zinc-500 dark:text-zinc-400">
         설치 후에는 알림을 켜면 동아리 모집·Q&A 답변 등 소식을 받을 수 있어요.
       </p>
+      <button
+        type="button"
+        onClick={() => router.back()}
+        className="mt-8 w-full rounded-xl bg-blue-500 py-3.5 font-semibold text-white transition-colors hover:bg-blue-600 dark:bg-lime-400 dark:text-zinc-900 dark:hover:bg-lime-300"
+      >
+        확인
+      </button>
     </div>
   );
 }
