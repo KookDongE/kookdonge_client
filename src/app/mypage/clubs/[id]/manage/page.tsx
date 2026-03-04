@@ -1836,7 +1836,6 @@ function ClubQnaTab({
   const { data: allQuestions, isLoading: allLoading } = useQuestions(clubId, { page: 0, size: 50 });
   const createAnswer = useCreateAnswer();
   const deleteQuestion = useDeleteQuestion(clubId);
-  const [deleteModalQuestionId, setDeleteModalQuestionId] = useState<number | null>(null);
   const [openMenuAllQuestionId, setOpenMenuAllQuestionId] = useState<number | null>(null);
   const [expandedAnswerQuestionId, setExpandedAnswerQuestionId] = useState<number | null>(null);
   const [answerTexts, setAnswerTexts] = useState<Record<number, string>>({});
@@ -1865,14 +1864,9 @@ function ClubQnaTab({
   }, [highlightQuestionId, onClearHighlightQuestionId]);
 
   const handleDeleteClick = (questionId: number) => {
-    setDeleteModalQuestionId(questionId);
-  };
-
-  const handleDeleteConfirm = () => {
-    if (deleteModalQuestionId != null) {
-      deleteQuestion.mutate(deleteModalQuestionId, {
-        onSettled: () => setDeleteModalQuestionId(null),
-      });
+    setOpenMenuAllQuestionId(null);
+    if (window.confirm('정말 이 질문을 삭제하시겠습니까?')) {
+      deleteQuestion.mutate(questionId);
     }
   };
 
@@ -2060,39 +2054,6 @@ function ClubQnaTab({
         </div>
       )}
 
-      {/* 질문 삭제 확인 모달 */}
-      {deleteModalQuestionId != null && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          onClick={() => setDeleteModalQuestionId(null)}
-        >
-          <div
-            className="w-full max-w-sm rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl dark:border-zinc-700 dark:bg-zinc-800"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <p className="text-center text-zinc-900 dark:text-zinc-100">
-              정말 이 질문을 삭제하시겠습니까?
-            </p>
-            <div className="mt-6 flex gap-3">
-              <Button
-                variant="ghost"
-                className="flex-1"
-                onPress={() => setDeleteModalQuestionId(null)}
-              >
-                취소
-              </Button>
-              <Button
-                variant="primary"
-                className="flex-1 bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
-                onPress={handleDeleteConfirm}
-                isPending={deleteQuestion.isPending}
-              >
-                삭제
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
