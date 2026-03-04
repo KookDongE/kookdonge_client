@@ -81,18 +81,29 @@ const AdminIcon = ({ active }: { active: boolean }) => (
   </svg>
 );
 
-const NAV_ITEMS: NavItem[] = [
-  {
-    href: '/home',
-    label: '홈',
-    icon: (active) => <HomeIcon active={active} />,
-  },
-  {
-    href: '/mypage',
-    label: 'MY',
-    icon: (active) => <UserIcon active={active} />,
-  },
-];
+const HOME_ITEM: NavItem = {
+  href: '/home',
+  label: '홈',
+  icon: (active) => <HomeIcon active={active} />,
+};
+
+const COMMUNITY_ITEM: NavItem = {
+  href: '/admin/community',
+  label: '커뮤니티',
+  icon: (active) => <CommunityIcon active={active} />,
+};
+
+const MYPAGE_ITEM: NavItem = {
+  href: '/mypage',
+  label: 'MY',
+  icon: (active) => <UserIcon active={active} />,
+};
+
+const ADMIN_ITEM: NavItem = {
+  href: '/admin',
+  label: '관리자',
+  icon: (active) => <AdminIcon active={active} />,
+};
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -116,23 +127,12 @@ export function BottomNav() {
     return pathname.startsWith(href);
   };
 
-  // 관리자 전용 탭(커뮤니티, 관리자) 포함한 전체 아이템 목록
-  const allNavItems = [
-    ...NAV_ITEMS,
-    ...(isAdmin
-      ? [
-          {
-            href: '/admin/community',
-            label: '커뮤니티',
-            icon: (active: boolean) => <CommunityIcon active={active} />,
-          },
-          {
-            href: '/admin',
-            label: '관리자',
-            icon: (active: boolean) => <AdminIcon active={active} />,
-          },
-        ]
-      : []),
+  // 순서: 홈 → 커뮤니티(관리자만) → 마이 → 관리자(관리자만)
+  const allNavItems: NavItem[] = [
+    HOME_ITEM,
+    ...(isAdmin ? [COMMUNITY_ITEM] : []),
+    MYPAGE_ITEM,
+    ...(isAdmin ? [ADMIN_ITEM] : []),
   ];
 
   // 활성 링크의 위치 계산 (훅은 조건부 return 이전에 항상 호출)
