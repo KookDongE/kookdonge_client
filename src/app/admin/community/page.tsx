@@ -191,7 +191,7 @@ export default function AdminCommunityPage() {
         </div>
 
         {/* 게시판과 내관련글 사이 간격 */}
-        <div className="mt-3" aria-hidden />
+        <div className="mt-5" aria-hidden />
 
         {/* 내관련글 */}
         <div className="space-y-0.5" aria-label="내관련글">

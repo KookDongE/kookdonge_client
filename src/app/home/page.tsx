@@ -464,15 +464,19 @@ function ClubListSection({
                     </strong>
                     을(를) 입력하세요.
                   </p>
-                  <Input
-                    type="text"
-                    placeholder="동아리 이름 입력"
-                    value={deleteConfirmName}
-                    onChange={(e) => setDeleteConfirmName(e.target.value)}
-                    className="mb-6 w-full"
-                    autoComplete="off"
-                    aria-label="동아리 이름 확인"
-                  />
+                  {/* Input에 mt-6을 주어 문단과의 간격을 확실히 함. 래퍼에 w-full + fullWidth로 가로 폭을 모달과 동일하게 */}
+                  <div className="mb-6 w-full">
+                    <Input
+                      type="text"
+                      placeholder="동아리 이름 입력"
+                      value={deleteConfirmName}
+                      onChange={(e) => setDeleteConfirmName(e.target.value)}
+                      className="mt-6 w-full min-w-0 !max-w-full"
+                      fullWidth
+                      autoComplete="off"
+                      aria-label="동아리 이름 확인"
+                    />
+                  </div>
                 </>
               )}
               <div className="flex gap-3">
