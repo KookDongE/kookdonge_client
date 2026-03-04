@@ -16,6 +16,8 @@ type CommunitySearchFilterProps = {
   onSortChange: (value: CommunitySort) => void;
   /** sticky 시 스크롤에 따라 숨김 여부 */
   stickyHideOnScroll?: boolean;
+  /** true면 검색 아래 필터(최신순/인기순, 내가 쓴 글 등) 영역 숨김 */
+  hideFilters?: boolean;
   className?: string;
 };
 
@@ -25,6 +27,7 @@ export function CommunitySearchFilter({
   sort,
   onSortChange,
   stickyHideOnScroll = false,
+  hideFilters = false,
   className = '',
 }: CommunitySearchFilterProps) {
   const [searchInput, setSearchInput] = useState(() => query);
@@ -99,57 +102,58 @@ export function CommunitySearchFilter({
         />
       </div>
 
-      {/* 필터: 정렬 + 내가 쓴 글 / 댓글 단 글 */}
-      <div className="no-scrollbar flex flex-wrap items-center gap-2 px-4 pb-3">
-        <div className="flex shrink-0 gap-1 rounded-full bg-zinc-100 p-1 dark:bg-zinc-800">
-          <button
-            type="button"
-            onClick={() => onSortChange('latest')}
-            className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-              sort === 'latest'
-                ? 'bg-white text-zinc-900 shadow dark:bg-zinc-700 dark:text-zinc-100'
-                : 'text-zinc-500 dark:text-zinc-400'
-            }`}
+      {!hideFilters && (
+        <div className="no-scrollbar flex flex-wrap items-center gap-2 px-4 pb-3">
+          <div className="flex shrink-0 gap-1 rounded-full bg-zinc-100 p-1 dark:bg-zinc-800">
+            <button
+              type="button"
+              onClick={() => onSortChange('latest')}
+              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                sort === 'latest'
+                  ? 'bg-white text-zinc-900 shadow dark:bg-zinc-700 dark:text-zinc-100'
+                  : 'text-zinc-500 dark:text-zinc-400'
+              }`}
+            >
+              최신순
+            </button>
+            <button
+              type="button"
+              onClick={() => onSortChange('popular')}
+              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                sort === 'popular'
+                  ? 'bg-white text-zinc-900 shadow dark:bg-zinc-700 dark:text-zinc-100'
+                  : 'text-zinc-500 dark:text-zinc-400'
+              }`}
+            >
+              인기순
+            </button>
+          </div>
+          <Link
+            href="/admin/community/my-posts"
+            className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
           >
-            최신순
-          </button>
-          <button
-            type="button"
-            onClick={() => onSortChange('popular')}
-            className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-              sort === 'popular'
-                ? 'bg-white text-zinc-900 shadow dark:bg-zinc-700 dark:text-zinc-100'
-                : 'text-zinc-500 dark:text-zinc-400'
-            }`}
+            내가 쓴 글
+          </Link>
+          <Link
+            href="/admin/community/commented"
+            className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
           >
-            인기순
-          </button>
+            댓글 단 글
+          </Link>
+          <Link
+            href="/admin/community/liked"
+            className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+          >
+            좋아요 누른 글
+          </Link>
+          <Link
+            href="/admin/community/saved"
+            className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+          >
+            저장 누른 글
+          </Link>
         </div>
-        <Link
-          href="/admin/community/my-posts"
-          className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
-        >
-          내가 쓴 글
-        </Link>
-        <Link
-          href="/admin/community/commented"
-          className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
-        >
-          댓글 단 글
-        </Link>
-        <Link
-          href="/admin/community/liked"
-          className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
-        >
-          좋아요 누른 글
-        </Link>
-        <Link
-          href="/admin/community/saved"
-          className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
-        >
-          저장 누른 글
-        </Link>
-      </div>
+      )}
     </div>
   );
 }

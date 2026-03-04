@@ -51,17 +51,13 @@ export default function AdminCommunityPage() {
 
   return (
     <div className="min-h-screen bg-[var(--background)] pb-20">
-      {/* 상단: 헤더는 AppShell에서 제공. 여기서는 제목 + 검색 + 필터 */}
-      <div className="px-4 pt-2">
-        <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">커뮤니티</h1>
-      </div>
-
       <CommunitySearchFilter
         query={query}
         onQueryChange={setQuery}
         sort={sort}
         onSortChange={setSort}
         stickyHideOnScroll
+        hideFilters
         className="border-b border-zinc-200 dark:border-zinc-700"
       />
 
@@ -76,9 +72,9 @@ export default function AdminCommunityPage() {
               더보기
             </Link>
           </div>
-          <div className="space-y-3">
+          <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
             {popular.length === 0 ? (
-              <p className="py-4 text-center text-sm text-zinc-400 dark:text-zinc-500">
+              <p className="px-4 py-6 text-center text-sm text-zinc-400 dark:text-zinc-500">
                 게시글이 없습니다.
               </p>
             ) : (
@@ -102,9 +98,9 @@ export default function AdminCommunityPage() {
               더보기
             </Link>
           </div>
-          <div className="space-y-3">
+          <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
             {promo.length === 0 ? (
-              <p className="py-4 text-center text-sm text-zinc-400 dark:text-zinc-500">
+              <p className="px-4 py-6 text-center text-sm text-zinc-400 dark:text-zinc-500">
                 게시글이 없습니다.
               </p>
             ) : (
@@ -128,9 +124,9 @@ export default function AdminCommunityPage() {
               더보기
             </Link>
           </div>
-          <div className="space-y-3">
+          <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
             {free.length === 0 ? (
-              <p className="py-4 text-center text-sm text-zinc-400 dark:text-zinc-500">
+              <p className="px-4 py-6 text-center text-sm text-zinc-400 dark:text-zinc-500">
                 게시글이 없습니다.
               </p>
             ) : (
