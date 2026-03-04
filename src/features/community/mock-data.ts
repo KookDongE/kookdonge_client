@@ -67,6 +67,11 @@ export function getMockCommunityPosts(): CommunityPost[] {
   return [...cachedPosts];
 }
 
+export function getPostById(id: number): CommunityPost | null {
+  const posts = getMockCommunityPosts();
+  return posts.find((p) => p.id === id) ?? null;
+}
+
 export function filterByBoard(posts: CommunityPost[], boardType: BoardType): CommunityPost[] {
   return posts.filter((p) => p.boardType === boardType);
 }

@@ -57,7 +57,7 @@ export default function CommunityFreePage() {
             <CommunityPostCard
               key={post.id}
               post={post}
-              boardHref={`/admin/community/free?id=${post.id}`}
+              boardHref={`/admin/community/posts/${post.id}`}
             />
           ))
         )}

@@ -70,7 +70,7 @@ export default function CommunitySavedPage() {
             <CommunityPostCard
               key={post.id}
               post={post}
-              boardHref={`/admin/community/${post.boardType}?id=${post.id}`}
+              boardHref={`/admin/community/posts/${post.id}`}
             />
           ))
         )}

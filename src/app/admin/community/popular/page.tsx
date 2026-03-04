@@ -57,7 +57,7 @@ export default function CommunityPopularPage() {
             <CommunityPostCard
               key={post.id}
               post={post}
-              boardHref={`/admin/community/popular?id=${post.id}`}
+              boardHref={`/admin/community/posts/${post.id}`}
             />
           ))
         )}

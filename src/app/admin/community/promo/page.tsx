@@ -57,7 +57,7 @@ export default function CommunityPromoPage() {
             <CommunityPostCard
               key={post.id}
               post={post}
-              boardHref={`/admin/community/promo?id=${post.id}`}
+              boardHref={`/admin/community/posts/${post.id}`}
             />
           ))
         )}

@@ -38,13 +38,27 @@ export default function AdminCommunityPage() {
 
   return (
     <div className="min-h-screen bg-white pb-20 dark:bg-zinc-900">
-      <div className="px-4 py-4">
-        <div className="space-y-3">
+      {/* 광고 배너: 새로2 가로3 비율, 좌우 여백 */}
+      <div className="px-4 pt-4">
+        <div
+          className="w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800"
+          style={{ aspectRatio: '3/2' }}
+        >
+          {/* 배너 플레이스홀더 (이미지/광고 연동 시 교체) */}
+          <div className="flex h-full w-full items-center justify-center text-sm text-zinc-400 dark:text-zinc-500">
+            광고 배너
+          </div>
+        </div>
+      </div>
+
+      {/* 게시판 메뉴: 외곽선 없이 작게 */}
+      <div className="px-4 py-3">
+        <div className="space-y-0.5">
           {MENU_ITEMS.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
-              className="flex min-h-[56px] w-full items-center justify-between gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 text-left text-base font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700/80"
+              className="flex w-full items-center justify-between gap-2 py-2.5 text-sm font-medium text-zinc-800 transition-colors hover:text-zinc-600 dark:text-zinc-200 dark:hover:text-zinc-400"
             >
               {label}
               <svg
@@ -53,7 +67,7 @@ export default function AdminCommunityPage() {
                 fill="none"
                 stroke="currentColor"
                 strokeWidth={2}
-                className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
+                className="h-4 w-4 shrink-0 text-zinc-400 dark:text-zinc-500"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
