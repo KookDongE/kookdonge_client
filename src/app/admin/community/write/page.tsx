@@ -290,7 +290,6 @@ export default function CommunityWritePage() {
               placeholder="내용을 입력하세요"
               className="size-full min-h-0 flex-1 resize-none rounded-xl border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
               aria-label="내용"
-              classNames={{ base: 'min-h-0 flex-1 flex flex-col', input: 'min-h-0 flex-1' }}
             />
           </div>
         </div>
