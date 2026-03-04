@@ -193,7 +193,7 @@ export function PwaNoticeModal() {
                 onClick={handleOpenInApp}
                 className="mb-4 w-full rounded-xl bg-blue-500 py-3.5 font-semibold text-white transition-colors hover:bg-blue-600 dark:bg-lime-400 dark:text-zinc-900 dark:hover:bg-lime-300"
               >
-                앱에서 보기
+                홈 화면의 국동이 앱 아이콘을 눌러 실행해 주세요.
               </button>
             ) : (
               <button
