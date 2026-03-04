@@ -194,7 +194,7 @@ export function CommunityHomeSkeleton() {
         <div className="skeleton h-10 w-full rounded-xl" />
       </div>
       <div className="mb-4 px-4 pt-4">
-        <div className="skeleton w-full rounded-xl" style={{ aspectRatio: '3/2' }} />
+        <div className="skeleton w-full rounded-xl" style={{ aspectRatio: '2/1' }} />
       </div>
       <div className="px-5 py-3">
         {[1, 2, 3, 4, 5, 6].map((i) => (

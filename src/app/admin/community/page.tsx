@@ -149,11 +149,11 @@ export default function AdminCommunityPage() {
         />
       </div>
 
-      {/* 광고 배너: 새로2 가로3 비율, 좌우 여백, 하단 마진 */}
+      {/* 광고 배너: 가로2 세로1 비율, 좌우 여백, 하단 마진 */}
       <div className="mb-4 px-4 pt-4">
         <div
           className="w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800"
-          style={{ aspectRatio: '3/2' }}
+          style={{ aspectRatio: '2/1' }}
         >
           {/* 배너 플레이스홀더 (이미지/광고 연동 시 교체) */}
           <div className="flex h-full w-full items-center justify-center text-sm text-zinc-400 dark:text-zinc-500">
