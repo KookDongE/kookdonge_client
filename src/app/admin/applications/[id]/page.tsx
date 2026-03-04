@@ -75,7 +75,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
 
   if (profileLoading || (profile && !isSystemAdmin(profile))) {
     return (
-      <div className="min-h-screen bg-white dark:bg-zinc-900">
+      <div className="min-h-screen bg-[var(--card)]">
         <FormPageSkeleton />
       </div>
     );
@@ -83,7 +83,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-zinc-900">
+      <div className="min-h-screen bg-[var(--card)]">
         <FormPageSkeleton />
       </div>
     );
@@ -91,8 +91,8 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
 
   if (!id || Number.isNaN(applicationId)) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-white p-4 dark:bg-zinc-900">
-        <p className="text-gray-500 dark:text-zinc-400">잘못된 경로입니다.</p>
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--card)] p-4">
+        <p className="text-[var(--muted-foreground)]">잘못된 경로입니다.</p>
         <Button className="mt-4" variant="ghost" onPress={() => router.push('/admin/applications')}>
           목록으로
         </Button>
@@ -102,8 +102,8 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
 
   if (!application) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-white p-4 dark:bg-zinc-900">
-        <p className="text-gray-500 dark:text-zinc-400">신청을 찾을 수 없습니다.</p>
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--card)] p-4">
+        <p className="text-[var(--muted-foreground)]">신청을 찾을 수 없습니다.</p>
         <Button className="mt-4" variant="ghost" onPress={() => router.push('/admin/applications')}>
           목록으로
         </Button>
@@ -150,29 +150,29 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
   };
 
   const labelClass =
-    'mb-2 block text-xs font-normal text-gray-500 dark:text-zinc-400';
+    'mb-2 block text-xs font-normal text-[var(--muted-foreground)]';
   const valueBoxClass =
-    'w-full rounded-lg border border-gray-200 bg-white p-4 text-sm text-gray-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100';
+    'w-full rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 text-sm text-[var(--card-foreground)]';
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white dark:bg-zinc-900">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-[var(--card)]">
       {/* 헤더: my/club-requests/[id]와 동일 — 뒤로가기(좌) | 날짜·상태 뱃지(우) */}
-      <div className="shrink-0 bg-white dark:bg-zinc-900">
+      <div className="shrink-0 bg-[var(--card)]">
         <div className="flex h-16 items-center justify-between px-4">
           <button
             type="button"
             onClick={() => router.back()}
-            className="flex items-center gap-1 text-base font-medium text-gray-700 dark:text-zinc-200"
+            className="flex items-center gap-1 text-base font-medium text-[var(--foreground)]"
           >
             <span className="inline-block">←</span>
             <span>뒤로가기</span>
           </button>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500 dark:text-zinc-400">
+            <span className="text-xs text-[var(--muted-foreground)]">
               {formatDateTimeNoSeconds(application.createdAt)}
             </span>
             <span
-              className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_CHIP_CLASS[application.status] ?? 'bg-zinc-100 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300'}`}
+              className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_CHIP_CLASS[application.status] ?? 'bg-[var(--muted)] text-[var(--muted-foreground)]'}`}
             >
               {application.status === 'PENDING'
                 ? '승인 대기'

@@ -292,13 +292,10 @@ function ClubManageContent({ clubId }: { clubId: number }) {
     window.scrollTo(0, 0);
   }, [clubId, pathname]);
 
-  // 정보 탭: 기본은 보기 모드(동아리 상세와 동일 UI), 수정 버튼 클릭 시 편집 모드
-  const [isInfoEditMode, setIsInfoEditMode] = useState(false);
-  // 편집 모드 상태 (기본/동아리소개/모집정보 각각)
+  // 정보 탭: 기본은 보기 모드(동아리 상세와 동일), 각 영역 우측 상단 연필로 수정 모드 전환
   const [isEditingBasic, setIsEditingBasic] = useState(false);
   const [isEditingContent, setIsEditingContent] = useState(false);
   const [isEditingRecruitment, setIsEditingRecruitment] = useState(false);
-  const [adminSectionExpanded, setAdminSectionExpanded] = useState(false);
 
   // 파일 업로드 (프로필/설명 이미지)
   const uploadFeedFiles = useUploadFeedFiles(clubId);
@@ -681,40 +678,23 @@ function ClubManageContent({ clubId }: { clubId: number }) {
             </Tabs.List>
           </Tabs.ListContainer>
 
-          {/* 정보 탭: 기본은 동아리 상세와 동일 보기 UI, 수정 클릭 시 편집 모드 */}
+          {/* 정보 탭: 기본은 조회 페이지와 동일 보기, 각 영역 우측 상단 연필로 수정 모드 전환, 관리자 영역 항상 표시 */}
           <Tabs.Panel id="info" className="w-full min-w-0 overflow-hidden">
-            {!isInfoEditMode ? (
-              <ManageInfoView club={club} onEdit={() => setIsInfoEditMode(true)} />
-            ) : (
-              <>
-                <div className="flex justify-end px-4 pt-2">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onPress={() => setIsInfoEditMode(false)}
-                  >
-                    보기로 돌아가기
-                  </Button>
-                </div>
-                <ClubInfoTab
+            <ClubInfoTab
               club={club}
               clubId={clubId}
-              // 편집 상태
               isEditingBasic={isEditingBasic}
               isEditingContent={isEditingContent}
               isEditingRecruitment={isEditingRecruitment}
-              // 편집 모드 토글
               onEditBasic={() => setIsEditingBasic(true)}
               onEditContent={() => setIsEditingContent(true)}
               onEditRecruitment={() => setIsEditingRecruitment(true)}
               onCancelBasic={() => setIsEditingBasic(false)}
               onCancelContent={() => setIsEditingContent(false)}
               onCancelRecruitment={() => setIsEditingRecruitment(false)}
-              // 저장 핸들러
               onSaveBasic={handleSaveBasic}
               onSaveContent={handleSaveContent}
               onSaveRecruitment={handleSaveRecruitment}
-              // 폼 상태
               name={name}
               setName={setName}
               image={image}
@@ -758,17 +738,9 @@ function ClubManageContent({ clubId }: { clubId: number }) {
               setRecruitmentUrl={setRecruitmentUrl}
               externalLinks={externalLinks}
               setExternalLinks={setExternalLinks}
-              // 관리자 관리
-              adminSectionExpanded={adminSectionExpanded}
-              onManageAdmins={() => setAdminSectionExpanded(true)}
-              onCloseAdmins={() => setAdminSectionExpanded(false)}
-              // 업로드 상태
               isUploading={uploadFeedFiles.isPending}
-              // 업데이트 상태
               isSaving={updateClub.isPending || updateRecruitmentInfo.isPending}
-                />
-              </>
-            )}
+            />
           </Tabs.Panel>
 
           {/* 피드 탭 */}
@@ -1105,11 +1077,6 @@ function ClubInfoTab({
   setRecruitmentUrl,
   externalLinks,
   setExternalLinks,
-  // 관리자 관리
-  adminSectionExpanded,
-  onManageAdmins,
-  onCloseAdmins,
-  // 업로드/저장 상태
   isUploading,
   isSaving,
 }: {
@@ -1170,9 +1137,6 @@ function ClubInfoTab({
   setRecruitmentUrl: (value: string) => void;
   externalLinks: { name: string; url: string }[];
   setExternalLinks: React.Dispatch<React.SetStateAction<{ name: string; url: string }[]>>;
-  adminSectionExpanded: boolean;
-  onManageAdmins: () => void;
-  onCloseAdmins: () => void;
   isUploading: boolean;
   isSaving: boolean;
 }) {
@@ -1233,7 +1197,7 @@ function ClubInfoTab({
 
   return (
     <div className="w-full min-w-0 space-y-4 overflow-x-hidden p-4">
-      {/* 기본 정보 - 상단 */}
+      {/* 기본 정보 */}
       <div className={cardClass}>
         <div className="mb-3 flex items-center justify-between">
           <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">기본 정보</h3>
@@ -1911,49 +1875,10 @@ function ClubInfoTab({
         )}
       </div>
 
-      {/* 관리자 관리 */}
+      {/* 관리자: 항상 표시 */}
       <div className={cardClass}>
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">관리자</h3>
-          {!adminSectionExpanded ? (
-            <button
-              type="button"
-              onClick={onManageAdmins}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-blue-500 transition-colors hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950/30"
-              aria-label="수정"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-4 w-4"
-              >
-                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-                <path d="m15 5 4 4" />
-              </svg>
-            </button>
-          ) : (
-            <div className="flex items-center gap-2">
-              <Button size="sm" variant="ghost" onPress={onCloseAdmins}>
-                취소
-              </Button>
-              <Button size="sm" variant="primary" onPress={onCloseAdmins}>
-                저장
-              </Button>
-            </div>
-          )}
-        </div>
-        {!adminSectionExpanded ? (
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            동아리를 함께 관리할 관리자를 추가하거나 제거할 수 있습니다.
-          </p>
-        ) : (
-          <AdminManageSection clubId={clubId} onClose={onCloseAdmins} />
-        )}
+        <h3 className="mb-3 font-semibold text-zinc-900 dark:text-zinc-100">관리자</h3>
+        <AdminManageSection clubId={clubId} onClose={() => {}} />
       </div>
     </div>
   );

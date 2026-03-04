@@ -558,7 +558,7 @@ function MyApplicationsSection() {
 
 export default function MyPage() {
   return (
-    <div className="pb-6">
+    <div className="space-y-4 pb-6">
       <ProfileSection />
       <ClubApplyButton />
       <AdminSection />
