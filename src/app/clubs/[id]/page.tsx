@@ -434,10 +434,8 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
   if (!club) return null;
 
   const infoItems = [
-    {
-      label: '모집 기간',
-      value: `${formatDateTime(club.recruitmentStartDate)} ~ ${formatDateTime(club.recruitmentEndDate)}`,
-    },
+    { label: '모집 시작', value: formatDateTime(club.recruitmentStartDate) },
+    { label: '모집 마감', value: formatDateTime(club.recruitmentEndDate) },
     { label: '대상', value: club.targetGraduate },
     { label: '동아리장', value: club.leaderName },
     { label: '활동 장소', value: club.location },
@@ -483,17 +481,26 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
       <div className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
         <h3 className="mb-3 font-semibold text-zinc-900 dark:text-zinc-100">기본 정보</h3>
         <div className="min-w-0 space-y-3">
-          {infoItems.map((item) => (
-            <div
-              key={item.label}
-              className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 gap-y-0 text-sm"
-            >
-              <span className="shrink-0 text-zinc-500 dark:text-zinc-400">{item.label}</span>
-              <span className="min-w-0 truncate text-right font-medium text-zinc-900 dark:text-zinc-100">
-                {item.value}
-              </span>
-            </div>
-          ))}
+          {infoItems.map((item) => {
+            const isRecruitmentDate = item.label === '모집 시작' || item.label === '모집 마감';
+            return (
+              <div
+                key={item.label}
+                className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-2 gap-y-0 text-sm"
+              >
+                <span className="shrink-0 pt-0.5 text-zinc-500 dark:text-zinc-400">
+                  {item.label}
+                </span>
+                <span
+                  className={`min-w-0 text-right font-medium text-zinc-900 dark:text-zinc-100 ${
+                    isRecruitmentDate ? 'break-words' : 'truncate'
+                  }`}
+                >
+                  {item.value}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </div>
       {(() => {
