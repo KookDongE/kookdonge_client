@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
 import { BottomNav } from '@/components/common/bottom-nav';
@@ -34,8 +35,8 @@ const SCROLL_DISABLED_PATHS = [
   /^\/mypage\/clubs\/apply$/,
   /^\/mypage\/settings(\/|$)/,
   /^\/mypage\/notification-settings(\/|$)/,
-  /^\/admin$/, // 관리자 메인만
-  /^\/admin\/community$/, // 커뮤니티 메인만, 하위(/admin/community/popular 등)는 스크롤 가능
+  /^\/admin\/?$/, // 관리자 메인만 (trailing slash 포함)
+  /^\/admin\/community\/?$/, // 커뮤니티 메인만, 하위(/admin/community/popular 등)는 스크롤 가능. trailing slash 포함.
 ];
 
 function isFullScreenPath(pathname: string): boolean {
@@ -49,6 +50,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pullToRefreshDisabled =
     PULL_TO_REFRESH_DISABLED_PATHS.some((re) => re.test(pathname ?? '')) || pathname === '/admin'; // 관리자 메인 페이지만 비활성, 하위(/admin/applications 등)는 풀리프래시 활성
   const scrollDisabled = SCROLL_DISABLED_PATHS.some((re) => re.test(pathname ?? ''));
+
+  // 스크롤 비활성 페이지에서는 body 세로 스크롤도 막아서 문서 전체가 스크롤되지 않도록 함
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (scrollDisabled) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [scrollDisabled]);
 
   return (
     <div

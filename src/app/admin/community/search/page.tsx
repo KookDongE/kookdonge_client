@@ -62,6 +62,7 @@ export default function CommunitySearchPage() {
         sort={sort}
         onSortChange={setSort}
         stickyHideOnScroll
+        hideFilters
       />
       <div className="px-0 py-4">
         {!query.trim() ? (
