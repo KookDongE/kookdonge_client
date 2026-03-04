@@ -24,14 +24,16 @@ export function PwaNoticeModal() {
   const deferredPromptRef = useRef<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
-    const handler = (e: BeforeInstallPromptEvent) => {
-      e.preventDefault();
-      deferredPromptRef.current = e;
+    const handler = (e: Event) => {
+      const promptEvent = e as BeforeInstallPromptEvent;
+      promptEvent.preventDefault();
+      deferredPromptRef.current = promptEvent;
       setHasInstallPrompt(true);
     };
-    window.addEventListener('beforeinstallprompt', handler);
+    const eventName = 'beforeinstallprompt' as keyof WindowEventMap;
+    window.addEventListener(eventName, handler as EventListener);
     return () => {
-      window.removeEventListener('beforeinstallprompt', handler);
+      window.removeEventListener(eventName, handler as EventListener);
       deferredPromptRef.current = null;
       setHasInstallPrompt(false);
     };
