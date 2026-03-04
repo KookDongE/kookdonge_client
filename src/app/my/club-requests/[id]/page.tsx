@@ -103,9 +103,9 @@ export default function MyApplicationDetailPage() {
     'w-full rounded-lg border border-gray-200 bg-white p-4 text-sm text-gray-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100';
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white dark:bg-zinc-900">
+    <div className="club-request-detail-page flex h-full min-h-0 flex-col overflow-hidden bg-white dark:bg-zinc-900">
       {/* 헤더: 뒤로가기(좌) | 상태 뱃지(우) — apply 페이지와 동일한 상단 구조 */}
-      <div className="shrink-0 bg-white dark:bg-zinc-900">
+      <div className="club-request-detail-header shrink-0 bg-white dark:bg-zinc-900">
         <div className="flex h-16 items-center justify-between px-4">
           <button
             type="button"

@@ -78,6 +78,12 @@ html:not(.dark) textarea::placeholder {
   color: #9ca3af;
 }
 
+/* PWA 앱뷰 라이트 모드에서 내 신청 상세 헤더/본문이 다크로 보이는 현상 방지 */
+html:not(.dark) .club-request-detail-page,
+html:not(.dark) .club-request-detail-header {
+  background-color: #ffffff !important;
+}
+
 /* 라이트 모드: 드롭다운(Select) 트리거·팝오버·리스트 박스 항상 밝게 */
 html:not(.dark) [data-slot='trigger'][role='combobox'],
 html:not(.dark) [data-slot='listbox'],

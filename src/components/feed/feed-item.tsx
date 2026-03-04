@@ -272,7 +272,7 @@ export function FeedItem({
           }`}
         >
           <span className="font-semibold">{authorName}</span>{' '}
-          <span className="text-zinc-700 dark:text-zinc-300">{content}</span>
+          <span className="text-sm font-light leading-relaxed text-zinc-700 dark:text-zinc-300">{content}</span>
         </p>
         {showMoreToggle && (
           <button

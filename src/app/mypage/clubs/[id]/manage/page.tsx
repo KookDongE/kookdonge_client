@@ -169,6 +169,49 @@ function toHourOnly(timeStr: string | undefined): string {
 
 const HOUR_OPTIONS = Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}:00`);
 
+/** 동아리 상세 페이지와 동일한 보기용: externalLink 문자열 파싱 */
+function parseExternalLinks(externalLink: string | undefined): { name: string; url: string }[] {
+  if (!externalLink || typeof externalLink !== 'string') return [];
+  const trimmed = externalLink.trim();
+  if (!trimmed) return [];
+  try {
+    const parsed = JSON.parse(trimmed) as unknown;
+    if (Array.isArray(parsed)) {
+      return parsed
+        .filter(
+          (x): x is { name: string; url: string } =>
+            x != null &&
+            typeof x === 'object' &&
+            typeof (x as { url?: string }).url === 'string' &&
+            (x as { url: string }).url.trim() !== ''
+        )
+        .map((x) => ({ name: x.name ?? '', url: (x.url as string).trim() }));
+    }
+  } catch {
+    // single URL
+  }
+  if (/^https?:\/\//i.test(trimmed)) return [{ name: '', url: trimmed }];
+  return [];
+}
+
+function getFaviconUrlForView(url: string): string {
+  try {
+    const host = new URL(url).hostname;
+    return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=32`;
+  } catch {
+    return '';
+  }
+}
+
+function getLinkDisplayNameForView(item: { name: string; url: string }): string {
+  if (item.name.trim()) return item.name.trim();
+  try {
+    return new URL(item.url).hostname.replace(/^www\./, '');
+  } catch {
+    return item.url;
+  }
+}
+
 function StarIcon({ filled, className }: { filled: boolean; className?: string }) {
   return (
     <svg
@@ -249,7 +292,9 @@ function ClubManageContent({ clubId }: { clubId: number }) {
     window.scrollTo(0, 0);
   }, [clubId, pathname]);
 
-  // 편집 모드 상태
+  // 정보 탭: 기본은 보기 모드(동아리 상세와 동일 UI), 수정 버튼 클릭 시 편집 모드
+  const [isInfoEditMode, setIsInfoEditMode] = useState(false);
+  // 편집 모드 상태 (기본/동아리소개/모집정보 각각)
   const [isEditingBasic, setIsEditingBasic] = useState(false);
   const [isEditingContent, setIsEditingContent] = useState(false);
   const [isEditingRecruitment, setIsEditingRecruitment] = useState(false);
@@ -636,9 +681,22 @@ function ClubManageContent({ clubId }: { clubId: number }) {
             </Tabs.List>
           </Tabs.ListContainer>
 
-          {/* 정보 탭 */}
+          {/* 정보 탭: 기본은 동아리 상세와 동일 보기 UI, 수정 클릭 시 편집 모드 */}
           <Tabs.Panel id="info" className="w-full min-w-0 overflow-hidden">
-            <ClubInfoTab
+            {!isInfoEditMode ? (
+              <ManageInfoView club={club} onEdit={() => setIsInfoEditMode(true)} />
+            ) : (
+              <>
+                <div className="flex justify-end px-4 pt-2">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onPress={() => setIsInfoEditMode(false)}
+                  >
+                    보기로 돌아가기
+                  </Button>
+                </div>
+                <ClubInfoTab
               club={club}
               clubId={clubId}
               // 편집 상태
@@ -708,7 +766,9 @@ function ClubManageContent({ clubId }: { clubId: number }) {
               isUploading={uploadFeedFiles.isPending}
               // 업데이트 상태
               isSaving={updateClub.isPending || updateRecruitmentInfo.isPending}
-            />
+                />
+              </>
+            )}
           </Tabs.Panel>
 
           {/* 피드 탭 */}
@@ -856,6 +916,129 @@ function AdminManageSection({
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+/** 동아리 상세 페이지(/clubs/[id]) 정보 탭과 동일한 보기 전용 UI */
+function ManageInfoView({
+  club,
+  onEdit,
+}: {
+  club: ClubDetailRes;
+  onEdit: () => void;
+}) {
+  const infoItems = [
+    { label: '모집 시작', value: formatDateTimeReadMode(club.recruitmentStartDate) },
+    { label: '모집 마감', value: formatDateTimeReadMode(club.recruitmentEndDate) },
+    { label: '대상', value: club.targetGraduate ?? '-' },
+    { label: '동아리장', value: club.leaderName ?? '-' },
+    ...(club.location?.trim()
+      ? [{ label: '활동 장소' as const, value: club.location }]
+      : []),
+    {
+      label: '주간활동 횟수',
+      value:
+        club.weeklyActivity ??
+        (club.weeklyActiveFrequency != null ? `${club.weeklyActiveFrequency}회` : '-'),
+    },
+    { label: '휴학생 지원 가능', value: club.allowLeaveOfAbsence ? '가능' : '불가능' },
+  ];
+
+  const contentImageUrl = club.contentImageUrl ?? club.descriptionImages?.[0];
+  const hasIntroduction =
+    (club.content != null && club.content.trim() !== '') || !!contentImageUrl;
+  const links = parseExternalLinks(club.externalLink);
+
+  return (
+    <div className="min-w-0 space-y-4 p-4">
+      <div className="mb-2 flex justify-end">
+        <Button size="sm" variant="primary" onPress={onEdit}>
+          수정
+        </Button>
+      </div>
+      {hasIntroduction && (
+        <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+          <h3 className="mb-3 px-4 pt-4 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            동아리 소개
+          </h3>
+          {contentImageUrl && (
+            <div className="relative mx-4 mb-4 w-[calc(100%-2rem)] overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={contentImageUrl}
+                alt="동아리 소개"
+                className="h-auto w-full rounded-lg object-contain"
+              />
+            </div>
+          )}
+          {club.content != null && club.content.trim() !== '' && (
+            <div className="p-4">
+              <p className="whitespace-pre-wrap text-sm font-light leading-relaxed text-zinc-700 dark:text-zinc-300">
+                {club.content}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+      <div className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+        <h3 className="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">기본 정보</h3>
+        <div className="min-w-0 space-y-3">
+          {infoItems.map((item) => {
+            const isRecruitmentDate = item.label === '모집 시작' || item.label === '모집 마감';
+            return (
+              <div
+                key={item.label}
+                className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-2 gap-y-0 text-sm"
+              >
+                <span className="shrink-0 pt-0.5 text-zinc-500 dark:text-zinc-400">
+                  {item.label}
+                </span>
+                <span
+                  className={`min-w-0 text-right font-normal text-zinc-700 dark:text-zinc-300 ${
+                    isRecruitmentDate ? 'break-words' : 'truncate'
+                  }`}
+                >
+                  {item.value}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      {links.length > 0 && (
+        <div className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+          <h3 className="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">외부 링크</h3>
+          <ul className="space-y-2">
+            {links.map((item, i) => (
+              <li key={`${item.url}-${i}`}>
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 rounded-lg py-1.5 pr-2 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700/50"
+                >
+                  {getFaviconUrlForView(item.url) ? (
+                    <Image
+                      src={getFaviconUrlForView(item.url)}
+                      alt=""
+                      width={20}
+                      height={20}
+                      className="h-5 w-5 shrink-0 rounded object-contain"
+                      unoptimized
+                    />
+                  ) : (
+                    <span className="h-5 w-5 shrink-0 rounded bg-zinc-200 dark:bg-zinc-600" />
+                  )}
+                  <span className="min-w-0 truncate text-sm font-normal text-zinc-600 dark:text-zinc-400">
+                    {getLinkDisplayNameForView(item)}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

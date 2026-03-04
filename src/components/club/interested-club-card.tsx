@@ -86,17 +86,17 @@ export function InterestedClubCard({ subscription, className = '' }: InterestedC
   return (
     <Link
       href={`/clubs/${subscription.clubId}`}
-      className={`flex items-center gap-3 rounded-xl border border-zinc-100 bg-white p-4 transition-all hover:border-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700 ${className}`}
+      className={`flex items-center gap-2 rounded-xl border border-zinc-100 bg-white p-3 transition-all hover:border-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700 ${className}`}
     >
-      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
+      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
         {imageUrl ? (
-          <Image src={imageUrl} alt={name} fill className="object-cover" sizes="56px" />
+          <Image src={imageUrl} alt={name} fill className="object-cover" sizes="48px" />
         ) : (
-          <DefaultClubImage className="object-cover" sizes="56px" />
+          <DefaultClubImage className="object-cover" sizes="48px" />
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <div className="mb-1 flex flex-wrap items-center gap-1.5">
+        <div className="mb-0.5 flex flex-wrap items-center gap-1.5">
           {recruitmentStatus && (
             <span
               className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium ${STATUS_CONFIG[recruitmentStatus].className}`}

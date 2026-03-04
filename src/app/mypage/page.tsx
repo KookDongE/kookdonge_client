@@ -156,7 +156,7 @@ function AdminSection() {
   return (
     <div className="px-4 py-5">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-xs font-normal text-gray-500 dark:text-zinc-400">관리 중인 동아리</h3>
+        <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">관리 중인 동아리</h3>
         <Link
           href="/mypage/managed"
           className="text-xs font-normal text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200"
@@ -180,23 +180,23 @@ function AdminSection() {
             <Link
               key={club.id}
               href={`/mypage/clubs/${club.id}/manage`}
-              className="mypage-club-card flex items-center gap-3 rounded-xl border border-zinc-100 bg-white p-4 transition-all hover:border-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700"
+              className="mypage-club-card flex items-center gap-2 rounded-xl border border-zinc-100 bg-white p-3 transition-all hover:border-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700"
             >
-              <div className="mypage-club-card-logo relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
+              <div className="mypage-club-card-logo relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
                 {club.logoImage ? (
                   <Image
                     src={club.logoImage}
                     alt={club.name}
                     fill
                     className="object-cover"
-                    sizes="56px"
+                    sizes="48px"
                   />
                 ) : (
-                  <DefaultClubImage className="object-cover" sizes="56px" />
+                  <DefaultClubImage className="object-cover" sizes="48px" />
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="mb-1 flex flex-wrap items-center gap-1.5">
+                <div className="mb-0.5 flex flex-wrap items-center gap-1.5">
                   {club.recruitmentStatus && (
                     <span
                       className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium ${STATUS_CONFIG[club.recruitmentStatus].className}`}
@@ -260,7 +260,7 @@ function PendingQuestionsSection() {
   return (
     <div className="px-4 py-5">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-xs font-normal text-gray-500 dark:text-zinc-400">질문 대기 목록</h3>
+        <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">질문 대기 목록</h3>
         <Link
           href="/mypage/questions"
           className="text-xs font-normal text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200"
@@ -285,9 +285,9 @@ function PendingQuestionsSection() {
                   `/mypage/clubs/${firstManagedClubId}/manage?tab=qna&questionId=${qna.id}`
                 )
               }
-              className="mypage-club-card w-full rounded-xl border border-zinc-100 bg-white p-4 text-left transition-colors hover:border-zinc-200 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700 dark:hover:bg-zinc-700/80"
+              className="mypage-club-card w-full rounded-xl border border-zinc-100 bg-white p-3 text-left transition-colors hover:border-zinc-200 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700 dark:hover:bg-zinc-700/80"
             >
-              <div className="flex items-start gap-3">
+              <div className="flex items-center gap-3">
                 <span
                   className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
                   aria-hidden
@@ -335,7 +335,7 @@ function QnAListSection() {
   return (
     <div className="px-4 py-5">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-xs font-normal text-gray-500 dark:text-zinc-400">Q&A 목록</h3>
+        <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Q&A 목록</h3>
         <Link
           href="/mypage/questions"
           className="text-xs font-normal text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200"
@@ -360,9 +360,9 @@ function QnAListSection() {
               type="button"
               key={qna.id}
               onClick={() => router.push(getItemHref(qna))}
-              className="mypage-club-card w-full rounded-xl border border-zinc-100 bg-white p-4 text-left transition-colors hover:border-zinc-200 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700 dark:hover:bg-zinc-700/80"
+              className="mypage-club-card w-full rounded-xl border border-zinc-100 bg-white p-3 text-left transition-colors hover:border-zinc-200 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700 dark:hover:bg-zinc-700/80"
             >
-              <div className="flex items-start gap-3">
+              <div className="flex items-center gap-3">
                 <span
                   className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
                   aria-hidden
@@ -407,7 +407,7 @@ function InterestedClubsSection() {
   return (
     <div className="px-4 py-5">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-xs font-normal text-gray-500 dark:text-zinc-400">관심 동아리</h3>
+        <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">관심 동아리</h3>
         <Link
           href="/mypage/interested"
           className="text-xs font-normal text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200"
@@ -502,7 +502,7 @@ function MyApplicationsSection() {
   return (
     <div className="px-4 py-5">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-xs font-normal text-gray-500 dark:text-zinc-400">내 신청 목록</h3>
+        <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">내 신청 목록</h3>
         <Link
           href="/my/club-requests"
           className="text-xs font-normal text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200"
