@@ -187,7 +187,7 @@ export function PwaNoticeModal() {
               >
                 가이드 보러가기
               </Link>
-            ) : pwaInstalled ? (
+            ) : pwaInstalled || !hasInstallPrompt ? (
               <button
                 type="button"
                 onClick={handleOpenInApp}
@@ -199,7 +199,7 @@ export function PwaNoticeModal() {
               <button
                 type="button"
                 onClick={handleInstall}
-                disabled={installing || !hasInstallPrompt}
+                disabled={installing}
                 className="mb-4 w-full rounded-xl bg-blue-500 py-3.5 font-semibold text-white transition-colors hover:bg-blue-600 disabled:opacity-70 dark:bg-lime-400 dark:text-zinc-900 dark:hover:bg-lime-300 disabled:dark:opacity-70"
               >
                 {installing ? '설치 중…' : '설치'}
