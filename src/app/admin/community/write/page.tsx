@@ -292,7 +292,6 @@ export default function CommunityWritePage() {
               onChange={(e) => setContent(e.target.value)}
               placeholder="내용을 입력하세요"
               className="h-full min-h-[8rem] w-full resize-none rounded-xl border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 [&_textarea]:min-h-[8rem]"
-              classNames={{ input: 'min-h-[8rem]' }}
               aria-label="내용"
             />
           </div>
