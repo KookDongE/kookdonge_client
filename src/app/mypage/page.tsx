@@ -519,51 +519,34 @@ function MyApplicationsSection() {
             <Link
               key={app.id}
               href={`/my/club-requests/${app.id}`}
-              className="mypage-club-card flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
+              className="mypage-club-card flex items-center justify-between gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2.5 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
             >
-              <div className="mypage-club-card-logo relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
-                {app.image ? (
-                  <Image
-                    src={app.image}
-                    alt={app.name}
-                    fill
-                    className="object-cover"
-                    sizes="56px"
-                  />
-                ) : (
-                  <DefaultClubImage className="object-cover" sizes="56px" />
-                )}
-              </div>
               <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="min-w-0 flex-1">
-                    <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
-                      {app.name}
-                    </h4>
-                    <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
-                      신청일: {new Date(app.createdAt).toLocaleDateString()}
-                    </div>
-                  </div>
-                  <Chip
-                    size="sm"
-                    color={
-                      app.status === 'PENDING'
-                        ? 'warning'
-                        : app.status === 'APPROVED'
-                          ? 'success'
-                          : 'danger'
-                    }
-                    variant="soft"
-                    className="shrink-0"
-                  >
-                    {app.status === 'PENDING'
-                      ? '대기중'
-                      : app.status === 'APPROVED'
-                        ? '승인됨'
-                        : '거절됨'}
-                  </Chip>
+                <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
+                  {app.name}
+                </h4>
+                <div className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-500">
+                  신청일: {new Date(app.createdAt).toLocaleDateString()}
                 </div>
               </div>
+              <Chip
+                size="sm"
+                color={
+                  app.status === 'PENDING'
+                    ? 'warning'
+                    : app.status === 'APPROVED'
+                      ? 'success'
+                      : 'danger'
+                }
+                variant="soft"
+                className="shrink-0"
+              >
+                {app.status === 'PENDING'
+                  ? '대기중'
+                  : app.status === 'APPROVED'
+                    ? '승인됨'
+                    : '거절됨'}
+              </Chip>
             </Link>
           ))}
         </div>
