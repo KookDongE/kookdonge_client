@@ -86,3 +86,10 @@ export function useSavedPosts(): CommunityPost[] {
     [all]
   );
 }
+
+/** 전체 게시판 검색 결과 (검색 결과 페이지용) */
+export function useSearchPosts(query: string, sort: 'latest' | 'popular'): CommunityPost[] {
+  const all = useMemo(() => getMockCommunityPosts(), []);
+  const filtered = useMemo(() => filterByQuery(all, query), [all, query]);
+  return useMemo(() => sortPosts(filtered, sort), [filtered, sort]);
+}

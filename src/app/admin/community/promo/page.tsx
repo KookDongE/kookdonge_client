@@ -12,6 +12,7 @@ import {
   CommunitySearchFilter,
   type CommunitySort,
 } from '@/components/community/community-search-filter';
+import { CommunityWriteFloatingButton } from '@/components/community/community-write-floating-button';
 
 export default function CommunityPromoPage() {
   const router = useRouter();
@@ -62,6 +63,7 @@ export default function CommunityPromoPage() {
           ))
         )}
       </div>
+      <CommunityWriteFloatingButton />
     </div>
   );
 }
