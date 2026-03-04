@@ -100,8 +100,8 @@ export function ClubCard({
       whileTap={disableLink ? undefined : { scale: 0.98 }}
       className={`flex overflow-hidden rounded-2xl border border-zinc-100 bg-[var(--card)] dark:border-zinc-800 ${!disableLink ? 'card-hover' : ''}`}
     >
-      {/* Image Section */}
-      <div className="club-logo-wrap relative h-28 w-28 shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800">
+      {/* Image Section - 한줄소개 밑 여백이 태그 상단 여백과 맞도록 높이 축소 */}
+      <div className="club-logo-wrap relative h-24 w-24 shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800">
         {club.logoImage ? (
           <>
             {!imageLoaded && <div className="skeleton absolute inset-0" />}
@@ -112,12 +112,12 @@ export function ClubCard({
               className={`object-cover transition-opacity duration-500 ${
                 imageLoaded ? 'opacity-100' : 'opacity-0'
               }`}
-              sizes="112px"
+              sizes="96px"
               onLoad={() => setImageLoaded(true)}
             />
           </>
         ) : (
-          <DefaultClubImage className="object-cover" sizes="112px" />
+          <DefaultClubImage className="object-cover" sizes="96px" />
         )}
       </div>
 
@@ -207,7 +207,7 @@ export function ClubCard({
 export function ClubCardSkeleton() {
   return (
     <div className="flex overflow-hidden rounded-2xl border border-zinc-100 bg-[var(--card)] dark:border-zinc-800">
-      <div className="skeleton h-28 w-28 shrink-0" />
+      <div className="skeleton h-24 w-24 shrink-0" />
       <div className="flex flex-1 flex-col justify-center p-3">
         <div className="mb-1.5 flex gap-1.5">
           <div className="skeleton h-5 w-12 rounded-full" />
