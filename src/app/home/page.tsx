@@ -397,7 +397,7 @@ function ClubListSection({
         <div className="mb-4 flex items-center justify-between">
           <span className="text-sm text-zinc-500 dark:text-zinc-400">
             <span className="font-bold text-blue-500 dark:text-lime-400">{totalElements}</span>
-            개의 동아리
+            개의 동아리 및 소모임
           </span>
         </div>
 

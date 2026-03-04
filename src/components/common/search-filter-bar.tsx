@@ -264,7 +264,7 @@ export function SearchFilterBar({
     closeSelectPopover();
   };
 
-  const bgClass = stickyHideOnScroll || useGlass ? 'glass' : 'bg-[var(--card)]';
+  const bgClass = useGlass ? 'glass' : 'bg-[var(--card)]';
   return (
     <div
       ref={filterBarRef}

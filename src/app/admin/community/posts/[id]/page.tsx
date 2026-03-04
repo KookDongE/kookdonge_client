@@ -57,9 +57,9 @@ function CommentBarPortal({
   if (!container) return null;
 
   const bar = (
-    <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-md -translate-x-1/2 overflow-visible !bg-white py-3 pr-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pl-5 dark:!bg-zinc-900">
+    <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-md -translate-x-1/2 overflow-visible !bg-white px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] dark:!bg-zinc-900">
       <div className="flex w-full items-end overflow-visible">
-        <div className="comment-input-wrap relative flex min-w-0 flex-1 items-end overflow-visible rounded-lg border border-zinc-200 !bg-zinc-50 dark:border-zinc-700 dark:!bg-zinc-800">
+        <div className="comment-input-wrap relative flex min-w-0 flex-1 items-end overflow-visible rounded-lg border border-zinc-200 !bg-white pl-1 dark:border-zinc-700 dark:!bg-zinc-800">
           {commentText.trim().length === 0 && (
             <select
               className="shrink-0 rounded-l-md border-0 bg-transparent py-2.5 pr-6 pl-3 text-sm text-zinc-900 focus:ring-0 focus:outline-none dark:text-zinc-100"
@@ -75,7 +75,7 @@ function CommentBarPortal({
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
             rows={1}
-            className="max-h-[7.5rem] min-h-[2.5rem] min-w-0 flex-1 resize-none overflow-y-auto border-0 bg-transparent px-3 py-2.5 text-sm leading-relaxed text-zinc-900 placeholder:text-zinc-400 focus:ring-0 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
+            className="max-h-[7.5rem] min-h-[2.4375rem] min-w-0 flex-1 resize-none overflow-y-auto border-0 bg-transparent px-3 py-2.5 text-sm leading-normal text-zinc-900 placeholder:text-zinc-400 focus:ring-0 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
             aria-label="댓글 입력"
             style={{ height: 'auto' }}
           />
