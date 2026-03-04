@@ -728,7 +728,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
       {/* 피드 탭에서만 노출: 피드 추가 플로팅 버튼 (지원하기·글쓰기와 동일 UI) */}
       {tab === 'feed' && (
         <div
-          className="fixed right-4 bottom-[calc(4rem+1.5rem+env(safe-area-inset-bottom,0px))] z-[100] rounded-full border border-zinc-200/80 bg-white/95 shadow-lg backdrop-blur-sm dark:border-zinc-700/80 dark:bg-zinc-900/95"
+          className="fixed right-4 bottom-[calc(4rem+2.5rem+env(safe-area-inset-bottom,0px))] z-[100] rounded-full bg-white/95 backdrop-blur-sm dark:bg-zinc-900/95"
           aria-hidden
         >
           <Button
