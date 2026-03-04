@@ -4,19 +4,18 @@ import { Suspense, use, useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { Button, Tabs, TextArea } from '@heroui/react';
+import { Button, Tabs } from '@heroui/react';
 import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { parseAsString, useQueryState } from 'nuqs';
 import { createPortal } from 'react-dom';
 
 import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api';
-import { parseApiIsoToDate } from '@/lib/utils';
-import { useMyProfile } from '@/features/auth/hooks';
+import { formatQnaDateTime, parseApiIsoToDate } from '@/lib/utils';
 import { useClubDetail, useLikeClub, useUnlikeClub } from '@/features/club/hooks';
 import { useNotification } from '@/features/device/use-notification';
 import { useClubFeeds } from '@/features/feed/hooks';
 import { useAddInterest, useMyInterests, useRemoveInterest } from '@/features/interest/hooks';
-import { useCreateQuestion, useDeleteQuestion, useQuestions } from '@/features/question/hooks';
+import { useQuestions } from '@/features/question/hooks';
 import {
   useAddToWaitingList,
   useMyWaitingList,
@@ -589,53 +588,9 @@ function ClubFeedTab({ clubId }: { clubId: number }) {
   );
 }
 
-function ClubQnaTab({
-  clubId,
-  highlightQuestionId,
-  onQuestionSubmitted,
-}: {
-  clubId: number;
-  highlightQuestionId?: string | null;
-  onQuestionSubmitted?: () => void;
-}) {
+function ClubQnaTab({ clubId }: { clubId: number }) {
   const { data, isLoading } = useQuestions(clubId, { page: 0, size: 20 });
-  const { data: profile } = useMyProfile();
-  const createQuestion = useCreateQuestion(clubId);
-  const deleteQuestion = useDeleteQuestion(clubId);
-  const [questionText, setQuestionText] = useState('');
-  const [openMenuQuestionId, setOpenMenuQuestionId] = useState<number | null>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (openMenuQuestionId == null) return;
-    const close = (e: MouseEvent) => {
-      if (menuRef.current?.contains(e.target as Node)) return;
-      setOpenMenuQuestionId(null);
-    };
-    document.addEventListener('mousedown', close);
-    return () => document.removeEventListener('mousedown', close);
-  }, [openMenuQuestionId]);
-
-  const questions = data?.content || [];
-
-  useEffect(() => {
-    if (!highlightQuestionId || questions.length === 0) return;
-    const el = document.getElementById(`question-${highlightQuestionId}`);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }, [highlightQuestionId, questions.length]);
-
-  const handleSubmit = () => {
-    if (!questionText.trim() || !profile) return;
-    const requestData = { question: questionText.trim(), userName: profile.email };
-    createQuestion.mutate(requestData, {
-      onSuccess: () => {
-        setQuestionText('');
-        onQuestionSubmitted?.();
-      },
-    });
-  };
+  const questions = data?.content ?? [];
 
   if (isLoading) {
     return (
@@ -647,133 +602,55 @@ function ClubQnaTab({
     );
   }
 
-  return (
-    <div className="space-y-4 p-4">
-      <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
-        <h4 className="mb-3 text-sm font-semibold text-zinc-900 dark:text-zinc-100">질문하기</h4>
-        <div className="bg-default-100 relative flex min-h-0 w-full rounded-lg border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800/50">
-          <TextArea
-            placeholder="궁금한 점을 질문해주세요"
-            value={questionText}
-            onChange={(e) => setQuestionText(e.target.value)}
-            className="min-h-[2.5rem] w-full min-w-0 resize-none border-0 bg-transparent py-2 pr-14 pl-3 shadow-none placeholder:text-zinc-400 hover:shadow-none focus:ring-0 dark:placeholder:text-zinc-500"
-          />
-          <Button
-            size="sm"
-            variant="primary"
-            onPress={handleSubmit}
-            isDisabled={!questionText.trim() || !profile || createQuestion.isPending}
-            isPending={createQuestion.isPending}
-            className="absolute top-1/2 right-1.5 shrink-0 -translate-y-1/2"
-          >
-            등록
-          </Button>
-        </div>
-      </div>
-
-      {questions.length === 0 ? (
+  if (questions.length === 0) {
+    return (
+      <div className="space-y-4 p-4">
         <div className="flex flex-col items-center justify-center py-12 text-zinc-400 dark:text-zinc-500">
           <p>아직 질문이 없습니다.</p>
         </div>
-      ) : (
-        questions.map((qna) => (
-          <div
-            key={qna.id}
-            id={`question-${qna.id}`}
-            className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800"
-          >
-            <div className="flex items-start gap-3">
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4 p-4">
+      {questions.map((qna) => (
+        <div
+          key={qna.id}
+          id={`question-${qna.id}`}
+          className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800"
+        >
+          <div className="flex items-start gap-3">
+            <span
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
+              aria-hidden
+            >
+              Q
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                {qna.question}
+              </p>
+              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                {formatQnaDateTime(qna.createdAt)}
+              </p>
+            </div>
+          </div>
+          {qna.answer && (
+            <div className="mt-3 flex items-start gap-3 pt-3">
               <span
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
                 aria-hidden
               >
-                Q
+                A
               </span>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                  {qna.question}
-                </p>
-                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                  {new Date(qna.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-              <div
-                className="relative shrink-0"
-                ref={openMenuQuestionId === qna.id ? menuRef : undefined}
-              >
-                <button
-                  type="button"
-                  onClick={() => setOpenMenuQuestionId((prev) => (prev === qna.id ? null : qna.id))}
-                  disabled={deleteQuestion.isPending}
-                  className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 disabled:opacity-50 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
-                  aria-label="더보기"
-                  aria-expanded={openMenuQuestionId === qna.id}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    className="h-4 w-4"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                    />
-                  </svg>
-                </button>
-                {openMenuQuestionId === qna.id && (
-                  <div
-                    className="absolute top-full right-0 z-10 mt-1 min-w-[7rem] rounded-lg border bg-[var(--card)] py-1 shadow-lg"
-                    style={{ borderColor: 'var(--border)' }}
-                    role="menu"
-                  >
-                    <button
-                      type="button"
-                      role="menuitem"
-                      className="w-full px-3 py-2 text-left text-sm hover:bg-[var(--muted)]"
-                      style={{ color: 'var(--card-foreground)' }}
-                      onClick={() => {
-                        setOpenMenuQuestionId(null);
-                        if (confirm('이 질문을 삭제할까요?')) deleteQuestion.mutate(qna.id);
-                      }}
-                    >
-                      삭제
-                    </button>
-                    <button
-                      type="button"
-                      role="menuitem"
-                      className="w-full px-3 py-2 text-left text-sm hover:bg-[var(--muted)]"
-                      style={{ color: 'var(--card-foreground)' }}
-                      onClick={() => {
-                        setOpenMenuQuestionId(null);
-                        alert('아직 준비중인 기능입니다.');
-                      }}
-                    >
-                      신고
-                    </button>
-                  </div>
-                )}
-              </div>
+              <p className="flex-1 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
+                {qna.answer}
+              </p>
             </div>
-            {qna.answer && (
-              <div className="mt-3 flex items-start gap-3 border-t border-t-[#e4e4e7] pt-3 dark:border-t-zinc-700">
-                <span
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
-                  aria-hidden
-                >
-                  A
-                </span>
-                <p className="flex-1 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
-                  {qna.answer}
-                </p>
-              </div>
-            )}
-          </div>
-        ))
-      )}
+          )}
+        </div>
+      ))}
     </div>
   );
 }
@@ -944,11 +821,7 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
           <ClubFeedTab clubId={clubId} />
         </Tabs.Panel>
         <Tabs.Panel id="qna">
-          <ClubQnaTab
-            clubId={clubId}
-            highlightQuestionId={questionId}
-            onQuestionSubmitted={tryShowNotificationPrompt}
-          />
+          <ClubQnaTab clubId={clubId} />
         </Tabs.Panel>
       </Tabs>
       {/* 하단 네비 + CTA 공간 확보 (지원 버튼 있을 때) */}

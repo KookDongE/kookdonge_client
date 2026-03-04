@@ -1,2 +1,2 @@
 export { cn } from './cn';
-export { parseApiIsoToDate } from './date';
+export { formatQnaDateTime, parseApiIsoToDate } from './date';
