@@ -146,7 +146,7 @@ export function ClubCard({
           {club.name}
         </h3>
 
-        <p className="line-clamp-2 min-h-[2.5rem] text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
+        <p className="line-clamp-1 min-h-[1.5rem] text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
           {club.introduction || '\u00A0'}
         </p>
       </div>
