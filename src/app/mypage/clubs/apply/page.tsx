@@ -132,24 +132,22 @@ function ClubApplyContent() {
       <div className="min-h-0 flex-1 overflow-y-auto">
       <div className="space-y-6 p-4 pb-32">
         {/* 동아리유형 · 과 · 분야 (맨 위) */}
-        <div className="flex flex-wrap items-end gap-4">
-          <div className="min-w-0 flex-1">
-            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300" />
-            <Select
-              placeholder="동아리유형 선택"
-              value={clubType || undefined}
-              onChange={(value: Key | null) => {
-                const next = (value as ClubType) || '';
-                setClubType(next);
-                const needsCollege = next === 'DEPARTMENTAL' || next === 'ACADEMIC_SOCIETY' || next === 'CLUB';
-                if (!needsCollege) setCollege('');
-              }}
-              className="w-full"
-            >
-              <Select.Trigger className="rounded-xl border border-gray-200 bg-white text-sm text-gray-900 outline-none ring-0 focus:outline-none focus:ring-0 focus:border-gray-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:border-zinc-600 [&[data-focus]]:outline-none [&[data-focus]]:ring-0 [&[data-focus]]:border-gray-200 dark:[&[data-focus]]:border-zinc-600">
-                <Select.Value />
-                <Select.Indicator />
-              </Select.Trigger>
+        <div className="flex flex-wrap items-center gap-2">
+          <Select
+            placeholder="동아리유형 선택"
+            value={clubType || undefined}
+            onChange={(value: Key | null) => {
+              const next = (value as ClubType) || '';
+              setClubType(next);
+              const needsCollege = next === 'DEPARTMENTAL' || next === 'ACADEMIC_SOCIETY' || next === 'CLUB';
+              if (!needsCollege) setCollege('');
+            }}
+            className="shrink-0"
+          >
+            <Select.Trigger className="max-w-[100px] min-w-[100px] rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 ring-0 outline-none focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0">
+              <Select.Value className="[color:rgb(82,82,91)] dark:[color:rgb(228,228,231)]" />
+              <Select.Indicator className="!text-zinc-500 dark:!text-zinc-400" />
+            </Select.Trigger>
               <Select.Popover>
                 <ListBox>
                   {TYPE_OPTIONS.map((opt) => (
@@ -165,22 +163,19 @@ function ClubApplyContent() {
                 </ListBox>
               </Select.Popover>
             </Select>
-          </div>
           {(clubType === 'DEPARTMENTAL' || clubType === 'ACADEMIC_SOCIETY' || clubType === 'CLUB') && (
-            <div className="min-w-0 flex-1">
-              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300" />
-              <Select
-                placeholder="과 선택"
-                value={college || undefined}
-                onChange={(value: Key | null) => {
-                  setCollege((value as College) || '');
-                }}
-                className="w-full"
-              >
-                <Select.Trigger className="rounded-xl border border-gray-200 bg-white text-sm text-gray-900 outline-none ring-0 focus:outline-none focus:ring-0 focus:border-gray-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:border-zinc-600 [&[data-focus]]:outline-none [&[data-focus]]:ring-0 [&[data-focus]]:border-gray-200 dark:[&[data-focus]]:border-zinc-600">
-                  <Select.Value />
-                  <Select.Indicator />
-                </Select.Trigger>
+            <Select
+              placeholder="과 선택"
+              value={college || undefined}
+              onChange={(value: Key | null) => {
+                setCollege((value as College) || '');
+              }}
+              className="shrink-0"
+            >
+              <Select.Trigger className="max-w-[100px] min-w-[72px] truncate rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 ring-0 outline-none focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0">
+                <Select.Value className="truncate [color:rgb(82,82,91)] dark:[color:rgb(228,228,231)]" />
+                <Select.Indicator className="!text-zinc-500 dark:!text-zinc-400" />
+              </Select.Trigger>
                 <Select.Popover>
                   <ListBox>
                     {COLLEGE_OPTIONS.map((opt) => (
@@ -195,23 +190,20 @@ function ClubApplyContent() {
                     ))}
                   </ListBox>
                 </Select.Popover>
-              </Select>
-            </div>
+            </Select>
           )}
-          <div className="min-w-0 flex-1">
-            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300" />
-            <Select
-              placeholder="분야 선택"
-              value={category || undefined}
-              onChange={(value: Key | null) => {
-                setCategory((value as ClubCategory) || '');
-              }}
-              className="w-full"
-            >
-              <Select.Trigger className="rounded-xl border border-gray-200 bg-white text-sm text-gray-900 outline-none ring-0 focus:outline-none focus:ring-0 focus:border-gray-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:border-zinc-600 [&[data-focus]]:outline-none [&[data-focus]]:ring-0 [&[data-focus]]:border-gray-200 dark:[&[data-focus]]:border-zinc-600">
-                <Select.Value />
-                <Select.Indicator />
-              </Select.Trigger>
+          <Select
+            placeholder="분야 선택"
+            value={category || undefined}
+            onChange={(value: Key | null) => {
+              setCategory((value as ClubCategory) || '');
+            }}
+            className="shrink-0"
+          >
+            <Select.Trigger className="max-w-[100px] min-w-[100px] rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 ring-0 outline-none focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0">
+              <Select.Value className="[color:rgb(82,82,91)] dark:[color:rgb(228,228,231)]" />
+              <Select.Indicator className="!text-zinc-500 dark:!text-zinc-400" />
+            </Select.Trigger>
               <Select.Popover>
                 <ListBox>
                   {CATEGORY_OPTIONS.map((opt) => (
@@ -226,8 +218,7 @@ function ClubApplyContent() {
                   ))}
                 </ListBox>
               </Select.Popover>
-            </Select>
-          </div>
+          </Select>
         </div>
 
         {/* 동아리 이름 */}
@@ -238,7 +229,7 @@ function ClubApplyContent() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="동아리 이름을 입력해주세요"
-            className="w-full rounded-xl border border-gray-200 bg-white p-4 text-sm font-normal text-gray-900 placeholder-gray-900 focus:outline-none focus:ring-0 focus:border-gray-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-100 dark:focus:border-zinc-600"
+            className="w-full rounded-lg border border-gray-200 bg-white p-4 text-sm font-normal text-gray-900 placeholder-gray-900 focus:outline-none focus:ring-0 focus:border-gray-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-100 dark:focus:border-zinc-600"
           />
         </div>
 
@@ -250,7 +241,7 @@ function ClubApplyContent() {
             value={applicationReason}
             onChange={(e) => setApplicationReason(e.target.value)}
             rows={10}
-            className="w-full min-h-[200px] resize-none rounded-xl border border-gray-200 bg-white p-4 text-sm font-normal text-gray-900 placeholder-gray-900 focus:outline-none focus:ring-0 focus:border-gray-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-100 dark:focus:border-zinc-600"
+            className="w-full min-h-[200px] resize-none rounded-lg border border-gray-200 bg-white p-4 text-sm font-normal text-gray-900 placeholder-gray-900 focus:outline-none focus:ring-0 focus:border-gray-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-100 dark:focus:border-zinc-600"
           />
         </div>
       </div>

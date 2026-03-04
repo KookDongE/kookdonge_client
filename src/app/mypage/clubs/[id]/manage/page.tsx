@@ -1943,6 +1943,20 @@ function ClubQnaTab({
                       {formatQnaDateTime(qna.createdAt)}
                     </p>
                   </div>
+                  {!qna.answer && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onPress={() =>
+                        setExpandedAnswerQuestionId((prev) =>
+                          prev === qna.id ? null : qna.id
+                        )
+                      }
+                      className="shrink-0 text-xs font-normal text-zinc-500 dark:text-zinc-400"
+                    >
+                      {expandedAnswerQuestionId === qna.id ? '접기' : '답변하기'}
+                    </Button>
+                  )}
                   <div
                     className="relative shrink-0"
                     ref={openMenuAllQuestionId === qna.id ? menuRefAll : undefined}
@@ -1994,22 +2008,6 @@ function ClubQnaTab({
                     )}
                   </div>
                 </div>
-                {!qna.answer && (
-                  <div className="mt-3 flex shrink-0 items-center justify-end gap-1">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onPress={() =>
-                        setExpandedAnswerQuestionId((prev) =>
-                          prev === qna.id ? null : qna.id
-                        )
-                      }
-                      className="min-w-0 text-xs font-normal text-zinc-500 dark:text-zinc-400"
-                    >
-                      {expandedAnswerQuestionId === qna.id ? '접기' : '답변하기'}
-                    </Button>
-                  </div>
-                )}
                 {expandedAnswerQuestionId === qna.id && !qna.answer && (
                   <div className="mt-3 pt-3">
                     <div className="bg-default-100 relative flex min-h-0 w-full rounded-lg border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800/50">

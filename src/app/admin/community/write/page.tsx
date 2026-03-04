@@ -205,67 +205,61 @@ export default function CommunityWritePage() {
         className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden px-4 py-4 pb-[calc(4rem+env(safe-area-inset-bottom,0px))]"
         onSubmit={handleSubmit}
       >
-        {/* 분류 / 계정 선택 2열 */}
-        <div className="grid shrink-0 grid-cols-2 gap-4">
-          <div>
-            <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300" />
-            <Select
-              aria-label="분류 선택"
-              placeholder="분류"
-              value={boardType || undefined}
-              onChange={(value: Key | null) => value && setBoardType(value as 'promo' | 'free')}
-              className="w-full"
-            >
-              <Select.Trigger className="rounded-xl border border-zinc-200 bg-white text-sm text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
-                <Select.Value />
-                <Select.Indicator />
-              </Select.Trigger>
-              <Select.Popover>
-                <ListBox>
-                  {BOARD_TYPE_OPTIONS.map((opt) => (
-                    <ListBox.Item
-                      key={opt.value}
-                      id={opt.value}
-                      textValue={opt.label}
-                      className="!text-zinc-600 dark:!text-zinc-200"
-                    >
-                      {opt.label}
-                    </ListBox.Item>
-                  ))}
-                </ListBox>
-              </Select.Popover>
-            </Select>
-          </div>
+        {/* 분류 / 계정 선택 (pill 스타일) */}
+        <div className="flex shrink-0 items-center gap-2">
+          <Select
+            aria-label="분류 선택"
+            placeholder="분류"
+            value={boardType || undefined}
+            onChange={(value: Key | null) => value && setBoardType(value as 'promo' | 'free')}
+            className="shrink-0"
+          >
+            <Select.Trigger className="max-w-[100px] min-w-[100px] rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 ring-0 outline-none focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0">
+              <Select.Value className="[color:rgb(82,82,91)] dark:[color:rgb(228,228,231)]" />
+              <Select.Indicator className="!text-zinc-500 dark:!text-zinc-400" />
+            </Select.Trigger>
+            <Select.Popover>
+              <ListBox>
+                {BOARD_TYPE_OPTIONS.map((opt) => (
+                  <ListBox.Item
+                    key={opt.value}
+                    id={opt.value}
+                    textValue={opt.label}
+                    className="!text-zinc-600 dark:!text-zinc-200"
+                  >
+                    {opt.label}
+                  </ListBox.Item>
+                ))}
+              </ListBox>
+            </Select.Popover>
+          </Select>
 
-          <div>
-            <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300" />
-            <Select
-              aria-label="계정 선택"
-              placeholder="계정 선택"
-              value={accountKey || undefined}
-              onChange={(value: Key | null) => value && setAccountKey(String(value))}
-              className="w-full"
-            >
-              <Select.Trigger className="rounded-xl border border-zinc-200 bg-white text-sm text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
-                <Select.Value />
-                <Select.Indicator />
-              </Select.Trigger>
-              <Select.Popover>
-                <ListBox>
-                  {accountOptions.map((opt) => (
-                    <ListBox.Item
-                      key={opt.key}
-                      id={opt.key}
-                      textValue={opt.label}
-                      className="!text-zinc-600 dark:!text-zinc-200"
-                    >
-                      {opt.label}
-                    </ListBox.Item>
-                  ))}
-                </ListBox>
-              </Select.Popover>
-            </Select>
-          </div>
+          <Select
+            aria-label="계정 선택"
+            placeholder="계정 선택"
+            value={accountKey || undefined}
+            onChange={(value: Key | null) => value && setAccountKey(String(value))}
+            className="shrink-0"
+          >
+            <Select.Trigger className="max-w-[100px] min-w-[100px] rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 ring-0 outline-none focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0">
+              <Select.Value className="[color:rgb(82,82,91)] dark:[color:rgb(228,228,231)]" />
+              <Select.Indicator className="!text-zinc-500 dark:!text-zinc-400" />
+            </Select.Trigger>
+            <Select.Popover>
+              <ListBox>
+                {accountOptions.map((opt) => (
+                  <ListBox.Item
+                    key={opt.key}
+                    id={opt.key}
+                    textValue={opt.label}
+                    className="!text-zinc-600 dark:!text-zinc-200"
+                  >
+                    {opt.label}
+                  </ListBox.Item>
+                ))}
+              </ListBox>
+            </Select.Popover>
+          </Select>
         </div>
 
         {/* 제목 */}
