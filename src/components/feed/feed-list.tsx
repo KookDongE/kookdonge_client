@@ -45,7 +45,9 @@ export function FeedList({
 }: FeedListProps) {
   useEffect(() => {
     if (scrollToFeedId == null || feeds.length === 0) return;
-    const el = document.getElementById(`feed-${scrollToFeedId}`);
+    // 미디어 영역(사진)이 상단에 오도록 스크롤
+    const mediaEl = document.getElementById(`feed-${scrollToFeedId}-media`);
+    const el = mediaEl ?? document.getElementById(`feed-${scrollToFeedId}`);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }

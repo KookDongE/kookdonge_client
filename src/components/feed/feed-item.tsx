@@ -191,11 +191,12 @@ export function FeedItem({
         </div>
       </div>
 
-      {/* 미디어 영역: 이미지 없음 → 회색, 여러 장 → 스와이프, 한 장 → 단일 */}
+      {/* 미디어 영역: 이미지 없음 → 회색, 여러 장 → 스와이프, 한 장 → 단일 (스크롤 시 사진부터 보이도록 id 부여) */}
       {hasNoImage ? (
-        <div className="relative aspect-square w-full bg-zinc-200 dark:bg-zinc-700" />
+        <div id={`feed-${feedId}-media`} className="relative aspect-square w-full bg-zinc-200 dark:bg-zinc-700" />
       ) : hasMultiple ? (
         <div
+          id={`feed-${feedId}-media`}
           className="relative aspect-square w-full touch-pan-y overflow-hidden bg-zinc-100 select-none dark:bg-zinc-800"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -247,7 +248,7 @@ export function FeedItem({
           </div>
         </div>
       ) : (
-        <div className="relative aspect-square w-full bg-zinc-200 dark:bg-zinc-700">
+        <div id={`feed-${feedId}-media`} className="relative aspect-square w-full bg-zinc-200 dark:bg-zinc-700">
           {failedImageIndices.has(0) ? (
             <div className="absolute inset-0 bg-zinc-200 dark:bg-zinc-700" />
           ) : (
