@@ -51,9 +51,6 @@ export default function PwaGuidePage() {
           </span>
         </li>
       </ol>
-      <p className="mt-8 text-xs text-zinc-500 dark:text-zinc-400">
-        설치 후에는 알림을 켜면 동아리 모집·Q&A 답변 등 소식을 받을 수 있어요.
-      </p>
       <button
         type="button"
         onClick={() => router.back()}
@@ -61,6 +58,9 @@ export default function PwaGuidePage() {
       >
         확인
       </button>
+      <p className="mt-4 text-xs text-zinc-500 dark:text-zinc-400">
+        설치 후에는 알림을 켜면 동아리 모집·Q&A 답변 등 소식을 받을 수 있어요.
+      </p>
     </div>
   );
 }
