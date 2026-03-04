@@ -12,6 +12,8 @@ export function getPlatform(): DevicePlatform {
   if (env === 'IOS' || env === 'ANDROID' || env === 'WEB') return env;
 
   const ua = navigator.userAgent;
+  // 맥(Macintosh/macOS)은 항상 데스크톱 취급 (Safari가 iPad 등 UA를 보낼 수 있음)
+  if (/Macintosh|Mac OS X/i.test(ua)) return 'WEB';
   if (/iPhone|iPad|iPod/i.test(ua)) return 'IOS';
   if (/Android/i.test(ua)) return 'ANDROID';
   return 'WEB';
