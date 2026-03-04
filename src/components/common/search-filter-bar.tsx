@@ -54,7 +54,10 @@ const STATUS_OPTIONS: { value: RecruitmentStatus | 'ALL'; label: string }[] = [
 ];
 
 /** 관리자 개설승인 페이지용: 상태 = 대기/승인/거절 */
-const APPLICATION_STATUS_OPTIONS: { value: 'PENDING' | 'APPROVED' | 'REJECTED' | 'ALL'; label: string }[] = [
+const APPLICATION_STATUS_OPTIONS: {
+  value: 'PENDING' | 'APPROVED' | 'REJECTED' | 'ALL';
+  label: string;
+}[] = [
   { value: 'ALL', label: '상태' },
   { value: 'PENDING', label: '대기' },
   { value: 'APPROVED', label: '승인' },
@@ -80,17 +83,23 @@ function SearchInput({
   setQuery: (v: string | null) => void;
   placeholder: string;
 }) {
-  const [searchInput, setSearchInput] = useState(initialQuery ?? '');
+  const [searchInput, setSearchInput] = useState(() => initialQuery ?? '');
+  const prevInitialQueryRef = useRef(initialQuery);
 
-  // URL이 바뀌었을 때 입력이 비어 있으면 URL 값으로 동기화 (뒤로가기 등). 입력 중인 값은 덮어쓰지 않음
+  // URL이 바뀌었을 때 입력이 비어 있으면 URL 값으로 동기화 (뒤로가기 등). 비동기 setState로 린트 회피
   useEffect(() => {
     const fromUrl = initialQuery ?? '';
-    setSearchInput((prev) => {
-      const trimmed = prev.trim() || '';
-      if (fromUrl === trimmed) return prev;
-      if (trimmed !== '') return prev;
-      return fromUrl;
-    });
+    if (prevInitialQueryRef.current === initialQuery) return;
+    prevInitialQueryRef.current = initialQuery;
+    const t = setTimeout(() => {
+      setSearchInput((prev) => {
+        const trimmed = prev.trim() || '';
+        if (fromUrl === trimmed) return prev;
+        if (trimmed !== '') return prev;
+        return fromUrl;
+      });
+    }, 0);
+    return () => clearTimeout(t);
   }, [initialQuery]);
 
   useEffect(() => {
@@ -261,7 +270,7 @@ export function SearchFilterBar({
       ref={filterBarRef}
       className={
         stickyHideOnScroll
-          ? `${bgClass} sticky top-0 z-30 border-y-0 px-4 pt-0 pb-2 transition-[transform,opacity] duration-300 ease-out ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'} ${className}`
+          ? `${bgClass} sticky top-0 z-30 border-y-0 px-4 pt-0 pb-2 transition-[transform,opacity] duration-300 ease-out ${isVisible ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-full opacity-0'} ${className}`
           : `border-b border-zinc-200 ${bgClass} px-4 py-2 dark:border-zinc-700 ${className}`
       }
     >
@@ -280,11 +289,7 @@ export function SearchFilterBar({
             />
           </svg>
         </div>
-        <SearchInput
-          initialQuery={query}
-          setQuery={setQuery}
-          placeholder={placeholder}
-        />
+        <SearchInput initialQuery={query} setQuery={setQuery} placeholder={placeholder} />
       </div>
 
       {/* 필터: 기본 = 동아리 유형만, 과동아리 선택 시 단과대 추가 노출 */}
@@ -297,7 +302,7 @@ export function SearchFilterBar({
           selectedKey={clubTypeVal}
           onSelectionChange={(key) => handleClubTypeChange(key ?? 'ALL')}
         >
-          <Select.Trigger className="min-w-[100px] max-w-[100px] rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 outline-none ring-0 focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0">
+          <Select.Trigger className="max-w-[100px] min-w-[100px] rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 ring-0 outline-none focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0">
             <Select.Value className="[color:rgb(82,82,91)] dark:[color:rgb(228,228,231)]" />
             <Select.Indicator className="!text-zinc-500 dark:!text-zinc-400" />
           </Select.Trigger>
@@ -334,7 +339,7 @@ export function SearchFilterBar({
             }}
             onSelectionChange={(key) => handleCollegeChange(key ?? 'ALL')}
           >
-            <Select.Trigger className="min-w-[72px] max-w-[100px] truncate rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 outline-none ring-0 focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0">
+            <Select.Trigger className="max-w-[100px] min-w-[72px] truncate rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 ring-0 outline-none focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0">
               <Select.Value className="truncate [color:rgb(82,82,91)] dark:[color:rgb(228,228,231)]" />
               <Select.Indicator className="!text-zinc-500 dark:!text-zinc-400" />
             </Select.Trigger>
@@ -363,7 +368,7 @@ export function SearchFilterBar({
           selectedKey={categoryVal}
           onSelectionChange={(key) => handleCategoryChange(key ?? 'ALL')}
         >
-          <Select.Trigger className="min-w-[72px] max-w-[72px] rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 outline-none ring-0 focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0">
+          <Select.Trigger className="max-w-[72px] min-w-[72px] rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 ring-0 outline-none focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0">
             <Select.Value className="[color:rgb(82,82,91)] dark:[color:rgb(228,228,231)]" />
             <Select.Indicator className="!text-zinc-500 dark:!text-zinc-400" />
           </Select.Trigger>
@@ -391,22 +396,24 @@ export function SearchFilterBar({
           selectedKey={statusVal}
           onSelectionChange={(key) => handleStatusChange(key ?? 'ALL')}
         >
-          <Select.Trigger className="min-w-[88px] max-w-[100px] rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 outline-none ring-0 focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0">
+          <Select.Trigger className="max-w-[100px] min-w-[88px] rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 ring-0 outline-none focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0">
             <Select.Value className="whitespace-nowrap [color:rgb(82,82,91)] dark:[color:rgb(228,228,231)]" />
             <Select.Indicator className="!text-zinc-500 dark:!text-zinc-400" />
           </Select.Trigger>
           <Select.Popover>
             <ListBox>
-              {(applicationStatusFilter ? APPLICATION_STATUS_OPTIONS : STATUS_OPTIONS).map((opt) => (
-                <ListBox.Item
-                  key={opt.value}
-                  id={opt.value}
-                  textValue={opt.label}
-                  className="flex items-center justify-center text-center !text-zinc-600 dark:!text-zinc-200"
-                >
-                  {opt.label}
-                </ListBox.Item>
-              ))}
+              {(applicationStatusFilter ? APPLICATION_STATUS_OPTIONS : STATUS_OPTIONS).map(
+                (opt) => (
+                  <ListBox.Item
+                    key={opt.value}
+                    id={opt.value}
+                    textValue={opt.label}
+                    className="flex items-center justify-center text-center !text-zinc-600 dark:!text-zinc-200"
+                  >
+                    {opt.label}
+                  </ListBox.Item>
+                )
+              )}
             </ListBox>
           </Select.Popover>
         </Select>
@@ -419,7 +426,7 @@ export function SearchFilterBar({
           selectedKey={sortVal}
           onSelectionChange={(key) => handleSortChange(key ?? 'default')}
         >
-          <Select.Trigger className="min-w-[88px] max-w-[88px] rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 outline-none ring-0 focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0">
+          <Select.Trigger className="max-w-[88px] min-w-[88px] rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 ring-0 outline-none focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0">
             <Select.Value className="[color:rgb(82,82,91)] dark:[color:rgb(228,228,231)]" />
             <Select.Indicator className="!text-zinc-500 dark:!text-zinc-400" />
           </Select.Trigger>

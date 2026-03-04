@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -7,12 +8,13 @@ import { useRouter } from 'next/navigation';
 import { Chip } from '@heroui/react';
 
 import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api';
-import { ListCardSkeleton, ProfileSkeleton } from '@/components/common/skeletons';
 import { useMyProfile } from '@/features/auth/hooks';
+import { isSystemAdmin } from '@/features/auth/permissions';
 import { useManagedClubs, useMyApplications } from '@/features/club/hooks';
 import { useInterestedStore } from '@/features/club/interested-store';
-import { useMyQuestions, usePendingQuestions, useQuestions } from '@/features/question/hooks';
+import { useMyQuestions, usePendingQuestions } from '@/features/question/hooks';
 import { DefaultClubImage } from '@/components/common/default-club-image';
+import { ListCardSkeleton, ProfileSkeleton } from '@/components/common/skeletons';
 
 const TYPE_LABEL: Record<ClubType, string> = {
   CENTRAL: '중앙동아리',
@@ -531,7 +533,7 @@ function MyApplicationsSection() {
   if (isLoading) {
     return (
       <div className="px-4 py-5">
-        <div className="mb-4 skeleton h-5 w-24 rounded" />
+        <div className="skeleton mb-4 h-5 w-24 rounded" />
         <div className="space-y-3">
           {[1, 2].map((i) => (
             <ListCardSkeleton key={i} />
@@ -618,16 +620,104 @@ function MyApplicationsSection() {
   );
 }
 
+function CollapsibleSection({
+  title,
+  open,
+  onToggle,
+  children,
+}: {
+  title: string;
+  open: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="border-t border-zinc-200 dark:border-zinc-700">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-center justify-between px-4 py-4 text-left"
+        aria-expanded={open}
+      >
+        <span className="font-semibold text-zinc-800 dark:text-zinc-100">{title}</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          className={`h-5 w-5 text-zinc-500 transition-transform dark:text-zinc-400 ${open ? 'rotate-180' : ''}`}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {open && <div className="pb-2">{children}</div>}
+    </div>
+  );
+}
+
+function CommunitySectionLinks() {
+  const links = [
+    { href: '/admin/community/my-posts', label: '내가 쓴 글' },
+    { href: '/admin/community/commented', label: '댓글 단 글' },
+    { href: '/admin/community/liked', label: '좋아요 누른 글' },
+    { href: '/admin/community/saved', label: '저장 누른 글' },
+  ];
+  return (
+    <div className="space-y-0 px-4">
+      {links.map(({ href, label }) => (
+        <Link
+          key={href}
+          href={href}
+          className="flex items-center justify-between py-3 text-sm text-zinc-700 dark:text-zinc-200"
+        >
+          {label}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            className="h-5 w-5 text-zinc-400 dark:text-zinc-500"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
 export default function MyPage() {
+  const [openClub, setOpenClub] = useState(true);
+  const [openCommunity, setOpenCommunity] = useState(false);
+  const { data: profile } = useMyProfile();
+  const isAdmin = isSystemAdmin(profile);
+
   return (
     <div className="pb-6">
       <ProfileSection />
-      <ClubApplyButton />
-      <AdminSection />
-      <MyApplicationsSection />
-      <QnAListSection />
-      <PendingQuestionsSection />
-      <InterestedClubsSection />
+
+      <CollapsibleSection title="동아리" open={openClub} onToggle={() => setOpenClub((v) => !v)}>
+        <>
+          <ClubApplyButton />
+          <AdminSection />
+          <MyApplicationsSection />
+          <QnAListSection />
+          <PendingQuestionsSection />
+          <InterestedClubsSection />
+        </>
+      </CollapsibleSection>
+
+      {isAdmin && (
+        <CollapsibleSection
+          title="커뮤니티"
+          open={openCommunity}
+          onToggle={() => setOpenCommunity((v) => !v)}
+        >
+          <CommunitySectionLinks />
+        </CollapsibleSection>
+      )}
     </div>
   );
 }
