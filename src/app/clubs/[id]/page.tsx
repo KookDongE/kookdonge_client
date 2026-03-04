@@ -846,7 +846,7 @@ function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: str
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="rounded-full border border-zinc-200/80 bg-white/95 shadow-lg backdrop-blur-sm dark:border-zinc-700/80 dark:bg-zinc-900/95"
+                className="rounded-full bg-white/95 shadow-lg backdrop-blur-sm dark:bg-zinc-900/95"
               >
                 <Button
                   size="sm"
