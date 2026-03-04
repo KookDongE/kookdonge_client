@@ -75,13 +75,13 @@ function CommentBarPortal({
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
             rows={1}
-            className="max-h-[7.5rem] min-h-[2.4375rem] min-w-0 flex-1 resize-none overflow-y-auto border-0 bg-transparent px-3 py-2.5 text-sm leading-normal text-zinc-900 placeholder:text-zinc-400 focus:ring-0 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
+            className="max-h-[7.5rem] min-h-[2.4375rem] min-w-0 flex-1 resize-none overflow-y-auto border-0 bg-transparent px-3 py-[0.5625rem] text-sm leading-normal text-zinc-900 placeholder:text-zinc-400 focus:ring-0 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
             aria-label="댓글 입력"
             style={{ height: 'auto' }}
           />
           <button
             type="button"
-            className="shrink-0 rounded-full p-2 text-blue-500 transition-opacity hover:opacity-80 dark:text-lime-500"
+            className="shrink-0 rounded-full p-2 text-zinc-400 transition-opacity hover:opacity-80 dark:text-zinc-500"
             aria-label="댓글 등록"
           >
             <svg

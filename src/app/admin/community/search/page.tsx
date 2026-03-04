@@ -8,10 +8,6 @@ import { isSystemAdmin } from '@/features/auth/permissions';
 import { useSearchPosts } from '@/features/community/hooks';
 import { PageCenteredSkeleton } from '@/components/common/skeletons';
 import { CommunityPostCard } from '@/components/community/community-post-card';
-import {
-  CommunitySearchFilter,
-  type CommunitySort,
-} from '@/components/community/community-search-filter';
 
 export default function CommunitySearchPage() {
   const router = useRouter();
@@ -19,9 +15,8 @@ export default function CommunitySearchPage() {
   const [isPending, startTransition] = useTransition();
   const q = searchParams.get('q') ?? '';
   const [query, setQuery] = useState(q);
-  const [sort, setSort] = useState<CommunitySort>('latest');
 
-  const posts = useSearchPosts(query, sort);
+  const posts = useSearchPosts(query, 'latest');
   const { data: profile, isLoading: profileLoading } = useMyProfile();
 
   useEffect(() => {
@@ -46,14 +41,6 @@ export default function CommunitySearchPage() {
 
   return (
     <div className="min-h-screen bg-white pb-20 dark:bg-zinc-900">
-      <CommunitySearchFilter
-        query={query}
-        onQueryChange={(v) => setQuery(v)}
-        sort={sort}
-        onSortChange={setSort}
-        stickyHideOnScroll
-      />
-
       <div className="px-0 py-4">
         {!query.trim() ? (
           <p className="py-12 text-center text-sm text-zinc-400 dark:text-zinc-500">

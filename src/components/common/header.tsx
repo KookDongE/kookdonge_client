@@ -12,6 +12,7 @@ export function Header() {
   const { data: unreadCount = 0 } = useUnreadCount();
   const isNotificationsPage = pathname === '/notifications';
   const isCommunityPostDetail = pathname?.startsWith('/admin/community/posts/');
+  const isCommunitySearchPage = pathname === '/admin/community/search';
 
   const isHidden =
     pathname === '/' ||
@@ -57,6 +58,29 @@ export function Header() {
               KookDongE
             </span>
           </Link>
+          {isCommunitySearchPage && (
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+              aria-label="뒤로가기"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                className="h-5 w-5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 19.5L8.25 12l7.5-7.5"
+                />
+              </svg>
+            </button>
+          )}
         </div>
         {isNotificationsPage ? (
           <button

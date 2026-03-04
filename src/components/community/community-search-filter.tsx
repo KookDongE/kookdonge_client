@@ -7,6 +7,86 @@ import { Input } from '@heroui/react';
 
 export type CommunitySort = 'latest' | 'popular';
 
+/** 댓글 전송 아이콘과 동일, 회색 버전 (검색 버튼용) */
+const SearchSubmitIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="h-5 w-5 text-zinc-400 dark:text-zinc-500"
+  >
+    <path d="m22 2-7 20-4-9-9-4Z" />
+    <path d="M22 2 11 13" />
+  </svg>
+);
+
+/** 커뮤니티 검색 입력줄: 왼쪽 돋보기, 오른쪽(인풋 내부) 회색 비행기 버튼. 다른 검색 UI와 동일 스타일. */
+export function CommunitySearchInputRow({
+  value,
+  onChange,
+  onSubmit,
+  placeholder = '게시글 검색',
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  onSubmit: () => void;
+  placeholder?: string;
+}) {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      onSubmit();
+    }
+  };
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit();
+      }}
+      className="relative"
+    >
+      <span
+        className="pointer-events-none absolute top-1/2 left-3 z-10 -translate-y-1/2 text-zinc-400 dark:text-zinc-500"
+        aria-hidden
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          className="h-5 w-5"
+        >
+          <path
+            fillRule="evenodd"
+            d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </span>
+      <Input
+        type="text"
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={handleKeyDown}
+        className="w-full border border-zinc-300 bg-zinc-50 pr-11 pl-10 text-zinc-900 placeholder:text-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-400"
+        aria-label={placeholder}
+      />
+      <button
+        type="submit"
+        className="absolute top-1/2 right-2 z-10 -translate-y-1/2 rounded-full p-1.5 transition-opacity hover:opacity-80"
+        aria-label="검색"
+      >
+        <SearchSubmitIcon />
+      </button>
+    </form>
+  );
+}
+
 type CommunitySearchFilterProps = {
   /** 검색어 (제어) */
   query: string;
@@ -76,29 +156,13 @@ export function CommunitySearchFilter({
 
   return (
     <div className={`glass border-y-0 ${stickyClass} ${className}`}>
-      {/* 검색 */}
-      <div className="relative px-4 pt-2 pb-2">
-        <div className="pointer-events-none absolute top-1/2 left-7 -translate-y-1/2 text-zinc-400">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            className="h-5 w-5"
-          >
-            <path
-              fillRule="evenodd"
-              d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </div>
-        <Input
-          type="text"
-          placeholder="게시글 검색"
+      {/* 검색: 돋보기 + 입력 + 인풋 내부 회색 비행기 버튼 */}
+      <div className="px-4 pt-2 pb-2">
+        <CommunitySearchInputRow
           value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          className="w-full border border-zinc-300 bg-zinc-50 pl-10 text-zinc-900 placeholder:text-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-400"
-          aria-label="게시글 검색"
+          onChange={setSearchInput}
+          onSubmit={() => onQueryChange(searchInput.trim())}
+          placeholder="게시글 검색"
         />
       </div>
 

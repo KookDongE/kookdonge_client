@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
 import { PageCenteredSkeleton } from '@/components/common/skeletons';
+import { CommunitySearchInputRow } from '@/components/community/community-search-filter';
 import { CommunityWriteFloatingButton } from '@/components/community/community-write-floating-button';
 
 /** 게시판: 인기/홍보/자유 */
@@ -118,8 +119,7 @@ export default function AdminCommunityPage() {
   const [searchInput, setSearchInput] = useState('');
   const { data: profile, isLoading: profileLoading } = useMyProfile();
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearchSubmit = () => {
     const q = searchInput.trim();
     if (q) {
       router.push(`/admin/community/search?q=${encodeURIComponent(q)}`);
@@ -142,48 +142,16 @@ export default function AdminCommunityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white pb-20 dark:bg-zinc-900">
-      {/* 상단 검색 */}
-      <form
-        onSubmit={handleSearch}
-        className="border-b border-zinc-100 px-4 py-3 dark:border-zinc-800"
-      >
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <span
-              className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-zinc-400 dark:text-zinc-500"
-              aria-hidden
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="h-5 w-5"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </span>
-            <input
-              type="search"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="게시글 검색"
-              className="h-10 w-full rounded-lg border border-zinc-300 bg-zinc-50 pr-3 pl-9 text-sm text-zinc-900 placeholder:text-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-400"
-              aria-label="게시글 검색"
-            />
-          </div>
-          <button
-            type="submit"
-            className="shrink-0 rounded-lg bg-zinc-900 px-4 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-          >
-            검색
-          </button>
-        </div>
-      </form>
+    <div className="h-screen overflow-hidden bg-white pb-20 dark:bg-zinc-900">
+      {/* 상단 검색: 다른 검색 UI와 동일, 인풋 내부 회색 비행기 버튼 */}
+      <div className="px-4 py-3">
+        <CommunitySearchInputRow
+          value={searchInput}
+          onChange={setSearchInput}
+          onSubmit={handleSearchSubmit}
+          placeholder="게시글 검색"
+        />
+      </div>
 
       {/* 광고 배너: 새로2 가로3 비율, 좌우 여백, 하단 마진 */}
       <div className="mb-4 px-4 pt-4">
