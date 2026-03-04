@@ -3,7 +3,7 @@
 import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Chip, TextArea } from '@heroui/react';
+import { Button } from '@heroui/react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import type { ClubCategory, ClubType } from '@/types/api';
@@ -35,16 +35,21 @@ const TYPE_LABELS: Record<ClubType, string> = {
   CLUB: '동아리',
 };
 
-/** YY.MM.DD HH:mm:ss 24시간 표기 */
-function formatDateTime24(date: Date | string): string {
-  const d = new Date(date);
-  const yy = String(d.getFullYear()).slice(-2);
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
+const STATUS_CHIP_CLASS: Record<string, string> = {
+  PENDING: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+  APPROVED: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
+  REJECTED: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+};
+
+/** 헤더용: yy.MM.dd HH:mm (초 생략) */
+function formatDateTimeNoSeconds(isoString: string): string {
+  const d = new Date(isoString);
+  const yy = d.getFullYear().toString().slice(-2);
+  const MM = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
-  const hh = String(d.getHours()).padStart(2, '0');
-  const min = String(d.getMinutes()).padStart(2, '0');
-  const sec = String(d.getSeconds()).padStart(2, '0');
-  return `${yy}.${mm}.${dd} ${hh}:${min}:${sec}`;
+  const HH = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  return `${yy}.${MM}.${dd} ${HH}:${mm}`;
 }
 
 type PageProps = { params: Promise<{ id: string }> };
@@ -80,6 +85,17 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
     return (
       <div className="min-h-screen bg-white dark:bg-zinc-900">
         <FormPageSkeleton />
+      </div>
+    );
+  }
+
+  if (!id || Number.isNaN(applicationId)) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-white p-4 dark:bg-zinc-900">
+        <p className="text-gray-500 dark:text-zinc-400">잘못된 경로입니다.</p>
+        <Button className="mt-4" variant="ghost" onPress={() => router.push('/admin/applications')}>
+          목록으로
+        </Button>
       </div>
     );
   }
@@ -133,44 +149,60 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
     );
   };
 
-  const labelClass = 'mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300';
+  const labelClass =
+    'mb-2 block text-xs font-normal text-gray-500 dark:text-zinc-400';
   const valueBoxClass =
-    'w-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100';
+    'w-full rounded-lg border border-gray-200 bg-white p-4 text-sm text-gray-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100';
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white dark:bg-zinc-900">
-      {/* 뒤로가기 - 동아리 상세와 동일 */}
-      <div className="flex shrink-0 items-center gap-2 px-4 pt-3 pb-1">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-        >
-          <span className="inline-block h-4 w-4">←</span>
-          <span>뒤로가기</span>
-        </button>
-      </div>
-
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        <div className="space-y-6 p-4 pb-24">
-          {/* 상태 칩 */}
+      {/* 헤더: my/club-requests/[id]와 동일 — 뒤로가기(좌) | 날짜·상태 뱃지(우) */}
+      <div className="shrink-0 bg-white dark:bg-zinc-900">
+        <div className="flex h-16 items-center justify-between px-4">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="flex items-center gap-1 text-base font-medium text-gray-700 dark:text-zinc-200"
+          >
+            <span className="inline-block">←</span>
+            <span>뒤로가기</span>
+          </button>
           <div className="flex items-center gap-2">
-            <Chip size="sm" color={isPending ? 'warning' : 'success'} variant="soft">
+            <span className="text-xs text-gray-500 dark:text-zinc-400">
+              {formatDateTimeNoSeconds(application.createdAt)}
+            </span>
+            <span
+              className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_CHIP_CLASS[application.status] ?? 'bg-zinc-100 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300'}`}
+            >
               {application.status === 'PENDING'
                 ? '승인 대기'
                 : application.status === 'APPROVED'
                   ? '승인됨'
                   : '거절됨'}
-            </Chip>
+            </span>
           </div>
+        </div>
+      </div>
 
-          {/* 1. 동아리 이름 */}
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="space-y-6 p-4 pb-24">
+          {/* 거절 사유 — 최상단 (거절된 경우만) */}
+          {application.status === 'REJECTED' && application.rejectionReason && (
+            <div>
+              <label className={labelClass}>거절 사유</label>
+              <div className={`${valueBoxClass} text-red-600 dark:text-red-400`}>
+                {application.rejectionReason}
+              </div>
+            </div>
+          )}
+
+          {/* 동아리 이름 */}
           <div>
             <label className={labelClass}>동아리 이름</label>
             <div className={valueBoxClass}>{application.name}</div>
           </div>
 
-          {/* 신청자 이름 · 이메일 */}
+          {/* 신청자 — 동아리 이름과 유형·분야 사이 */}
           <div>
             <label className={labelClass}>신청자</label>
             <div className={valueBoxClass}>
@@ -178,7 +210,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* 동아리유형 · 분야 (가로 배치 - 폼과 동일) */}
+          {/* 동아리유형 · 분야 */}
           <div className="flex flex-wrap items-start gap-4">
             <div className="min-w-0 flex-1">
               <label className={labelClass}>동아리유형</label>
@@ -194,7 +226,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* 5. 신청 사유 */}
+          {/* 신청 사유 */}
           <div>
             <label className={labelClass}>신청 사유</label>
             <div className={`${valueBoxClass} min-h-[200px] whitespace-pre-wrap`}>
@@ -202,63 +234,59 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* 신청일 (참고) */}
-          <div>
-            <label className={labelClass}>신청일</label>
-            <div className={valueBoxClass}>{formatDateTime24(application.createdAt)}</div>
-          </div>
-
+          {/* 대기 시: 제일 밑에 거절/수락 버튼 (shadcn 스타일), 거절 시 껍데기 없이 사유+버튼만 */}
           {isPending && (
             <div className="space-y-4 pt-2">
               {showRejectInput ? (
-                <div className="space-y-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300">
+                <>
+                  <label className="block text-xs font-normal text-gray-500 dark:text-zinc-400">
                     거절 사유 (선택)
                   </label>
-                  <TextArea
+                  <textarea
                     placeholder="거절 사유를 입력하세요. 신청자에게 전달됩니다."
                     value={rejectReason}
                     onChange={(e) => setRejectReason(e.target.value)}
-                    className="min-h-[80px] w-full resize-y"
+                    className="min-h-[80px] w-full resize-y rounded-lg border border-gray-200 bg-white p-3 text-sm text-gray-900 placeholder-gray-400 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
+                    rows={3}
                   />
                   <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      className="flex-1"
-                      onPress={() => {
+                    <button
+                      type="button"
+                      onClick={() => {
                         setShowRejectInput(false);
                         setRejectReason('');
                       }}
+                      className="inline-flex h-10 flex-1 items-center justify-center rounded-md border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-900 shadow-sm transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
                     >
                       취소
-                    </Button>
-                    <Button
-                      variant="danger-soft"
-                      className="flex-1 bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300"
-                      onPress={handleRejectSubmit}
-                      isPending={rejectApplication.isPending}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleRejectSubmit}
+                      disabled={rejectApplication.isPending}
+                      className="inline-flex h-10 flex-1 items-center justify-center rounded-md border border-red-200 bg-white px-4 text-sm font-medium text-red-600 shadow-sm transition-colors hover:bg-red-50 disabled:opacity-50 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-950/30"
                     >
-                      거절하기
-                    </Button>
+                      {rejectApplication.isPending ? '처리 중...' : '거절하기'}
+                    </button>
                   </div>
-                </div>
+                </>
               ) : (
                 <div className="flex gap-3">
-                  <Button
-                    variant="danger-soft"
-                    className="flex-1 bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300"
-                    onPress={handleRejectClick}
+                  <button
+                    type="button"
+                    onClick={handleRejectClick}
+                    className="inline-flex h-10 flex-1 items-center justify-center rounded-md border border-red-200 bg-white px-4 text-sm font-medium text-red-600 shadow-sm transition-colors hover:bg-red-50 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-950/30"
                   >
                     거절
-                  </Button>
-                  <Button
-                    variant="primary"
-                    className="flex-1 bg-blue-500 text-white"
-                    onPress={handleApprove}
-                    isPending={approveApplication.isPending}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleApprove}
+                    disabled={approveApplication.isPending}
+                    className="inline-flex h-10 flex-1 items-center justify-center rounded-md bg-zinc-900 px-4 text-sm font-medium text-white shadow transition-colors hover:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
                   >
-                    수락
-                  </Button>
+                    {approveApplication.isPending ? '처리 중...' : '수락'}
+                  </button>
                 </div>
               )}
             </div>
