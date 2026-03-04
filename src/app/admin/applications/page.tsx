@@ -1,20 +1,18 @@
 'use client';
 
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-
 import { Chip, Tabs } from '@heroui/react';
-
-import { ListCardSkeleton, PageCenteredSkeleton } from '@/components/common/skeletons';
 import { parseAsString, useQueryState } from 'nuqs';
 
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
 import { useAdminApplications } from '@/features/club/hooks';
 import { DefaultClubImage } from '@/components/common/default-club-image';
+import { ListCardSkeleton, PageCenteredSkeleton } from '@/components/common/skeletons';
 
 const STATUS_CHIP: Record<string, { label: string; color: 'warning' | 'success' | 'danger' }> = {
   PENDING: { label: '대기', color: 'warning' },
@@ -31,11 +29,7 @@ const APPLICATION_TABS: { value: ApplicationStatusFilter; label: string }[] = [
   { value: 'ALL', label: '전체' },
 ];
 
-function ApplicationList({
-  statusParam,
-}: {
-  statusParam?: 'PENDING' | 'APPROVED' | 'REJECTED';
-}) {
+function ApplicationList({ statusParam }: { statusParam?: 'PENDING' | 'APPROVED' | 'REJECTED' }) {
   const { data: applications, isLoading } = useAdminApplications(statusParam);
   const list = useMemo(() => applications ?? [], [applications]);
 
@@ -122,11 +116,9 @@ function ApplicationList({
 
 export default function AdminApplicationsPage() {
   const router = useRouter();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { data: profile, isLoading: profileLoading } = useMyProfile();
-  const [statusTab, setStatusTab] = useQueryState(
-    'status',
-    parseAsString.withDefault('PENDING')
-  );
+  const [statusTab, setStatusTab] = useQueryState('status', parseAsString.withDefault('PENDING'));
   const [stickyVisible, setStickyVisible] = useState(true);
   const lastScrollY = useRef(0);
 
@@ -149,6 +141,7 @@ export default function AdminApplicationsPage() {
 
   useEffect(() => {
     const scrollEl =
+      scrollContainerRef.current ??
       document.querySelector('[data-scroll-container]') ??
       document.querySelector('main') ??
       document.documentElement;
@@ -173,45 +166,44 @@ export default function AdminApplicationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white pb-20 dark:bg-zinc-900">
-      <Tabs
-        selectedKey={tabKey}
-        onSelectionChange={(key) => setStatusTab(key as ApplicationStatusFilter)}
-        className="w-full"
-      >
-        <Tabs.ListContainer
-          className={`sticky top-0 z-30 bg-[var(--card)] px-4 pt-3 transition-transform duration-300 ${stickyVisible ? 'translate-y-0' : '-translate-y-full opacity-0'}`}
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white dark:bg-zinc-900">
+      <div ref={scrollContainerRef} className="min-h-0 flex-1 overflow-y-auto pb-20">
+        <Tabs
+          selectedKey={tabKey}
+          onSelectionChange={(key) => setStatusTab(key as ApplicationStatusFilter)}
+          className="w-full"
         >
-          <Tabs.List
-            aria-label="승인 상태"
-            className="flex w-full min-w-0"
+          <Tabs.ListContainer
+            className={`sticky top-0 z-30 bg-[var(--card)] px-4 pt-3 transition-transform duration-300 ${stickyVisible ? 'translate-y-0' : '-translate-y-full opacity-0'}`}
           >
-            {APPLICATION_TABS.map((opt) => (
-              <Tabs.Tab
-                key={opt.value}
-                id={opt.value}
-                className="min-w-0 flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
-              >
-                {opt.label}
-                <Tabs.Indicator />
-              </Tabs.Tab>
-            ))}
-          </Tabs.List>
-        </Tabs.ListContainer>
+            <Tabs.List aria-label="승인 상태" className="flex w-full min-w-0">
+              {APPLICATION_TABS.map((opt) => (
+                <Tabs.Tab
+                  key={opt.value}
+                  id={opt.value}
+                  className="min-w-0 flex-1 py-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                >
+                  {opt.label}
+                  <Tabs.Indicator />
+                </Tabs.Tab>
+              ))}
+            </Tabs.List>
+          </Tabs.ListContainer>
 
-        <Tabs.Panel id="PENDING" className="pt-0">
-          <ApplicationList statusParam="PENDING" />
-        </Tabs.Panel>
-        <Tabs.Panel id="APPROVED" className="pt-0">
-          <ApplicationList statusParam="APPROVED" />
-        </Tabs.Panel>
-        <Tabs.Panel id="REJECTED" className="pt-0">
-          <ApplicationList statusParam="REJECTED" />
-        </Tabs.Panel>
-        <Tabs.Panel id="ALL" className="pt-0">
-          <ApplicationList statusParam={undefined} />
-        </Tabs.Panel>
-      </Tabs>
+          <Tabs.Panel id="PENDING" className="pt-0">
+            <ApplicationList statusParam="PENDING" />
+          </Tabs.Panel>
+          <Tabs.Panel id="APPROVED" className="pt-0">
+            <ApplicationList statusParam="APPROVED" />
+          </Tabs.Panel>
+          <Tabs.Panel id="REJECTED" className="pt-0">
+            <ApplicationList statusParam="REJECTED" />
+          </Tabs.Panel>
+          <Tabs.Panel id="ALL" className="pt-0">
+            <ApplicationList statusParam={undefined} />
+          </Tabs.Panel>
+        </Tabs>
+      </div>
     </div>
   );
 }
