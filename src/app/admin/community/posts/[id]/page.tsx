@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
+import { use, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useMyProfile } from '@/features/auth/hooks';
@@ -46,6 +46,10 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
   /** 클릭 토글만 로컬 상태로 두고, 없으면 post 값 사용 (훅 규칙·effect setState 회피) */
   const [likedOverride, setLikedOverride] = useState<boolean | null>(null);
   const [savedOverride, setSavedOverride] = useState<boolean | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [commentText, setCommentText] = useState('');
+  const commentTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (profileLoading) return;
@@ -59,6 +63,23 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
       router.replace('/admin/community');
     }
   }, [id, post, profile, profileLoading, router]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, [menuOpen]);
+
+  useEffect(() => {
+    const el = commentTextareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    const maxH = 4.5 * 16;
+    el.style.height = `${Math.min(el.scrollHeight, maxH)}px`;
+  }, [commentText]);
 
   if (profileLoading || (profile && !isSystemAdmin(profile)) || (id > 0 && !post)) {
     return (
@@ -76,7 +97,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-white pb-24 dark:bg-zinc-900">
       <article className="px-4 py-4">
-        {/* 작성자: 프로필 사진 + 이름/시간 세로, 게시판명 삭제 */}
+        {/* 작성자: 프로필 사진 + 이름/시간 세로, 오른쪽 ... 메뉴(수정/삭제/신고) */}
         <div className="mb-3 flex items-center gap-3">
           <div
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-sm font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
@@ -84,9 +105,62 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
           >
             {post.authorName.slice(0, 1)}
           </div>
-          <div className="flex flex-col gap-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-xs text-zinc-500 dark:text-zinc-400">
             <span>{post.authorName}</span>
             <span>{formatDate(post.createdAt)}</span>
+          </div>
+          <div className="relative shrink-0" ref={menuRef}>
+            <button
+              type="button"
+              onClick={() => setMenuOpen((o) => !o)}
+              className="flex h-8 w-8 items-center justify-center rounded-full text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+              aria-label="메뉴"
+              aria-expanded={menuOpen}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="h-5 w-5"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M4.5 12a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm6 0a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm6 0a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+            {menuOpen && (
+              <div
+                className="absolute top-full right-0 z-10 mt-1 min-w-[120px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+                role="menu"
+              >
+                <button
+                  type="button"
+                  className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                  role="menuitem"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  수정
+                </button>
+                <button
+                  type="button"
+                  className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                  role="menuitem"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  삭제
+                </button>
+                <button
+                  type="button"
+                  className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
+                  role="menuitem"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  신고
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -211,39 +285,41 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
         )}
       </section>
 
-      {/* 하단 고정 댓글 입력창: 입력창 내부 좌측 계정 드롭다운 + 입력 + 종이비행기. 라이트모드 배경 흰색 유지 */}
-      <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-md -translate-x-1/2 bg-white px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] dark:bg-zinc-900">
-        <div className="flex w-full items-center">
-          <div className="relative flex min-w-0 flex-1 items-center rounded-lg border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800">
-            <select
-              className="shrink-0 rounded-l-md border-0 bg-transparent py-2.5 pr-6 pl-3 text-sm text-zinc-900 focus:ring-0 focus:outline-none dark:text-zinc-100"
-              aria-label="댓글 작성 계정 선택"
-              title="계정 선택"
-            >
-              <option value="me">내 계정</option>
-            </select>
-            <input
-              type="text"
+      {/* 하단 고정 댓글 입력창: PWA 라이트모드에서도 배경 흰색 유지(!), 입력 시 계정 드롭다운 숨김, 최대 3줄 */}
+      <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-md -translate-x-1/2 !bg-white px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] dark:!bg-zinc-900">
+        <div className="flex w-full items-end">
+          <div className="comment-input-wrap relative flex min-w-0 flex-1 items-end gap-0 rounded-lg border border-zinc-200 !bg-zinc-50 dark:border-zinc-700 dark:!bg-zinc-800">
+            {commentText.trim().length === 0 && (
+              <select
+                className="shrink-0 rounded-l-md border-0 bg-transparent py-2.5 pr-6 pl-3 text-sm text-zinc-900 focus:ring-0 focus:outline-none dark:text-zinc-100"
+                aria-label="댓글 작성 계정 선택"
+                title="계정 선택"
+              >
+                <option value="me">내 계정</option>
+              </select>
+            )}
+            <textarea
+              ref={commentTextareaRef}
               placeholder="댓글을 입력하세요"
-              className="min-w-0 flex-1 border-0 bg-transparent px-2 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:ring-0 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              rows={1}
+              className="max-h-[4.5rem] min-h-[2.5rem] min-w-0 flex-1 resize-none overflow-y-auto border-0 bg-transparent px-3 py-2.5 text-sm leading-relaxed text-zinc-900 placeholder:text-zinc-400 focus:ring-0 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
               aria-label="댓글 입력"
+              style={{ height: 'auto' }}
             />
             <button
               type="button"
-              className="shrink-0 rounded-full p-2 text-blue-500 transition-opacity hover:opacity-80 dark:text-lime-500"
+              className="shrink-0 rounded-full bg-transparent p-2 text-blue-500 transition-opacity hover:opacity-80 dark:text-lime-500"
               aria-label="댓글 등록"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                fill="currentColor"
                 className="h-5 w-5"
               >
-                <path d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+                <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
               </svg>
             </button>
           </div>

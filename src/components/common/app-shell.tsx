@@ -29,12 +29,13 @@ const PULL_TO_REFRESH_DISABLED_PATHS = [
   /^\/mypage\/notification-settings(\/|$)/, // 알림설정
 ];
 
-/** 메인 스크롤 비활성화 경로 (동아리 신청, 설정, 알림설정, 관리자 메인만 — 컨테이너 스크롤 막고 페이지 내부만 스크롤) */
+/** 메인 스크롤 비활성화 경로 (동아리 신청, 설정, 알림설정, 관리자 메인, 커뮤니티 메인만 — 하위 페이지는 스크롤 가능) */
 const SCROLL_DISABLED_PATHS = [
   /^\/mypage\/clubs\/apply$/,
   /^\/mypage\/settings(\/|$)/,
   /^\/mypage\/notification-settings(\/|$)/,
-  /^\/admin$/, // 관리자 메인만, 하위 경로(/admin/applications 등)는 스크롤 가능
+  /^\/admin$/, // 관리자 메인만
+  /^\/admin\/community$/, // 커뮤니티 메인만, 하위(/admin/community/popular 등)는 스크롤 가능
 ];
 
 function isFullScreenPath(pathname: string): boolean {
