@@ -806,16 +806,9 @@ function ClubQnaTab({
                 >
                   A
                 </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
-                    {qna.answer}
-                  </p>
-                  {qna.answeredAt && (
-                    <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                      {formatQnaDateTime(qna.answeredAt)}
-                    </p>
-                  )}
-                </div>
+                <p className="flex-1 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
+                  {qna.answer}
+                </p>
               </div>
             )}
           </div>

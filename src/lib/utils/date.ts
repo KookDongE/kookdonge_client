@@ -13,11 +13,19 @@ export function parseApiIsoToDate(iso: string | null | undefined): Date | null {
 }
 
 /**
- * Q&A 등에서 사용할 날짜+시간 표기 (한국 시간). 예: "26.03.04 23:12"
+ * Q&A 등에서 사용할 날짜+시간 표기. 예: "26.03.04 23:12"
+ * API가 UTC로 내려주므로, 표시 시 -9시간 보정해 서버에 저장된 시각 그대로 보여줌
+ * (서버가 UTC로 저장·반환하면 +9하면 KST로 밀리므로, UTC 기준으로 포맷).
  */
 export function formatQnaDateTime(iso: string | null | undefined): string {
-  const d = parseApiIsoToDate(iso);
-  if (!d) return '-';
+  if (!iso || iso.trim() === '') return '-';
+  let toParse = iso.trim();
+  if (!/Z|[+-]\d{2}:?\d{2}$/.test(toParse)) {
+    toParse = toParse + 'Z';
+  }
+  const d = new Date(toParse);
+  if (Number.isNaN(d.getTime())) return '-';
+  const adjusted = new Date(d.getTime() - 9 * 60 * 60 * 1000);
   const parts = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Seoul',
     year: '2-digit',
@@ -26,7 +34,7 @@ export function formatQnaDateTime(iso: string | null | undefined): string {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
-  }).formatToParts(d);
+  }).formatToParts(adjusted);
   const get = (type: Intl.DateTimeFormatPartTypes) =>
     parts.find((p) => p.type === type)?.value ?? '';
   return `${get('year')}.${get('month')}.${get('day')} ${get('hour')}:${get('minute')}`;

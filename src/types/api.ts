@@ -322,8 +322,6 @@ export type QuestionAnswerRes = {
   createdAt: string;
   question: string;
   answer?: string;
-  /** 답변 작성 시각 (ISO date-time). 있으면 답변 영역에 표시 */
-  answeredAt?: string;
   answeredBy?: string;
   userId?: number;
   userName?: string;
