@@ -378,8 +378,8 @@ function ClubHeader({
             </span>
           </div>
           {/* 동아리 이름: 태그 바로 아래. admin/관리자일 때 우측에 더보기 메뉴(수정, 삭제) */}
-          <div className="mt-1.5 flex items-center gap-2">
-            <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">{club.name}</h1>
+          <div className="mt-1.5 flex items-center justify-between gap-2">
+            <h1 className="min-w-0 flex-1 truncate text-xl font-bold text-zinc-900 dark:text-zinc-100">{club.name}</h1>
             {showManageButton && (
               <Dropdown>
                 <Dropdown.Trigger>
