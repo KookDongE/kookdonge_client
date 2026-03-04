@@ -94,8 +94,8 @@ export default function CommunityWritePage() {
   const { data: profile, isLoading: profileLoading } = useMyProfile();
   const { data: admins = [] } = useSystemAdmins();
 
-  const [boardType, setBoardType] = useState<'promo' | 'free'>('free');
-  const [accountKey, setAccountKey] = useState<string>('me');
+  const [boardType, setBoardType] = useState<'promo' | 'free' | ''>('');
+  const [accountKey, setAccountKey] = useState<string>('');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [photoItems, setPhotoItems] = useState<PhotoItem[]>([]);
@@ -137,6 +137,14 @@ export default function CommunityWritePage() {
     e?.preventDefault();
     const trimmedTitle = title.trim();
     const trimmedContent = content.trim();
+    if (!boardType) {
+      alert('분류를 선택해주세요.');
+      return;
+    }
+    if (!accountKey) {
+      alert('계정을 선택해주세요.');
+      return;
+    }
     if (!trimmedTitle) {
       alert('제목을 입력해주세요.');
       return;
@@ -166,7 +174,8 @@ export default function CommunityWritePage() {
     );
   }
 
-  const canSubmit = Boolean(title.trim() && content.trim()) && !isSubmitting;
+  const canSubmit =
+    Boolean(boardType && accountKey && title.trim() && content.trim()) && !isSubmitting;
 
   return (
     <div className="flex h-[calc(100dvh-4rem)] min-h-0 flex-col overflow-hidden bg-white dark:bg-zinc-900">
@@ -205,7 +214,7 @@ export default function CommunityWritePage() {
             <Select
               aria-label="분류 선택"
               placeholder="분류"
-              value={boardType}
+              value={boardType || undefined}
               onChange={(value: Key | null) => value && setBoardType(value as 'promo' | 'free')}
               className="w-full"
             >
@@ -236,8 +245,8 @@ export default function CommunityWritePage() {
             </label>
             <Select
               aria-label="계정 선택"
-              placeholder="계정"
-              value={accountKey}
+              placeholder="계정 선택"
+              value={accountKey || undefined}
               onChange={(value: Key | null) => value && setAccountKey(String(value))}
               className="w-full"
             >
@@ -296,9 +305,7 @@ export default function CommunityWritePage() {
 
         {/* 사진: 동아리 피드와 동일하게 가로 스크롤 + 드래그 순서 변경, 네비와 겹치지 않도록 form에 pb 적용됨 */}
         <div className="shrink-0 mb-0">
-          <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-            사진
-          </label>
+          <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300" />
           <input
             type="file"
             accept="image/*"

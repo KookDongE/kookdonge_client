@@ -4,18 +4,19 @@ import { Suspense, use, useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { Button, Tabs } from '@heroui/react';
+import { Button, Tabs, TextArea } from '@heroui/react';
 import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { parseAsString, useQueryState } from 'nuqs';
 import { createPortal } from 'react-dom';
 
 import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api';
 import { formatQnaDateTime, parseApiIsoToDate } from '@/lib/utils';
+import { useMyProfile } from '@/features/auth/hooks';
 import { useClubDetail, useLikeClub, useUnlikeClub } from '@/features/club/hooks';
 import { useNotification } from '@/features/device/use-notification';
 import { useClubFeeds } from '@/features/feed/hooks';
 import { useAddInterest, useMyInterests, useRemoveInterest } from '@/features/interest/hooks';
-import { useQuestions } from '@/features/question/hooks';
+import { useCreateQuestion, useQuestions } from '@/features/question/hooks';
 import {
   useAddToWaitingList,
   useMyWaitingList,
@@ -588,9 +589,31 @@ function ClubFeedTab({ clubId }: { clubId: number }) {
   );
 }
 
-function ClubQnaTab({ clubId }: { clubId: number }) {
+function ClubQnaTab({
+  clubId,
+  onQuestionSubmitted,
+}: {
+  clubId: number;
+  onQuestionSubmitted?: () => void;
+}) {
   const { data, isLoading } = useQuestions(clubId, { page: 0, size: 20 });
+  const { data: profile } = useMyProfile();
+  const createQuestion = useCreateQuestion(clubId);
+  const [questionText, setQuestionText] = useState('');
   const questions = data?.content ?? [];
+
+  const handleSubmit = () => {
+    if (!questionText.trim() || !profile) return;
+    createQuestion.mutate(
+      { question: questionText.trim(), userName: profile.email },
+      {
+        onSuccess: () => {
+          setQuestionText('');
+          onQuestionSubmitted?.();
+        },
+      }
+    );
+  };
 
   if (isLoading) {
     return (
@@ -602,55 +625,73 @@ function ClubQnaTab({ clubId }: { clubId: number }) {
     );
   }
 
-  if (questions.length === 0) {
-    return (
-      <div className="space-y-4 p-4">
+  return (
+    <>
+      <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+        <h4 className="mb-3 text-sm font-semibold text-zinc-900 dark:text-zinc-100">질문하기</h4>
+        <div className="bg-default-100 relative flex min-h-0 w-full rounded-lg border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800/50">
+          <TextArea
+            placeholder="궁금한 점을 질문해주세요"
+            value={questionText}
+            onChange={(e) => setQuestionText(e.target.value)}
+            className="min-h-[2.5rem] w-full min-w-0 resize-none border-0 bg-transparent py-2 pr-14 pl-3 shadow-none placeholder:text-zinc-400 hover:shadow-none focus:ring-0 dark:placeholder:text-zinc-500"
+          />
+          <Button
+            size="sm"
+            variant="primary"
+            onPress={handleSubmit}
+            isDisabled={!questionText.trim() || !profile || createQuestion.isPending}
+            isPending={createQuestion.isPending}
+            className="absolute top-1/2 right-1.5 shrink-0 -translate-y-1/2"
+          >
+            등록
+          </Button>
+        </div>
+      </div>
+
+      {questions.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-zinc-400 dark:text-zinc-500">
           <p>아직 질문이 없습니다.</p>
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <>
-      {questions.map((qna) => (
-        <div
-          key={qna.id}
-          id={`question-${qna.id}`}
-          className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800"
-        >
-          <div className="flex items-start gap-3">
-            <span
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
-              aria-hidden
-            >
-              Q
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                {qna.question}
-              </p>
-              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                {formatQnaDateTime(qna.createdAt)}
-              </p>
-            </div>
-          </div>
-          {qna.answer && (
-            <div className="mt-3 flex items-start gap-3 pt-3">
+      ) : (
+        questions.map((qna) => (
+          <div
+            key={qna.id}
+            id={`question-${qna.id}`}
+            className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800"
+          >
+            <div className="flex items-start gap-3">
               <span
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
                 aria-hidden
               >
-                A
+                Q
               </span>
-              <p className="flex-1 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
-                {qna.answer}
-              </p>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                  {qna.question}
+                </p>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                  {formatQnaDateTime(qna.createdAt)}
+                </p>
+              </div>
             </div>
-          )}
-        </div>
-      ))}
+            {qna.answer && (
+              <div className="mt-3 flex items-start gap-3 pt-3">
+                <span
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
+                  aria-hidden
+                >
+                  A
+                </span>
+                <p className="flex-1 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
+                  {qna.answer}
+                </p>
+              </div>
+            )}
+          </div>
+        ))
+      )}
     </>
   );
 }
@@ -821,7 +862,7 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
           <ClubFeedTab clubId={clubId} />
         </Tabs.Panel>
         <Tabs.Panel id="qna" className="space-y-4 p-4">
-          <ClubQnaTab clubId={clubId} />
+          <ClubQnaTab clubId={clubId} onQuestionSubmitted={tryShowNotificationPrompt} />
         </Tabs.Panel>
       </Tabs>
       {/* 하단 네비 + CTA 공간 확보 (지원 버튼 있을 때) */}
