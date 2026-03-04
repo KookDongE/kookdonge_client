@@ -98,7 +98,7 @@ export function ClubCard({
   const cardContent = (
     <motion.div
       whileTap={disableLink ? undefined : { scale: 0.98 }}
-      className={`flex overflow-hidden rounded-2xl border border-zinc-100 bg-[var(--card)] dark:border-zinc-800 ${!disableLink ? 'card-hover' : ''}`}
+      className={`flex h-24 overflow-hidden rounded-2xl border border-zinc-100 bg-[var(--card)] dark:border-zinc-800 ${!disableLink ? 'card-hover' : ''}`}
     >
       {/* Image Section - 한줄소개 밑 여백이 태그 상단 여백과 맞도록 높이 축소 */}
       <div className="club-logo-wrap relative h-24 w-24 shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800">
@@ -206,7 +206,7 @@ export function ClubCard({
 // Skeleton Component for loading state
 export function ClubCardSkeleton() {
   return (
-    <div className="flex overflow-hidden rounded-2xl border border-zinc-100 bg-[var(--card)] dark:border-zinc-800">
+    <div className="flex h-24 overflow-hidden rounded-2xl border border-zinc-100 bg-[var(--card)] dark:border-zinc-800">
       <div className="skeleton h-24 w-24 shrink-0" />
       <div className="flex flex-1 flex-col justify-center p-3">
         <div className="mb-1.5 flex gap-1.5">
