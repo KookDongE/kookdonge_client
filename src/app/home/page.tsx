@@ -120,8 +120,8 @@ function RankingSection({ returnTo }: { returnTo?: string }) {
   const isEmpty = !rankings || rankings.length === 0;
 
   return (
-    <section className="px-4 py-5">
-      <div className="mb-4 flex items-center justify-between">
+    <section className="py-5">
+      <div className="mb-4 flex items-center justify-between px-4">
         <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100">이번 주 인기</span>
         <div className="flex items-center gap-2">
           {/* Tab Buttons */}
@@ -167,7 +167,7 @@ function RankingSection({ returnTo }: { returnTo?: string }) {
       </div>
 
       {isEmpty ? (
-        <div className="flex h-36 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 text-sm text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
+        <div className="mx-4 flex h-36 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 text-sm text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
           인기 동아리가 없습니다
         </div>
       ) : (
@@ -186,7 +186,7 @@ function RankingSection({ returnTo }: { returnTo?: string }) {
             onClickCapture={onRankingClickCapture}
             role="region"
             aria-label="인기 동아리 가로 스크롤"
-            className="no-scrollbar -mr-4 flex w-full min-w-0 cursor-grab [touch-action:pan-x] gap-3 overflow-x-auto overflow-y-hidden pt-2 pb-2 pl-2 [-webkit-overflow-scrolling:touch] active:cursor-grabbing"
+            className="no-scrollbar flex w-full min-w-0 cursor-grab [touch-action:pan-x] gap-3 overflow-x-auto overflow-y-hidden pt-2 pb-2 pl-4 [-webkit-overflow-scrolling:touch] active:cursor-grabbing"
           >
             {top10.map((club, index) => (
               <motion.div

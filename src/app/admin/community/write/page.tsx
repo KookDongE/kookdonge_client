@@ -93,8 +93,8 @@ export default function CommunityWritePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-900">
-      <form className="space-y-4 px-4 py-4" onSubmit={handleSubmit}>
+    <div className="bg-white dark:bg-zinc-900">
+      <form className="space-y-4 px-4 py-4 pb-0" onSubmit={handleSubmit}>
         {/* 분류 / 계정 선택 2열 */}
         <div className="grid grid-cols-2 gap-4">
           <div>
