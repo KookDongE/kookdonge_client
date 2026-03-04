@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 
 import { useEffect, useState } from 'react';
 
+import { createPortal } from 'react-dom';
+
 import { Button, Input } from '@heroui/react';
 
 import { TablePageSkeleton } from '@/components/common/skeletons';
@@ -14,6 +16,8 @@ import { isSystemAdmin } from '@/features/auth/permissions';
 export default function AdminSettingsPage() {
   const router = useRouter();
   const [newAdminEmail, setNewAdminEmail] = useState('');
+  const [addConfirmEmail, setAddConfirmEmail] = useState<string | null>(null);
+  const [removeConfirm, setRemoveConfirm] = useState<{ userId: number; email: string } | null>(null);
   const { data: profile, isLoading: profileLoading } = useMyProfile();
   const { data: admins = [], isLoading } = useSystemAdmins();
   const grantAdmin = useGrantAdmin();
@@ -26,7 +30,7 @@ export default function AdminSettingsPage() {
     }
   }, [profile, profileLoading, router]);
 
-  const handleAddAdmin = async () => {
+  const handleAddAdminClick = () => {
     const email = newAdminEmail.trim().toLowerCase();
     if (!email) {
       alert('이메일을 입력해주세요.');
@@ -40,24 +44,34 @@ export default function AdminSettingsPage() {
       alert('이미 등록된 관리자입니다.');
       return;
     }
-    if (!confirm(`"${email}"을(를) 시스템 관리자로 추가하시겠습니까?`)) return;
+    setAddConfirmEmail(email);
+  };
+
+  const handleAddConfirm = async () => {
+    if (!addConfirmEmail) return;
     try {
-      await grantAdmin.mutateAsync(email);
+      await grantAdmin.mutateAsync(addConfirmEmail);
       setNewAdminEmail('');
+      setAddConfirmEmail(null);
       alert('시스템 관리자가 추가되었습니다.');
     } catch {
       // 에러 메시지는 apiClient에서 toast로 표시됨
     }
   };
 
-  const handleRemoveAdmin = async (userId: number, email: string) => {
+  const handleRemoveAdminClick = (userId: number, email: string) => {
     if (profile?.email && profile.email.toLowerCase() === email.toLowerCase()) {
       alert('본인 계정의 관리자 권한은 제거할 수 없습니다.');
       return;
     }
-    if (!confirm(`정말 "${email}" 시스템 관리자 권한을 제거하시겠습니까?`)) return;
+    setRemoveConfirm({ userId, email });
+  };
+
+  const handleRemoveConfirm = async () => {
+    if (!removeConfirm) return;
     try {
-      await revokeAdmin.mutateAsync(userId);
+      await revokeAdmin.mutateAsync(removeConfirm.userId);
+      setRemoveConfirm(null);
       alert('시스템 관리자가 제거되었습니다.');
     } catch {
       // 에러 메시지는 apiClient에서 toast로 표시됨
@@ -95,7 +109,7 @@ export default function AdminSettingsPage() {
               onChange={(e) => setNewAdminEmail(e.target.value)}
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
-                  handleAddAdmin();
+                  handleAddAdminClick();
                 }
               }}
               disabled={grantAdmin.isPending}
@@ -104,7 +118,7 @@ export default function AdminSettingsPage() {
             <Button
               size="sm"
               variant="primary"
-              onPress={handleAddAdmin}
+              onPress={handleAddAdminClick}
               isDisabled={grantAdmin.isPending}
               isPending={grantAdmin.isPending}
               className="absolute top-1/2 right-1.5 h-7 min-h-7 shrink-0 -translate-y-1/2 px-2 text-xs"
@@ -139,7 +153,7 @@ export default function AdminSettingsPage() {
                   <Button
                     size="sm"
                     variant="ghost"
-                    onPress={() => handleRemoveAdmin(admin.userId, admin.email)}
+                    onPress={() => handleRemoveAdminClick(admin.userId, admin.email)}
                     isDisabled={revokeAdmin.isPending}
                     isIconOnly
                     aria-label="제거"
@@ -169,6 +183,70 @@ export default function AdminSettingsPage() {
           )}
         </div>
       </div>
+      {addConfirmEmail != null &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+            <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-800">
+              <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-zinc-100">
+                시스템 관리자 추가
+              </h3>
+              <p className="mb-6 text-sm text-gray-600 dark:text-zinc-400">
+                &quot;{addConfirmEmail}&quot;을(를) 시스템 관리자로 추가하시겠습니까?
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  variant="ghost"
+                  className="flex-1"
+                  onPress={() => setAddConfirmEmail(null)}
+                >
+                  취소
+                </Button>
+                <Button
+                  variant="primary"
+                  className="flex-1"
+                  onPress={handleAddConfirm}
+                  isPending={grantAdmin.isPending}
+                >
+                  추가
+                </Button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+      {removeConfirm != null &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+            <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-800">
+              <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-zinc-100">
+                관리자 권한 제거
+              </h3>
+              <p className="mb-6 text-sm text-gray-600 dark:text-zinc-400">
+                정말 &quot;{removeConfirm.email}&quot; 시스템 관리자 권한을 제거하시겠습니까?
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  variant="ghost"
+                  className="flex-1"
+                  onPress={() => setRemoveConfirm(null)}
+                >
+                  취소
+                </Button>
+                <Button
+                  variant="primary"
+                  className="flex-1 bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
+                  onPress={handleRemoveConfirm}
+                  isPending={revokeAdmin.isPending}
+                >
+                  제거
+                </Button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
