@@ -77,7 +77,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
     const el = commentTextareaRef.current;
     if (!el) return;
     el.style.height = 'auto';
-    const maxH = 4.5 * 16;
+    const maxH = 7.5 * 16; // 최대 5줄 (약 7.5rem)
     el.style.height = `${Math.min(el.scrollHeight, maxH)}px`;
   }, [commentText]);
 
@@ -285,10 +285,10 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
         )}
       </section>
 
-      {/* 하단 고정 댓글 입력창: PWA 라이트모드에서도 배경 흰색 유지(!), 입력 시 계정 드롭다운 숨김, 최대 3줄 */}
-      <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-md -translate-x-1/2 !bg-white px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] dark:!bg-zinc-900">
-        <div className="flex w-full items-end">
-          <div className="comment-input-wrap relative flex min-w-0 flex-1 items-end gap-0 rounded-lg border border-zinc-200 !bg-zinc-50 dark:border-zinc-700 dark:!bg-zinc-800">
+      {/* 하단 고정 댓글 입력창: 왼쪽 외곽선 잘림 방지(overflow-visible), 전송 버튼은 배경 없음, 최대 5줄 */}
+      <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-md -translate-x-1/2 overflow-visible !bg-white py-3 pr-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pl-5 dark:!bg-zinc-900">
+        <div className="flex w-full items-end overflow-visible">
+          <div className="comment-input-wrap relative flex min-w-0 flex-1 items-end overflow-visible rounded-lg border border-zinc-200 !bg-zinc-50 dark:border-zinc-700 dark:!bg-zinc-800">
             {commentText.trim().length === 0 && (
               <select
                 className="shrink-0 rounded-l-md border-0 bg-transparent py-2.5 pr-6 pl-3 text-sm text-zinc-900 focus:ring-0 focus:outline-none dark:text-zinc-100"
@@ -304,25 +304,29 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               rows={1}
-              className="max-h-[4.5rem] min-h-[2.5rem] min-w-0 flex-1 resize-none overflow-y-auto border-0 bg-transparent px-3 py-2.5 text-sm leading-relaxed text-zinc-900 placeholder:text-zinc-400 focus:ring-0 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
+              className="max-h-[7.5rem] min-h-[2.5rem] min-w-0 flex-1 resize-none overflow-y-auto border-0 bg-transparent px-3 py-2.5 text-sm leading-relaxed text-zinc-900 placeholder:text-zinc-400 focus:ring-0 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
               aria-label="댓글 입력"
               style={{ height: 'auto' }}
             />
-            <button
-              type="button"
-              className="shrink-0 rounded-full bg-transparent p-2 text-blue-500 transition-opacity hover:opacity-80 dark:text-lime-500"
-              aria-label="댓글 등록"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="h-5 w-5"
-              >
-                <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
-              </svg>
-            </button>
           </div>
+          <button
+            type="button"
+            className="ml-2 shrink-0 rounded-full bg-transparent p-2 text-blue-500 transition-opacity hover:opacity-80 dark:text-lime-500"
+            aria-label="댓글 등록"
+          >
+            <svg
+              viewBox="0 0 220 200"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              stroke="currentColor"
+              strokeWidth="20"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M84.7354 140.01L176.545 172.85C178.088 173.404 179.735 173.607 181.366 173.443C182.996 173.279 184.57 172.753 185.971 171.903C187.373 171.053 188.566 169.9 189.465 168.529C190.364 167.159 190.945 165.604 191.165 163.98L209.895 22.4001C211.035 13.7801 202.105 7.35013 194.225 11.1001L16.2354 96.0601C7.4354 100.26 8.0954 112.96 17.2954 116.23L41.6954 124.91L54.9954 129.58M119.995 152.61L100.095 185.87C93.5954 193.95 80.5054 189.38 80.5054 179.04V152.41C80.5057 147.385 82.3979 142.544 85.8054 138.85L124.515 96.8501" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>

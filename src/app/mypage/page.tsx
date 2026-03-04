@@ -11,6 +11,7 @@ import { useMyProfile } from '@/features/auth/hooks';
 import { useManagedClubs, useMyApplications } from '@/features/club/hooks';
 import { useMyQuestions, usePendingQuestions } from '@/features/question/hooks';
 import { useMyWaitingList } from '@/features/waiting-list/hooks';
+import { InterestedClubCard } from '@/components/club/interested-club-card';
 import { DefaultClubImage } from '@/components/common/default-club-image';
 import { ListCardSkeleton, ProfileSkeleton } from '@/components/common/skeletons';
 
@@ -426,48 +427,11 @@ function InterestedClubsSection() {
       ) : (
         <div className="space-y-3">
           {list.slice(0, PREVIEW_LIMIT).map((club) => (
-            <Link
+            <InterestedClubCard
               key={club.clubId}
-              href={`/clubs/${club.clubId}`}
-              className="mypage-club-card flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
-            >
-              <div className="mypage-club-card-logo relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
-                {club.clubProfileImageUrl ? (
-                  <Image
-                    src={club.clubProfileImageUrl}
-                    alt={club.clubName}
-                    fill
-                    className="object-cover"
-                    sizes="56px"
-                  />
-                ) : (
-                  <DefaultClubImage className="object-cover" sizes="56px" />
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="mb-1 flex flex-wrap items-center gap-1.5">
-                  <span className="mypage-club-tag-type rounded-md bg-violet-100 px-1.5 py-0.5 text-[10px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
-                    {TYPE_LABEL[club.clubType]}
-                  </span>
-                </div>
-                <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
-                  {club.clubName}
-                </h4>
-              </div>
-              <svg
-                className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </Link>
+              subscription={club}
+              className="mypage-club-card"
+            />
           ))}
         </div>
       )}

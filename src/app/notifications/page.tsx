@@ -165,7 +165,7 @@ export default function NotificationsPage() {
         router.push('/my/club-requests');
         return;
       case 'CLUB_CREATE_REQUEST':
-        router.push('/admin');
+        router.push('/admin/applications');
         return;
       default:
         break;
@@ -194,20 +194,7 @@ export default function NotificationsPage() {
 
   return (
     <div className="pb-6">
-      <div className="flex items-center justify-between gap-3 px-4 py-3">
-        <h1 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">알림</h1>
-        {hasUnread && (
-          <button
-            type="button"
-            onClick={handleMarkAllAsRead}
-            disabled={markAllAsRead.isPending}
-            className="text-sm font-medium text-blue-500 hover:underline disabled:opacity-50 dark:text-lime-400"
-          >
-            전체 읽음
-          </button>
-        )}
-      </div>
-      <div className="mt-4 flex flex-col gap-4 px-4">
+      <div className="flex flex-col gap-4 px-4 pt-2">
         {isLoading ? (
           <div className="flex flex-col gap-4">
             {[1, 2, 3, 4].map((i) => (
