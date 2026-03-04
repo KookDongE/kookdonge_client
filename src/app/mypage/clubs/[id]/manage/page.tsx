@@ -1894,7 +1894,7 @@ function ClubQnaTab({
     <div className="space-y-4 p-4">
       {/* 전체 Q&A */}
       {all.length > 0 && (
-        <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+        <>
           <h3 className="mb-4 font-semibold text-zinc-900 dark:text-zinc-100">전체 Q&A</h3>
           <div className="space-y-4">
             {all.map((qna) => (
@@ -1985,7 +1985,7 @@ function ClubQnaTab({
               </div>
             ))}
           </div>
-        </div>
+        </>
       )}
 
       {pending.length === 0 && all.length === 0 && (

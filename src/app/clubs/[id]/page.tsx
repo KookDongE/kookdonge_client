@@ -613,7 +613,7 @@ function ClubQnaTab({ clubId }: { clubId: number }) {
   }
 
   return (
-    <div className="space-y-4 p-4">
+    <>
       {questions.map((qna) => (
         <div
           key={qna.id}
@@ -651,7 +651,7 @@ function ClubQnaTab({ clubId }: { clubId: number }) {
           )}
         </div>
       ))}
-    </div>
+    </>
   );
 }
 
@@ -820,7 +820,7 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
         <Tabs.Panel id="feed">
           <ClubFeedTab clubId={clubId} />
         </Tabs.Panel>
-        <Tabs.Panel id="qna">
+        <Tabs.Panel id="qna" className="space-y-4 p-4">
           <ClubQnaTab clubId={clubId} />
         </Tabs.Panel>
       </Tabs>

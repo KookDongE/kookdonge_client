@@ -131,26 +131,10 @@ function ClubApplyContent() {
 
       <div className="min-h-0 flex-1 overflow-y-auto">
       <div className="space-y-6 p-4 pb-32">
-        {/* 동아리 이름 */}
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-            동아리 이름 <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="동아리 이름을 입력해주세요"
-            className="w-full rounded-xl border border-gray-200 bg-white p-4 text-sm font-normal text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-0 focus:border-gray-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-400 dark:focus:border-zinc-600"
-          />
-        </div>
-
-        {/* 동아리유형 · 과 · 분야 */}
+        {/* 동아리유형 · 과 · 분야 (맨 위) */}
         <div className="flex flex-wrap items-end gap-4">
           <div className="min-w-0 flex-1">
-            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-              동아리유형 <span className="text-red-500">*</span>
-            </label>
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300" />
             <Select
               placeholder="동아리유형 선택"
               value={clubType || undefined}
@@ -184,9 +168,7 @@ function ClubApplyContent() {
           </div>
           {(clubType === 'DEPARTMENTAL' || clubType === 'ACADEMIC_SOCIETY' || clubType === 'CLUB') && (
             <div className="min-w-0 flex-1">
-              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-                과 <span className="text-red-500">*</span>
-              </label>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300" />
               <Select
                 placeholder="과 선택"
                 value={college || undefined}
@@ -217,9 +199,7 @@ function ClubApplyContent() {
             </div>
           )}
           <div className="min-w-0 flex-1">
-            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-              분야 <span className="text-red-500">*</span>
-            </label>
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300" />
             <Select
               placeholder="분야 선택"
               value={category || undefined}
@@ -250,11 +230,21 @@ function ClubApplyContent() {
           </div>
         </div>
 
+        {/* 동아리 이름 */}
+        <div>
+          <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300" />
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="동아리 이름을 입력해주세요"
+            className="w-full rounded-xl border border-gray-200 bg-white p-4 text-sm font-normal text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-0 focus:border-gray-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-400 dark:focus:border-zinc-600"
+          />
+        </div>
+
         {/* 신청 사유 */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-            신청 사유 <span className="text-red-500">*</span>
-          </label>
+          <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300" />
           <textarea
             placeholder="신청 사유를 입력해주세요"
             value={applicationReason}
