@@ -238,7 +238,7 @@ function ClubApplyContent() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="동아리 이름을 입력해주세요"
-            className="w-full rounded-xl border border-gray-200 bg-white p-4 text-sm font-normal text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-0 focus:border-gray-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-400 dark:focus:border-zinc-600"
+            className="w-full rounded-xl border border-gray-200 bg-white p-4 text-sm font-normal text-gray-900 placeholder-gray-900 focus:outline-none focus:ring-0 focus:border-gray-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-100 dark:focus:border-zinc-600"
           />
         </div>
 
@@ -250,7 +250,7 @@ function ClubApplyContent() {
             value={applicationReason}
             onChange={(e) => setApplicationReason(e.target.value)}
             rows={10}
-            className="w-full min-h-[200px] resize-none rounded-xl border border-gray-200 bg-white p-4 text-sm font-normal text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-0 focus:border-gray-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-400 dark:focus:border-zinc-600"
+            className="w-full min-h-[200px] resize-none rounded-xl border border-gray-200 bg-white p-4 text-sm font-normal text-gray-900 placeholder-gray-900 focus:outline-none focus:ring-0 focus:border-gray-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-100 dark:focus:border-zinc-600"
           />
         </div>
       </div>

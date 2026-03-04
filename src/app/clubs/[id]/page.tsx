@@ -605,7 +605,7 @@ function ClubQnaTab({
   const handleSubmit = () => {
     if (!questionText.trim() || !profile) return;
     createQuestion.mutate(
-      { question: questionText.trim(), userName: profile.email },
+      { question: questionText.trim() },
       {
         onSuccess: () => {
           setQuestionText('');
