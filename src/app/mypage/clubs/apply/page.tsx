@@ -101,7 +101,7 @@ function ClubApplyContent() {
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white dark:bg-zinc-900">
       {/* 헤더 */}
-      <div className="shrink-0 bg-white dark:bg-zinc-800">
+      <div className="shrink-0 bg-white dark:bg-zinc-900">
         <div className="flex h-16 items-center justify-between px-4">
           <button
             type="button"

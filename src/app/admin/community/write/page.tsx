@@ -270,7 +270,7 @@ export default function CommunityWritePage() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="제목을 입력하세요"
-            className="w-full rounded-xl border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+            className="w-full rounded-lg border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
             aria-label="제목"
           />
         </div>
@@ -278,12 +278,12 @@ export default function CommunityWritePage() {
         {/* 내용: 남는 세로 공간 전부 사용, 아래 사진 영역과 겹치지 않음 */}
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
           <label className="mb-2 shrink-0 block text-sm font-medium text-zinc-700 dark:text-zinc-300" />
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl [&_textarea]:min-h-0 [&_textarea]:h-full">
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg [&_textarea]:min-h-0 [&_textarea]:h-full">
             <TextArea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="내용을 입력하세요"
-              className="size-full min-h-0 flex-1 resize-none rounded-xl border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+              className="size-full min-h-0 flex-1 resize-none rounded-lg border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
               aria-label="내용"
             />
           </div>

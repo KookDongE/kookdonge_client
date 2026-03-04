@@ -1929,11 +1929,19 @@ function ClubQnaTab({
                 className="rounded-lg border border-[#e4e4e7] p-4 dark:border-zinc-600"
               >
                 <div className="flex items-start gap-3">
-                  <span
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
-                    aria-hidden
-                  >
-                    Q
+                  <span className="relative shrink-0">
+                    {!qna.answer && (
+                      <span
+                        className="absolute -left-0.5 -top-0.5 h-2 w-2 rounded-full bg-red-500"
+                        aria-hidden
+                      />
+                    )}
+                    <span
+                      className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
+                      aria-hidden
+                    >
+                      Q
+                    </span>
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
