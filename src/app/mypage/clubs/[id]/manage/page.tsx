@@ -1803,7 +1803,7 @@ function ClubFeedTab({ clubId }: { clubId: number }) {
             >
               <button
                 type="button"
-                onClick={() => router.push(`/clubs/${clubId}/feed`)}
+                onClick={() => router.push(`/clubs/${clubId}/feed?feedId=${feed.feedId}`)}
                 className="absolute inset-0"
               >
                 {cover ? (
@@ -2039,9 +2039,16 @@ function ClubQnaTab({
                     >
                       A
                     </span>
-                    <p className="flex-1 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
-                      {qna.answer}
-                    </p>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
+                        {qna.answer}
+                      </p>
+                      {qna.answeredAt && (
+                        <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                          {formatQnaDateTime(qna.answeredAt)}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

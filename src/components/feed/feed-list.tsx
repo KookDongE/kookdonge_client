@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+
 import { FeedItemSkeleton } from '@/components/common/skeletons';
 
 import { FeedItem } from './feed-item';
@@ -23,6 +25,8 @@ type FeedListProps = {
   isManager?: boolean;
   /** ... 메뉴(수정/삭제) 노출 여부. 피드 그리드에서는 false */
   showManagerMenu?: boolean;
+  /** 클릭한 피드로 스크롤할 feedId (쿼리 등으로 전달) */
+  scrollToFeedId?: number;
   onEdit?: (feedId: number) => void;
   onDelete?: (feedId: number) => void;
   isDeleting?: boolean;
@@ -34,10 +38,18 @@ export function FeedList({
   clubId,
   isManager,
   showManagerMenu = true,
+  scrollToFeedId,
   onEdit,
   onDelete,
   isDeleting,
 }: FeedListProps) {
+  useEffect(() => {
+    if (scrollToFeedId == null || feeds.length === 0) return;
+    const el = document.getElementById(`feed-${scrollToFeedId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [scrollToFeedId, feeds.length]);
   if (isLoading) {
     return (
       <div className="mx-auto w-full max-w-md space-y-6 px-2">

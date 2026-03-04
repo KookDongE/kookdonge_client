@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, use, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { FeedItemSkeleton } from '@/components/common/skeletons';
 import { useMyProfile } from '@/features/auth/hooks';
@@ -16,6 +16,10 @@ type PageProps = {
 
 function FeedPageContent({ clubId }: { clubId: number }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const scrollToFeedId = searchParams.get('feedId');
+  const initialScrollToFeedId =
+    scrollToFeedId != null && scrollToFeedId !== '' ? parseInt(scrollToFeedId, 10) : undefined;
   const { data: profile } = useMyProfile();
   const { data: club, isLoading: clubLoading, isError: clubError } = useClubDetail(clubId);
   const { data, isLoading: feedsLoading } = useClubFeeds(clubId);
@@ -101,6 +105,7 @@ function FeedPageContent({ clubId }: { clubId: number }) {
           clubId={clubId}
           isManager={isManager}
           showManagerMenu
+          scrollToFeedId={Number.isInteger(initialScrollToFeedId) ? initialScrollToFeedId : undefined}
           onEdit={(feedId) => router.push(`/mypage/clubs/${clubId}/manage/feed/${feedId}/edit`)}
           onDelete={(feedId) => deleteFeed.mutate(feedId)}
           isDeleting={deleteFeed.isPending}

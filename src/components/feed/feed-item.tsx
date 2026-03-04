@@ -99,7 +99,10 @@ export function FeedItem({
   }, [goNext, goPrev]);
 
   return (
-    <article className="mb-8 border-b border-zinc-200 bg-white pb-6 dark:border-zinc-800 dark:bg-zinc-900">
+    <article
+      id={`feed-${feedId}`}
+      className="mb-8 border-b border-zinc-200 bg-white pb-6 dark:border-zinc-800 dark:bg-zinc-900"
+    >
       {/* 헤더 영역: 프로필 사진 + (이름 + 작성 시간 세로) + 더보기 메뉴 */}
       <div className="flex items-center justify-between gap-3 px-4 py-3">
         <div className="flex min-w-0 items-center gap-3">
