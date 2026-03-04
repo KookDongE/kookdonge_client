@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 import type {
   ClubCategory,
-  ClubInWaitingListDto,
+  ClubInInterestListDto,
   ClubType,
   College,
   RecruitmentStatus,
@@ -65,12 +65,12 @@ const STATUS_CONFIG: Record<RecruitmentStatus, { label: string; className: strin
 };
 
 type InterestedClubCardProps = {
-  subscription: ClubInWaitingListDto;
+  subscription: ClubInInterestListDto;
   className?: string;
 };
 
 /**
- * 관심동아리(구독 목록) 카드. 구독 API에는 동아리종류만 있으므로
+ * 관심동아리 카드. 관심 목록 API에는 동아리종류만 있으므로
  * 동아리 상세 API로 모집상태·학과·분야를 조회해 태그를 모두 표시.
  */
 export function InterestedClubCard({ subscription, className = '' }: InterestedClubCardProps) {

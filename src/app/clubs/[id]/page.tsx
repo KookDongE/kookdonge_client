@@ -15,6 +15,7 @@ import { useMyProfile } from '@/features/auth/hooks';
 import { useClubDetail, useLikeClub, useUnlikeClub } from '@/features/club/hooks';
 import { useNotification } from '@/features/device/use-notification';
 import { useClubFeeds } from '@/features/feed/hooks';
+import { useAddInterest, useMyInterests, useRemoveInterest } from '@/features/interest/hooks';
 import { useCreateQuestion, useDeleteQuestion, useQuestions } from '@/features/question/hooks';
 import {
   useAddToWaitingList,
@@ -213,12 +214,15 @@ function ClubHeader({
   const { data: club, isLoading } = useClubDetail(clubId);
   const likeClub = useLikeClub();
   const unlikeClub = useUnlikeClub();
+  const { data: interests } = useMyInterests();
+  const addInterest = useAddInterest();
+  const removeInterest = useRemoveInterest();
   const { data: subscriptions } = useMyWaitingList();
   const addNotification = useAddToWaitingList();
   const removeNotification = useRemoveFromWaitingList();
 
+  const isInterestedByMe = (interests ?? []).some((s) => s.clubId === clubId);
   const isNotificationOn = (subscriptions ?? []).some((s) => s.clubId === clubId);
-  const isInterestedByMe = isNotificationOn;
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const messageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -272,14 +276,13 @@ function ClubHeader({
   };
 
   const handleInterestedToggle = () => {
-    if (addNotification.isPending || removeNotification.isPending) return;
+    if (addInterest.isPending || removeInterest.isPending) return;
     clearActionMessage();
     if (isInterestedByMe) {
-      removeNotification.mutate(clubId);
+      removeInterest.mutate(clubId);
       showActionMessage('관심 목록에서 해제했어요.');
     } else {
-      addNotification.mutate(clubId);
-      onNotificationTurnOnRequest?.(clubId);
+      addInterest.mutate(clubId);
       showActionMessage('관심 목록에 추가했어요.');
     }
   };
@@ -337,6 +340,7 @@ function ClubHeader({
             <button
               type="button"
               onClick={handleInterestedToggle}
+              disabled={addInterest.isPending || removeInterest.isPending}
               className={`rounded-lg p-1.5 transition-colors active:scale-95 ${
                 isInterestedByMe
                   ? 'bg-amber-100 dark:bg-amber-500/20'

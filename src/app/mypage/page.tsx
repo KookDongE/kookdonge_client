@@ -9,8 +9,8 @@ import { Chip } from '@heroui/react';
 import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
 import { useManagedClubs, useMyApplications } from '@/features/club/hooks';
+import { useMyInterests } from '@/features/interest/hooks';
 import { useMyQuestions, usePendingQuestions } from '@/features/question/hooks';
-import { useMyWaitingList } from '@/features/waiting-list/hooks';
 import { InterestedClubCard } from '@/components/club/interested-club-card';
 import { DefaultClubImage } from '@/components/common/default-club-image';
 import { ListCardSkeleton, ProfileSkeleton } from '@/components/common/skeletons';
@@ -400,8 +400,8 @@ function QnAListSection() {
 }
 
 function InterestedClubsSection() {
-  const { data: subscriptions, isLoading } = useMyWaitingList();
-  const list = subscriptions ?? [];
+  const { data: interests, isLoading } = useMyInterests();
+  const list = interests ?? [];
 
   return (
     <div className="px-4 py-5">

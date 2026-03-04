@@ -18,6 +18,7 @@ import {
   useUpdateRecruitmentInfo,
 } from '@/features/club/hooks';
 import { useClubFeeds, useUploadFeedFiles } from '@/features/feed/hooks';
+import { useAddInterest, useMyInterests, useRemoveInterest } from '@/features/interest/hooks';
 import {
   useCreateAnswer,
   useDeleteQuestion,
@@ -200,12 +201,15 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   const { data: club, isLoading, isError: clubError } = useClubDetail(clubId);
   const updateClub = useUpdateClubDetail();
   const updateRecruitmentInfo = useUpdateRecruitmentInfo();
+  const { data: interests } = useMyInterests();
+  const addInterest = useAddInterest();
+  const removeInterest = useRemoveInterest();
   const { data: subscriptions } = useMyWaitingList();
   const addNotification = useAddToWaitingList();
   const removeNotification = useRemoveFromWaitingList();
 
+  const isInterestedByMe = (interests ?? []).some((s) => s.clubId === clubId);
   const isNotificationOn = (subscriptions ?? []).some((s) => s.clubId === clubId);
-  const isInterestedByMe = isNotificationOn;
 
   // 없는 동아리 또는 잘못된 id → 홈으로
   useEffect(() => {
@@ -219,11 +223,11 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   }, [clubId, clubError, isLoading, club, router]);
 
   const handleInterestedToggle = () => {
-    if (addNotification.isPending || removeNotification.isPending) return;
+    if (addInterest.isPending || removeInterest.isPending) return;
     if (isInterestedByMe) {
-      removeNotification.mutate(clubId);
+      removeInterest.mutate(clubId);
     } else {
-      addNotification.mutate(clubId);
+      addInterest.mutate(clubId);
     }
   };
 
@@ -515,6 +519,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
                 <button
                   type="button"
                   onClick={handleInterestedToggle}
+                  disabled={addInterest.isPending || removeInterest.isPending}
                   className={`rounded-lg p-1.5 transition-colors active:scale-95 ${
                     isInterestedByMe
                       ? 'bg-amber-100 dark:bg-amber-500/20'

@@ -2,13 +2,13 @@
 
 import { Suspense } from 'react';
 
-import { useMyWaitingList } from '@/features/waiting-list/hooks';
+import { useMyInterests } from '@/features/interest/hooks';
 import { InterestedClubCard } from '@/components/club/interested-club-card';
 import { ClubCardSkeleton } from '@/components/common/club-card';
 
 function InterestedClubsContent() {
-  const { data: subscriptions, isLoading } = useMyWaitingList();
-  const list = subscriptions ?? [];
+  const { data: interests, isLoading } = useMyInterests();
+  const list = interests ?? [];
 
   return (
     <div className="pb-6">

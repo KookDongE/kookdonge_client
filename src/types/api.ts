@@ -229,6 +229,14 @@ export type ClubInWaitingListDto = {
   createdAt?: string;
 };
 
+/** 내 관심 동아리 목록 (GET /api/users/me/interests) */
+export type ClubInInterestListDto = {
+  clubId: number;
+  clubName: string;
+  clubProfileImageUrl: string;
+  clubType: ClubType;
+};
+
 export type ClubFeedRes = {
   feedId: number;
   content: string;
