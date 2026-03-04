@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 
 import { Button } from '@heroui/react';
 
+import { usePullToRefreshActive } from '@/components/common/pull-to-refresh';
+
 const WRITE_HREF = '/admin/community/write';
 
 const emptySubscribe = () => () => {};
@@ -12,13 +14,14 @@ const emptySubscribe = () => () => {};
 /** 앱 뷰 안에서만 보이도록 body 포탈 없이 인라인 렌더 (app-shell의 max-w-md overflow-hidden에 의해 웹에서 앱 열 밖은 잘림) */
 export function CommunityWriteFloatingButton() {
   const router = useRouter();
+  const isPullActive = usePullToRefreshActive();
   const isClient = useSyncExternalStore(
     emptySubscribe,
     () => true,
     () => false
   );
 
-  if (!isClient) return null;
+  if (!isClient || isPullActive) return null;
 
   return (
     <div

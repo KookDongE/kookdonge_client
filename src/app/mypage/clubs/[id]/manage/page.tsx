@@ -31,6 +31,7 @@ import {
   useRemoveFromWaitingList,
 } from '@/features/waiting-list/hooks';
 import { DefaultClubImage } from '@/components/common/default-club-image';
+import { usePullToRefreshActive } from '@/components/common/pull-to-refresh';
 import {
   FeedItemSkeleton,
   FormPageSkeleton,
@@ -194,6 +195,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   const router = useRouter();
   const pathname = usePathname();
   const [tab, setTab] = useQueryState('tab', parseAsString.withDefault('info'));
+  const isPullActive = usePullToRefreshActive();
   const [highlightQuestionId, setHighlightQuestionId] = useQueryState(
     'questionId',
     parseAsString.withDefault('')
@@ -725,8 +727,8 @@ function ClubManageContent({ clubId }: { clubId: number }) {
         </Tabs>
       </div>
 
-      {/* 피드 탭에서만 노출: 피드 추가 플로팅 버튼 (지원하기·글쓰기와 동일 UI) */}
-      {tab === 'feed' && (
+      {/* 피드 탭에서만 노출: 피드 추가 플로팅 버튼 (지원하기·글쓰기와 동일 UI). 풀투리프레시 중에는 숨김 */}
+      {tab === 'feed' && !isPullActive && (
         <div
           className="fixed right-4 bottom-[calc(4rem+2.5rem+env(safe-area-inset-bottom,0px))] z-[100] rounded-full bg-white/95 backdrop-blur-sm dark:bg-zinc-900/95"
           aria-hidden

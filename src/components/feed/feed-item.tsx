@@ -100,7 +100,7 @@ export function FeedItem({
 
   return (
     <article className="mb-8 border-b border-zinc-200 bg-white pb-6 dark:border-zinc-800 dark:bg-zinc-900">
-      {/* 헤더 영역: 프로필 사진 + 이름 + 작성 시간 */}
+      {/* 헤더 영역: 프로필 사진 + (이름 + 작성 시간 세로) + 더보기 메뉴 */}
       <div className="flex items-center justify-between gap-3 px-4 py-3">
         <div className="flex min-w-0 items-center gap-3">
           <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700">
@@ -117,9 +117,14 @@ export function FeedItem({
               <DefaultClubImage className="rounded-full object-cover" sizes="40px" />
             )}
           </div>
-          <span className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-            {authorName}
-          </span>
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <span className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+              {authorName}
+            </span>
+            <span className="text-xs text-zinc-400 dark:text-zinc-500">
+              {formatTimeAgo(createdAt)}
+            </span>
+          </div>
         </div>
         <div className="flex shrink-0 items-center gap-1">
           {showManagerMenu && isManager && clubId != null && (
@@ -180,9 +185,6 @@ export function FeedItem({
               )}
             </div>
           )}
-          <span className="text-xs text-zinc-400 dark:text-zinc-500">
-            {formatTimeAgo(createdAt)}
-          </span>
         </div>
       </div>
 

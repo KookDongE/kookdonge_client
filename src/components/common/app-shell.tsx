@@ -19,7 +19,7 @@ function isHeaderHidden(pathname: string): boolean {
   return false;
 }
 
-/** 풀투리프레시 비활성화 경로 (피드 상세, 피드 생성/수정, 버그 신고, 동아리 신청, 설정, 알림설정, 커뮤니티 메인·글쓰기·게시판 — fixed 글쓰기 버튼이 transform 조상 안에서 당김에 따라 움직이는 것 방지) */
+/** 풀투리프레시 비활성화 경로 (피드 상세, 피드 생성/수정, 버그 신고, 동아리 신청, 설정, 알림설정, 커뮤니티 메인·글쓰기만 — 인기/홍보/자유 게시판은 풀투리프레시 가능) */
 const PULL_TO_REFRESH_DISABLED_PATHS = [
   /^\/clubs\/[^/]+\/feed$/, // 피드 상세
   /^\/mypage\/clubs\/[^/]+\/manage\/feed\/new$/, // 피드 생성
@@ -29,7 +29,7 @@ const PULL_TO_REFRESH_DISABLED_PATHS = [
   /^\/mypage\/settings(\/|$)/, // 설정 (메인·이름변경·버그신고 등 하위 포함)
   /^\/mypage\/notification-settings(\/|$)/, // 알림설정
   /^\/admin\/community\/write$/, // 글쓰기 페이지
-  /^\/admin\/community(\/(promo|popular|free))?\/?$/, // 커뮤니티 메인 + 인기/홍보/자유 게시판 (글쓰기 플로팅 버튼 노출 구간)
+  /^\/admin\/community\/?$/, // 커뮤니티 메인만 (인기/홍보/자유 게시판은 풀투리프레시 가능)
 ];
 
 /** 메인 스크롤 비활성화 경로 (동아리 신청, 피드 추가/수정, 설정 메인만, 알림설정, 관리자 메인만, 커뮤니티 메인·글쓰기 — 하위 페이지는 스크롤 가능) */

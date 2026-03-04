@@ -1,11 +1,17 @@
 'use client';
 
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useLayoutEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 
 import { clubKeys } from '@/features/club/hooks';
+
+/** 풀투리프레시 당기는 중·새로고침 중일 때 플로팅 버튼 등을 숨기기 위한 context */
+export const PullToRefreshActiveContext = createContext(false);
+export function usePullToRefreshActive(): boolean {
+  return useContext(PullToRefreshActiveContext);
+}
 
 /** 이 거리(px) 이상 드래그해야 당김 시작 */
 const DRAG_START_THRESHOLD = 28;
@@ -110,8 +116,10 @@ export function PullToRefresh({
   }, [fullScreen, disabled, isRefreshing, y, triggerRefresh]);
 
   const canPull = !fullScreen && !disabled;
+  const isPullActive = pullDistance > 0 || isRefreshing;
 
   return (
+    <PullToRefreshActiveContext.Provider value={isPullActive}>
     <div
       ref={scrollRef}
       data-scroll-container
@@ -146,5 +154,6 @@ export function PullToRefresh({
         {children}
       </motion.div>
     </div>
+    </PullToRefreshActiveContext.Provider>
   );
 }
