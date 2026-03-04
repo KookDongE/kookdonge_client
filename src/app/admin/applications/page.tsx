@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -11,7 +10,6 @@ import { parseAsString, useQueryState } from 'nuqs';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
 import { useAdminApplications } from '@/features/club/hooks';
-import { DefaultClubImage } from '@/components/common/default-club-image';
 import { ListCardSkeleton, PageCenteredSkeleton } from '@/components/common/skeletons';
 
 const STATUS_CHIP: Record<string, { label: string; color: 'warning' | 'success' | 'danger' }> = {
@@ -63,39 +61,19 @@ function ApplicationList({ statusParam }: { statusParam?: 'PENDING' | 'APPROVED'
             <Link
               key={app.id}
               href={`/admin/applications/${app.id}`}
-              className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm transition-all hover:shadow-md dark:bg-zinc-800"
+              className="flex items-center justify-between gap-2 rounded-xl bg-white px-3 py-2.5 shadow-sm transition-all hover:shadow-md dark:bg-zinc-800"
             >
-              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
-                {app.image ? (
-                  <Image
-                    src={app.image}
-                    alt={app.name}
-                    fill
-                    className="object-cover"
-                    sizes="56px"
-                  />
-                ) : (
-                  <DefaultClubImage className="object-cover" sizes="56px" />
-                )}
-              </div>
               <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="min-w-0 flex-1">
-                    <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
-                      {app.name}
-                    </h4>
-                    <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
-                      신청자: {app.applicantName || '(이름 없음)'} · {app.applicantEmail}
-                    </div>
-                    <div className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
-                      신청일: {new Date(app.createdAt).toLocaleString('ko-KR')}
-                    </div>
-                  </div>
-                  <Chip size="sm" color={chip.color} variant="soft" className="shrink-0">
-                    {chip.label}
-                  </Chip>
+                <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
+                  {app.name}
+                </h4>
+                <div className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
+                  신청일: {new Date(app.createdAt).toLocaleString('ko-KR')}
                 </div>
               </div>
+              <Chip size="sm" color={chip.color} variant="soft" className="shrink-0">
+                {chip.label}
+              </Chip>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
