@@ -472,7 +472,6 @@ function ClubListSection({
                       value={deleteConfirmName}
                       onChange={(e) => setDeleteConfirmName(e.target.value)}
                       className="mt-6 w-full min-w-0 !max-w-full"
-                      fullWidth
                       autoComplete="off"
                       aria-label="동아리 이름 확인"
                     />
