@@ -292,12 +292,19 @@ function ClubListSection({
   const [deleteConfirmName, setDeleteConfirmName] = useState('');
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
+  const validRecruitmentStatus: RecruitmentStatus | undefined =
+    status &&
+    status !== 'ALL' &&
+    (status === 'RECRUITING' || status === 'SCHEDULED' || status === 'CLOSED')
+      ? (status as RecruitmentStatus)
+      : undefined;
+
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useInfiniteClubList({
     category: category && category !== 'ALL' ? (category as ClubCategory) : undefined,
     type: clubType && clubType !== 'ALL' ? (clubType as ClubType) : undefined,
     college:
       clubType !== 'CENTRAL' && college && college !== 'ALL' ? (college as College) : undefined,
-    recruitmentStatus: status && status !== 'ALL' ? (status as RecruitmentStatus) : undefined,
+    recruitmentStatus: validRecruitmentStatus,
     query: (query && query.trim()) || undefined,
     sort: normalizeSort(sort ?? null),
     size: 20,
