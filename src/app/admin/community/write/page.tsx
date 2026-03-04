@@ -169,7 +169,7 @@ export default function CommunityWritePage() {
   const canSubmit = Boolean(title.trim() && content.trim()) && !isSubmitting;
 
   return (
-    <div className="flex min-h-[calc(100dvh-4rem)] flex-col overflow-hidden bg-white dark:bg-zinc-900">
+    <div className="flex h-[calc(100dvh-4rem)] min-h-0 flex-col overflow-hidden bg-white dark:bg-zinc-900">
       {/* 헤더: 동아리 신청/피드 추가와 동일 (취소 | 제목 | 작성), 외곽선 없음 */}
       <div className="shrink-0 bg-[var(--card)] text-[var(--foreground)]">
         <div className="flex h-16 items-center justify-between px-4">
@@ -193,7 +193,7 @@ export default function CommunityWritePage() {
       </div>
 
       <form
-        className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden px-4 py-4"
+        className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden px-4 py-4 pb-[calc(4rem+env(safe-area-inset-bottom,0px))]"
         onSubmit={handleSubmit}
       >
         {/* 분류 / 계정 선택 2열 */}
@@ -278,24 +278,25 @@ export default function CommunityWritePage() {
           />
         </div>
 
-        {/* 내용: 남는 세로 공간 전부 사용 */}
-        <div className="flex min-h-0 flex-1 flex-col">
+        {/* 내용: 남는 세로 공간 전부 사용, 아래 사진 영역과 겹치지 않음 */}
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
           <label className="mb-2 shrink-0 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
             내용
           </label>
-          <div className="min-h-0 flex-1 overflow-hidden rounded-xl [&_textarea]:h-full [&_textarea]:min-h-0">
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl [&_textarea]:min-h-0 [&_textarea]:h-full">
             <TextArea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="내용을 입력하세요"
-              className="h-full w-full resize-none rounded-xl border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+              className="size-full min-h-0 flex-1 resize-none rounded-xl border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
               aria-label="내용"
+              classNames={{ base: 'min-h-0 flex-1 flex flex-col', input: 'min-h-0 flex-1' }}
             />
           </div>
         </div>
 
-        {/* 사진: 동아리 피드와 동일하게 가로 스크롤 + 드래그 순서 변경 */}
-        <div className="shrink-0 mb-4">
+        {/* 사진: 동아리 피드와 동일하게 가로 스크롤 + 드래그 순서 변경, 네비와 겹치지 않도록 form에 pb 적용됨 */}
+        <div className="shrink-0 mb-0">
           <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
             사진
           </label>
