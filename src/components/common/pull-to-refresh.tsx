@@ -5,8 +5,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 
-import { clubKeys } from '@/features/club/hooks';
-
 /** 풀투리프레시 당기는 중·새로고침 중일 때 플로팅 버튼 등을 숨기기 위한 context */
 export const PullToRefreshActiveContext = createContext(false);
 export function usePullToRefreshActive(): boolean {
@@ -69,10 +67,8 @@ export function PullToRefresh({
     setIsRefreshing(true);
     if (pathname) router.replace(pathname, { scroll: false });
     router.refresh();
-    if (pathname === '/home') {
-      queryClient.invalidateQueries({ queryKey: clubKeys.lists() });
-      queryClient.refetchQueries({ queryKey: clubKeys.lists() });
-    }
+    // 풀 리프레시 시 모든 React Query 캐시 무효화 → 현재 페이지 포함 활성 쿼리가 재요청되어 데이터 갱신
+    queryClient.invalidateQueries();
     setTimeout(() => setIsRefreshing(false), 800);
   }, [pathname, router, queryClient]);
 

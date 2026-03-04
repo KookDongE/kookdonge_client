@@ -457,7 +457,7 @@ function ClubListSection({
               </p>
               {deleteModalClub && (
                 <>
-                  <p className="mb-2 text-sm text-gray-600 dark:text-zinc-400">
+                  <p className="mb-6 text-sm text-gray-600 dark:text-zinc-400">
                     삭제하려면 동아리 이름{' '}
                     <strong className="text-gray-900 dark:text-zinc-100">
                       &quot;{deleteModalClub.name}&quot;
@@ -469,7 +469,7 @@ function ClubListSection({
                     placeholder="동아리 이름 입력"
                     value={deleteConfirmName}
                     onChange={(e) => setDeleteConfirmName(e.target.value)}
-                    className="mb-6"
+                    className="mb-6 w-full"
                     autoComplete="off"
                     aria-label="동아리 이름 확인"
                   />

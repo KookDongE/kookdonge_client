@@ -4,15 +4,16 @@ import { Suspense, use, useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { Button, Tabs, TextArea } from '@heroui/react';
+import { Button, Dropdown, Input, Tabs, TextArea } from '@heroui/react';
 import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { parseAsString, useQueryState } from 'nuqs';
 import { createPortal } from 'react-dom';
 
 import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api';
 import { formatQnaDateTime, parseApiIsoToDate } from '@/lib/utils';
+import { isClubManager, isSystemAdmin } from '@/features/auth/permissions';
 import { useMyProfile } from '@/features/auth/hooks';
-import { useClubDetail, useLikeClub, useUnlikeClub } from '@/features/club/hooks';
+import { useClubDetail, useDeleteClub, useLikeClub, useUnlikeClub } from '@/features/club/hooks';
 import { useNotification } from '@/features/device/use-notification';
 import { useClubFeeds } from '@/features/feed/hooks';
 import { useAddInterest, useMyInterests, useRemoveInterest } from '@/features/interest/hooks';
@@ -137,6 +138,27 @@ function EyeIcon({ className }: { className?: string }) {
   );
 }
 
+/** 더보기 메뉴용 세로 점 세 개 아이콘 */
+function MoreVerticalIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <circle cx="12" cy="12" r="1.5" />
+      <circle cx="12" cy="5" r="1.5" />
+      <circle cx="12" cy="19" r="1.5" />
+    </svg>
+  );
+}
+
 /** 모집기간 등 날짜+시간 표시 (한국 시간) */
 function formatDateTime(dateString: string | null | undefined): string {
   const date = parseApiIsoToDate(dateString);
@@ -211,7 +233,14 @@ function ClubHeader({
   clubId: number;
   onNotificationTurnOnRequest?: (clubId: number) => void;
 }) {
+  const router = useRouter();
+  const { data: profile } = useMyProfile();
   const { data: club, isLoading } = useClubDetail(clubId);
+  const deleteClub = useDeleteClub();
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteConfirmName, setDeleteConfirmName] = useState('');
+  const showManageButton =
+    isSystemAdmin(profile) || isClubManager(profile, clubId);
   const likeClub = useLikeClub();
   const unlikeClub = useUnlikeClub();
   const { data: interests } = useMyInterests();
@@ -300,6 +329,24 @@ function ClubHeader({
     }
   };
 
+  const handleDeleteClick = () => {
+    setDeleteModalOpen(true);
+    setDeleteConfirmName('');
+  };
+
+  const handleDeleteConfirm = () => {
+    deleteClub.mutate(clubId, {
+      onSuccess: () => {
+        setDeleteModalOpen(false);
+        setDeleteConfirmName('');
+        router.replace('/home');
+      },
+    });
+  };
+
+  const isDeleteNameMatch =
+    club != null && deleteConfirmName.trim() === (club.name ?? '').trim();
+
   return (
     <div className="bg-white px-4 py-6 dark:bg-zinc-900">
       <div className="flex gap-4">
@@ -321,7 +368,7 @@ function ClubHeader({
             <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
               {TYPE_LABEL[club.type]}
             </span>
-            {club.type === 'DEPARTMENTAL' && club.college && (
+            {club.college && COLLEGE_LABEL[club.college] != null && (
               <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
                 {COLLEGE_LABEL[club.college]}
               </span>
@@ -330,8 +377,41 @@ function ClubHeader({
               {CATEGORY_LABEL[club.category]}
             </span>
           </div>
-          {/* 동아리 이름: 태그 바로 아래 */}
-          <h1 className="mt-1.5 text-xl font-bold text-zinc-900 dark:text-zinc-100">{club.name}</h1>
+          {/* 동아리 이름: 태그 바로 아래. admin/관리자일 때 우측에 더보기 메뉴(수정, 삭제) */}
+          <div className="mt-1.5 flex items-center gap-2">
+            <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">{club.name}</h1>
+            {showManageButton && (
+              <Dropdown>
+                <Dropdown.Trigger>
+                  <button
+                    type="button"
+                    className="shrink-0 rounded-lg p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+                    title="더보기"
+                    aria-label="동아리 관리 메뉴"
+                  >
+                    <MoreVerticalIcon className="h-4 w-4" />
+                  </button>
+                </Dropdown.Trigger>
+                <Dropdown.Popover>
+                  <Dropdown.Menu>
+                    <Dropdown.Item
+                      onPress={() => router.push(`/mypage/clubs/${clubId}/manage`)}
+                      textValue="수정"
+                    >
+                      수정
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      onPress={handleDeleteClick}
+                      textValue="삭제"
+                      className="text-red-600 dark:text-red-400"
+                    >
+                      삭제
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown.Popover>
+              </Dropdown>
+            )}
+          </div>
           <p className="mt-1 line-clamp-1 min-h-[1.5rem] text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
             {club.description ?? club.summary ?? '\u00A0'}
           </p>
@@ -415,6 +495,62 @@ function ClubHeader({
               className="mx-auto max-w-2xl rounded-lg bg-zinc-600/95 px-4 py-2.5 text-center text-sm text-white dark:bg-zinc-700/95 dark:text-zinc-100"
             >
               {actionMessage}
+            </div>
+          </div>,
+          document.body
+        )}
+      {deleteModalOpen &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+            <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-800">
+              <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-zinc-100">
+                동아리 삭제
+              </h3>
+              <p className="mb-3 text-sm text-gray-600 dark:text-zinc-400">
+                정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+              </p>
+              {club && (
+                <>
+                  <p className="mb-2 text-sm text-gray-600 dark:text-zinc-400">
+                    삭제하려면 동아리 이름{' '}
+                    <strong className="text-gray-900 dark:text-zinc-100">
+                      &quot;{club.name}&quot;
+                    </strong>
+                    을(를) 입력하세요.
+                  </p>
+                  <Input
+                    type="text"
+                    placeholder="동아리 이름 입력"
+                    value={deleteConfirmName}
+                    onChange={(e) => setDeleteConfirmName(e.target.value)}
+                    className="mb-6"
+                    autoComplete="off"
+                    aria-label="동아리 이름 확인"
+                  />
+                </>
+              )}
+              <div className="flex gap-3">
+                <Button
+                  variant="ghost"
+                  className="flex-1"
+                  onPress={() => {
+                    setDeleteModalOpen(false);
+                    setDeleteConfirmName('');
+                  }}
+                >
+                  취소
+                </Button>
+                <Button
+                  variant="primary"
+                  className="flex-1 bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
+                  onPress={handleDeleteConfirm}
+                  isPending={deleteClub.isPending}
+                  isDisabled={!isDeleteNameMatch}
+                >
+                  삭제
+                </Button>
+              </div>
             </div>
           </div>,
           document.body
