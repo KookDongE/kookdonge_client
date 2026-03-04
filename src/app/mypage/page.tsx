@@ -578,10 +578,10 @@ export default function MyPage() {
       <ProfileSection />
       <ClubApplyButton />
       <AdminSection />
+      <InterestedClubsSection />
       <MyApplicationsSection />
       <QnAListSection />
       <PendingQuestionsSection />
-      <InterestedClubsSection />
     </div>
   );
 }

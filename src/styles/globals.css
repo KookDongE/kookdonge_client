@@ -300,6 +300,8 @@ body {
 }
 [data-scroll-container] {
   overscroll-behavior: none;
+  /* 스크롤바가 콘텐츠 위에 겹쳐서 트랙(배경)이 레이아웃을 차지하지 않음 */
+  overflow-y: overlay;
 }
 .overflow-y-auto,
 .overflow-auto {
@@ -414,14 +416,17 @@ html:not(.dark) .community-detail-header.glass {
   padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
 }
 
-/* Scrollbar Styling */
+/* Scrollbar Styling — thumb만 보이고 track(배경)은 보이지 않음, 레이아웃 공간 최소화 */
 ::-webkit-scrollbar {
   width: 4px;
   height: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: transparent !important;
+  border: none;
+  box-shadow: none;
+  margin: 0;
 }
 
 /* 기본: 스크롤바 숨김(투명) — 스크롤 시에만 .scrollbar-visible로 표시 */
