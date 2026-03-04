@@ -736,7 +736,7 @@ function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: str
 
   // 네비(4rem) + safe-area + 여유 공간 위에 배치해 네비와 겹치지 않게
   const bottomOffset = 'calc(8rem + env(safe-area-inset-bottom, 0px))';
-  const buttonBottom = 'calc(4rem + 1.5rem + env(safe-area-inset-bottom, 0px))';
+  const buttonBottom = 'calc(4rem + 2.5rem + env(safe-area-inset-bottom, 0px))';
 
   // 앱 뷰 안에서만 보이도록 body 포탈 없이 인라인 렌더 (app-shell의 max-w-md overflow-hidden에 의해 웹에서 앱 열 밖은 잘림)
   return (
