@@ -29,12 +29,12 @@ const PULL_TO_REFRESH_DISABLED_PATHS = [
   /^\/mypage\/notification-settings(\/|$)/, // 알림설정
 ];
 
-/** 메인 스크롤 비활성화 경로 (동아리 신청, 설정, 알림설정, 관리자 — 컨테이너 스크롤 막고 페이지 내부만 스크롤) */
+/** 메인 스크롤 비활성화 경로 (동아리 신청, 설정, 알림설정, 관리자 메인만 — 컨테이너 스크롤 막고 페이지 내부만 스크롤) */
 const SCROLL_DISABLED_PATHS = [
   /^\/mypage\/clubs\/apply$/,
   /^\/mypage\/settings(\/|$)/,
   /^\/mypage\/notification-settings(\/|$)/,
-  /^\/admin(\/|$)/,
+  /^\/admin$/, // 관리자 메인만, 하위 경로(/admin/applications 등)는 스크롤 가능
 ];
 
 function isFullScreenPath(pathname: string): boolean {
@@ -46,8 +46,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const fullScreen = isFullScreenPath(pathname ?? '');
   const headerHidden = isHeaderHidden(pathname ?? '');
   const pullToRefreshDisabled =
-    PULL_TO_REFRESH_DISABLED_PATHS.some((re) => re.test(pathname ?? '')) ||
-    pathname === '/admin'; // 관리자 메인 페이지만 비활성, 하위(/admin/applications 등)는 풀리프래시 활성
+    PULL_TO_REFRESH_DISABLED_PATHS.some((re) => re.test(pathname ?? '')) || pathname === '/admin'; // 관리자 메인 페이지만 비활성, 하위(/admin/applications 등)는 풀리프래시 활성
   const scrollDisabled = SCROLL_DISABLED_PATHS.some((re) => re.test(pathname ?? ''));
 
   return (
@@ -58,7 +57,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <main
         className={`flex flex-col overflow-hidden ${fullScreen ? 'h-dvh min-h-0' : 'h-[calc(100dvh-4rem)]'} ${!fullScreen && !headerHidden ? 'pt-[4.25rem]' : ''}`}
       >
-        <PullToRefresh fullScreen={fullScreen} disabled={pullToRefreshDisabled} scrollDisabled={scrollDisabled}>
+        <PullToRefresh
+          fullScreen={fullScreen}
+          disabled={pullToRefreshDisabled}
+          scrollDisabled={scrollDisabled}
+        >
           {children}
         </PullToRefresh>
       </main>
