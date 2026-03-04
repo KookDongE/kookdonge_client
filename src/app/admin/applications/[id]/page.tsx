@@ -58,7 +58,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
 
   if (profileLoading || (profile && !isSystemAdmin(profile))) {
     return (
-      <div className="min-h-screen bg-[var(--background)] dark:bg-zinc-900">
+      <div className="min-h-screen bg-white dark:bg-zinc-900">
         <FormPageSkeleton />
       </div>
     );
@@ -66,7 +66,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[var(--background)] dark:bg-zinc-900">
+      <div className="min-h-screen bg-white dark:bg-zinc-900">
         <FormPageSkeleton />
       </div>
     );
@@ -74,7 +74,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
 
   if (!application) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--background)] p-4 dark:bg-zinc-900">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-white p-4 dark:bg-zinc-900">
         <p className="text-gray-500 dark:text-zinc-400">신청을 찾을 수 없습니다.</p>
         <Button className="mt-4" variant="ghost" onPress={() => router.push('/admin/applications')}>
           목록으로
@@ -126,7 +126,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
     'w-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100';
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-[var(--background)] dark:bg-zinc-900">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white dark:bg-zinc-900">
       {/* 뒤로가기 - 동아리 상세와 동일 */}
       <div className="flex shrink-0 items-center gap-2 px-4 pt-3 pb-1">
         <button
