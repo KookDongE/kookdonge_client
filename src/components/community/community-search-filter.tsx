@@ -17,7 +17,7 @@ const SearchSubmitIcon = () => (
     strokeWidth={2}
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="h-5 w-5 text-zinc-400 dark:text-zinc-500"
+    className="h-5 w-5 text-zinc-500 dark:text-zinc-400"
   >
     <path d="m22 2-7 20-4-9-9-4Z" />
     <path d="M22 2 11 13" />
@@ -51,7 +51,7 @@ export function CommunitySearchInputRow({
       className="relative"
     >
       <span
-        className="pointer-events-none absolute top-1/2 left-3 z-10 -translate-y-1/2 text-zinc-400 dark:text-zinc-500"
+        className="pointer-events-none absolute top-1/2 left-3 z-10 -translate-y-1/2 text-zinc-500 dark:text-zinc-400"
         aria-hidden
       >
         <svg

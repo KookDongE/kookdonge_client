@@ -81,7 +81,7 @@ function CommentBarPortal({
           />
           <button
             type="button"
-            className="shrink-0 rounded-full p-2 text-zinc-400 transition-opacity hover:opacity-80 dark:text-zinc-500"
+            className="shrink-0 rounded-full p-2 text-zinc-500 transition-opacity hover:opacity-80 dark:text-zinc-400"
             aria-label="댓글 등록"
           >
             <svg
