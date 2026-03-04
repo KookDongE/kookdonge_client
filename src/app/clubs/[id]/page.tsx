@@ -433,7 +433,9 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
     { label: '모집 마감', value: formatDateTime(club.recruitmentEndDate) },
     { label: '대상', value: club.targetGraduate },
     { label: '동아리장', value: club.leaderName },
-    { label: '활동 장소', value: club.location },
+    ...(club.location?.trim()
+      ? [{ label: '활동 장소' as const, value: club.location }]
+      : []),
     {
       label: '주간활동 횟수',
       value:
@@ -821,8 +823,8 @@ function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: str
   const bottomOffset = 'calc(8rem + env(safe-area-inset-bottom, 0px))';
   const buttonBottom = 'calc(4rem + 1.5rem + env(safe-area-inset-bottom, 0px))';
 
-  // 앱 뷰와 동일한 max-w-md 영역 안에만 버튼이 오도록: fixed 래퍼 + 내부 max-w-md mx-auto, 스크롤 따라다니는 y 애니메이션 유지
-  const cta = (
+  // 앱 뷰 안에서만 보이도록 body 포탈 없이 인라인 렌더 (app-shell의 max-w-md overflow-hidden에 의해 웹에서 앱 열 밖은 잘림)
+  return (
     <div
       className="pointer-events-none fixed inset-x-0 bottom-0 z-50"
       style={{ top: 'auto', height: bottomOffset }}
@@ -861,11 +863,6 @@ function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: str
       </div>
     </div>
   );
-
-  if (typeof document !== 'undefined') {
-    return createPortal(cta, document.body);
-  }
-  return cta;
 }
 
 function ClubDetailContent({ clubId }: { clubId: number }) {

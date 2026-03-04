@@ -15,6 +15,14 @@ export default function AdminPage() {
   const { data: profile, isLoading: profileLoading } = useMyProfile();
 
   useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
+
+  useEffect(() => {
     if (profileLoading) return;
     if (profile && !isSystemAdmin(profile)) {
       router.replace('/home');

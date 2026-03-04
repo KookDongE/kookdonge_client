@@ -195,6 +195,8 @@ export function useUpdateClubDetail() {
         leaderName?: string;
         location?: string;
         weeklyActiveFrequency?: number;
+        /** 주간활동 문자열(기타 입력 시). 있으면 weeklyActiveFrequency 대신 사용 */
+        weeklyActivity?: string;
         allowLeaveOfAbsence?: boolean;
         content?: string;
         contentFileUuid?: string | null;

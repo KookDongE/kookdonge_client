@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 import { useTheme } from 'next-themes';
 
@@ -15,6 +16,14 @@ export default function SettingsPage() {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const clearAuth = useAuthStore((state) => state.clearAuth);
+
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
 
   const handleLogout = async () => {
     if (!confirm('로그아웃 하시겠습니까?')) return;
@@ -90,16 +99,16 @@ export default function SettingsPage() {
           </button>
         </div>
         <Link
+          href="/mypage/settings/name"
+          className="flex min-h-[56px] w-full items-center gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 text-left text-base font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700/80"
+        >
+          내 정보 수정
+        </Link>
+        <Link
           href="/mypage/notification-settings"
           className="flex min-h-[56px] w-full items-center gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 text-left text-base font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700/80"
         >
           알림 설정
-        </Link>
-        <Link
-          href="/mypage/settings/name"
-          className="flex min-h-[56px] w-full items-center gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 text-left text-base font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700/80"
-        >
-          이름 변경
         </Link>
         <Link
           href="/mypage/settings/bug-report"

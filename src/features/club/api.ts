@@ -339,8 +339,11 @@ export const clubApi = {
     if (data.targetGraduate !== undefined)
       infoFields.targetGraduate = data.targetGraduate as string;
     if (data.location !== undefined) infoFields.clubRoomLocation = data.location as string;
-    if (data.weeklyActiveFrequency !== undefined)
+    if (data.weeklyActivity !== undefined) {
+      infoFields.weeklyActivity = data.weeklyActivity as string;
+    } else if (data.weeklyActiveFrequency !== undefined) {
       infoFields.weeklyActivity = String(data.weeklyActiveFrequency);
+    }
     if (data.allowLeaveOfAbsence !== undefined)
       infoFields.isLeaveOfAbsenceActive = data.allowLeaveOfAbsence as boolean;
     if (data.college !== undefined) infoFields.college = data.college as string;

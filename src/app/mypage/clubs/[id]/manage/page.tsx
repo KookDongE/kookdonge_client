@@ -266,7 +266,9 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   const [targetGraduate, setTargetGraduate] = useState('');
   const [leaderName, setLeaderName] = useState('');
   const [location, setLocation] = useState('');
-  const [weeklyActiveFrequency, setWeeklyActiveFrequency] = useState(1);
+  /** 1~7 = 주 N회, null = 기타(직접 입력) */
+  const [weeklyActiveFrequency, setWeeklyActiveFrequency] = useState<number | null>(1);
+  const [weeklyActivityOther, setWeeklyActivityOther] = useState('');
   const [allowLeaveOfAbsence, setAllowLeaveOfAbsence] = useState(false);
   const [content, setContent] = useState('');
   const [_description, setDescription] = useState('');
@@ -298,7 +300,15 @@ function ClubManageContent({ clubId }: { clubId: number }) {
     setTargetGraduate(club.targetGraduate || '');
     setLeaderName(club.leaderName || '');
     setLocation(club.location || '');
-    setWeeklyActiveFrequency(club.weeklyActiveFrequency ?? 1);
+    const w = club.weeklyActivity ?? (club.weeklyActiveFrequency != null ? String(club.weeklyActiveFrequency) : '');
+    const trimmed = String(w).trim();
+    if (trimmed && /^[1-7]$/.test(trimmed)) {
+      setWeeklyActiveFrequency(Number(trimmed));
+      setWeeklyActivityOther('');
+    } else {
+      setWeeklyActiveFrequency(trimmed ? null : 1);
+      setWeeklyActivityOther(trimmed && !/^[1-7]$/.test(trimmed) ? trimmed : '');
+    }
     setAllowLeaveOfAbsence(club.allowLeaveOfAbsence ?? false);
     setContent(club.content || '');
     setDescription(club.description || '');
@@ -353,6 +363,8 @@ function ClubManageContent({ clubId }: { clubId: number }) {
 
   const handleSaveBasic = async () => {
     const linkPayload = externalLinks.filter((e) => e.url.trim());
+    const weeklyActivityValue =
+      weeklyActiveFrequency != null ? String(weeklyActiveFrequency) : weeklyActivityOther.trim();
     updateClub.mutate(
       {
         clubId,
@@ -365,7 +377,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
           targetGraduate,
           leaderName,
           location,
-          weeklyActiveFrequency,
+          ...(weeklyActivityValue !== '' ? { weeklyActivity: weeklyActivityValue } : {}),
           allowLeaveOfAbsence,
           profileFileUuid: profileFileUuid ?? undefined,
           externalLink: linkPayload.length > 0 ? JSON.stringify(linkPayload) : '',
@@ -664,6 +676,8 @@ function ClubManageContent({ clubId }: { clubId: number }) {
               setLocation={setLocation}
               weeklyActiveFrequency={weeklyActiveFrequency}
               setWeeklyActiveFrequency={setWeeklyActiveFrequency}
+              weeklyActivityOther={weeklyActivityOther}
+              setWeeklyActivityOther={setWeeklyActivityOther}
               allowLeaveOfAbsence={allowLeaveOfAbsence}
               setAllowLeaveOfAbsence={setAllowLeaveOfAbsence}
               content={content}
@@ -869,6 +883,8 @@ function ClubInfoTab({
   setLocation,
   weeklyActiveFrequency,
   setWeeklyActiveFrequency,
+  weeklyActivityOther,
+  setWeeklyActivityOther,
   allowLeaveOfAbsence: _allowLeaveOfAbsence,
   setAllowLeaveOfAbsence: _setAllowLeaveOfAbsence,
   content,
@@ -930,8 +946,10 @@ function ClubInfoTab({
   setLeaderName: (value: string) => void;
   location: string;
   setLocation: (value: string) => void;
-  weeklyActiveFrequency: number;
-  setWeeklyActiveFrequency: (value: number) => void;
+  weeklyActiveFrequency: number | null;
+  setWeeklyActiveFrequency: (value: number | null) => void;
+  weeklyActivityOther: string;
+  setWeeklyActivityOther: (value: string) => void;
   allowLeaveOfAbsence: boolean;
   setAllowLeaveOfAbsence: (value: boolean) => void;
   content: string;
@@ -1261,7 +1279,10 @@ function ClubInfoTab({
                       type="button"
                       role="radio"
                       aria-checked={isSelected}
-                      onClick={() => setWeeklyActiveFrequency(n)}
+                      onClick={() => {
+                        setWeeklyActiveFrequency(n);
+                        setWeeklyActivityOther('');
+                      }}
                       className={`h-11 min-w-11 rounded-xl border px-3 text-sm font-medium transition-colors ${
                         isSelected
                           ? 'border-blue-500 bg-blue-500 text-white dark:border-lime-400 dark:bg-lime-400 dark:text-zinc-900'
@@ -1272,7 +1293,29 @@ function ClubInfoTab({
                     </button>
                   );
                 })}
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={weeklyActiveFrequency === null}
+                  onClick={() => setWeeklyActiveFrequency(null)}
+                  className={`h-11 min-w-11 rounded-xl border px-3 text-sm font-medium transition-colors ${
+                    weeklyActiveFrequency === null
+                      ? 'border-blue-500 bg-blue-500 text-white dark:border-lime-400 dark:bg-lime-400 dark:text-zinc-900'
+                      : 'border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700'
+                  }`}
+                >
+                  기타
+                </button>
               </div>
+              {weeklyActiveFrequency === null && (
+                <input
+                  type="text"
+                  value={weeklyActivityOther}
+                  onChange={(e) => setWeeklyActivityOther(e.target.value)}
+                  placeholder="예: 월 1회, 격주 등"
+                  className="mt-2 w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm text-gray-900 placeholder-zinc-400 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
+                />
+              )}
             </div>
             <div className="mt-8 flex items-center gap-2">
               <label className="text-sm font-medium text-gray-700 dark:text-zinc-300">
