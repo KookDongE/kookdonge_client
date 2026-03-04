@@ -37,7 +37,7 @@ export default function CommunityPromoPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)] pb-20">
+    <div className="min-h-screen bg-white pb-20 dark:bg-zinc-900">
       <CommunitySearchFilter
         query={query}
         onQueryChange={setQuery}
@@ -45,10 +45,9 @@ export default function CommunityPromoPage() {
         onSortChange={setSort}
         stickyHideOnScroll
         hideFilters
-        className="border-b border-zinc-200 dark:border-zinc-700"
       />
 
-      <div className="space-y-3 px-4 py-4">
+      <div className="space-y-0 px-0 py-4">
         {posts.length === 0 ? (
           <p className="py-12 text-center text-sm text-zinc-400 dark:text-zinc-500">
             게시글이 없습니다.
