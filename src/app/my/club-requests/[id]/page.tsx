@@ -32,15 +32,15 @@ const STATUS_CHIP_CLASS: Record<string, string> = {
   REJECTED: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
 };
 
-function formatDateTime24(isoString: string): string {
+/** 헤더용: yy.MM.dd HH:mm (초 생략) */
+function formatDateTimeNoSeconds(isoString: string): string {
   const d = new Date(isoString);
   const yy = d.getFullYear().toString().slice(-2);
   const MM = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
   const HH = String(d.getHours()).padStart(2, '0');
   const mm = String(d.getMinutes()).padStart(2, '0');
-  const ss = String(d.getSeconds()).padStart(2, '0');
-  return `${yy}.${MM}.${dd} ${HH}:${mm}:${ss}`;
+  return `${yy}.${MM}.${dd} ${HH}:${mm}`;
 }
 
 export default function MyApplicationDetailPage() {
@@ -97,9 +97,10 @@ export default function MyApplicationDetailPage() {
     );
   }
 
-  const labelClass = 'mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300';
+  const labelClass =
+    'mb-2 block text-xs font-normal text-gray-500 dark:text-zinc-400';
   const valueBoxClass =
-    'w-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100';
+    'w-full rounded-lg border border-gray-200 bg-white p-4 text-sm text-gray-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100';
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white dark:bg-zinc-900">
@@ -114,21 +115,26 @@ export default function MyApplicationDetailPage() {
             <span className="inline-block">←</span>
             <span>뒤로가기</span>
           </button>
-          <span
-            className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_CHIP_CLASS[application.status] ?? 'bg-zinc-100 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300'}`}
-          >
-            {application.status === 'PENDING'
-              ? '승인 대기'
-              : application.status === 'APPROVED'
-                ? '승인됨'
-                : '거절됨'}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-500 dark:text-zinc-400">
+              {formatDateTimeNoSeconds(application.createdAt)}
+            </span>
+            <span
+              className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_CHIP_CLASS[application.status] ?? 'bg-zinc-100 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300'}`}
+            >
+              {application.status === 'PENDING'
+                ? '승인 대기'
+                : application.status === 'APPROVED'
+                  ? '승인됨'
+                  : '거절됨'}
+            </span>
+          </div>
         </div>
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="space-y-6 p-4 pb-32">
-          {/* 거절 사유 — 동아리 이름 바로 위 */}
+          {/* 거절 사유 — 최상단 */}
           {application.status === 'REJECTED' && application.rejectionReason && (
             <div>
               <label className={labelClass}>거절 사유</label>
@@ -138,11 +144,7 @@ export default function MyApplicationDetailPage() {
             </div>
           )}
 
-          <div>
-            <label className={labelClass}>동아리 이름</label>
-            <div className={valueBoxClass}>{application.clubName}</div>
-          </div>
-
+          {/* 동아리유형 · 분야 — 동아리 이름 위 */}
           <div className="flex flex-wrap items-start gap-4">
             <div className="min-w-0 flex-1">
               <label className={labelClass}>동아리유형</label>
@@ -159,15 +161,15 @@ export default function MyApplicationDetailPage() {
           </div>
 
           <div>
+            <label className={labelClass}>동아리 이름</label>
+            <div className={valueBoxClass}>{application.clubName}</div>
+          </div>
+
+          <div>
             <label className={labelClass}>신청 사유</label>
             <div className={`${valueBoxClass} min-h-[200px] whitespace-pre-wrap`}>
               {application.applicationReason ?? application.description ?? ''}
             </div>
-          </div>
-
-          <div>
-            <label className={labelClass}>신청일</label>
-            <div className={valueBoxClass}>{formatDateTime24(application.createdAt)}</div>
           </div>
         </div>
       </div>

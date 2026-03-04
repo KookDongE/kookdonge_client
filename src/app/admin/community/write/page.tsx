@@ -270,7 +270,7 @@ export default function CommunityWritePage() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="제목을 입력하세요"
-            className="w-full rounded-lg border border-zinc-200 bg-white text-gray-900 placeholder-gray-400 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
+            className="w-full rounded-lg border border-zinc-200 bg-white text-gray-900 placeholder-gray-400 shadow-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
             aria-label="제목"
           />
         </div>
