@@ -4,7 +4,7 @@ import { Suspense, use, useEffect, useLayoutEffect, useRef, useState } from 'rea
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 
-import { Button, Chip, ListBox, Select, Spinner, Tabs } from '@heroui/react';
+import { Button, Chip, ListBox, Select, Spinner, Tabs, TextArea } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
 
 import { ClubCategory, ClubDetailRes, ClubType, College, RecruitmentStatus } from '@/types/api';
@@ -20,6 +20,7 @@ import {
 import { useClubFeeds, useUploadFeedFiles } from '@/features/feed/hooks';
 import { useAddInterest, useMyInterests, useRemoveInterest } from '@/features/interest/hooks';
 import {
+  useCreateAnswer,
   useDeleteQuestion,
   usePendingQuestions,
   useQuestions,
@@ -1838,9 +1839,12 @@ function ClubQnaTab({
     size: 50,
   });
   const { data: allQuestions, isLoading: allLoading } = useQuestions(clubId, { page: 0, size: 50 });
+  const createAnswer = useCreateAnswer();
   const deleteQuestion = useDeleteQuestion(clubId);
   const [deleteModalQuestionId, setDeleteModalQuestionId] = useState<number | null>(null);
   const [openMenuAllQuestionId, setOpenMenuAllQuestionId] = useState<number | null>(null);
+  const [expandedAnswerQuestionId, setExpandedAnswerQuestionId] = useState<number | null>(null);
+  const [answerTexts, setAnswerTexts] = useState<Record<number, string>>({});
   const menuRefAll = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -1875,6 +1879,27 @@ function ClubQnaTab({
         onSettled: () => setDeleteModalQuestionId(null),
       });
     }
+  };
+
+  const handleAnswerSubmit = (questionId: number) => {
+    const answer = answerTexts[questionId];
+    if (!answer?.trim()) {
+      alert('답변을 입력해주세요.');
+      return;
+    }
+    createAnswer.mutate(
+      { questionId, data: { answer: answer.trim() } },
+      {
+        onSuccess: () => {
+          setAnswerTexts((prev) => {
+            const next = { ...prev };
+            delete next[questionId];
+            return next;
+          });
+          setExpandedAnswerQuestionId(null);
+        },
+      }
+    );
   };
 
   if (pendingLoading || allLoading) {
@@ -1969,6 +1994,43 @@ function ClubQnaTab({
                     )}
                   </div>
                 </div>
+                {!qna.answer && (
+                  <div className="mt-3 flex shrink-0 items-center gap-1">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onPress={() =>
+                        setExpandedAnswerQuestionId((prev) =>
+                          prev === qna.id ? null : qna.id
+                        )
+                      }
+                      className="min-w-0"
+                    >
+                      {expandedAnswerQuestionId === qna.id ? '접기' : '답변하기'}
+                    </Button>
+                  </div>
+                )}
+                {expandedAnswerQuestionId === qna.id && !qna.answer && (
+                  <div className="mt-3 space-y-2 pt-3">
+                    <TextArea
+                      placeholder="답변을 입력해주세요"
+                      value={answerTexts[qna.id] || ''}
+                      onChange={(e) =>
+                        setAnswerTexts((prev) => ({ ...prev, [qna.id]: e.target.value }))
+                      }
+                      className="min-h-[4.5rem] w-full resize-none"
+                    />
+                    <Button
+                      size="sm"
+                      variant="primary"
+                      onPress={() => handleAnswerSubmit(qna.id)}
+                      isPending={createAnswer.isPending}
+                      className="w-full"
+                    >
+                      답변 등록
+                    </Button>
+                  </div>
+                )}
                 {qna.answer && (
                   <div className="mt-3 flex items-start gap-3 pt-3">
                     <span

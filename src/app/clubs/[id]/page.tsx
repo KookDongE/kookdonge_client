@@ -627,26 +627,23 @@ function ClubQnaTab({
 
   return (
     <>
-      <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
-        <h4 className="mb-3 text-sm font-semibold text-zinc-900 dark:text-zinc-100">질문하기</h4>
-        <div className="bg-default-100 relative flex min-h-0 w-full rounded-lg border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800/50">
-          <TextArea
-            placeholder="궁금한 점을 질문해주세요"
-            value={questionText}
-            onChange={(e) => setQuestionText(e.target.value)}
-            className="min-h-[2.5rem] w-full min-w-0 resize-none border-0 bg-transparent py-2 pr-14 pl-3 shadow-none placeholder:text-zinc-400 hover:shadow-none focus:ring-0 dark:placeholder:text-zinc-500"
-          />
-          <Button
-            size="sm"
-            variant="primary"
-            onPress={handleSubmit}
-            isDisabled={!questionText.trim() || !profile || createQuestion.isPending}
-            isPending={createQuestion.isPending}
-            className="absolute top-1/2 right-1.5 shrink-0 -translate-y-1/2"
-          >
-            등록
-          </Button>
-        </div>
+      <div className="bg-default-100 relative flex min-h-0 w-full rounded-lg border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800/50">
+        <TextArea
+          placeholder="궁금한 점을 질문해주세요"
+          value={questionText}
+          onChange={(e) => setQuestionText(e.target.value)}
+          className="min-h-[2.5rem] w-full min-w-0 resize-none border-0 bg-transparent py-2 pr-14 pl-3 shadow-none placeholder:text-zinc-400 hover:shadow-none focus:ring-0 dark:placeholder:text-zinc-500"
+        />
+        <Button
+          size="sm"
+          variant="primary"
+          onPress={handleSubmit}
+          isDisabled={!questionText.trim() || !profile || createQuestion.isPending}
+          isPending={createQuestion.isPending}
+          className="absolute top-1/2 right-1.5 shrink-0 -translate-y-1/2"
+        >
+          등록
+        </Button>
       </div>
 
       {questions.length === 0 ? (

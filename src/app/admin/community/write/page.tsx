@@ -208,9 +208,7 @@ export default function CommunityWritePage() {
         {/* 분류 / 계정 선택 2열 */}
         <div className="grid shrink-0 grid-cols-2 gap-4">
           <div>
-            <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              분류
-            </label>
+            <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300" />
             <Select
               aria-label="분류 선택"
               placeholder="분류"
@@ -240,9 +238,7 @@ export default function CommunityWritePage() {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              계정 선택
-            </label>
+            <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300" />
             <Select
               aria-label="계정 선택"
               placeholder="계정 선택"
@@ -274,9 +270,7 @@ export default function CommunityWritePage() {
 
         {/* 제목 */}
         <div className="shrink-0">
-          <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-            제목
-          </label>
+          <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300" />
           <Input
             type="text"
             value={title}
@@ -289,9 +283,7 @@ export default function CommunityWritePage() {
 
         {/* 내용: 남는 세로 공간 전부 사용, 아래 사진 영역과 겹치지 않음 */}
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          <label className="mb-2 shrink-0 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-            내용
-          </label>
+          <label className="mb-2 shrink-0 block text-sm font-medium text-zinc-700 dark:text-zinc-300" />
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl [&_textarea]:min-h-0 [&_textarea]:h-full">
             <TextArea
               value={content}
