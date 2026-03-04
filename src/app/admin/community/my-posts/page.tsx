@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { useMyProfile } from '@/features/auth/hooks';
@@ -52,32 +51,13 @@ export default function CommunityMyPostsPage() {
 
   return (
     <div className="min-h-screen bg-[var(--background)] pb-20">
-      <div className="flex items-center gap-2 px-4 pt-2">
-        <Link
-          href="/admin/community"
-          className="flex h-8 w-8 items-center justify-center rounded-full text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
-          aria-label="뒤로가기"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            className="h-5 w-5"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-          </svg>
-        </Link>
-        <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">내가 쓴 글</h1>
-      </div>
-
       <CommunitySearchFilter
         query={query}
         onQueryChange={setQuery}
         sort={sort}
         onSortChange={setSort}
         stickyHideOnScroll
+        hideFilters
         className="border-b border-zinc-200 dark:border-zinc-700"
       />
 

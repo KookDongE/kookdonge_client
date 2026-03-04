@@ -38,16 +38,13 @@ export default function CommunityFreePage() {
 
   return (
     <div className="min-h-screen bg-[var(--background)] pb-20">
-      <div className="px-4 pt-2">
-        <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">자유게시판</h1>
-      </div>
-
       <CommunitySearchFilter
         query={query}
         onQueryChange={setQuery}
         sort={sort}
         onSortChange={setSort}
         stickyHideOnScroll
+        hideFilters
         className="border-b border-zinc-200 dark:border-zinc-700"
       />
 

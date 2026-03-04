@@ -72,7 +72,7 @@ export default function AdminCommunityPage() {
               더보기
             </Link>
           </div>
-          <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+          <div className="overflow-hidden rounded-xl bg-white dark:bg-zinc-900">
             {popular.length === 0 ? (
               <p className="px-4 py-6 text-center text-sm text-zinc-400 dark:text-zinc-500">
                 게시글이 없습니다.
@@ -98,7 +98,7 @@ export default function AdminCommunityPage() {
               더보기
             </Link>
           </div>
-          <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+          <div className="overflow-hidden rounded-xl bg-white dark:bg-zinc-900">
             {promo.length === 0 ? (
               <p className="px-4 py-6 text-center text-sm text-zinc-400 dark:text-zinc-500">
                 게시글이 없습니다.
@@ -124,7 +124,7 @@ export default function AdminCommunityPage() {
               더보기
             </Link>
           </div>
-          <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+          <div className="overflow-hidden rounded-xl bg-white dark:bg-zinc-900">
             {free.length === 0 ? (
               <p className="px-4 py-6 text-center text-sm text-zinc-400 dark:text-zinc-500">
                 게시글이 없습니다.
