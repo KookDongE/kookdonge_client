@@ -122,7 +122,7 @@ function LikedClubsListContent() {
                       </span>
                     )}
                   </div>
-                  <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
+                  <h4 className="truncate font-medium text-zinc-800 dark:text-zinc-100">
                     {club.name}
                   </h4>
                 </div>

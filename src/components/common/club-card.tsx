@@ -142,11 +142,11 @@ export function ClubCard({
           </span>
         </div>
 
-        <h3 className="mb-1.5 min-h-[1.25rem] shrink-0 truncate text-base leading-tight font-bold text-zinc-900 dark:text-zinc-100">
+        <h3 className="mb-1.5 min-h-[1.25rem] shrink-0 truncate text-base leading-tight font-semibold text-zinc-900 dark:text-zinc-100">
           {club.name}
         </h3>
 
-        <p className="line-clamp-1 min-h-0 shrink overflow-hidden text-xs leading-tight text-zinc-500 dark:text-zinc-400">
+        <p className="line-clamp-1 min-h-0 shrink overflow-hidden text-xs font-light leading-tight text-zinc-500 dark:text-zinc-400">
           {club.introduction || '\u00A0'}
         </p>
       </div>

@@ -123,7 +123,7 @@ export function InterestedClubCard({ subscription, className = '' }: InterestedC
             </span>
           )}
         </div>
-        <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">{name}</h4>
+        <h4 className="truncate font-medium text-zinc-800 dark:text-zinc-100">{name}</h4>
       </div>
       <svg
         className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"

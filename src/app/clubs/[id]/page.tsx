@@ -577,7 +577,7 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
     <div className="min-w-0 space-y-4 p-4">
       {hasIntroduction && (
         <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
-          <h3 className="mb-3 px-4 pt-4 font-semibold text-zinc-900 dark:text-zinc-100">
+          <h3 className="mb-3 px-4 pt-4 text-sm font-medium text-zinc-700 dark:text-zinc-300">
             동아리 소개
           </h3>
           {contentImageUrl && (
@@ -593,7 +593,7 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
           )}
           {club.content != null && club.content.trim() !== '' && (
             <div className="p-4">
-              <p className="text-sm leading-relaxed whitespace-pre-wrap text-zinc-700 dark:text-zinc-300">
+              <p className="text-sm font-light leading-relaxed whitespace-pre-wrap text-zinc-700 dark:text-zinc-300">
                 {club.content}
               </p>
             </div>
@@ -601,7 +601,7 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
         </div>
       )}
       <div className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
-        <h3 className="mb-3 font-semibold text-zinc-900 dark:text-zinc-100">기본 정보</h3>
+        <h3 className="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">기본 정보</h3>
         <div className="min-w-0 space-y-3">
           {infoItems.map((item) => {
             const isRecruitmentDate = item.label === '모집 시작' || item.label === '모집 마감';
@@ -614,7 +614,7 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
                   {item.label}
                 </span>
                 <span
-                  className={`min-w-0 text-right font-medium text-zinc-900 dark:text-zinc-100 ${
+                  className={`min-w-0 text-right font-normal text-zinc-700 dark:text-zinc-300 ${
                     isRecruitmentDate ? 'break-words' : 'truncate'
                   }`}
                 >
@@ -630,7 +630,7 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
         if (links.length === 0) return null;
         return (
           <div className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
-            <h3 className="mb-3 font-semibold text-zinc-900 dark:text-zinc-100">외부 링크</h3>
+            <h3 className="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">외부 링크</h3>
             <ul className="space-y-2">
               {links.map((item, i) => (
                 <li key={`${item.url}-${i}`}>

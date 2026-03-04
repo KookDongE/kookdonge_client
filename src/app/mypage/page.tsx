@@ -156,10 +156,10 @@ function AdminSection() {
   return (
     <div className="px-4 py-5">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">관리 중인 동아리</h3>
+        <h3 className="text-xs font-normal text-gray-500 dark:text-zinc-400">관리 중인 동아리</h3>
         <Link
           href="/mypage/managed"
-          className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+          className="text-xs font-normal text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200"
         >
           전체보기
         </Link>
@@ -218,7 +218,7 @@ function AdminSection() {
                     </span>
                   )}
                 </div>
-                <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
+                <h4 className="truncate font-medium text-zinc-800 dark:text-zinc-100">
                   {club.name}
                 </h4>
               </div>
@@ -260,10 +260,10 @@ function PendingQuestionsSection() {
   return (
     <div className="px-4 py-5">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">질문 대기 목록</h3>
+        <h3 className="text-xs font-normal text-gray-500 dark:text-zinc-400">질문 대기 목록</h3>
         <Link
           href="/mypage/questions"
-          className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+          className="text-xs font-normal text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200"
         >
           전체보기
         </Link>
@@ -335,10 +335,10 @@ function QnAListSection() {
   return (
     <div className="px-4 py-5">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">Q&A 목록</h3>
+        <h3 className="text-xs font-normal text-gray-500 dark:text-zinc-400">Q&A 목록</h3>
         <Link
           href="/mypage/questions"
-          className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+          className="text-xs font-normal text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200"
         >
           전체보기
         </Link>
@@ -370,7 +370,7 @@ function QnAListSection() {
                   Q
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="line-clamp-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                  <p className="line-clamp-2 text-sm font-normal text-zinc-900 dark:text-zinc-100">
                     {qna.question}
                   </p>
                   <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
@@ -407,10 +407,10 @@ function InterestedClubsSection() {
   return (
     <div className="px-4 py-5">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">관심 동아리</h3>
+        <h3 className="text-xs font-normal text-gray-500 dark:text-zinc-400">관심 동아리</h3>
         <Link
           href="/mypage/interested"
-          className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+          className="text-xs font-normal text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200"
         >
           전체보기
         </Link>
@@ -502,10 +502,10 @@ function MyApplicationsSection() {
   return (
     <div className="px-4 py-5">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">내 신청 목록</h3>
+        <h3 className="text-xs font-normal text-gray-500 dark:text-zinc-400">내 신청 목록</h3>
         <Link
           href="/my/club-requests"
-          className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+          className="text-xs font-normal text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200"
         >
           전체보기
         </Link>
@@ -523,7 +523,7 @@ function MyApplicationsSection() {
               className="mypage-club-card flex items-center justify-between gap-2 rounded-xl border border-zinc-100 bg-white px-3 py-2.5 transition-all hover:border-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700"
             >
               <div className="min-w-0 flex-1">
-                <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
+                <h4 className="truncate font-medium text-zinc-800 dark:text-zinc-100">
                   {app.name}
                 </h4>
                 <div className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-500">

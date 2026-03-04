@@ -50,7 +50,7 @@ function PendingListContent() {
                     Q
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="line-clamp-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                    <p className="line-clamp-2 text-sm font-normal text-zinc-900 dark:text-zinc-100">
                       {qna.question}
                     </p>
                     <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">

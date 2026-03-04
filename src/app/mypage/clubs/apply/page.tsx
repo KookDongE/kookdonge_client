@@ -100,17 +100,17 @@ function ClubApplyContent() {
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white dark:bg-zinc-900">
-      {/* 헤더 */}
-      <div className="shrink-0 bg-white dark:bg-zinc-900">
+      {/* 헤더: PWA 앱뷰 라이트모드에서 다크로 보이는 현상 방지 — 배경·글자 라이트 고정 */}
+      <div className="shrink-0 bg-white">
         <div className="flex h-16 items-center justify-between px-4">
           <button
             type="button"
             onClick={() => router.back()}
-            className="text-base font-medium text-gray-700 dark:text-zinc-300"
+            className="text-base font-medium text-gray-700"
           >
             취소
           </button>
-          <h1 className="text-lg font-semibold text-gray-900 dark:text-zinc-100">동아리 신청</h1>
+          <h1 className="text-lg font-semibold text-gray-900">동아리 신청</h1>
           <button
             type="button"
             onClick={handleSubmit}
@@ -122,7 +122,7 @@ function ClubApplyContent() {
               ((clubType === 'DEPARTMENTAL' || clubType === 'ACADEMIC_SOCIETY' || clubType === 'CLUB') && !college) ||
               applyClub.isPending
             }
-            className="text-base font-semibold text-blue-500 disabled:opacity-50 dark:text-blue-400"
+            className="text-base font-semibold text-blue-500 disabled:opacity-50"
           >
             {applyClub.isPending ? '신청 중...' : '신청'}
           </button>

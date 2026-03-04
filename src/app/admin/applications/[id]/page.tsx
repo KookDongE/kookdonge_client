@@ -283,7 +283,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
                     type="button"
                     onClick={handleApprove}
                     disabled={approveApplication.isPending}
-                    className="inline-flex h-10 flex-1 items-center justify-center rounded-md bg-zinc-900 px-4 text-sm font-medium text-white shadow transition-colors hover:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                    className="inline-flex h-10 flex-1 items-center justify-center rounded-md bg-blue-400 px-4 text-sm font-medium text-white shadow transition-colors hover:bg-blue-500 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
                   >
                     {approveApplication.isPending ? '처리 중...' : '수락'}
                   </button>
