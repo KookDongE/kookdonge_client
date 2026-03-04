@@ -13,7 +13,6 @@ import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api'
 import { parseApiIsoToDate } from '@/lib/utils';
 import { useMyProfile } from '@/features/auth/hooks';
 import { useClubDetail, useLikeClub, useUnlikeClub } from '@/features/club/hooks';
-import { useInterestedStore } from '@/features/club/interested-store';
 import { useNotification } from '@/features/device/use-notification';
 import { useClubFeeds } from '@/features/feed/hooks';
 import { useCreateQuestion, useDeleteQuestion, useQuestions } from '@/features/question/hooks';
@@ -214,15 +213,12 @@ function ClubHeader({
   const { data: club, isLoading } = useClubDetail(clubId);
   const likeClub = useLikeClub();
   const unlikeClub = useUnlikeClub();
-  const interestedClubs = useInterestedStore((s) => s.clubs);
-  const add = useInterestedStore((s) => s.add);
-  const remove = useInterestedStore((s) => s.remove);
   const { data: subscriptions } = useMyWaitingList();
   const addNotification = useAddToWaitingList();
   const removeNotification = useRemoveFromWaitingList();
 
-  const isInterestedByMe = interestedClubs.some((c) => c.id === clubId);
   const isNotificationOn = (subscriptions ?? []).some((s) => s.clubId === clubId);
+  const isInterestedByMe = isNotificationOn;
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const messageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -276,19 +272,14 @@ function ClubHeader({
   };
 
   const handleInterestedToggle = () => {
+    if (addNotification.isPending || removeNotification.isPending) return;
     clearActionMessage();
     if (isInterestedByMe) {
-      remove(clubId);
+      removeNotification.mutate(clubId);
       showActionMessage('관심 목록에서 해제했어요.');
     } else {
-      add({
-        id: club.id,
-        name: club.name,
-        logoImage: club.image ?? '',
-        type: club.type,
-        category: club.category,
-        recruitmentStatus: club.recruitmentStatus,
-      });
+      addNotification.mutate(clubId);
+      onNotificationTurnOnRequest?.(clubId);
       showActionMessage('관심 목록에 추가했어요.');
     }
   };
@@ -877,7 +868,7 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
   const { data: club, isLoading: clubLoading, isError: clubError } = useClubDetail(clubId);
   const searchParams = useSearchParams();
   const questionId = searchParams.get('questionId');
-  const from = searchParams.get('from');
+  const _from = searchParams.get('from');
   const [tab, setTab] = useQueryState('tab', parseAsString.withDefault('info'));
   const router = useRouter();
   const {

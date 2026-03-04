@@ -72,4 +72,11 @@ export const notificationApi = {
   markAllAsRead: async (): Promise<void> => {
     return apiClient<void>('/api/notifications/read-all', { method: 'PATCH' });
   },
+
+  /** 특정 알림 삭제 (DELETE /api/notifications/{notificationId}) */
+  deleteNotification: async (notificationId: number): Promise<void> => {
+    return apiClient<void>(`/api/notifications/${notificationId}`, {
+      method: 'DELETE',
+    });
+  },
 };

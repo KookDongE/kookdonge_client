@@ -72,6 +72,37 @@ export function getPostById(id: number): CommunityPost | null {
   return posts.find((p) => p.id === id) ?? null;
 }
 
+export type CommunityComment = {
+  id: number;
+  postId: number;
+  authorName: string;
+  content: string;
+  createdAt: string;
+};
+
+function commentDate(ago: number) {
+  return new Date(now.getTime() - ago * 60 * 1000).toISOString();
+}
+
+/** 글별 댓글 더미 (postId당 0~3개) */
+export function getCommentsByPostId(postId: number): CommunityComment[] {
+  const names = ['댓글작성자1', '댓글작성자2', '댓글작성자3'];
+  const contents = [
+    '좋은 정보 감사합니다!',
+    '저도 참여하고 싶어요.',
+    '언제인가요?',
+    '많은 관심 부탁드려요.',
+  ];
+  const count = postId % 4;
+  return Array.from({ length: count }, (_, i) => ({
+    id: postId * 10 + i,
+    postId,
+    authorName: names[i % names.length],
+    content: contents[(postId + i) % contents.length],
+    createdAt: commentDate((postId + i) * 5 + 10),
+  }));
+}
+
 export function filterByBoard(posts: CommunityPost[], boardType: BoardType): CommunityPost[] {
   return posts.filter((p) => p.boardType === boardType);
 }

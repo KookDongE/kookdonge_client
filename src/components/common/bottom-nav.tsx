@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -109,7 +109,7 @@ export function BottomNav() {
   const pathname = usePathname();
   const linkRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const [indicatorLeft, setIndicatorLeft] = useState(0);
-  const accessToken = useAuthStore((state) => state.accessToken);
+  useAuthStore((state) => state.accessToken);
   const { data: profile } = useMyProfile();
   const isAdmin = isSystemAdmin(profile);
 
@@ -118,22 +118,29 @@ export function BottomNav() {
     pathname === '/login' ||
     pathname.startsWith('/login/') ||
     pathname === '/welcome' ||
-    pathname.startsWith('/welcome/');
+    pathname.startsWith('/welcome/') ||
+    pathname?.startsWith('/admin/community/posts/');
 
-  const isActive = (href: string) => {
-    if (href === '/home') return pathname === '/home';
-    if (href === '/admin') return pathname === '/admin'; // 관리자 메인만, /admin/community 제외
-    if (href.includes('?')) return false;
-    return pathname.startsWith(href);
-  };
+  const isActive = useCallback(
+    (href: string) => {
+      if (href === '/home') return pathname === '/home';
+      if (href === '/admin') return pathname === '/admin'; // 관리자 메인만, /admin/community 제외
+      if (href.includes('?')) return false;
+      return pathname.startsWith(href);
+    },
+    [pathname]
+  );
 
   // 순서: 홈 → 커뮤니티(관리자만) → 마이 → 관리자(관리자만)
-  const allNavItems: NavItem[] = [
-    HOME_ITEM,
-    ...(isAdmin ? [COMMUNITY_ITEM] : []),
-    MYPAGE_ITEM,
-    ...(isAdmin ? [ADMIN_ITEM] : []),
-  ];
+  const allNavItems = useMemo<NavItem[]>(
+    () => [
+      HOME_ITEM,
+      ...(isAdmin ? [COMMUNITY_ITEM] : []),
+      MYPAGE_ITEM,
+      ...(isAdmin ? [ADMIN_ITEM] : []),
+    ],
+    [isAdmin]
+  );
 
   // 활성 링크의 위치 계산 (훅은 조건부 return 이전에 항상 호출)
   useEffect(() => {
@@ -151,7 +158,7 @@ export function BottomNav() {
         }
       }
     }
-  }, [pathname, isAdmin, isHidden]);
+  }, [pathname, isAdmin, isHidden, allNavItems, isActive]);
 
   if (isHidden) return null;
 

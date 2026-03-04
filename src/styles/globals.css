@@ -352,6 +352,11 @@ html.fullscreen-page body {
   background: var(--glass-bg-dark);
 }
 
+/* PWA 앱뷰 라이트 모드: 커뮤니티 글상세에서 헤더가 다크로 보이는 현상 방지 */
+html:not(.dark) .community-detail-header.glass {
+  background: rgba(255, 255, 255, 0.9) !important;
+}
+
 /* Smooth image loading */
 .img-loading {
   opacity: 0;

@@ -8,12 +8,6 @@ import { Button, Chip, ListBox, Select, Spinner, Tabs, TextArea } from '@heroui/
 import { parseAsString, useQueryState } from 'nuqs';
 
 import { ClubCategory, ClubDetailRes, ClubType, College, RecruitmentStatus } from '@/types/api';
-import {
-  FeedItemSkeleton,
-  FormPageSkeleton,
-  ListCardSkeleton,
-  TablePageSkeleton,
-} from '@/components/common/skeletons';
 import { parseApiIsoToDate } from '@/lib/utils';
 import {
   useAddClubAdmin,
@@ -23,7 +17,6 @@ import {
   useUpdateClubDetail,
   useUpdateRecruitmentInfo,
 } from '@/features/club/hooks';
-import { useInterestedStore } from '@/features/club/interested-store';
 import { useClubFeeds, useUploadFeedFiles } from '@/features/feed/hooks';
 import {
   useCreateAnswer,
@@ -37,6 +30,11 @@ import {
   useRemoveFromWaitingList,
 } from '@/features/waiting-list/hooks';
 import { DefaultClubImage } from '@/components/common/default-club-image';
+import {
+  FeedItemSkeleton,
+  FormPageSkeleton,
+  ListCardSkeleton,
+} from '@/components/common/skeletons';
 import { FeedCoverImage } from '@/components/feed/feed-cover-image';
 import { BellIcon } from '@/components/icons/notification-icon';
 
@@ -202,12 +200,12 @@ function ClubManageContent({ clubId }: { clubId: number }) {
   const { data: club, isLoading, isError: clubError } = useClubDetail(clubId);
   const updateClub = useUpdateClubDetail();
   const updateRecruitmentInfo = useUpdateRecruitmentInfo();
-  const interestedClubs = useInterestedStore((s) => s.clubs);
-  const addInterested = useInterestedStore((s) => s.add);
-  const removeInterested = useInterestedStore((s) => s.remove);
   const { data: subscriptions } = useMyWaitingList();
   const addNotification = useAddToWaitingList();
   const removeNotification = useRemoveFromWaitingList();
+
+  const isNotificationOn = (subscriptions ?? []).some((s) => s.clubId === clubId);
+  const isInterestedByMe = isNotificationOn;
 
   // 없는 동아리 또는 잘못된 id → 홈으로
   useEffect(() => {
@@ -220,21 +218,12 @@ function ClubManageContent({ clubId }: { clubId: number }) {
     }
   }, [clubId, clubError, isLoading, club, router]);
 
-  const isInterestedByMe = interestedClubs.some((c) => c.id === clubId);
-  const isNotificationOn = (subscriptions ?? []).some((s) => s.clubId === clubId);
-
   const handleInterestedToggle = () => {
+    if (addNotification.isPending || removeNotification.isPending) return;
     if (isInterestedByMe) {
-      removeInterested(clubId);
-    } else if (club) {
-      addInterested({
-        id: club.id,
-        name: club.name,
-        logoImage: club.image ?? '',
-        type: club.type,
-        category: club.category,
-        recruitmentStatus: club.recruitmentStatus,
-      });
+      removeNotification.mutate(clubId);
+    } else {
+      addNotification.mutate(clubId);
     }
   };
 

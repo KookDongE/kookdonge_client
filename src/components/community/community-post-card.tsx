@@ -35,16 +35,19 @@ export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
       <p className="mt-1 line-clamp-1 text-[13px] leading-snug text-zinc-500 dark:text-zinc-400">
         {contentPreview}
       </p>
-      {/* 좋아요(빨강) / 댓글(파랑) / 저장(노랑) 아이콘+숫자 + 시간 + 작성자 */}
-      <div className="mt-2 flex items-center gap-3 text-[12px] text-zinc-400 dark:text-zinc-500">
-        <span className="flex items-center gap-1" aria-label={`좋아요 ${post.likeCount}개`}>
+      {/* 좋아요 / 댓글 / 저장 아이콘+숫자 + 시간 + 작성자 (연한 톤) */}
+      <div className="mt-2 flex items-center gap-3 text-[12px] text-zinc-500 dark:text-zinc-500">
+        <span
+          className="flex items-center gap-1 text-zinc-500 dark:text-zinc-500"
+          aria-label={`좋아요 ${post.likeCount}개`}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             fill={post.liked ? 'currentColor' : 'none'}
             stroke="currentColor"
             strokeWidth={1.5}
-            className="h-3.5 w-3.5 text-red-500"
+            className="h-3.5 w-3.5"
           >
             <path
               strokeLinecap="round"
@@ -55,7 +58,7 @@ export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
           {post.likeCount}
         </span>
         <span
-          className="flex items-center gap-1 text-blue-500"
+          className="flex items-center gap-1 text-zinc-500 dark:text-zinc-500"
           aria-label={`댓글 ${post.commentCount}개`}
         >
           <svg
@@ -74,14 +77,17 @@ export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
           </svg>
           {post.commentCount}
         </span>
-        <span className="flex items-center gap-1" aria-label={`저장 ${post.saveCount}개`}>
+        <span
+          className="flex items-center gap-1 text-zinc-500 dark:text-zinc-500"
+          aria-label={`저장 ${post.saveCount}개`}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             fill={post.saved ? 'currentColor' : 'none'}
             stroke="currentColor"
             strokeWidth={1.5}
-            className="h-3.5 w-3.5 text-amber-500"
+            className="h-3.5 w-3.5"
           >
             <path
               strokeLinecap="round"
@@ -91,8 +97,8 @@ export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
           </svg>
           {post.saveCount}
         </span>
-        <span className="text-zinc-400 dark:text-zinc-500">{formatDate(post.createdAt)}</span>
-        <span className="text-zinc-400 dark:text-zinc-500">{post.authorName}</span>
+        <span className="text-zinc-500 dark:text-zinc-500">{formatDate(post.createdAt)}</span>
+        <span className="text-zinc-500 dark:text-zinc-500">{post.authorName}</span>
       </div>
     </article>
   );

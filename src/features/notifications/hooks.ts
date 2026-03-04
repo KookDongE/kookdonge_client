@@ -68,3 +68,14 @@ export function useMarkAllAsRead() {
     },
   });
 }
+
+/** 특정 알림 삭제 */
+export function useDeleteNotification() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (notificationId: number) => notificationApi.deleteNotification(notificationId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: notificationKeys.all });
+    },
+  });
+}

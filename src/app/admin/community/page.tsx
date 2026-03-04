@@ -51,8 +51,8 @@ export default function AdminCommunityPage() {
         </div>
       </div>
 
-      {/* 게시판 메뉴: 외곽선 없이 작게 */}
-      <div className="px-4 py-3">
+      {/* 게시판 메뉴: 외곽선 없이 작게, 좌우 여백 추가 */}
+      <div className="px-5 py-3">
         <div className="space-y-0.5">
           {MENU_ITEMS.map(({ href, label }) => (
             <Link

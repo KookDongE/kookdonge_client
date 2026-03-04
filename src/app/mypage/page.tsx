@@ -9,8 +9,8 @@ import { Chip } from '@heroui/react';
 import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
 import { useManagedClubs, useMyApplications } from '@/features/club/hooks';
-import { useInterestedStore } from '@/features/club/interested-store';
 import { useMyQuestions, usePendingQuestions } from '@/features/question/hooks';
+import { useMyWaitingList } from '@/features/waiting-list/hooks';
 import { DefaultClubImage } from '@/components/common/default-club-image';
 import { ListCardSkeleton, ProfileSkeleton } from '@/components/common/skeletons';
 
@@ -40,7 +40,7 @@ const COLLEGE_LABEL: Record<College, string> = {
   LIBERAL_ARTS: '교양대학',
 };
 
-const CATEGORY_LABEL: Record<ClubCategory, string> = {
+const _CATEGORY_LABEL: Record<ClubCategory, string> = {
   PERFORMING_ARTS: '공연예술',
   LIBERAL_ARTS_SERVICE: '교양봉사',
   EXHIBITION_ARTS: '전시창작',
@@ -399,7 +399,8 @@ function QnAListSection() {
 }
 
 function InterestedClubsSection() {
-  const interestedClubs = useInterestedStore((s) => s.getList());
+  const { data: subscriptions, isLoading } = useMyWaitingList();
+  const list = subscriptions ?? [];
 
   return (
     <div className="px-4 py-5">
@@ -412,23 +413,29 @@ function InterestedClubsSection() {
           전체보기
         </Link>
       </div>
-      {interestedClubs.length === 0 ? (
+      {isLoading ? (
+        <div className="space-y-3">
+          {[1, 2].map((i) => (
+            <ListCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : list.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-12 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
           <p>관심 동아리가 없습니다.</p>
         </div>
       ) : (
         <div className="space-y-3">
-          {interestedClubs.slice(0, PREVIEW_LIMIT).map((club) => (
+          {list.slice(0, PREVIEW_LIMIT).map((club) => (
             <Link
-              key={club.id}
-              href={`/clubs/${club.id}`}
+              key={club.clubId}
+              href={`/clubs/${club.clubId}`}
               className="mypage-club-card flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
             >
               <div className="mypage-club-card-logo relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
-                {club.logoImage ? (
+                {club.clubProfileImageUrl ? (
                   <Image
-                    src={club.logoImage}
-                    alt={club.name}
+                    src={club.clubProfileImageUrl}
+                    alt={club.clubName}
                     fill
                     className="object-cover"
                     sizes="56px"
@@ -439,33 +446,16 @@ function InterestedClubsSection() {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="mb-1 flex flex-wrap items-center gap-1.5">
-                  {club.recruitmentStatus && (
-                    <span
-                      className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium ${STATUS_CONFIG[club.recruitmentStatus].className}`}
-                    >
-                      {STATUS_CONFIG[club.recruitmentStatus].label}
-                    </span>
-                  )}
                   <span className="mypage-club-tag-type rounded-md bg-violet-100 px-1.5 py-0.5 text-[10px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
-                    {TYPE_LABEL[club.type]}
+                    {TYPE_LABEL[club.clubType]}
                   </span>
-                  {club.college && COLLEGE_LABEL[club.college] != null && (
-                    <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
-                      {COLLEGE_LABEL[club.college]}
-                    </span>
-                  )}
-                  {club.category && (
-                    <span className="mypage-club-tag-category rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-                      {CATEGORY_LABEL[club.category]}
-                    </span>
-                  )}
                 </div>
                 <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
-                  {club.name}
+                  {club.clubName}
                 </h4>
               </div>
               <svg
-                className="h-5 w-5 text-zinc-400 dark:text-zinc-500"
+                className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"

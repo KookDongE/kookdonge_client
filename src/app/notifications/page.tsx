@@ -4,13 +4,15 @@ import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
 import type { NotificationRes } from '@/types/api';
-import { NotificationCardSkeleton } from '@/components/common/skeletons';
 import {
+  useDeleteNotification,
   useMarkAllAsRead,
   useMarkAsRead,
   useNotificationsInfinite,
   useUnreadCount,
 } from '@/features/notifications/hooks';
+import { NotificationCardSkeleton } from '@/components/common/skeletons';
+import { SwipeableNotificationItem } from '@/components/notifications/swipeable-notification-item';
 
 function typeLabel(type: string): string {
   const labels: Record<string, string> = {
@@ -60,6 +62,7 @@ export default function NotificationsPage() {
   const { data: unreadCount = 0 } = useUnreadCount();
   const markAsRead = useMarkAsRead();
   const markAllAsRead = useMarkAllAsRead();
+  const deleteNotification = useDeleteNotification();
 
   const list = data?.pages.flatMap((p) => p.notifications) ?? [];
   const hasNext = hasNextPage ?? false;
@@ -191,34 +194,16 @@ export default function NotificationsPage() {
           </div>
         ) : (
           list.map((item) => (
-            <button
+            <SwipeableNotificationItem
               key={item.id}
-              type="button"
-              onClick={() => handleItemClick(item)}
-              className="w-full text-left"
-            >
-              <div
-                className={`flex gap-3 rounded-xl border px-4 py-4 transition-colors ${
-                  item.isRead
-                    ? 'border-zinc-200 bg-zinc-50/50 dark:border-zinc-700 dark:bg-zinc-800/50'
-                    : 'border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800'
-                }`}
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="mb-1 flex items-center gap-2 -ml-1">
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${typeBadgeColor(item.type)}`}
-                    >
-                      {typeLabel(item.type)}
-                    </span>
-                    <span className="text-xs text-zinc-400 dark:text-zinc-500">
-                      {formatTime(item.createdAt)}
-                    </span>
-                  </div>
-                  <p className="mt-0.5 text-sm text-zinc-600 dark:text-zinc-400">{item.message}</p>
-                </div>
-              </div>
-            </button>
+              item={item}
+              typeLabel={typeLabel}
+              typeBadgeColor={typeBadgeColor}
+              formatTime={formatTime}
+              onTap={() => handleItemClick(item)}
+              onDelete={(id) => deleteNotification.mutate(id)}
+              isDeleting={deleteNotification.isPending && deleteNotification.variables === item.id}
+            />
           ))
         )}
         {hasNext && list.length > 0 && (
