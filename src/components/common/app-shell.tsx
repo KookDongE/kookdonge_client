@@ -30,9 +30,11 @@ const PULL_TO_REFRESH_DISABLED_PATHS = [
   /^\/mypage\/notification-settings(\/|$)/, // 알림설정
 ];
 
-/** 메인 스크롤 비활성화 경로 (동아리 신청, 설정 메인만, 알림설정, 관리자 메인만, 커뮤니티 메인만 — 하위 페이지는 스크롤 가능) */
+/** 메인 스크롤 비활성화 경로 (동아리 신청, 피드 추가/수정, 설정 메인만, 알림설정, 관리자 메인만, 커뮤니티 메인만 — 하위 페이지는 스크롤 가능) */
 const SCROLL_DISABLED_PATHS = [
   /^\/mypage\/clubs\/apply$/,
+  /^\/mypage\/clubs\/[^/]+\/manage\/feed\/new$/, // 피드 추가
+  /^\/mypage\/clubs\/[^/]+\/manage\/feed\/[^/]+\/edit$/, // 피드 수정
   /^\/mypage\/settings\/?$/, // 설정 메인만 (/mypage/settings, /mypage/settings/) — 하위(이름변경, 버그신고 등) 제외
   /^\/mypage\/notification-settings(\/|$)/,
   /^\/admin\/?$/, // 관리자 메인만 (trailing slash 포함)

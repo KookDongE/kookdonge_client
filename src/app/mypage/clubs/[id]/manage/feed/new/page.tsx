@@ -171,7 +171,7 @@ function NewFeedContent({ clubId }: { clubId: number }) {
     >
       {/* 헤더: 테마 변수 사용으로 앱뷰 라이트모드에서도 올바른 배경/글자색 유지 */}
       <div
-        className="shrink-0 border-b bg-[var(--card)] text-[var(--foreground)]"
+        className="shrink-0 bg-[var(--card)] text-[var(--foreground)]"
         style={{ borderColor: 'var(--border)' }}
       >
         <div className="flex h-16 items-center justify-between px-4">

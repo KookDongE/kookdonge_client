@@ -169,7 +169,7 @@ function EditFeedForm({
       style={{ height: 'calc(100dvh - 3.5rem - 4rem)' }}
     >
       <div
-        className="shrink-0 border-b bg-[var(--card)] text-[var(--foreground)]"
+        className="shrink-0 bg-[var(--card)] text-[var(--foreground)]"
         style={{ borderColor: 'var(--border)' }}
       >
         <div className="flex h-16 items-center justify-between px-4">

@@ -3,12 +3,85 @@
 import { useEffect, useState, type Key } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Input, ListBox, Select, TextArea } from '@heroui/react';
+import { Input, ListBox, Select, TextArea } from '@heroui/react';
+import { Reorder, useDragControls } from 'framer-motion';
 
 import { useSystemAdmins } from '@/features/admin';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
 import { FormPageSkeleton } from '@/components/common/skeletons';
+
+/** 사진 한 칸: id(Reorder용) + file + preview */
+type PhotoItem = { id: string; file: File; preview: string };
+
+/** 드래그는 밑 그립에서만 가능, 사진 영역은 그립 안 켜짐 (동아리 피드와 동일) */
+function PhotoReorderItem({
+  item,
+  onRemove,
+  canReorder,
+}: {
+  item: PhotoItem;
+  onRemove: () => void;
+  canReorder: boolean;
+}) {
+  const controls = useDragControls();
+  return (
+    <Reorder.Item
+      value={item}
+      dragListener={false}
+      dragControls={controls}
+      whileDrag={{ scale: 1.02, zIndex: 50 }}
+      className="relative flex shrink-0 flex-col gap-1 rounded-xl"
+    >
+      <div className="relative aspect-square w-36 overflow-hidden rounded-xl bg-zinc-200 dark:bg-zinc-700">
+        <img
+          src={item.preview}
+          alt=""
+          className="pointer-events-none size-full select-none object-cover"
+          draggable={false}
+        />
+        <button
+          type="button"
+          data-no-drag
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove();
+          }}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="absolute right-1 top-1 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
+          aria-label="사진 삭제"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2.5}
+            className="h-4 w-4"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      {canReorder && (
+        <div
+          role="button"
+          tabIndex={0}
+          onPointerDown={(e) => {
+            if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
+            controls.start(e);
+          }}
+          className="flex touch-none cursor-grab items-center justify-center gap-0.5 rounded-b-xl py-1.5 text-zinc-400 active:cursor-grabbing dark:text-zinc-500"
+          aria-label="드래그하여 순서 변경"
+        >
+          <span className="inline-block h-1 w-1 rounded-full bg-current" />
+          <span className="inline-block h-1 w-1 rounded-full bg-current" />
+          <span className="inline-block h-1 w-1 rounded-full bg-current" />
+        </div>
+      )}
+    </Reorder.Item>
+  );
+}
 
 /** 글쓰기 분류: 홍보/자유만 (인기는 목록만) */
 const BOARD_TYPE_OPTIONS: { value: 'promo' | 'free'; label: string }[] = [
@@ -25,8 +98,7 @@ export default function CommunityWritePage() {
   const [accountKey, setAccountKey] = useState<string>('me');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [photoFiles, setPhotoFiles] = useState<File[]>([]);
-  const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
+  const [photoItems, setPhotoItems] = useState<PhotoItem[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -44,23 +116,25 @@ export default function CommunityWritePage() {
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     if (files.length === 0) return;
-    const newFiles = [...photoFiles, ...files].slice(0, 10);
-    setPhotoFiles(newFiles);
-    const newPreviews = newFiles.map((f) => URL.createObjectURL(f));
-    photoPreviews.forEach(URL.revokeObjectURL);
-    setPhotoPreviews(newPreviews);
+    const added: PhotoItem[] = files.slice(0, Math.max(0, 10 - photoItems.length)).map((file) => ({
+      id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+    setPhotoItems((prev) => [...prev, ...added]);
+    e.target.value = '';
   };
 
-  const removePhoto = (index: number) => {
-    const nextFiles = photoFiles.filter((_, i) => i !== index);
-    const nextPreviews = photoPreviews.filter((_, i) => i !== index);
-    URL.revokeObjectURL(photoPreviews[index] ?? '');
-    setPhotoFiles(nextFiles);
-    setPhotoPreviews(nextPreviews);
+  const removePhoto = (id: string) => {
+    setPhotoItems((prev) => {
+      const item = prev.find((p) => p.id === id);
+      if (item) URL.revokeObjectURL(item.preview);
+      return prev.filter((p) => p.id !== id);
+    });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     const trimmedTitle = title.trim();
     const trimmedContent = content.trim();
     if (!trimmedTitle) {
@@ -73,7 +147,7 @@ export default function CommunityWritePage() {
     }
     setIsSubmitting(true);
     try {
-      // TODO: 백엔드 API 연동 (boardType, accountKey, trimmedTitle, trimmedContent, photoFiles)
+      // TODO: 백엔드 API 연동 (boardType, accountKey, trimmedTitle, trimmedContent, photoItems.map(i => i.file))
       await new Promise((r) => setTimeout(r, 500));
       alert('글이 등록되었습니다. (현재 목 데이터)');
       router.push('/admin/community');
@@ -92,11 +166,41 @@ export default function CommunityWritePage() {
     );
   }
 
+  const canSubmit = Boolean(title.trim() && content.trim()) && !isSubmitting;
+
   return (
-    <div className="bg-white dark:bg-zinc-900">
-      <form className="space-y-4 px-4 py-4 pb-0" onSubmit={handleSubmit}>
+    <div className="flex min-h-[calc(100dvh-4rem)] flex-col overflow-hidden bg-white dark:bg-zinc-900">
+      {/* 헤더: 동아리 신청/피드 추가와 동일 (취소 | 제목 | 작성) */}
+      <div
+        className="shrink-0 border-b bg-[var(--card)] text-[var(--foreground)]"
+        style={{ borderColor: 'var(--border)' }}
+      >
+        <div className="flex h-16 items-center justify-between px-4">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="text-base font-medium text-[var(--foreground)] opacity-90 hover:opacity-100"
+          >
+            취소
+          </button>
+          <h1 className="text-lg font-semibold text-[var(--foreground)]">글쓰기</h1>
+          <button
+            type="button"
+            onClick={() => handleSubmit()}
+            disabled={!canSubmit}
+            className="text-base font-semibold text-blue-500 disabled:opacity-50 dark:text-blue-400"
+          >
+            {isSubmitting ? '작성 중...' : '작성'}
+          </button>
+        </div>
+      </div>
+
+      <form
+        className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4 pb-20"
+        onSubmit={handleSubmit}
+      >
         {/* 분류 / 계정 선택 2열 */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid shrink-0 grid-cols-2 gap-4">
           <div>
             <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
               분류
@@ -163,7 +267,7 @@ export default function CommunityWritePage() {
         </div>
 
         {/* 제목 */}
-        <div>
+        <div className="shrink-0">
           <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
             제목
           </label>
@@ -177,23 +281,25 @@ export default function CommunityWritePage() {
           />
         </div>
 
-        {/* 내용 */}
-        <div>
-          <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+        {/* 내용: 남는 세로 공간 채우기 */}
+        <div className="flex min-h-0 flex-1 flex-col">
+          <label className="mb-2 shrink-0 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
             내용
           </label>
-          <TextArea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="내용을 입력하세요"
-            rows={6}
-            className="w-full resize-none rounded-xl border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
-            aria-label="내용"
-          />
+          <div className="min-h-0 flex-1">
+            <TextArea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="내용을 입력하세요"
+              className="h-full min-h-[8rem] w-full resize-none rounded-xl border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 [&_textarea]:min-h-[8rem]"
+              classNames={{ input: 'min-h-[8rem]' }}
+              aria-label="내용"
+            />
+          </div>
         </div>
 
-        {/* 사진 */}
-        <div>
+        {/* 사진: 동아리 피드와 동일하게 가로 스크롤 + 드래그 순서 변경 */}
+        <div className="shrink-0">
           <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
             사진
           </label>
@@ -205,48 +311,51 @@ export default function CommunityWritePage() {
             className="hidden"
             id="community-write-photo"
           />
-          <div className="flex flex-wrap gap-2">
-            {photoPreviews.map((url, i) => (
-              <div key={url} className="relative">
-                <img
-                  src={url}
-                  alt={`첨부 ${i + 1}`}
-                  className="h-20 w-20 rounded-lg object-cover"
-                />
-                <button
-                  type="button"
-                  onClick={() => removePhoto(i)}
-                  className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-zinc-800 text-xs text-white dark:bg-zinc-200 dark:text-zinc-800"
-                  aria-label={`사진 ${i + 1} 제거`}
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-            {photoPreviews.length < 10 && (
-              <label
-                htmlFor="community-write-photo"
-                className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-zinc-300 text-zinc-400 transition hover:border-zinc-500 hover:text-zinc-600 dark:border-zinc-600 dark:hover:border-zinc-500 dark:hover:text-zinc-300"
-              >
+          {photoItems.length === 0 ? (
+            <label
+              htmlFor="community-write-photo"
+              className="block w-36 shrink-0 cursor-pointer"
+            >
+              <span className="flex aspect-square w-36 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 text-zinc-600 transition-colors hover:border-zinc-400 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
                 <span className="text-2xl">+</span>
-              </label>
-            )}
-          </div>
+                <span className="text-sm font-medium">이미지 추가</span>
+              </span>
+            </label>
+          ) : (
+            <div className="drag-area-no-select -mx-4 shrink-0 overflow-x-auto overflow-y-hidden px-4 pb-2">
+              <div className="flex items-center gap-3" style={{ width: 'max-content' }}>
+                <Reorder.Group
+                  axis="x"
+                  values={photoItems}
+                  onReorder={setPhotoItems}
+                  className="flex items-center gap-3"
+                >
+                  {photoItems.map((item) => (
+                    <PhotoReorderItem
+                      key={item.id}
+                      item={item}
+                      onRemove={() => removePhoto(item.id)}
+                      canReorder={photoItems.length > 1}
+                    />
+                  ))}
+                </Reorder.Group>
+                {photoItems.length < 10 && (
+                  <label
+                    htmlFor="community-write-photo"
+                    className="block shrink-0 cursor-pointer"
+                  >
+                    <span className="flex aspect-square w-36 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 text-2xl text-zinc-400 transition-colors hover:border-zinc-500 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
+                      +
+                    </span>
+                  </label>
+                )}
+              </div>
+            </div>
+          )}
           <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-            최대 10장까지 첨부할 수 있습니다.
+            최대 10장까지 첨부할 수 있습니다. 드래그 그립으로 순서를 변경할 수 있습니다.
           </p>
         </div>
-
-        {/* 작성 버튼 */}
-        <Button
-          type="submit"
-          variant="primary"
-          className="w-full font-medium"
-          isDisabled={isSubmitting}
-          isPending={isSubmitting}
-        >
-          작성
-        </Button>
       </form>
     </div>
   );
