@@ -55,6 +55,12 @@
   --accent-foreground: #09090b;
 }
 
+/* 웹에서 앱 영역(max-w-md) 밖으로 나가지 않게: fixed 오버레이·모달이 이 컨테이너 기준으로 위치 */
+.app-container {
+  position: relative;
+  transform: translateZ(0);
+}
+
 /* 라이트 모드에서 입력 필드가 폰에서 다크로 보이는 현상 방지 (next-themes: .light / .dark) */
 html:not(.dark) input,
 html:not(.dark) textarea,

@@ -122,7 +122,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" suppressHydrationWarning>
-      <body className="bg-[var(--background)] text-[var(--foreground)]">
+      <body className="overflow-x-hidden bg-[var(--background)] text-[var(--foreground)]">
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <ThemeProvider>
           <NuqsAdapter>
@@ -132,10 +132,12 @@ export default function RootLayout({
                 <FullscreenBodyLock />
                 <PortraitLock />
                 <FcmForegroundHandler />
-                <AppShell>{children}</AppShell>
-                <Toaster position="top-center" richColors />
-                <PwaNoticeModal />
-                <PwaNotificationPromptModal />
+                <div className="app-container mx-auto min-h-dvh max-w-md overflow-x-hidden">
+                  <AppShell>{children}</AppShell>
+                  <Toaster position="top-center" richColors />
+                  <PwaNoticeModal />
+                  <PwaNotificationPromptModal />
+                </div>
               </AuthProvider>
             </QueryProvider>
           </NuqsAdapter>

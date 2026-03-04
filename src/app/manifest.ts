@@ -75,6 +75,8 @@ export default function manifest(): MetadataRoute.Manifest {
     },
   ];
 
+  const manifestUrl = base ? `${base}/manifest.webmanifest` : '/manifest.webmanifest';
+
   return {
     id: '/',
     name: 'KookDongE',
@@ -86,5 +88,6 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: '#3B82F6',
     orientation: 'portrait',
     icons: icons as MetadataRoute.Manifest['icons'],
-  };
+    related_applications: [{ platform: 'webapp', url: manifestUrl }],
+  } as MetadataRoute.Manifest;
 }
