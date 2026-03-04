@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
-import { Button, Input } from '@heroui/react';
+import { Button } from '@heroui/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { parseAsString, useQueryState } from 'nuqs';
 import { createPortal } from 'react-dom';
@@ -464,18 +464,16 @@ function ClubListSection({
                     </strong>
                     을(를) 입력하세요.
                   </p>
-                  {/* Input에 mt-6을 주어 문단과의 간격을 확실히 함. 래퍼에 w-full + fullWidth로 가로 폭을 모달과 동일하게 */}
-                  <div className="mb-6 w-full">
-                    <Input
-                      type="text"
-                      placeholder="동아리 이름 입력"
-                      value={deleteConfirmName}
-                      onChange={(e) => setDeleteConfirmName(e.target.value)}
-                      className="mt-6 w-full min-w-0 !max-w-full"
-                      autoComplete="off"
-                      aria-label="동아리 이름 확인"
-                    />
-                  </div>
+                  {/* 네이티브 input 사용: HeroUI Input은 className(w-full, mt-6)이 실제 DOM에 반영되지 않아 간격/너비 제어 불가 */}
+                  <input
+                    type="text"
+                    placeholder="동아리 이름 입력"
+                    value={deleteConfirmName}
+                    onChange={(e) => setDeleteConfirmName(e.target.value)}
+                    className="mt-6 mb-6 w-full min-w-0 rounded-lg border border-zinc-300 bg-transparent px-3 py-2 text-sm outline-none transition-colors placeholder:text-zinc-400 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-600 dark:focus:border-zinc-500 dark:focus:ring-zinc-700"
+                    autoComplete="off"
+                    aria-label="동아리 이름 확인"
+                  />
                 </>
               )}
               <div className="flex gap-3">
