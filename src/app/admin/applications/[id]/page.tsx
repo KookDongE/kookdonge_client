@@ -35,6 +35,18 @@ const TYPE_LABELS: Record<ClubType, string> = {
   CLUB: '동아리',
 };
 
+/** YY.MM.DD HH:mm:ss 24시간 표기 */
+function formatDateTime24(date: Date | string): string {
+  const d = new Date(date);
+  const yy = String(d.getFullYear()).slice(-2);
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const hh = String(d.getHours()).padStart(2, '0');
+  const min = String(d.getMinutes()).padStart(2, '0');
+  const sec = String(d.getSeconds()).padStart(2, '0');
+  return `${yy}.${mm}.${dd} ${hh}:${min}:${sec}`;
+}
+
 type PageProps = { params: Promise<{ id: string }> };
 
 export default function AdminApplicationDetailPage({ params }: PageProps) {
@@ -193,7 +205,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
           {/* 신청일 (참고) */}
           <div>
             <label className={labelClass}>신청일</label>
-            <div className={valueBoxClass}>{new Date(application.createdAt).toLocaleString()}</div>
+            <div className={valueBoxClass}>{formatDateTime24(application.createdAt)}</div>
           </div>
 
           {isPending && (

@@ -86,7 +86,7 @@ export function InterestedClubCard({ subscription, className = '' }: InterestedC
   return (
     <Link
       href={`/clubs/${subscription.clubId}`}
-      className={`flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 ${className}`}
+      className={`flex items-center gap-3 rounded-xl border border-zinc-100 bg-white p-4 transition-all hover:border-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700 ${className}`}
     >
       <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
         {imageUrl ? (

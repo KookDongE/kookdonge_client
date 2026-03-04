@@ -101,7 +101,7 @@ export function FeedItem({
   return (
     <article
       id={`feed-${feedId}`}
-      className="mb-8 border-b border-zinc-200 bg-white pb-6 dark:border-zinc-800 dark:bg-zinc-900"
+      className="scroll-mt-16 mb-8 border-b border-zinc-200 bg-white pb-6 dark:border-zinc-800 dark:bg-zinc-900"
     >
       {/* 헤더 영역: 프로필 사진 + (이름 + 작성 시간 세로) + 더보기 메뉴 */}
       <div className="flex items-center justify-between gap-3 px-4 py-3">
@@ -191,12 +191,11 @@ export function FeedItem({
         </div>
       </div>
 
-      {/* 미디어 영역: 이미지 없음 → 회색, 여러 장 → 스와이프, 한 장 → 단일 (스크롤 시 사진부터 보이도록 id 부여) */}
+      {/* 미디어 영역: 이미지 없음 → 회색, 여러 장 → 스와이프, 한 장 → 단일 */}
       {hasNoImage ? (
-        <div id={`feed-${feedId}-media`} className="relative aspect-square w-full bg-zinc-200 dark:bg-zinc-700" />
+        <div className="relative aspect-square w-full bg-zinc-200 dark:bg-zinc-700" />
       ) : hasMultiple ? (
         <div
-          id={`feed-${feedId}-media`}
           className="relative aspect-square w-full touch-pan-y overflow-hidden bg-zinc-100 select-none dark:bg-zinc-800"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -248,7 +247,7 @@ export function FeedItem({
           </div>
         </div>
       ) : (
-        <div id={`feed-${feedId}-media`} className="relative aspect-square w-full bg-zinc-200 dark:bg-zinc-700">
+        <div className="relative aspect-square w-full bg-zinc-200 dark:bg-zinc-700">
           {failedImageIndices.has(0) ? (
             <div className="absolute inset-0 bg-zinc-200 dark:bg-zinc-700" />
           ) : (

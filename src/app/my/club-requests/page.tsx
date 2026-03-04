@@ -32,7 +32,7 @@ function MyApplicationsListContent() {
               <Link
                 key={app.id}
                 href={`/my/club-requests/${app.id}`}
-                className="flex items-center justify-between gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2.5 shadow-sm transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700"
+                className="flex items-center justify-between gap-2 rounded-xl border border-zinc-100 bg-white px-3 py-2.5 transition hover:border-zinc-200 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700 dark:hover:bg-zinc-700"
               >
                 <div className="min-w-0 flex-1">
                   <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">

@@ -224,11 +224,11 @@ html:not(.dark) .club-manage-admin-item {
 /* 라이트 모드: 마이페이지 동아리 카드(관리 중인 동아리, 관심 동아리, 내 신청 목록 등) 테두리·배경 밝게 (PWA 앱뷰 라이트에서 다크로 보이는 현상 방지) */
 html:not(.dark) .mypage-club-card {
   background-color: #ffffff !important;
-  border-color: #e4e4e7 !important;
+  border-color: #f4f4f5 !important; /* zinc-100, 참조 카드와 동일 */
 }
 html:not(.dark) .mypage-club-card:hover {
   background-color: #fafafa !important;
-  border-color: #d4d4d8 !important;
+  border-color: #e4e4e7 !important; /* zinc-200 */
 }
 html:not(.dark) .mypage-club-card-logo {
   background-color: #f4f4f5 !important;

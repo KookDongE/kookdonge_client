@@ -180,7 +180,7 @@ function AdminSection() {
             <Link
               key={club.id}
               href={`/mypage/clubs/${club.id}/manage`}
-              className="mypage-club-card flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
+              className="mypage-club-card flex items-center gap-3 rounded-xl border border-zinc-100 bg-white p-4 transition-all hover:border-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700"
             >
               <div className="mypage-club-card-logo relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
                 {club.logoImage ? (
@@ -285,7 +285,7 @@ function PendingQuestionsSection() {
                   `/mypage/clubs/${firstManagedClubId}/manage?tab=qna&questionId=${qna.id}`
                 )
               }
-              className="mypage-club-card w-full rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700/80"
+              className="mypage-club-card w-full rounded-xl border border-zinc-100 bg-white p-4 text-left transition-colors hover:border-zinc-200 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700 dark:hover:bg-zinc-700/80"
             >
               <div className="flex items-start gap-3">
                 <span
@@ -360,7 +360,7 @@ function QnAListSection() {
               type="button"
               key={qna.id}
               onClick={() => router.push(getItemHref(qna))}
-              className="mypage-club-card w-full rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700/80"
+              className="mypage-club-card w-full rounded-xl border border-zinc-100 bg-white p-4 text-left transition-colors hover:border-zinc-200 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700 dark:hover:bg-zinc-700/80"
             >
               <div className="flex items-start gap-3">
                 <span
@@ -520,7 +520,7 @@ function MyApplicationsSection() {
             <Link
               key={app.id}
               href={`/my/club-requests/${app.id}`}
-              className="mypage-club-card flex items-center justify-between gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2.5 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
+              className="mypage-club-card flex items-center justify-between gap-2 rounded-xl border border-zinc-100 bg-white px-3 py-2.5 transition-all hover:border-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700"
             >
               <div className="min-w-0 flex-1">
                 <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">

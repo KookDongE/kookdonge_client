@@ -61,7 +61,7 @@ function ApplicationList({ statusParam }: { statusParam?: 'PENDING' | 'APPROVED'
             <Link
               key={app.id}
               href={`/admin/applications/${app.id}`}
-              className="flex items-center justify-between gap-2 rounded-xl bg-white px-3 py-2.5 shadow-sm transition-all hover:shadow-md dark:bg-zinc-800"
+              className="flex items-center justify-between gap-2 rounded-xl border border-zinc-100 bg-white px-3 py-2.5 transition-all hover:border-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700"
             >
               <div className="min-w-0 flex-1">
                 <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
