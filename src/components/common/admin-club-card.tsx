@@ -132,12 +132,8 @@ export function AdminClubCard({ club, index = 0, returnTo, onDelete }: AdminClub
 
   return (
     <div ref={wrapperRef} className="relative overflow-hidden rounded-2xl">
-      {/* 스와이프 시 카드 영역만 버튼 너비(ACTION_WIDTH)만큼 좁혀서 우측에 삭제 버튼만 노출 (알림 삭제와 동일 패턴, Framer Motion은 ClubCard 내부 motion 사용) */}
-      <div
-        onClick={handleCardClick}
-        className="relative z-0 cursor-pointer transition-[width] duration-150 ease-out"
-        style={{ width: isSwiped ? `calc(100% - ${ACTION_WIDTH}px)` : '100%' }}
-      >
+      {/* 카드 영역: 너비 고정 100%, 스와이프 시 카드만 translate로 이동해 삭제 버튼 노출 (컨테이너 내부에서만 밀리지 않음) */}
+      <div onClick={handleCardClick} className="relative z-0 w-full cursor-pointer">
         <ClubCard
           club={clubData}
           index={index}

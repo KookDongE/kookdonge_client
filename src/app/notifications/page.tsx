@@ -219,20 +219,27 @@ export default function NotificationsPage() {
         ) : (
           <>
             {/* 어제 */}
-            {yesterdayList.map((item) => (
-              <SwipeableNotificationItem
-                key={item.id}
-                item={item}
-                typeLabel={typeLabel}
-                typeBadgeColor={typeBadgeColor}
-                formatTime={formatTime}
-                onTap={() => handleItemClick(item)}
-                onDelete={(id) => deleteNotification.mutate(id)}
-                isDeleting={
-                  deleteNotification.isPending && deleteNotification.variables === item.id
-                }
-              />
-            ))}
+            {yesterdayList.length > 0 && (
+              <>
+                <div className="mt-4 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                  어제
+                </div>
+                {yesterdayList.map((item) => (
+                  <SwipeableNotificationItem
+                    key={item.id}
+                    item={item}
+                    typeLabel={typeLabel}
+                    typeBadgeColor={typeBadgeColor}
+                    formatTime={formatTime}
+                    onTap={() => handleItemClick(item)}
+                    onDelete={(id) => deleteNotification.mutate(id)}
+                    isDeleting={
+                      deleteNotification.isPending && deleteNotification.variables === item.id
+                    }
+                  />
+                ))}
+              </>
+            )}
 
             {/* 최근 7일 (오늘 포함) */}
             {recent7List.length > 0 && (

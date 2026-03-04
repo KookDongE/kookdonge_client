@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useEffect } from 'react';
+import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useMyProfile } from '@/features/auth/hooks';
@@ -43,6 +43,10 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
   const post = id > 0 ? getPostById(id) : null;
   const comments: CommunityComment[] = post ? getCommentsByPostId(post.id) : [];
 
+  /** 클릭 토글만 로컬 상태로 두고, 없으면 post 값 사용 (훅 규칙·effect setState 회피) */
+  const [likedOverride, setLikedOverride] = useState<boolean | null>(null);
+  const [savedOverride, setSavedOverride] = useState<boolean | null>(null);
+
   useEffect(() => {
     if (profileLoading) return;
     if (profile && !isSystemAdmin(profile)) {
@@ -65,6 +69,9 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
   }
 
   if (!post) return null;
+
+  const liked = likedOverride !== null ? likedOverride : (post.liked ?? false);
+  const saved = savedOverride !== null ? savedOverride : (post.saved ?? false);
 
   return (
     <div className="min-h-screen bg-white pb-24 dark:bg-zinc-900">
@@ -93,17 +100,22 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
           {post.content}
         </div>
 
-        {/* 액션 바: 좋아요·저장 버튼, 댓글은 표시만. 순서: 좋아요 → 저장 → 댓글. 아이콘 색상 있되 연하게 */}
+        {/* 액션 바: 좋아요·저장 버튼(클릭 시 채움/비움 토글), 댓글은 표시만. 순서: 좋아요 → 저장 → 댓글 */}
         <div className="mt-6 flex items-center gap-6 pt-4">
           <button
             type="button"
-            className="flex items-center gap-1.5 text-sm text-red-400/80 transition-opacity hover:opacity-80 dark:text-red-400/70"
-            aria-label="공감"
+            onClick={() =>
+              setLikedOverride((prev) => (prev !== null ? !prev : !(post.liked ?? false)))
+            }
+            className={`flex items-center gap-1.5 text-sm transition-opacity hover:opacity-80 ${
+              liked ? 'text-red-500 dark:text-red-400' : 'text-red-400/80 dark:text-red-400/70'
+            }`}
+            aria-label={liked ? '공감 취소' : '공감'}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
-              fill={post.liked ? 'currentColor' : 'none'}
+              fill={liked ? 'currentColor' : 'none'}
               stroke="currentColor"
               strokeWidth={1.5}
               className="h-5 w-5"
@@ -118,13 +130,20 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
           </button>
           <button
             type="button"
-            className="flex items-center gap-1.5 text-sm text-amber-400/80 transition-opacity hover:opacity-80 dark:text-amber-400/70"
-            aria-label="저장"
+            onClick={() =>
+              setSavedOverride((prev) => (prev !== null ? !prev : !(post.saved ?? false)))
+            }
+            className={`flex items-center gap-1.5 text-sm transition-opacity hover:opacity-80 ${
+              saved
+                ? 'text-amber-500 dark:text-amber-400'
+                : 'text-amber-400/80 dark:text-amber-400/70'
+            }`}
+            aria-label={saved ? '저장 취소' : '저장'}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
-              fill={post.saved ? 'currentColor' : 'none'}
+              fill={saved ? 'currentColor' : 'none'}
               stroke="currentColor"
               strokeWidth={1.5}
               className="h-5 w-5"
@@ -192,21 +211,21 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
         )}
       </section>
 
-      {/* 하단 고정 댓글 입력창: 좌측 계정 드롭다운, 가로 꽉 차는 입력창 안에 종이비행기 버튼 */}
+      {/* 하단 고정 댓글 입력창: 입력창 내부 좌측 계정 드롭다운 + 입력 + 종이비행기. 라이트모드 배경 흰색 유지 */}
       <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-md -translate-x-1/2 bg-white px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] dark:bg-zinc-900">
-        <div className="flex w-full items-center gap-2">
-          <select
-            className="shrink-0 rounded-lg border border-zinc-200 bg-zinc-50 py-2.5 pr-8 pl-3 text-sm text-zinc-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-            aria-label="댓글 작성 계정 선택"
-            title="계정 선택"
-          >
-            <option value="me">내 계정</option>
-          </select>
+        <div className="flex w-full items-center">
           <div className="relative flex min-w-0 flex-1 items-center rounded-lg border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800">
+            <select
+              className="shrink-0 rounded-l-md border-0 bg-transparent py-2.5 pr-6 pl-3 text-sm text-zinc-900 focus:ring-0 focus:outline-none dark:text-zinc-100"
+              aria-label="댓글 작성 계정 선택"
+              title="계정 선택"
+            >
+              <option value="me">내 계정</option>
+            </select>
             <input
               type="text"
               placeholder="댓글을 입력하세요"
-              className="min-w-0 flex-1 rounded-lg border-0 bg-transparent px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:ring-0 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
+              className="min-w-0 flex-1 border-0 bg-transparent px-2 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:ring-0 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
               aria-label="댓글 입력"
             />
             <button
@@ -217,10 +236,14 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
-                fill="currentColor"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 className="h-5 w-5"
               >
-                <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
+                <path d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
               </svg>
             </button>
           </div>

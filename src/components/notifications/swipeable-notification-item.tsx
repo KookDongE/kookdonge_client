@@ -127,8 +127,7 @@ export function SwipeableNotificationItem({
             handleCardClick(e as unknown as React.MouseEvent);
           }
         }}
-        className="relative z-0 cursor-pointer transition-[width] duration-150 ease-out"
-        style={{ width: isSwiped ? `calc(100% - ${ACTION_WIDTH}px)` : '100%' }}
+        className="relative z-0 w-full cursor-pointer"
       >
         <motion.div
           drag="x"
