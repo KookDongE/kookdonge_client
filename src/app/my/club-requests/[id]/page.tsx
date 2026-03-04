@@ -32,6 +32,17 @@ const STATUS_CHIP_CLASS: Record<string, string> = {
   REJECTED: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
 };
 
+function formatDateTime24(isoString: string): string {
+  const d = new Date(isoString);
+  const yy = d.getFullYear().toString().slice(-2);
+  const MM = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const HH = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  const ss = String(d.getSeconds()).padStart(2, '0');
+  return `${yy}.${MM}.${dd} ${HH}:${mm}:${ss}`;
+}
+
 export default function MyApplicationDetailPage() {
   const [mounted, setMounted] = useState(false);
   const params = useParams();
@@ -91,20 +102,18 @@ export default function MyApplicationDetailPage() {
     'w-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100';
 
   return (
-    <div className="min-h-screen bg-white pb-24 dark:bg-zinc-900">
-      <div className="flex items-center gap-2 px-4 pt-3 pb-1">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-        >
-          <span className="inline-block h-4 w-4">←</span>
-          <span>뒤로가기</span>
-        </button>
-      </div>
-
-      <div className="space-y-6 p-4">
-        <div className="flex items-center gap-2">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white dark:bg-zinc-900">
+      {/* 헤더: 뒤로가기(좌) | 상태 뱃지(우) — apply 페이지와 동일한 상단 구조 */}
+      <div className="shrink-0 bg-white dark:bg-zinc-900">
+        <div className="flex h-16 items-center justify-between px-4">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="flex items-center gap-1 text-base font-medium text-gray-700 dark:text-zinc-200"
+          >
+            <span className="inline-block">←</span>
+            <span>뒤로가기</span>
+          </button>
           <span
             className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_CHIP_CLASS[application.status] ?? 'bg-zinc-100 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300'}`}
           >
@@ -115,54 +124,52 @@ export default function MyApplicationDetailPage() {
                 : '거절됨'}
           </span>
         </div>
+      </div>
 
-        <div>
-          <label className={labelClass}>동아리 이름</label>
-          <div className={valueBoxClass}>{application.clubName}</div>
-        </div>
-
-        <div>
-          <label className={labelClass}>신청자</label>
-          <div className={valueBoxClass}>
-            {application.applicantName ?? '(이름 없음)'} · {application.applicantEmail ?? '-'}
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-start gap-4">
-          <div className="min-w-0 flex-1">
-            <label className={labelClass}>동아리유형</label>
-            <div className={valueBoxClass}>
-              {application.clubType ? TYPE_LABELS[application.clubType] : '미기재'}
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="space-y-6 p-4 pb-32">
+          {/* 거절 사유 — 동아리 이름 바로 위 */}
+          {application.status === 'REJECTED' && application.rejectionReason && (
+            <div>
+              <label className={labelClass}>거절 사유</label>
+              <div className={`${valueBoxClass} text-red-600 dark:text-red-400`}>
+                {application.rejectionReason}
+              </div>
             </div>
-          </div>
-          <div className="min-w-0 flex-1">
-            <label className={labelClass}>분야</label>
-            <div className={valueBoxClass}>
-              {application.category ? CATEGORY_LABELS[application.category] : '미기재'}
-            </div>
-          </div>
-        </div>
+          )}
 
-        <div>
-          <label className={labelClass}>신청 사유</label>
-          <div className={`${valueBoxClass} min-h-[200px] whitespace-pre-wrap`}>
-            {application.description ?? ''}
-          </div>
-        </div>
-
-        <div>
-          <label className={labelClass}>신청일</label>
-          <div className={valueBoxClass}>{new Date(application.createdAt).toLocaleString()}</div>
-        </div>
-
-        {application.status === 'REJECTED' && application.rejectionReason && (
           <div>
-            <label className={labelClass}>거절 사유</label>
-            <div className={`${valueBoxClass} text-red-600 dark:text-red-400`}>
-              {application.rejectionReason}
+            <label className={labelClass}>동아리 이름</label>
+            <div className={valueBoxClass}>{application.clubName}</div>
+          </div>
+
+          <div className="flex flex-wrap items-start gap-4">
+            <div className="min-w-0 flex-1">
+              <label className={labelClass}>동아리유형</label>
+              <div className={valueBoxClass}>
+                {application.clubType ? TYPE_LABELS[application.clubType] : '미기재'}
+              </div>
+            </div>
+            <div className="min-w-0 flex-1">
+              <label className={labelClass}>분야</label>
+              <div className={valueBoxClass}>
+                {application.category ? CATEGORY_LABELS[application.category] : '미기재'}
+              </div>
             </div>
           </div>
-        )}
+
+          <div>
+            <label className={labelClass}>신청 사유</label>
+            <div className={`${valueBoxClass} min-h-[200px] whitespace-pre-wrap`}>
+              {application.applicationReason ?? application.description ?? ''}
+            </div>
+          </div>
+
+          <div>
+            <label className={labelClass}>신청일</label>
+            <div className={valueBoxClass}>{formatDateTime24(application.createdAt)}</div>
+          </div>
+        </div>
       </div>
     </div>
   );
