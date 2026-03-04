@@ -6,8 +6,7 @@ import Link from 'next/link';
 
 import { motion } from 'framer-motion';
 
-import { ClubCategory, ClubListRes, ClubType, RecruitmentStatus } from '@/types/api';
-import type { College } from '@/types/api';
+import { ClubCategory, ClubListRes, ClubType, RecruitmentStatus, type College } from '@/types/api';
 import { DefaultClubImage } from '@/components/common/default-club-image';
 
 const COLLEGE_LABEL: Record<College, string> = {
@@ -122,8 +121,8 @@ export function ClubCard({
         )}
       </div>
 
-      {/* Content Section */}
-      <div className="flex min-w-0 flex-1 flex-col justify-center p-3">
+      {/* Content Section - 태그/제목은 항상 동일 위치(한줄소개 유무와 무관) */}
+      <div className="flex min-w-0 flex-1 flex-col justify-start p-3">
         <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
           <span
             className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium ${status.className}`}
@@ -147,7 +146,9 @@ export function ClubCard({
           {club.name}
         </h3>
 
-        <p className="line-clamp-2 text-xs text-zinc-500 dark:text-zinc-400">{club.introduction}</p>
+        <p className="line-clamp-2 min-h-[2.5rem] text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
+          {club.introduction || '\u00A0'}
+        </p>
       </div>
     </motion.div>
   );
