@@ -9,7 +9,7 @@ import { Button, Input, ListBox, Select, TextArea } from '@heroui/react';
 import { useSystemAdmins } from '@/features/admin';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
-import { PageCenteredSkeleton } from '@/components/common/skeletons';
+import { FormPageSkeleton } from '@/components/common/skeletons';
 
 /** 글쓰기 분류: 홍보/자유만 (인기는 목록만) */
 const BOARD_TYPE_OPTIONS: { value: 'promo' | 'free'; label: string }[] = [
@@ -87,8 +87,8 @@ export default function CommunityWritePage() {
 
   if (profileLoading || (profile && !isSystemAdmin(profile))) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <PageCenteredSkeleton />
+      <div className="min-h-screen bg-white dark:bg-zinc-900">
+        <FormPageSkeleton />
       </div>
     );
   }

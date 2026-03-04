@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
 import { useLikedPosts } from '@/features/community/hooks';
-import { PageCenteredSkeleton } from '@/components/common/skeletons';
+import { CommunityListPageSkeleton } from '@/components/common/skeletons';
 import { CommunityPostCard } from '@/components/community/community-post-card';
 import {
   CommunitySearchFilter,
@@ -42,11 +42,7 @@ export default function CommunityLikedPage() {
   }, [profile, profileLoading, router]);
 
   if (profileLoading || (profile && !isSystemAdmin(profile))) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <PageCenteredSkeleton />
-      </div>
-    );
+    return <CommunityListPageSkeleton />;
   }
 
   return (

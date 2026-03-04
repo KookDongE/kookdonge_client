@@ -98,6 +98,8 @@ type CommunitySearchFilterProps = {
   stickyHideOnScroll?: boolean;
   /** true면 검색 아래 필터(최신순/인기순, 내가 쓴 글 등) 영역 숨김 */
   hideFilters?: boolean;
+  /** true면 입력 시가 아닌 검색 버튼/엔터 시에만 onQueryChange 호출 */
+  submitOnly?: boolean;
   className?: string;
 };
 
@@ -108,6 +110,7 @@ export function CommunitySearchFilter({
   onSortChange,
   stickyHideOnScroll = false,
   hideFilters = false,
+  submitOnly = false,
   className = '',
 }: CommunitySearchFilterProps) {
   const [searchInput, setSearchInput] = useState(() => query);
@@ -123,10 +126,12 @@ export function CommunitySearchFilter({
     return () => clearTimeout(t);
   }, [query]);
 
+  // submitOnly가 아닐 때만 입력값 변경 시 디바운스로 onQueryChange 호출
   useEffect(() => {
+    if (submitOnly) return;
     const timer = setTimeout(() => onQueryChange(searchInput.trim()), 300);
     return () => clearTimeout(timer);
-  }, [searchInput, onQueryChange]);
+  }, [searchInput, onQueryChange, submitOnly]);
 
   useEffect(() => {
     if (!stickyHideOnScroll) return;

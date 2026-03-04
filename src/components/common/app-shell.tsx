@@ -51,14 +51,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     PULL_TO_REFRESH_DISABLED_PATHS.some((re) => re.test(pathname ?? '')) || pathname === '/admin'; // 관리자 메인 페이지만 비활성, 하위(/admin/applications 등)는 풀리프래시 활성
   const scrollDisabled = SCROLL_DISABLED_PATHS.some((re) => re.test(pathname ?? ''));
 
-  // 스크롤 비활성 페이지에서는 body 세로 스크롤도 막아서 문서 전체가 스크롤되지 않도록 함
+  // 스크롤 비활성 페이지: html/body 스크롤·오버스크롤(바운스) 완전 차단 (설정·동아리신청·커뮤니티 메인 등과 동일하게)
   useEffect(() => {
     if (typeof document === 'undefined') return;
     if (scrollDisabled) {
-      const prev = document.body.style.overflow;
+      const html = document.documentElement;
+      const prevHtmlOverflow = html.style.overflow;
+      const prevHtmlOverscroll = html.style.overscrollBehavior;
+      const prevBodyOverflow = document.body.style.overflow;
+      const prevBodyOverscroll = document.body.style.overscrollBehavior;
+      html.style.overflow = 'hidden';
+      html.style.overscrollBehavior = 'none';
       document.body.style.overflow = 'hidden';
+      document.body.style.overscrollBehavior = 'none';
       return () => {
-        document.body.style.overflow = prev;
+        html.style.overflow = prevHtmlOverflow;
+        html.style.overscrollBehavior = prevHtmlOverscroll;
+        document.body.style.overflow = prevBodyOverflow;
+        document.body.style.overscrollBehavior = prevBodyOverscroll;
       };
     }
   }, [scrollDisabled]);

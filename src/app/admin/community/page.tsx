@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
-import { PageCenteredSkeleton } from '@/components/common/skeletons';
+import { CommunityHomeSkeleton } from '@/components/common/skeletons';
 import { CommunitySearchInputRow } from '@/components/community/community-search-filter';
 import { CommunityWriteFloatingButton } from '@/components/community/community-write-floating-button';
 
@@ -134,15 +134,11 @@ export default function AdminCommunityPage() {
   }, [profile, profileLoading, router]);
 
   if (profileLoading || (profile && !isSystemAdmin(profile))) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <PageCenteredSkeleton />
-      </div>
-    );
+    return <CommunityHomeSkeleton />;
   }
 
   return (
-    <div className="h-screen overflow-hidden bg-white pb-20 dark:bg-zinc-900">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white pb-20 dark:bg-zinc-900">
       {/* 상단 검색: 다른 검색 UI와 동일, 인풋 내부 회색 비행기 버튼 */}
       <div className="px-4 py-3">
         <CommunitySearchInputRow

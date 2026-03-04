@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
 import { useBoardPosts } from '@/features/community/hooks';
-import { PageCenteredSkeleton } from '@/components/common/skeletons';
+import { CommunityListPageSkeleton } from '@/components/common/skeletons';
 import { CommunityPostCard } from '@/components/community/community-post-card';
 import {
   CommunitySearchFilter,
@@ -17,10 +17,16 @@ import { CommunityWriteFloatingButton } from '@/components/community/community-w
 export default function CommunityPopularPage() {
   const router = useRouter();
   const { data: profile, isLoading: profileLoading } = useMyProfile();
-  const [query, setQuery] = useState('');
   const [sort, setSort] = useState<CommunitySort>('latest');
 
-  const posts = useBoardPosts('popular', query, sort);
+  const posts = useBoardPosts('popular', '', sort);
+
+  const handleSearchSubmit = (q: string) => {
+    const path = q.trim()
+      ? `/admin/community/search?q=${encodeURIComponent(q.trim())}`
+      : '/admin/community/search';
+    router.push(path);
+  };
 
   useEffect(() => {
     if (profileLoading) return;
@@ -30,22 +36,19 @@ export default function CommunityPopularPage() {
   }, [profile, profileLoading, router]);
 
   if (profileLoading || (profile && !isSystemAdmin(profile))) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <PageCenteredSkeleton />
-      </div>
-    );
+    return <CommunityListPageSkeleton />;
   }
 
   return (
     <div className="min-h-screen bg-white pb-20 dark:bg-zinc-900">
       <CommunitySearchFilter
-        query={query}
-        onQueryChange={setQuery}
+        query=""
+        onQueryChange={handleSearchSubmit}
         sort={sort}
         onSortChange={setSort}
         stickyHideOnScroll
         hideFilters
+        submitOnly
       />
 
       <div className="space-y-0 px-0 py-4">

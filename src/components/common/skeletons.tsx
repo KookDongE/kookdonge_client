@@ -112,7 +112,10 @@ export function TablePageSkeleton({ rows = 5 }: { rows?: number }) {
     <div className="space-y-4 px-4 py-6">
       <div className="skeleton h-7 w-32 rounded" />
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="flex items-center gap-3 rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+        <div
+          key={i}
+          className="flex items-center gap-3 rounded-xl border border-zinc-200 p-4 dark:border-zinc-700"
+        >
           <div className="skeleton h-10 w-10 rounded-full" />
           <div className="skeleton h-4 flex-1 rounded" />
           <div className="skeleton h-6 w-16 rounded-full" />
@@ -146,6 +149,104 @@ export function TabContentSkeleton() {
           <div key={i} className="skeleton h-20 w-full rounded-xl" />
         ))}
       </div>
+    </div>
+  );
+}
+
+/** 커뮤니티 게시글 카드 1개 (제목 2줄 + 본문 1줄 + 아이콘/시간/작성자) */
+export function CommunityPostCardSkeleton() {
+  return (
+    <article className="border-b border-zinc-100 px-4 py-3 dark:border-zinc-800">
+      <div className="skeleton h-5 w-4/5 rounded leading-snug" />
+      <div className="skeleton mt-1.5 h-4 w-full rounded" />
+      <div className="mt-2 flex items-center gap-3">
+        <div className="skeleton h-3.5 w-8 rounded" />
+        <div className="skeleton h-3.5 w-8 rounded" />
+        <div className="skeleton h-3.5 w-8 rounded" />
+        <div className="skeleton h-3 w-12 rounded" />
+        <div className="skeleton h-3 w-16 rounded" />
+      </div>
+    </article>
+  );
+}
+
+/** 커뮤니티 목록 페이지 (검색 필터 영역 + 게시글 카드 N개) */
+export function CommunityListPageSkeleton({ count = 6 }: { count?: number }) {
+  return (
+    <div className="min-h-screen bg-white pb-20 dark:bg-zinc-900">
+      <div className="border-b border-zinc-100 px-4 py-3 dark:border-zinc-800">
+        <div className="skeleton h-10 w-full rounded-xl" />
+      </div>
+      <div className="space-y-0 px-0 py-4">
+        {Array.from({ length: count }).map((_, i) => (
+          <CommunityPostCardSkeleton key={i} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** 커뮤니티 메인 페이지 (검색 + 배너 + 메뉴 리스트) */
+export function CommunityHomeSkeleton() {
+  return (
+    <div className="h-screen overflow-hidden bg-white pb-20 dark:bg-zinc-900">
+      <div className="px-4 py-3">
+        <div className="skeleton h-10 w-full rounded-xl" />
+      </div>
+      <div className="mb-4 px-4 pt-4">
+        <div className="skeleton w-full rounded-xl" style={{ aspectRatio: '3/2' }} />
+      </div>
+      <div className="px-5 py-3">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className="flex items-center justify-between gap-3 py-2.5">
+            <div className="skeleton h-5 w-24 rounded" />
+            <div className="skeleton h-4 w-4 rounded" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** 커뮤니티 게시글 상세 페이지 (작성자 + 제목 + 본문 + 액션바 + 댓글 섹션) */
+export function CommunityPostDetailSkeleton() {
+  return (
+    <div className="min-h-screen bg-white pb-24 dark:bg-zinc-900">
+      <article className="px-4 py-4">
+        <div className="mb-3 flex items-center gap-3">
+          <div className="skeleton h-10 w-10 shrink-0 rounded-full" />
+          <div className="min-w-0 flex-1 space-y-1">
+            <div className="skeleton h-3 w-20 rounded" />
+            <div className="skeleton h-3 w-28 rounded" />
+          </div>
+          <div className="skeleton h-8 w-8 shrink-0 rounded-full" />
+        </div>
+        <div className="skeleton h-6 w-3/4 rounded" />
+        <div className="mt-4 space-y-2">
+          <div className="skeleton h-4 w-full rounded" />
+          <div className="skeleton h-4 w-full rounded" />
+          <div className="skeleton h-4 w-2/3 rounded" />
+        </div>
+        <div className="mt-6 flex items-center gap-6 pt-4">
+          <div className="skeleton h-5 w-12 rounded" />
+          <div className="skeleton h-5 w-12 rounded" />
+          <div className="skeleton h-5 w-12 rounded" />
+        </div>
+      </article>
+      <section className="mt-6 border-t border-zinc-100 px-4 py-4 dark:border-zinc-800">
+        <div className="skeleton mb-3 h-4 w-20 rounded" />
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex gap-3">
+              <div className="skeleton h-8 w-8 shrink-0 rounded-full" />
+              <div className="min-w-0 flex-1 space-y-1">
+                <div className="skeleton h-3 w-32 rounded" />
+                <div className="skeleton h-4 w-full rounded" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

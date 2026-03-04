@@ -12,7 +12,7 @@ import {
   getPostById,
   type CommunityComment,
 } from '@/features/community/mock-data';
-import { PageCenteredSkeleton } from '@/components/common/skeletons';
+import { CommunityPostDetailSkeleton } from '@/components/common/skeletons';
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
@@ -154,11 +154,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
   }, [commentText]);
 
   if (profileLoading || (profile && !isSystemAdmin(profile)) || (id > 0 && !post)) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <PageCenteredSkeleton />
-      </div>
-    );
+    return <CommunityPostDetailSkeleton />;
   }
 
   if (!post) return null;
