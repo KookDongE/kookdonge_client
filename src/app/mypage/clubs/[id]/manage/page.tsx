@@ -1995,7 +1995,7 @@ function ClubQnaTab({
                   </div>
                 </div>
                 {!qna.answer && (
-                  <div className="mt-3 flex shrink-0 items-center gap-1">
+                  <div className="mt-3 flex shrink-0 items-center justify-end gap-1">
                     <Button
                       size="sm"
                       variant="ghost"
@@ -2004,31 +2004,34 @@ function ClubQnaTab({
                           prev === qna.id ? null : qna.id
                         )
                       }
-                      className="min-w-0"
+                      className="min-w-0 text-xs font-normal text-zinc-500 dark:text-zinc-400"
                     >
                       {expandedAnswerQuestionId === qna.id ? '접기' : '답변하기'}
                     </Button>
                   </div>
                 )}
                 {expandedAnswerQuestionId === qna.id && !qna.answer && (
-                  <div className="mt-3 space-y-2 pt-3">
-                    <TextArea
-                      placeholder="답변을 입력해주세요"
-                      value={answerTexts[qna.id] || ''}
-                      onChange={(e) =>
-                        setAnswerTexts((prev) => ({ ...prev, [qna.id]: e.target.value }))
-                      }
-                      className="min-h-[4.5rem] w-full resize-none"
-                    />
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      onPress={() => handleAnswerSubmit(qna.id)}
-                      isPending={createAnswer.isPending}
-                      className="w-full"
-                    >
-                      답변 등록
-                    </Button>
+                  <div className="mt-3 pt-3">
+                    <div className="bg-default-100 relative flex min-h-0 w-full rounded-lg border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800/50">
+                      <TextArea
+                        placeholder="답변을 입력해주세요"
+                        value={answerTexts[qna.id] || ''}
+                        onChange={(e) =>
+                          setAnswerTexts((prev) => ({ ...prev, [qna.id]: e.target.value }))
+                        }
+                        className="min-h-[2.5rem] w-full min-w-0 resize-none border-0 bg-transparent py-2 pr-14 pl-3 shadow-none placeholder:text-zinc-400 hover:shadow-none focus:ring-0 dark:placeholder:text-zinc-500"
+                      />
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        onPress={() => handleAnswerSubmit(qna.id)}
+                        isDisabled={!answerTexts[qna.id]?.trim()}
+                        isPending={createAnswer.isPending}
+                        className="absolute top-1/2 right-1.5 shrink-0 -translate-y-1/2"
+                      >
+                        등록
+                      </Button>
+                    </div>
                   </div>
                 )}
                 {qna.answer && (
