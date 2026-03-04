@@ -115,7 +115,7 @@ export function PullToRefresh({
     <div
       ref={scrollRef}
       data-scroll-container
-      className={`pb-safe h-full overscroll-y-none ${fullScreen || scrollDisabled ? 'no-scrollbar overflow-hidden' : 'overflow-y-auto'}`}
+      className={`pb-safe h-full overscroll-y-none ${fullScreen || scrollDisabled ? 'no-scrollbar overflow-hidden touch-none overscroll-none' : 'overflow-y-auto'}`}
       style={{ height: contentHeight }}
       onTouchStart={canPull ? onTouchStart : undefined}
       onTouchMove={canPull ? onTouchMove : undefined}

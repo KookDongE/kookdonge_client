@@ -30,10 +30,10 @@ const PULL_TO_REFRESH_DISABLED_PATHS = [
   /^\/mypage\/notification-settings(\/|$)/, // 알림설정
 ];
 
-/** 메인 스크롤 비활성화 경로 (동아리 신청, 설정, 알림설정, 관리자 메인, 커뮤니티 메인만 — 하위 페이지는 스크롤 가능) */
+/** 메인 스크롤 비활성화 경로 (동아리 신청, 설정 메인만, 알림설정, 관리자 메인만, 커뮤니티 메인만 — 하위 페이지는 스크롤 가능) */
 const SCROLL_DISABLED_PATHS = [
   /^\/mypage\/clubs\/apply$/,
-  /^\/mypage\/settings(\/|$)/,
+  /^\/mypage\/settings\/?$/, // 설정 메인만 (/mypage/settings, /mypage/settings/) — 하위(이름변경, 버그신고 등) 제외
   /^\/mypage\/notification-settings(\/|$)/,
   /^\/admin\/?$/, // 관리자 메인만 (trailing slash 포함)
   /^\/admin\/community\/?$/, // 커뮤니티 메인만, 하위(/admin/community/popular 등)는 스크롤 가능. trailing slash 포함.
@@ -51,24 +51,47 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     PULL_TO_REFRESH_DISABLED_PATHS.some((re) => re.test(pathname ?? '')) || pathname === '/admin'; // 관리자 메인 페이지만 비활성, 하위(/admin/applications 등)는 풀리프래시 활성
   const scrollDisabled = SCROLL_DISABLED_PATHS.some((re) => re.test(pathname ?? ''));
 
-  // 스크롤 비활성 페이지: html/body 스크롤·오버스크롤(바운스) 완전 차단 (설정·동아리신청·커뮤니티 메인 등과 동일하게)
+  // 스크롤 비활성 페이지: html/body + 스크롤 컨테이너 완전 잠금 (position fixed로 본문 스크롤 차단)
   useEffect(() => {
     if (typeof document === 'undefined') return;
     if (scrollDisabled) {
       const html = document.documentElement;
+      const { body } = document;
       const prevHtmlOverflow = html.style.overflow;
       const prevHtmlOverscroll = html.style.overscrollBehavior;
-      const prevBodyOverflow = document.body.style.overflow;
-      const prevBodyOverscroll = document.body.style.overscrollBehavior;
+      const prevBodyOverflow = body.style.overflow;
+      const prevBodyOverscroll = body.style.overscrollBehavior;
+      const prevBodyPosition = body.style.position;
+      const prevBodyTop = body.style.top;
+      const prevBodyWidth = body.style.width;
+      const scrollY = window.scrollY;
       html.style.overflow = 'hidden';
       html.style.overscrollBehavior = 'none';
-      document.body.style.overflow = 'hidden';
-      document.body.style.overscrollBehavior = 'none';
+      body.style.overflow = 'hidden';
+      body.style.overscrollBehavior = 'none';
+      body.style.position = 'fixed';
+      body.style.top = `-${scrollY}px`;
+      body.style.width = '100%';
+      const scrollContainer = document.querySelector('[data-scroll-container]') as HTMLElement | null;
+      if (scrollContainer) {
+        scrollContainer.style.overflow = 'hidden';
+        scrollContainer.style.touchAction = 'none';
+        scrollContainer.style.overscrollBehavior = 'none';
+      }
       return () => {
         html.style.overflow = prevHtmlOverflow;
         html.style.overscrollBehavior = prevHtmlOverscroll;
-        document.body.style.overflow = prevBodyOverflow;
-        document.body.style.overscrollBehavior = prevBodyOverscroll;
+        body.style.overflow = prevBodyOverflow;
+        body.style.overscrollBehavior = prevBodyOverscroll;
+        body.style.position = prevBodyPosition;
+        body.style.top = prevBodyTop;
+        body.style.width = prevBodyWidth;
+        if (scrollY) window.scrollTo(0, scrollY);
+        if (scrollContainer) {
+          scrollContainer.style.overflow = '';
+          scrollContainer.style.touchAction = '';
+          scrollContainer.style.overscrollBehavior = '';
+        }
       };
     }
   }, [scrollDisabled]);
