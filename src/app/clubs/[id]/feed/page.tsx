@@ -3,11 +3,11 @@
 import { Suspense, use, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { FeedItemSkeleton } from '@/components/common/skeletons';
 import { useMyProfile } from '@/features/auth/hooks';
-import { isClubManager } from '@/features/auth/permissions';
+import { isClubManager, isSystemAdmin } from '@/features/auth/permissions';
 import { useClubDetail } from '@/features/club/hooks';
 import { useClubFeeds, useDeleteFeed } from '@/features/feed/hooks';
+import { FeedItemSkeleton } from '@/components/common/skeletons';
 import { FeedList } from '@/components/feed/feed-list';
 
 type PageProps = {
@@ -24,7 +24,8 @@ function FeedPageContent({ clubId }: { clubId: number }) {
   const { data: club, isLoading: clubLoading, isError: clubError } = useClubDetail(clubId);
   const { data, isLoading: feedsLoading } = useClubFeeds(clubId);
   const deleteFeed = useDeleteFeed(clubId);
-  const isManager = isClubManager(profile, clubId);
+  /** 동아리 관리자(동아리장/임원) 또는 시스템 어드민이면 피드 수정/삭제 메뉴 노출 */
+  const isManager = isClubManager(profile, clubId) || isSystemAdmin(profile);
 
   // 없는 동아리 또는 잘못된 id → 홈으로
   useEffect(() => {
