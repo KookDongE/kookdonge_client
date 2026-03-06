@@ -538,9 +538,17 @@ function HomeContent() {
       (searchParams.get('sort') && searchParams.get('sort') !== 'name,asc');
     const pendingFromReload =
       typeof sessionStorage !== 'undefined' && sessionStorage.getItem(FILTER_CLEAR_PENDING_KEY);
+    console.log('[home-debug] 초기 effect', {
+      hasFilter: !!hasFilter,
+      pendingFromReload,
+      search: window.location.search,
+    });
     if (hasFilter || pendingFromReload) {
       if (pendingFromReload) sessionStorage.removeItem(FILTER_CLEAR_PENDING_KEY);
-      if (hasFilter) router.replace('/home', { scroll: false });
+      if (hasFilter) {
+        console.log('[home-debug] 초기 effect → router.replace(/home) 호출');
+        router.replace('/home', { scroll: false });
+      }
     }
   }, [pathname, router, searchParams]);
 
@@ -557,7 +565,12 @@ function HomeContent() {
           params.get('college') ??
           params.get('q') ??
           (params.get('sort') && params.get('sort') !== 'name,asc');
-        if (hasFilter) sessionStorage.setItem(FILTER_CLEAR_PENDING_KEY, '1');
+        if (hasFilter) {
+          console.log('[home-debug] pagehide → sessionStorage 플래그 설정', {
+            search: window.location.search,
+          });
+          sessionStorage.setItem(FILTER_CLEAR_PENDING_KEY, '1');
+        }
       } catch {
         // ignore
       }
@@ -569,6 +582,7 @@ function HomeContent() {
   // 앱뷰 풀리프레시: bfcache 복원 시 필터 초기화 + 동아리 목록 순서만 다시 셔플
   useEffect(() => {
     const handlePageshow = (e: PageTransitionEvent) => {
+      console.log('[home-debug] pageshow', { persisted: e.persisted, pathname: window.location.pathname });
       if (e.persisted !== true) return;
       if (typeof window === 'undefined' || window.location.pathname !== '/home') return;
       setReshuffleKey((k) => k + 1);
@@ -580,7 +594,9 @@ function HomeContent() {
         params.get('college') ??
         params.get('q') ??
         (params.get('sort') && params.get('sort') !== 'name,asc');
+      console.log('[home-debug] pageshow(persisted) → hasFilter', hasFilter, 'search', window.location.search);
       if (hasFilter) {
+        console.log('[home-debug] pageshow → router.replace(/home) 호출');
         router.replace('/home', { scroll: false });
       }
     };
@@ -593,10 +609,19 @@ function HomeContent() {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
         hiddenAtRef.current = Date.now();
+        console.log('[home-debug] visibilitychange → hidden', { at: hiddenAtRef.current });
       }
       if (document.visibilityState !== 'visible') return;
       if (typeof window === 'undefined' || window.location.pathname !== '/home') return;
       const hiddenAt = hiddenAtRef.current;
+      const elapsed = hiddenAt != null ? Date.now() - hiddenAt : 0;
+      const over800 = hiddenAt != null && elapsed >= 800;
+      console.log('[home-debug] visibilitychange → visible', {
+        hiddenAt,
+        elapsedMs: hiddenAt != null ? elapsed : null,
+        over800,
+        search: window.location.search,
+      });
       if (hiddenAt == null || Date.now() - hiddenAt < 800) return;
       hiddenAtRef.current = null;
       const params = new URLSearchParams(window.location.search);
@@ -608,6 +633,7 @@ function HomeContent() {
         params.get('q') ??
         (params.get('sort') && params.get('sort') !== 'name,asc');
       if (hasFilter) {
+        console.log('[home-debug] visibilitychange → router.replace(/home) 호출');
         router.replace('/home', { scroll: false });
       }
     };
