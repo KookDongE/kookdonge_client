@@ -1361,8 +1361,8 @@ function ClubInfoTab({
                   <Select.Value />
                   <Select.Indicator />
                 </Select.Trigger>
-                <Select.Popover className="club-manage-dropdown bg-white dark:!bg-[#18181B]">
-                  <ListBox className="club-manage-dropdown-list bg-white dark:!bg-[#18181B]">
+                <Select.Popover className="club-manage-dropdown">
+                  <ListBox className="club-manage-dropdown-list">
                     {CATEGORY_OPTIONS.map((opt) => (
                       <ListBox.Item
                         key={opt.value}
@@ -1386,8 +1386,8 @@ function ClubInfoTab({
                   <Select.Value />
                   <Select.Indicator />
                 </Select.Trigger>
-                <Select.Popover className="club-manage-dropdown bg-white dark:!bg-[#18181B]">
-                  <ListBox className="club-manage-dropdown-list bg-white dark:!bg-[#18181B]">
+                <Select.Popover className="club-manage-dropdown">
+                  <ListBox className="club-manage-dropdown-list">
                     {TYPE_OPTIONS.map((opt) => (
                       <ListBox.Item
                         key={opt.value}

@@ -16,15 +16,7 @@ const REPORT_REASON_OPTIONS: { value: ReportReason; label: string }[] = [
 
 type ReportTargetType = 'qna' | 'post' | 'comment' | 'club';
 
-/** 페이지 상단 제목 */
-const REPORT_PAGE_TITLE: Record<ReportTargetType, string> = {
-  qna: '유저 신고',
-  post: '유저 신고',
-  comment: '유저 신고',
-  club: '동아리 신고',
-};
-
-/** 수정 불가 드롭다운용 구분 라벨 (Q&A / 게시글 / 댓글) */
+/** 수정 불가 드롭다운용 구분 라벨 (Q&A / 게시글 / 댓글 / 동아리) */
 const REPORT_TARGET_LABEL: Record<ReportTargetType, string> = {
   qna: 'Q&A',
   post: '게시글',
@@ -38,7 +30,6 @@ export default function ReportPage() {
   const targetType = (searchParams.get('type') ?? 'post') as ReportTargetType; // 'qna' | 'post' | 'comment' | 'club'
   const targetId = searchParams.get('id') ?? '';
 
-  const pageTitle = REPORT_PAGE_TITLE[targetType] ?? '유저 신고';
   const targetLabel = REPORT_TARGET_LABEL[targetType] ?? '게시글';
 
   const [content, setContent] = useState('');
@@ -69,7 +60,7 @@ export default function ReportPage() {
           >
             취소
           </button>
-          <h1 className="text-lg font-semibold text-[var(--foreground)]">{pageTitle}</h1>
+          <h1 className="text-lg font-semibold text-[var(--foreground)]">신고</h1>
           <button
             type="submit"
             form="report-form"
@@ -86,42 +77,43 @@ export default function ReportPage() {
         className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4 pb-8"
         onSubmit={handleSubmit}
       >
-        {/* 수정 불가: 신고 대상 구분 표시 (Q&A / 게시글 / 댓글) — 드롭다운 형태로만 표시 */}
-        <div
-          role="combobox"
-          aria-label="신고 대상 구분"
-          aria-readonly="true"
-          className="max-w-[140px] min-w-[140px] shrink-0 rounded-full border border-zinc-300 bg-zinc-100 px-4 py-2 text-xs text-zinc-600 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
-        >
-          {targetLabel}
+        {/* 수정 불가: 신고 대상 구분 + 신고 유형 — 2열 나열 */}
+        <div className="flex shrink-0 flex-wrap items-center gap-3">
+          <div
+            role="combobox"
+            aria-label="신고 대상 구분"
+            aria-readonly="true"
+            className="max-w-[140px] min-w-[140px] rounded-full border border-zinc-300 bg-zinc-100 px-4 py-2 text-xs text-zinc-600 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
+          >
+            {targetLabel}
+          </div>
+          <Select
+            aria-label="신고 유형 선택"
+            placeholder="유형"
+            value={reportReason}
+            onChange={(value: Key | null) => value && setReportReason(value as ReportReason)}
+            className="shrink-0"
+          >
+            <Select.Trigger className="max-w-[140px] min-w-[140px] rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 ring-0 outline-none focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0">
+              <Select.Value className="[color:rgb(82,82,91)] dark:[color:rgb(228,228,231)]" />
+              <Select.Indicator className="!text-zinc-500 dark:!text-zinc-400" />
+            </Select.Trigger>
+            <Select.Popover>
+              <ListBox>
+                {REPORT_REASON_OPTIONS.map((opt) => (
+                  <ListBox.Item
+                    key={opt.value}
+                    id={opt.value}
+                    textValue={opt.label}
+                    className="!text-zinc-600 dark:!text-zinc-200"
+                  >
+                    {opt.label}
+                  </ListBox.Item>
+                ))}
+              </ListBox>
+            </Select.Popover>
+          </Select>
         </div>
-
-        <Select
-          aria-label="신고 유형 선택"
-          placeholder="유형"
-          value={reportReason}
-          onChange={(value: Key | null) => value && setReportReason(value as ReportReason)}
-          className="shrink-0"
-        >
-          <Select.Trigger className="max-w-[140px] min-w-[140px] rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 ring-0 outline-none focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0">
-            <Select.Value className="[color:rgb(82,82,91)] dark:[color:rgb(228,228,231)]" />
-            <Select.Indicator className="!text-zinc-500 dark:!text-zinc-400" />
-          </Select.Trigger>
-          <Select.Popover>
-            <ListBox>
-              {REPORT_REASON_OPTIONS.map((opt) => (
-                <ListBox.Item
-                  key={opt.value}
-                  id={opt.value}
-                  textValue={opt.label}
-                  className="!text-zinc-600 dark:!text-zinc-200"
-                >
-                  {opt.label}
-                </ListBox.Item>
-              ))}
-            </ListBox>
-          </Select.Popover>
-        </Select>
 
         <TextArea
           value={content}

@@ -172,10 +172,14 @@ html:not(.dark) .weekly-frequency-buttons button[role='radio'][aria-checked='tru
   }
 }
 
+/* 라이트 모드: 동아리 관리 드롭다운(카테고리, 동아리타입) - listbox div 자체 포함 */
 html:not(.dark) .club-manage-dropdown,
 html:not(.dark) .club-manage-dropdown-list,
 html:not(.dark) .club-manage-dropdown div,
-html:not(.dark) .club-manage-dropdown-list div {
+html:not(.dark) .club-manage-dropdown-list div,
+html:not(.dark) .club-manage-dropdown-list[role='listbox'],
+html:not(.dark) .club-manage-dropdown [data-slot='listbox'],
+html:not(.dark) .club-manage-dropdown-list[data-slot='listbox'] {
   color-scheme: light;
   background-color: #ffffff !important;
   border-color: #e4e4e7 !important;
@@ -184,6 +188,8 @@ html:not(.dark) .club-manage-dropdown-list div {
 
 html:not(.dark) .club-manage-dropdown [role='listbox'],
 html:not(.dark) .club-manage-dropdown-list [role='listbox'],
+html:not(.dark) .club-manage-dropdown [data-slot='listbox'],
+html:not(.dark) .club-manage-dropdown-list [data-slot='listbox'],
 html:not(.dark) .club-manage-dropdown [role='option'],
 html:not(.dark) .club-manage-dropdown-list [role='option'],
 html:not(.dark) .club-manage-dropdown [data-slot='listbox-item'],
@@ -198,6 +204,33 @@ html:not(.dark) .club-manage-dropdown [data-slot='listbox-item']:hover,
 html:not(.dark) .club-manage-dropdown-list [data-slot='listbox-item']:hover {
   background-color: #f4f4f5 !important;
   color: #09090b !important;
+}
+
+/* PWA standalone + 시스템 라이트: 포탈된 드롭다운 listbox가 다크로 보이는 현상 방지 */
+@media (display-mode: standalone) and (prefers-color-scheme: light) {
+  .club-manage-dropdown,
+  .club-manage-dropdown-list,
+  .club-manage-dropdown div,
+  .club-manage-dropdown-list div,
+  .club-manage-dropdown-list[role='listbox'],
+  .club-manage-dropdown [data-slot='listbox'],
+  .club-manage-dropdown-list[data-slot='listbox'],
+  .club-manage-dropdown [role='listbox'],
+  .club-manage-dropdown-list [role='listbox'],
+  .club-manage-dropdown [data-slot='listbox-item'],
+  .club-manage-dropdown-list [data-slot='listbox-item'] {
+    color-scheme: light;
+    background-color: #ffffff !important;
+    border-color: #e4e4e7 !important;
+    color: #09090b !important;
+  }
+  .club-manage-dropdown [data-slot='listbox-item']:hover,
+  .club-manage-dropdown-list [data-slot='listbox-item']:hover,
+  .club-manage-dropdown [role='option']:hover,
+  .club-manage-dropdown-list [role='option']:hover {
+    background-color: #f4f4f5 !important;
+    color: #09090b !important;
+  }
 }
 
 /* 다크모드: 동아리 관리 드롭다운(카테고리, 동아리타입, 모집상태) 배경 #18181B */

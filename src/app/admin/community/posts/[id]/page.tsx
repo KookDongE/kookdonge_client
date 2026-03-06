@@ -243,7 +243,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                 )}
                 <button
                   type="button"
-                  className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
+                  className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
                   role="menuitem"
                   onClick={() => {
                     setMenuOpen(false);
@@ -257,7 +257,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                 {canDelete && (
                   <button
                     type="button"
-                    className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                    className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
                     role="menuitem"
                     onClick={() => setMenuOpen(false)}
                   >
@@ -468,7 +468,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                             >
                               <button
                                 type="button"
-                                className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
+                                className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
                                 role="menuitem"
                                 onClick={() => {
                                   setCommentMenuOpenId(null);
@@ -479,7 +479,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                               </button>
                               <button
                                 type="button"
-                                className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                                className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
                                 role="menuitem"
                                 onClick={() => {
                                   if (isMine) {

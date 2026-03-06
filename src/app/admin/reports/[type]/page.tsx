@@ -16,7 +16,7 @@ import { isSystemAdmin } from '@/features/auth/permissions';
 const REPORT_TYPE_MAP = {
   'system-error': { label: '시스템오류', value: 'SYSTEM_ERROR' },
   suggestion: { label: '건의사항', value: 'SUGGESTION' },
-  'user-report': { label: '유저신고', value: 'USER_REPORT' },
+  'user-report': { label: '동아리 및 유저 신고', value: 'USER_REPORT' },
   'delete-request': { label: '삭제 신청', value: 'DELETE_REQUEST' },
 } as const;
 
