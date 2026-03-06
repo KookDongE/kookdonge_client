@@ -20,6 +20,24 @@ export type NotificationItem = {
 
 const INITIAL: NotificationItem[] = [];
 
+const NOTIFICATION_STORAGE_VERSION = 1;
+
+/** 예전에 저장된 형태를 현재 형태로 변환. "couldn't be migrated" 방지 */
+function migrateNotificationState(persisted: unknown, _version: number): NotificationState {
+  if (persisted && typeof persisted === 'object' && 'state' in persisted) {
+    const inner = (persisted as { state?: unknown }).state;
+    if (inner && typeof inner === 'object' && 'items' in inner) {
+      const items = (inner as { items: unknown }).items;
+      return { items: Array.isArray(items) ? items : INITIAL };
+    }
+  }
+  if (persisted && typeof persisted === 'object' && 'items' in persisted) {
+    const items = (persisted as { items: unknown }).items;
+    return { items: Array.isArray(items) ? items : INITIAL };
+  }
+  return { items: INITIAL };
+}
+
 interface NotificationState {
   items: NotificationItem[];
 }
@@ -41,6 +59,10 @@ export const useNotificationStore = create<NotificationState & NotificationActio
         })),
       getItems: () => get().items,
     }),
-    { name: 'notifications' }
+    {
+      name: 'notifications',
+      version: NOTIFICATION_STORAGE_VERSION,
+      migrate: migrateNotificationState,
+    }
   )
 );
