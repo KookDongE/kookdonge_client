@@ -1,5 +1,6 @@
 import { toast } from 'sonner';
 
+import { diag } from '@/lib/diagnostic';
 import { ResponseDTO } from '@/types/api';
 import { useAuthStore } from '@/features/auth/store';
 
@@ -14,6 +15,9 @@ function isPublicPath(pathname: string): boolean {
 function redirectToSplashIfNeeded(): void {
   if (typeof window === 'undefined') return;
   if (isPublicPath(window.location.pathname)) return;
+  diag.auth('401 처리 후 스플래시(/)로 강제 이동 (토큰 만료·재발급 실패)', {
+    pathname: window.location.pathname,
+  });
   useAuthStore.getState().clearAuth();
   window.location.replace('/');
 }
@@ -128,9 +132,11 @@ export async function apiClient<T>(
       (/authorization/i.test(message) && /헤더|header/i.test(message));
 
     if (isUnauthorized || isAuthHeaderMissing) {
+      diag.auth('401 발생', { endpoint, isRetry, pathname: typeof window !== 'undefined' ? window.location.pathname : '' });
       // Access Token 만료 시 재발급 시도 (한 번만). 재발급 API는 apiClient를 쓰지 않으므로 401 시 여기서만 처리.
       if (!isRetry) {
         const reissued = await reissueAndWait();
+        diag.auth('재발급 시도 결과', { reissued, endpoint });
         if (reissued) return apiClient<T>(endpoint, options, true);
       }
       redirectToSplashIfNeeded();

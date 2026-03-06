@@ -3,6 +3,8 @@
 import { ReactNode, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
+import { diag } from '@/lib/diagnostic';
+
 import { getStoredTokens, useAuthStore } from './store';
 
 const PUBLIC_PATHS = ['/', '/login', '/welcome', '/callback'];
@@ -31,6 +33,7 @@ export function AuthGuard({ children }: { children: ReactNode }) {
     const id = requestAnimationFrame(() => {
       const tokenNow = useAuthStore.getState().accessToken;
       if (tokenNow) return;
+      diag.redirect(`auth-guard(${pathname})`, '/', 'accessToken 없음');
       router.replace('/');
     });
     return () => cancelAnimationFrame(id);

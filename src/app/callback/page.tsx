@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { PageCenteredSkeleton } from '@/components/common/skeletons';
 import { useQueryClient } from '@tanstack/react-query';
 
+import { diag } from '@/lib/diagnostic';
 import { getRedirectUri, OAUTH_STATE_KEY } from '@/lib/google-oauth';
 import { authApi } from '@/features/auth/api';
 import { authKeys } from '@/features/auth/hooks';
@@ -100,6 +101,7 @@ function CallbackContent() {
                 }
                 queryClient.invalidateQueries({ queryKey: authKeys.profile() });
                 registerDeviceAfterLogin();
+                diag.redirect('callback', '/welcome', '신규 가입');
                 setTimeout(() => router.replace('/welcome'), 200);
               } else {
                 setStatus('error');
@@ -123,6 +125,7 @@ function CallbackContent() {
           }
           queryClient.invalidateQueries({ queryKey: authKeys.profile() });
           registerDeviceAfterLogin();
+          diag.redirect('callback', '/home', '기존 사용자');
           setTimeout(() => router.replace('/home'), 200);
         }
       })

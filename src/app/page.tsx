@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { motion } from 'framer-motion';
 
+import { diag } from '@/lib/diagnostic';
 import { useAuthStore } from '@/features/auth/store';
 
 const SPLASH_DURATION_MS = 1800;
@@ -52,6 +53,7 @@ export default function SplashPage() {
 
     // 로그인 상태면 최소 1초 스플래시 후 홈으로
     if (accessToken) {
+      diag.redirect('splash(/)', '/home', 'accessToken 있음');
       const timer = redirectAfterMinSplash('/home');
       return () => {
         if (timer !== undefined) clearTimeout(timer);
@@ -61,8 +63,10 @@ export default function SplashPage() {
     const timer = setTimeout(() => {
       const token = useAuthStore.getState().accessToken ?? getStoredAccessToken();
       if (token) {
+        diag.redirect('splash(/)', '/home', '재수화 후 토큰 있음');
         router.replace('/home');
       } else {
+        diag.redirect('splash(/)', '/login', '토큰 없음');
         router.replace('/login');
       }
     }, REHYDRATE_WAIT_MS + SPLASH_DURATION_MS);

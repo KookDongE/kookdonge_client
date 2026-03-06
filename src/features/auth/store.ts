@@ -88,22 +88,6 @@ export interface AuthActions {
 /** persist partialize로 localStorage에 저장되는 필드만 정의 */
 type PersistedAuthState = Pick<AuthState, 'accessToken' | 'refreshToken'>;
 
-/** 예전에 저장된 형태(version 없음·다른 구조)를 현재 형태로 변환. "couldn't be migrated" 방지 */
-function migrateAuthState(persisted: unknown, _version: number): PersistedAuthState {
-  if (persisted && typeof persisted === 'object' && 'state' in persisted) {
-    const inner = (persisted as { state?: unknown }).state;
-    if (inner && typeof inner === 'object' && typeof (inner as Record<string, unknown>).accessToken !== 'undefined') {
-      const s = inner as { accessToken?: string | null; refreshToken?: string | null };
-      return { accessToken: s.accessToken ?? null, refreshToken: s.refreshToken ?? null };
-    }
-  }
-  if (persisted && typeof persisted === 'object' && 'accessToken' in persisted) {
-    const s = persisted as { accessToken?: string | null; refreshToken?: string | null };
-    return { accessToken: s.accessToken ?? null, refreshToken: s.refreshToken ?? null };
-  }
-  return { accessToken: null, refreshToken: null };
-}
-
 const DEFAULT_STATE: AuthState = {
   accessToken: null,
   refreshToken: null,
@@ -133,8 +117,6 @@ export const useAuthStore = create<AuthState & AuthActions>()(
     {
       name: AUTH_STORAGE_KEY,
       storage: createJSONStorage(getAuthStorage),
-      version: 1,
-      migrate: migrateAuthState,
       partialize: (state): PersistedAuthState => ({
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
