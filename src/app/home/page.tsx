@@ -215,6 +215,7 @@ function RankingSection({ returnTo }: { returnTo?: string }) {
                     <div className="club-logo-placeholder relative mb-2 h-14 w-14 overflow-hidden rounded-full bg-zinc-200 ring-2 ring-blue-400/30 dark:bg-zinc-700 dark:ring-lime-400/30">
                       {club.logoImage && !imageError[club.id] ? (
                         <>
+                          <div className="absolute inset-0 bg-white" aria-hidden />
                           {!imageLoaded[club.id] && (
                             <div className="skeleton absolute inset-0 rounded-full" />
                           )}

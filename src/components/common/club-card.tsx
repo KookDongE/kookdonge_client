@@ -104,6 +104,7 @@ export function ClubCard({
       <div className="club-logo-wrap relative h-24 w-24 shrink-0 overflow-hidden rounded-l-2xl bg-zinc-100 dark:bg-zinc-800">
         {club.logoImage ? (
           <>
+            <div className="absolute inset-0 bg-white" aria-hidden />
             {!imageLoaded && <div className="skeleton absolute inset-0" />}
             <Image
               src={club.logoImage}

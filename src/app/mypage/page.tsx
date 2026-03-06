@@ -184,13 +184,16 @@ function AdminSection() {
             >
               <div className="mypage-club-card-logo relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
                 {club.logoImage ? (
-                  <Image
-                    src={club.logoImage}
-                    alt={club.name}
-                    fill
-                    className="object-cover"
-                    sizes="48px"
-                  />
+                  <>
+                    <div className="absolute inset-0 bg-white" aria-hidden />
+                    <Image
+                      src={club.logoImage}
+                      alt={club.name}
+                      fill
+                      className="object-cover"
+                      sizes="48px"
+                    />
+                  </>
                 ) : (
                   <DefaultClubImage className="object-cover" sizes="48px" />
                 )}

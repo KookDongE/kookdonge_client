@@ -16,6 +16,7 @@ const REPORT_TABS = [
   { value: 'SYSTEM_ERROR', label: '시스템오류' },
   { value: 'SUGGESTION', label: '건의사항' },
   { value: 'USER_REPORT', label: '유저신고' },
+  { value: 'DELETE_REQUEST', label: '삭제 신청' },
 ] as const;
 
 type ReportTabValue = (typeof REPORT_TABS)[number]['value'];
@@ -39,7 +40,10 @@ export default function AdminReportsPage() {
   const lastScrollY = useRef(0);
 
   const tabKey: ReportTabValue =
-    reportTab === 'SYSTEM_ERROR' || reportTab === 'SUGGESTION' || reportTab === 'USER_REPORT'
+    reportTab === 'SYSTEM_ERROR' ||
+    reportTab === 'SUGGESTION' ||
+    reportTab === 'USER_REPORT' ||
+    reportTab === 'DELETE_REQUEST'
       ? reportTab
       : 'SYSTEM_ERROR';
 
@@ -110,6 +114,9 @@ export default function AdminReportsPage() {
         </Tabs.Panel>
         <Tabs.Panel id="USER_REPORT" className="p-4 pt-0">
           <ReportListPlaceholder label="유저신고" />
+        </Tabs.Panel>
+        <Tabs.Panel id="DELETE_REQUEST" className="p-4 pt-0">
+          <ReportListPlaceholder label="삭제 신청" />
         </Tabs.Panel>
       </Tabs>
     </div>

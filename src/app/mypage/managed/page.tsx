@@ -99,13 +99,16 @@ function ManagedClubsListContent() {
               >
                 <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
                   {club.logoImage ? (
-                    <Image
-                      src={club.logoImage}
-                      alt={club.name}
-                      fill
-                      className="object-cover"
-                      sizes="56px"
-                    />
+                    <>
+                      <div className="absolute inset-0 bg-white" aria-hidden />
+                      <Image
+                        src={club.logoImage}
+                        alt={club.name}
+                        fill
+                        className="object-cover"
+                        sizes="56px"
+                      />
+                    </>
                   ) : (
                     <DefaultClubImage className="object-cover" sizes="56px" />
                   )}
