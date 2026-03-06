@@ -52,7 +52,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="pb-6">
+    <div className="flex min-h-full flex-col pb-6">
       <div className="px-4 py-4">
         <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">설정</h1>
       </div>
@@ -123,8 +123,9 @@ export default function SettingsPage() {
         </button>
       </div>
 
-      {/* WINK 푸터: 로고 + 주소·저작권 (클릭 시 WINK 소개 페이지로 이동) */}
-      <footer className="mt-20 flex flex-col items-center justify-center px-4 pt-6 pb-8 text-center">
+      {/* 남는 공간 중앙에 푸터 배치 (살짝 위로) */}
+      <div className="mt-6 flex flex-1 flex-col items-center justify-center">
+        <footer className="-translate-y-4 flex flex-col items-center justify-center px-4 pt-6 pb-8 text-center">
         <a
           href="https://wink.kookmin.ac.kr/about-us/wink"
           target="_blank"
@@ -146,7 +147,8 @@ export default function SettingsPage() {
             © WINK 2026. All rights reserved.
           </p>
         </a>
-      </footer>
+        </footer>
+      </div>
     </div>
   );
 }

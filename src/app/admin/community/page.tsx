@@ -139,7 +139,7 @@ export default function AdminCommunityPage() {
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white pb-20 dark:bg-zinc-900">
-      {/* 상단 검색: 다른 검색 UI와 동일, 인풋 내부 회색 비행기 버튼 */}
+      {/* 상단 검색: 오른쪽 돋보기 버튼 */}
       <div className="px-4 py-3">
         <CommunitySearchInputRow
           value={searchInput}

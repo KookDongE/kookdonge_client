@@ -7,24 +7,23 @@ import { Input } from '@heroui/react';
 
 export type CommunitySort = 'latest' | 'popular';
 
-/** 댓글 전송 아이콘과 동일, 회색 버전 (검색 버튼용) */
+/** 검색 버튼용 돋보기 아이콘 */
 const SearchSubmitIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
+    viewBox="0 0 20 20"
+    fill="currentColor"
     className="h-5 w-5 text-zinc-500 dark:text-zinc-400"
   >
-    <path d="m22 2-7 20-4-9-9-4Z" />
-    <path d="M22 2 11 13" />
+    <path
+      fillRule="evenodd"
+      d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+      clipRule="evenodd"
+    />
   </svg>
 );
 
-/** 커뮤니티 검색 입력줄: 왼쪽 돋보기, 오른쪽(인풋 내부) 회색 비행기 버튼. 다른 검색 UI와 동일 스타일. */
+/** 커뮤니티 검색 입력줄: 오른쪽 돋보기 버튼만. */
 export function CommunitySearchInputRow({
   value,
   onChange,
@@ -50,30 +49,13 @@ export function CommunitySearchInputRow({
       }}
       className="relative"
     >
-      <span
-        className="pointer-events-none absolute top-1/2 left-3 z-10 -translate-y-1/2 text-zinc-500 dark:text-zinc-400"
-        aria-hidden
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          className="h-5 w-5"
-        >
-          <path
-            fillRule="evenodd"
-            d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
-            clipRule="evenodd"
-          />
-        </svg>
-      </span>
       <Input
         type="text"
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
-        className="w-full border border-zinc-300 bg-zinc-50 pr-11 pl-10 text-zinc-900 placeholder:text-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-400"
+        className="w-full border border-zinc-300 bg-zinc-50 pl-4 pr-11 text-zinc-900 placeholder:text-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-400"
         aria-label={placeholder}
       />
       <button
@@ -161,7 +143,7 @@ export function CommunitySearchFilter({
 
   return (
     <div className={`glass border-y-0 ${stickyClass} ${className}`}>
-      {/* 검색: 돋보기 + 입력 + 인풋 내부 회색 비행기 버튼 */}
+      {/* 검색: 입력 + 오른쪽 돋보기 버튼 */}
       <div className="px-4 pt-2 pb-2">
         <CommunitySearchInputRow
           value={searchInput}
