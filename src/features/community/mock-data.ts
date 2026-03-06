@@ -75,16 +75,18 @@ export function getPostById(id: number): CommunityPost | null {
 export type CommunityComment = {
   id: number;
   postId: number;
+  authorId: number;
   authorName: string;
   content: string;
   createdAt: string;
+  likeCount: number;
 };
 
 function commentDate(ago: number) {
   return new Date(now.getTime() - ago * 60 * 1000).toISOString();
 }
 
-/** 글별 댓글 더미 (postId당 0~3개) */
+/** 글별 댓글 더미 (postId당 0~3개). authorId 1 = 현재 사용자(목) */
 export function getCommentsByPostId(postId: number): CommunityComment[] {
   const names = ['댓글작성자1', '댓글작성자2', '댓글작성자3'];
   const contents = [
@@ -97,9 +99,11 @@ export function getCommentsByPostId(postId: number): CommunityComment[] {
   return Array.from({ length: count }, (_, i) => ({
     id: postId * 10 + i,
     postId,
+    authorId: (i % 3) + 1,
     authorName: names[i % names.length],
     content: contents[(postId + i) % contents.length],
     createdAt: commentDate((postId + i) * 5 + 10),
+    likeCount: (postId + i) % 5,
   }));
 }
 

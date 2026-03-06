@@ -122,6 +122,15 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   const [commentText, setCommentText] = useState('');
   const commentTextareaRef = useRef<HTMLTextAreaElement>(null);
+  /** 댓글별 ... 메뉴 열린 id (null이면 닫힘) */
+  const [commentMenuOpenId, setCommentMenuOpenId] = useState<number | null>(null);
+  const commentMenuRef = useRef<HTMLDivElement>(null);
+  /** 삭제 불가 토스트 "본인이 작성한 게 아니라면 삭제할 수 없습니다" */
+  const [deleteDeniedToast, setDeleteDeniedToast] = useState(false);
+  /** 댓글별 좋아요 수 로컬 오버라이드 (id -> count) */
+  const [commentLikeOverrides, setCommentLikeOverrides] = useState<Record<number, number>>({});
+  /** 목 데이터: 현재 사용자 authorId (실제로는 profile.id 등) */
+  const myAuthorId = 1;
 
   useEffect(() => {
     if (profileLoading) return;
@@ -144,6 +153,23 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
     document.addEventListener('click', handleClick);
     return () => document.removeEventListener('click', handleClick);
   }, [menuOpen]);
+
+  useEffect(() => {
+    if (commentMenuOpenId === null) return;
+    const handleClick = (e: MouseEvent) => {
+      if (commentMenuRef.current && !commentMenuRef.current.contains(e.target as Node)) {
+        setCommentMenuOpenId(null);
+      }
+    };
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, [commentMenuOpenId]);
+
+  useEffect(() => {
+    if (!deleteDeniedToast) return;
+    const t = setTimeout(() => setDeleteDeniedToast(false), 2500);
+    return () => clearTimeout(t);
+  }, [deleteDeniedToast]);
 
   useEffect(() => {
     const el = commentTextareaRef.current;
@@ -332,26 +358,151 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
           </p>
         ) : (
           <ul className="space-y-4">
-            {comments.map((c) => (
-              <li key={c.id} className="flex gap-3">
-                <div
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
-                  aria-hidden
-                >
-                  {c.authorName.slice(0, 1)}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-                    <span>{c.authorName}</span>
-                    <span>{formatCommentTime(c.createdAt)}</span>
+            {comments.map((c) => {
+              const likeCount = commentLikeOverrides[c.id] ?? c.likeCount;
+              const isMine = c.authorId === myAuthorId;
+              return (
+                <li key={c.id} className="flex gap-3">
+                  <div
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
+                    aria-hidden
+                  >
+                    {c.authorName.slice(0, 1)}
                   </div>
-                  <p className="mt-0.5 text-sm text-zinc-800 dark:text-zinc-200">{c.content}</p>
-                </div>
-              </li>
-            ))}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex min-w-0 flex-1 items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+                        <span>{c.authorName}</span>
+                        <span>{formatCommentTime(c.createdAt)}</span>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-0.5">
+                        <button
+                          type="button"
+                          className="flex items-center gap-0.5 rounded p-1 text-zinc-500 transition-colors hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                          aria-label={`좋아요 ${likeCount}개`}
+                          onClick={() =>
+                            setCommentLikeOverrides((prev) => ({
+                              ...prev,
+                              [c.id]: (prev[c.id] ?? c.likeCount) + 1,
+                            }))
+                          }
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={1.5}
+                            className="h-4 w-4"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.06.725 1.06h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.653.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23h-.777Z"
+                            />
+                          </svg>
+                          <span className="text-xs">{likeCount}</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="rounded p-1 text-zinc-500 transition-colors hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                          aria-label="답글"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={1.5}
+                            className="h-4 w-4"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
+                            />
+                          </svg>
+                        </button>
+                        <div
+                          className="relative"
+                          ref={commentMenuOpenId === c.id ? commentMenuRef : undefined}
+                        >
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setCommentMenuOpenId((prev) => (prev === c.id ? null : c.id))
+                            }
+                            className="rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                            aria-label="더보기"
+                            aria-expanded={commentMenuOpenId === c.id}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              className="h-4 w-4"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M4.5 12a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm6 0a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm6 0a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </button>
+                          {commentMenuOpenId === c.id && (
+                            <div
+                              className="absolute right-0 top-full z-10 mt-0.5 min-w-[100px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+                              role="menu"
+                            >
+                              <button
+                                type="button"
+                                className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
+                                role="menuitem"
+                                onClick={() => {
+                                  setCommentMenuOpenId(null);
+                                }}
+                              >
+                                신고
+                              </button>
+                              <button
+                                type="button"
+                                className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                                role="menuitem"
+                                onClick={() => {
+                                  if (isMine) {
+                                    setCommentMenuOpenId(null);
+                                    // TODO: 실제 삭제 API 호출
+                                  } else {
+                                    setDeleteDeniedToast(true);
+                                    setCommentMenuOpenId(null);
+                                  }
+                                }}
+                              >
+                                삭제
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <p className="mt-0.5 text-sm text-zinc-800 dark:text-zinc-200">{c.content}</p>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>
+
+      {/* 삭제 불가 토스트: 본인 댓글이 아닐 때 */}
+      {deleteDeniedToast && (
+        <div
+          className="fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-zinc-800 px-4 py-2.5 text-sm text-white shadow-lg dark:bg-zinc-700"
+          role="alert"
+        >
+          본인이 작성한 게 아니라면 삭제할 수 없습니다.
+        </div>
+      )}
 
       {/* 하단 고정 댓글 입력창: 전송 버튼은 입력창 내부, 테두리 잘림 방지를 위해 포탈 사용 */}
       <CommentBarPortal

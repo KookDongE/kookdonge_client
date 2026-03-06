@@ -51,7 +51,7 @@ export default function NameChangePage() {
           >
             취소
           </button>
-          <h1 className="text-lg font-semibold text-[var(--foreground)]">이름 변경</h1>
+          <h1 className="text-lg font-semibold text-[var(--foreground)]">내정보수정</h1>
           <button
             type="submit"
             form="name-change-form"

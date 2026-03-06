@@ -11,8 +11,10 @@ export function Header() {
   const router = useRouter();
   const { data: unreadCount = 0 } = useUnreadCount();
   const isNotificationsPage = pathname === '/notifications';
+  const isNotificationSettingsPage = pathname === '/mypage/notification-settings';
   const isCommunityPostDetail = pathname?.startsWith('/admin/community/posts/');
   const isCommunitySearchPage = pathname === '/admin/community/search';
+  const showBackButton = isCommunityPostDetail || isCommunitySearchPage || isNotificationSettingsPage;
 
   const isHidden =
     pathname === '/' ||
@@ -29,11 +31,11 @@ export function Header() {
 
   return (
     <header
-      className={`glass fixed top-0 left-1/2 z-40 w-full max-w-md -translate-x-1/2 border-b-0 pt-3 ${isCommunityPostDetail ? 'community-detail-header' : ''}`}
+      className={`glass fixed top-0 left-1/2 z-40 w-full max-w-md -translate-x-1/2 border-b-0 pt-3 ${showBackButton ? 'community-detail-header' : ''}`}
     >
       <div className="flex h-14 items-center justify-between px-4">
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          {(isCommunityPostDetail || isCommunitySearchPage) && (
+          {showBackButton && (
             <button
               type="button"
               onClick={() => router.back()}
