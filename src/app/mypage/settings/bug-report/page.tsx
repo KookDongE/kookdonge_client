@@ -85,9 +85,6 @@ export default function BugReportPage() {
           </Select.Popover>
         </Select>
 
-        <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
-          내용
-        </label>
         <TextArea
           value={content}
           onChange={(e) => setContent(e.target.value)}

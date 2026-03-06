@@ -218,8 +218,11 @@ function ClubHeader({
   const deleteClub = useDeleteClub();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteConfirmName, setDeleteConfirmName] = useState('');
-  const showManageButton =
-    isSystemAdmin(profile) || isClubManager(profile, clubId);
+  const isAdmin = isSystemAdmin(profile);
+  const isLeader = isClubManager(profile, clubId);
+  const showManageButton = isAdmin || isLeader;
+  /** 동아리 리더(동아리장)이면서 시스템 관리자가 아닐 때: 수정·삭제신청만 표시 */
+  const isLeaderOnly = isLeader && !isAdmin;
   const likeClub = useLikeClub();
   const unlikeClub = useUnlikeClub();
   const { data: interests } = useMyInterests();
@@ -389,13 +392,23 @@ function ClubHeader({
                     >
                       수정
                     </Dropdown.Item>
-                    <Dropdown.Item
-                      onPress={handleDeleteClick}
-                      textValue="삭제"
-                      className="text-red-600 dark:text-red-400"
-                    >
-                      삭제
-                    </Dropdown.Item>
+                    {isLeaderOnly ? (
+                      <Dropdown.Item
+                        onPress={() => router.push(`/mypage/clubs/${clubId}/delete-request`)}
+                        textValue="삭제신청"
+                        className="text-red-600 dark:text-red-400"
+                      >
+                        삭제신청
+                      </Dropdown.Item>
+                    ) : (
+                      <Dropdown.Item
+                        onPress={handleDeleteClick}
+                        textValue="삭제"
+                        className="text-red-600 dark:text-red-400"
+                      >
+                        삭제
+                      </Dropdown.Item>
+                    )}
                   </Dropdown.Menu>
                 </Dropdown.Popover>
               </Dropdown>
