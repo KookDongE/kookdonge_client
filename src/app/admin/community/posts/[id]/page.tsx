@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { createPortal } from 'react-dom';
 
+import { useManagedClubs } from '@/features/club/hooks';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isClubManager, isSystemAdmin } from '@/features/auth/permissions';
 import {
@@ -37,15 +38,24 @@ function formatCommentTime(iso: string): string {
 
 const emptySubscribe = () => () => {};
 
+/** 댓글 계정 선택 옵션: 익명, 내이름, 내가 관리중인 동아리 (글쓰기와 동일) */
+type CommentAccountOption = { key: string; label: string };
+
 /** 하단 댓글 입력 바: app-container로 포탈해 main의 overflow-hidden에 의해 테두리가 잘리지 않도록 함 */
 function CommentBarPortal({
   commentText,
   setCommentText,
   commentTextareaRef,
+  commentAccountKey,
+  setCommentAccountKey,
+  commentAccountOptions,
 }: {
   commentText: string;
   setCommentText: (v: string) => void;
   commentTextareaRef: React.RefObject<HTMLTextAreaElement | null>;
+  commentAccountKey: string;
+  setCommentAccountKey: (v: string) => void;
+  commentAccountOptions: CommentAccountOption[];
 }) {
   const isClient = useSyncExternalStore(
     emptySubscribe,
@@ -65,8 +75,14 @@ function CommentBarPortal({
               className="shrink-0 rounded-l-md border-0 bg-transparent py-2.5 pr-6 pl-3 text-sm text-zinc-900 focus:ring-0 focus:outline-none dark:text-zinc-100"
               aria-label="댓글 작성 계정 선택"
               title="계정 선택"
+              value={commentAccountKey}
+              onChange={(e) => setCommentAccountKey(e.target.value)}
             >
-              <option value="me">내 계정</option>
+              {commentAccountOptions.map((opt) => (
+                <option key={opt.key} value={opt.key}>
+                  {opt.label}
+                </option>
+              ))}
             </select>
           )}
           <textarea
@@ -110,10 +126,17 @@ type PageProps = { params: Promise<{ id: string }> };
 export default function CommunityPostDetailPage({ params }: PageProps) {
   const router = useRouter();
   const { data: profile, isLoading: profileLoading } = useMyProfile();
+  const { data: managedClubs = [] } = useManagedClubs();
   const { id: idParam } = use(params);
   const id = Number(idParam);
   const post = id > 0 ? getPostById(id) : null;
   const comments: CommunityComment[] = post ? getCommentsByPostId(post.id) : [];
+
+  const commentAccountOptions: CommentAccountOption[] = [
+    { key: 'anonymous', label: '익명' },
+    { key: 'me', label: profile?.name ?? '내이름' },
+    ...managedClubs.map((c) => ({ key: `club-${c.id}`, label: c.name })),
+  ];
 
   /** 클릭 토글만 로컬 상태로 두고, 없으면 post 값 사용 (훅 규칙·effect setState 회피) */
   const [likedOverride, setLikedOverride] = useState<boolean | null>(null);
@@ -121,6 +144,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const [commentText, setCommentText] = useState('');
+  const [commentAccountKey, setCommentAccountKey] = useState('me');
   const commentTextareaRef = useRef<HTMLTextAreaElement>(null);
   /** 댓글별 ... 메뉴 열린 id (null이면 닫힘) */
   const [commentMenuOpenId, setCommentMenuOpenId] = useState<number | null>(null);
@@ -522,6 +546,9 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
         commentText={commentText}
         setCommentText={setCommentText}
         commentTextareaRef={commentTextareaRef}
+        commentAccountKey={commentAccountKey}
+        setCommentAccountKey={setCommentAccountKey}
+        commentAccountOptions={commentAccountOptions}
       />
     </div>
   );

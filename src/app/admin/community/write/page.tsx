@@ -7,7 +7,7 @@ import { Input, ListBox, Select, TextArea } from '@heroui/react';
 import { Reorder, useDragControls } from 'framer-motion';
 
 import { IMAGE_ACCEPT_ATTR, validateImageFile } from '@/lib/image-upload-validation';
-import { useSystemAdmins } from '@/features/admin';
+import { useManagedClubs } from '@/features/club/hooks';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
 import { FormPageSkeleton } from '@/components/common/skeletons';
@@ -93,7 +93,7 @@ const BOARD_TYPE_OPTIONS: { value: 'promo' | 'free'; label: string }[] = [
 export default function CommunityWritePage() {
   const router = useRouter();
   const { data: profile, isLoading: profileLoading } = useMyProfile();
-  const { data: admins = [] } = useSystemAdmins();
+  const { data: managedClubs = [] } = useManagedClubs();
 
   const [boardType, setBoardType] = useState<'promo' | 'free' | ''>('');
   const [accountKey, setAccountKey] = useState<string>('');
@@ -110,8 +110,9 @@ export default function CommunityWritePage() {
   }, [profile, profileLoading, router]);
 
   const accountOptions = [
-    { key: 'me', label: profile ? profile.name || profile.email || '내 계정' : '내 계정' },
-    ...admins.map((a) => ({ key: String(a.userId), label: a.name || a.email })),
+    { key: 'anonymous', label: '익명' },
+    { key: 'me', label: profile?.name ?? '내이름' },
+    ...managedClubs.map((c) => ({ key: `club-${c.id}`, label: c.name })),
   ];
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
