@@ -392,6 +392,12 @@ function ClubHeader({
                     >
                       수정
                     </Dropdown.Item>
+                    <Dropdown.Item
+                      onPress={() => router.push(`/mypage/settings/report?type=club&id=${clubId}`)}
+                      textValue="신고"
+                    >
+                      신고
+                    </Dropdown.Item>
                     {isLeaderOnly ? (
                       <Dropdown.Item
                         onPress={() => router.push(`/mypage/clubs/${clubId}/delete-request`)}
@@ -409,12 +415,6 @@ function ClubHeader({
                         삭제
                       </Dropdown.Item>
                     )}
-                    <Dropdown.Item
-                      onPress={() => router.push(`/mypage/settings/report?type=club&id=${clubId}`)}
-                      textValue="신고"
-                    >
-                      신고
-                    </Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown.Popover>
               </Dropdown>
@@ -895,7 +895,7 @@ function ClubQnaTab({
                           role="menuitem"
                           onClick={() => {
                             setQuestionMenuOpenId(null);
-                            router.push(`/mypage/settings/report?type=post&id=${qna.id}`);
+                            router.push(`/mypage/settings/report?type=qna&id=${qna.id}`);
                           }}
                         >
                           신고

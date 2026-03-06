@@ -14,21 +14,32 @@ const REPORT_REASON_OPTIONS: { value: ReportReason; label: string }[] = [
   { value: 'etc', label: '기타' },
 ];
 
-type ReportTargetType = 'post' | 'comment' | 'club';
+type ReportTargetType = 'qna' | 'post' | 'comment' | 'club';
 
-const REPORT_CATEGORY_LABEL: Record<ReportTargetType, string> = {
-  post: '커뮤니티 신고',
-  comment: '커뮤니티 신고',
+/** 페이지 상단 제목 */
+const REPORT_PAGE_TITLE: Record<ReportTargetType, string> = {
+  qna: '유저 신고',
+  post: '유저 신고',
+  comment: '유저 신고',
   club: '동아리 신고',
+};
+
+/** 수정 불가 드롭다운용 구분 라벨 (Q&A / 게시글 / 댓글) */
+const REPORT_TARGET_LABEL: Record<ReportTargetType, string> = {
+  qna: 'Q&A',
+  post: '게시글',
+  comment: '댓글',
+  club: '동아리',
 };
 
 export default function ReportPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const targetType = (searchParams.get('type') ?? 'post') as ReportTargetType; // 'post' | 'comment' | 'club'
+  const targetType = (searchParams.get('type') ?? 'post') as ReportTargetType; // 'qna' | 'post' | 'comment' | 'club'
   const targetId = searchParams.get('id') ?? '';
 
-  const categoryLabel = REPORT_CATEGORY_LABEL[targetType] ?? '신고';
+  const pageTitle = REPORT_PAGE_TITLE[targetType] ?? '유저 신고';
+  const targetLabel = REPORT_TARGET_LABEL[targetType] ?? '게시글';
 
   const [content, setContent] = useState('');
   const [reportReason, setReportReason] = useState<ReportReason>('abuse');
@@ -38,7 +49,7 @@ export default function ReportPage() {
     e.preventDefault();
     if (!content.trim()) return;
     setIsSubmitting(true);
-    // TODO: 실제 신고 API 호출 (targetType: post|comment|club, targetId, reportReason, content)
+    // TODO: 실제 신고 API 호출 (targetType: qna|post|comment|club, targetId, reportReason, content)
     setTimeout(() => {
       setIsSubmitting(false);
       alert('신고가 접수되었습니다. 검토 후 조치하겠습니다.');
@@ -58,7 +69,7 @@ export default function ReportPage() {
           >
             취소
           </button>
-          <h1 className="text-lg font-semibold text-[var(--foreground)]">{categoryLabel}</h1>
+          <h1 className="text-lg font-semibold text-[var(--foreground)]">{pageTitle}</h1>
           <button
             type="submit"
             form="report-form"
@@ -75,9 +86,16 @@ export default function ReportPage() {
         className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4 pb-8"
         onSubmit={handleSubmit}
       >
-        <p className="shrink-0 text-sm text-zinc-500 dark:text-zinc-400">
-          {targetType === 'club' ? '동아리를 신고합니다.' : '커뮤니티 글 또는 댓글을 신고합니다.'}
-        </p>
+        {/* 수정 불가: 신고 대상 구분 표시 (Q&A / 게시글 / 댓글) — 드롭다운 형태로만 표시 */}
+        <div
+          role="combobox"
+          aria-label="신고 대상 구분"
+          aria-readonly="true"
+          className="max-w-[140px] min-w-[140px] shrink-0 rounded-full border border-zinc-300 bg-zinc-100 px-4 py-2 text-xs text-zinc-600 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
+        >
+          {targetLabel}
+        </div>
+
         <Select
           aria-label="신고 유형 선택"
           placeholder="유형"
