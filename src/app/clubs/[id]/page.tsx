@@ -17,7 +17,7 @@ import { useClubDetail, useDeleteClub, useLikeClub, useUnlikeClub } from '@/feat
 import { useNotification } from '@/features/device/use-notification';
 import { useClubFeeds } from '@/features/feed/hooks';
 import { useAddInterest, useMyInterests, useRemoveInterest } from '@/features/interest/hooks';
-import { useCreateQuestion, useQuestions } from '@/features/question/hooks';
+import { useCreateQuestion, useDeleteQuestion, useQuestions } from '@/features/question/hooks';
 import {
   useAddToWaitingList,
   useMyWaitingList,
@@ -359,7 +359,7 @@ function ClubHeader({
               {CATEGORY_LABEL[club.category]}
             </span>
           </div>
-          {/* 동아리 이름: 태그 바로 아래. admin/리더는 더보기(수정·삭제), 일반 유저는 신고 버튼 */}
+          {/* 동아리 이름: 태그 바로 아래. admin/리더는 더보기(수정·삭제·신고), 일반 유저는 신고 버튼 */}
           <div className="mt-1.5 flex items-center justify-between gap-2">
             <h1 className="min-w-0 flex-1 truncate text-xl font-bold text-zinc-900 dark:text-zinc-100">{club.name}</h1>
             {showManageButton ? (
@@ -409,6 +409,12 @@ function ClubHeader({
                         삭제
                       </Dropdown.Item>
                     )}
+                    <Dropdown.Item
+                      onPress={() => router.push(`/mypage/settings/report?type=club&id=${clubId}`)}
+                      textValue="신고"
+                    >
+                      신고
+                    </Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown.Popover>
               </Dropdown>
@@ -758,11 +764,25 @@ function ClubQnaTab({
   clubId: number;
   onQuestionSubmitted?: () => void;
 }) {
+  const router = useRouter();
   const { data, isLoading } = useQuestions(clubId, { page: 0, size: 20 });
   const { data: profile } = useMyProfile();
   const createQuestion = useCreateQuestion(clubId);
+  const deleteQuestion = useDeleteQuestion(clubId);
   const [questionText, setQuestionText] = useState('');
+  const [questionMenuOpenId, setQuestionMenuOpenId] = useState<number | null>(null);
+  const questionMenuRef = useRef<HTMLDivElement>(null);
   const questions = data?.content ?? [];
+
+  useEffect(() => {
+    if (questionMenuOpenId == null) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (questionMenuRef.current?.contains(e.target as Node)) return;
+      setQuestionMenuOpenId(null);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [questionMenuOpenId]);
 
   const handleSubmit = () => {
     if (!questionText.trim() || !profile) return;
@@ -827,12 +847,75 @@ function ClubQnaTab({
                 Q
               </span>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                  {qna.question}
-                </p>
-                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                  {formatQnaDateTime(qna.createdAt)}
-                </p>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                      {qna.question}
+                    </p>
+                    <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                      {formatQnaDateTime(qna.createdAt)}
+                    </p>
+                  </div>
+                  <div
+                    className="relative shrink-0"
+                    ref={questionMenuOpenId === qna.id ? questionMenuRef : undefined}
+                  >
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setQuestionMenuOpenId((prev) => (prev === qna.id ? null : qna.id))
+                      }
+                      className="rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                      aria-label="더보기"
+                      aria-expanded={questionMenuOpenId === qna.id}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        className="h-5 w-5"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"
+                        />
+                      </svg>
+                    </button>
+                    {questionMenuOpenId === qna.id && (
+                      <div
+                        className="absolute right-0 top-full z-10 mt-0.5 min-w-[100px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+                        role="menu"
+                      >
+                        <button
+                          type="button"
+                          className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
+                          role="menuitem"
+                          onClick={() => {
+                            setQuestionMenuOpenId(null);
+                            router.push(`/mypage/settings/report?type=post&id=${qna.id}`);
+                          }}
+                        >
+                          신고
+                        </button>
+                        <button
+                          type="button"
+                          className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                          role="menuitem"
+                          onClick={() => {
+                            setQuestionMenuOpenId(null);
+                            deleteQuestion.mutate(qna.id);
+                          }}
+                          disabled={deleteQuestion.isPending}
+                        >
+                          삭제
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
             {qna.answer && (

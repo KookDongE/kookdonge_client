@@ -67,7 +67,6 @@ export default function CommunitySavedPage() {
               key={post.id}
               post={post}
               boardHref={`/admin/community/posts/${post.id}`}
-              profile={profile ?? null}
             />
           ))
         )}

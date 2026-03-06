@@ -14,11 +14,21 @@ const REPORT_REASON_OPTIONS: { value: ReportReason; label: string }[] = [
   { value: 'etc', label: '기타' },
 ];
 
+type ReportTargetType = 'post' | 'comment' | 'club';
+
+const REPORT_CATEGORY_LABEL: Record<ReportTargetType, string> = {
+  post: '커뮤니티 신고',
+  comment: '커뮤니티 신고',
+  club: '동아리 신고',
+};
+
 export default function ReportPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const targetType = searchParams.get('type') ?? 'post'; // 'post' | 'comment'
+  const targetType = (searchParams.get('type') ?? 'post') as ReportTargetType; // 'post' | 'comment' | 'club'
   const targetId = searchParams.get('id') ?? '';
+
+  const categoryLabel = REPORT_CATEGORY_LABEL[targetType] ?? '신고';
 
   const [content, setContent] = useState('');
   const [reportReason, setReportReason] = useState<ReportReason>('abuse');
@@ -28,7 +38,7 @@ export default function ReportPage() {
     e.preventDefault();
     if (!content.trim()) return;
     setIsSubmitting(true);
-    // TODO: 실제 신고 API 호출 (targetType, targetId, reportReason, content)
+    // TODO: 실제 신고 API 호출 (targetType: post|comment|club, targetId, reportReason, content)
     setTimeout(() => {
       setIsSubmitting(false);
       alert('신고가 접수되었습니다. 검토 후 조치하겠습니다.');
@@ -48,7 +58,7 @@ export default function ReportPage() {
           >
             취소
           </button>
-          <h1 className="text-lg font-semibold text-[var(--foreground)]">신고</h1>
+          <h1 className="text-lg font-semibold text-[var(--foreground)]">{categoryLabel}</h1>
           <button
             type="submit"
             form="report-form"
@@ -65,6 +75,9 @@ export default function ReportPage() {
         className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4 pb-8"
         onSubmit={handleSubmit}
       >
+        <p className="shrink-0 text-sm text-zinc-500 dark:text-zinc-400">
+          {targetType === 'club' ? '동아리를 신고합니다.' : '커뮤니티 글 또는 댓글을 신고합니다.'}
+        </p>
         <Select
           aria-label="신고 유형 선택"
           placeholder="유형"

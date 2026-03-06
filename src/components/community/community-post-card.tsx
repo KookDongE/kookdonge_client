@@ -1,13 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
-import { isClubManager, isSystemAdmin } from '@/features/auth/permissions';
 import type { CommunityPost } from '@/features/community/types';
-import type { UserProfileRes } from '@/types/api';
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
@@ -20,40 +16,14 @@ function formatDate(iso: string): string {
   return d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
 }
 
-/** 목 데이터: 현재 사용자 authorId (API 연동 시 profile 기반으로 교체) */
-const MOCK_CURRENT_USER_ID = 1;
-
 type CommunityPostCardProps = {
   post: CommunityPost;
   /** 게시판 목록 페이지 경로 (상세 없을 때 클릭 시 이동) */
   boardHref?: string;
-  /** 삭제/신고 더보기 메뉴용 (없으면 더보기 비노출) */
-  profile?: UserProfileRes | null;
 };
 
-/** 제목 → 본문 한 줄 → 아이콘 + 숫자 + 시간 + 작성자. boardHref 있을 때 더보기(삭제·신고) 노출 */
-export function CommunityPostCard({ post, boardHref, profile }: CommunityPostCardProps) {
-  const router = useRouter();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  const myAuthorId = MOCK_CURRENT_USER_ID;
-  const isAdmin = profile ? isSystemAdmin(profile) : false;
-  const isAuthor = post.authorId === myAuthorId;
-  const isLeader =
-    profile && post.clubId != null ? isClubManager(profile, post.clubId) : false;
-  const canDelete = isAdmin || isAuthor || isLeader;
-  const showMoreMenu = Boolean(boardHref && profile);
-
-  useEffect(() => {
-    if (!menuOpen) return;
-    const handleClick = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
-    };
-    document.addEventListener('click', handleClick);
-    return () => document.removeEventListener('click', handleClick);
-  }, [menuOpen]);
-
+/** 제목 → 본문 한 줄 → 아이콘 + 숫자 + 시간 + 작성자 */
+export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
   const contentPreview = post.content.slice(0, 80) + (post.content.length > 80 ? '...' : '');
 
   const linkContent = (
@@ -150,77 +120,12 @@ export function CommunityPostCard({ post, boardHref, profile }: CommunityPostCar
     </>
   );
 
-  const moreButton = showMoreMenu && (
-    <div className="relative shrink-0" ref={menuRef}>
-      <button
-        type="button"
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          setMenuOpen((o) => !o);
-        }}
-        className="flex h-8 w-8 items-center justify-center rounded-full text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
-        aria-label="더보기"
-        aria-expanded={menuOpen}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          className="h-5 w-5"
-        >
-          <path
-            fillRule="evenodd"
-            d="M4.5 12a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm6 0a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm6 0a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z"
-            clipRule="evenodd"
-          />
-        </svg>
-      </button>
-      {menuOpen && (
-        <div
-          className="absolute top-full right-0 z-10 mt-1 min-w-[120px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
-          role="menu"
-        >
-          {canDelete && (
-            <button
-              type="button"
-              className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
-              role="menuitem"
-              onClick={(e) => {
-                e.preventDefault();
-                setMenuOpen(false);
-                // TODO: 삭제 API 호출 후 목록 갱신
-              }}
-            >
-              삭제
-            </button>
-          )}
-          <button
-            type="button"
-            className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
-            role="menuitem"
-            onClick={(e) => {
-              e.preventDefault();
-              setMenuOpen(false);
-              router.push(`/mypage/settings/report?type=post&id=${post.id}`);
-            }}
-          >
-            신고
-          </button>
-        </div>
-      )}
-    </div>
-  );
-
   return (
     <article className="flex items-start gap-3 border-b border-zinc-100 px-4 py-3 dark:border-zinc-800">
       {boardHref ? (
-        <>
-          <Link href={boardHref} className="flex min-w-0 flex-1 gap-3">
-            {linkContent}
-          </Link>
-          {moreButton}
-        </>
+        <Link href={boardHref} className="flex min-w-0 flex-1 gap-3">
+          {linkContent}
+        </Link>
       ) : (
         linkContent
       )}

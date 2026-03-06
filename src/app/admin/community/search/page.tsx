@@ -80,7 +80,6 @@ export default function CommunitySearchPage() {
                 key={post.id}
                 post={post}
                 boardHref={`/admin/community/posts/${post.id}`}
-                profile={profile ?? null}
               />
             ))}
           </div>

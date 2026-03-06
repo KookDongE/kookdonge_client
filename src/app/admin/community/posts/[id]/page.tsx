@@ -472,6 +472,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                                 role="menuitem"
                                 onClick={() => {
                                   setCommentMenuOpenId(null);
+                                  router.push(`/mypage/settings/report?type=comment&id=${c.id}`);
                                 }}
                               >
                                 신고
