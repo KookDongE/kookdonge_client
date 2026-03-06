@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Input, ListBox, Select, TextArea } from '@heroui/react';
 import { Reorder, useDragControls } from 'framer-motion';
 
+import { IMAGE_ACCEPT_ATTR, validateImageFile } from '@/lib/image-upload-validation';
 import { useSystemAdmins } from '@/features/admin';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
@@ -116,12 +117,23 @@ export default function CommunityWritePage() {
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     if (files.length === 0) return;
-    const added: PhotoItem[] = files.slice(0, Math.max(0, 10 - photoItems.length)).map((file) => ({
-      id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-      file,
-      preview: URL.createObjectURL(file),
-    }));
-    setPhotoItems((prev) => [...prev, ...added]);
+    const toAdd = files.slice(0, Math.max(0, 10 - photoItems.length));
+    const added: PhotoItem[] = [];
+    let firstError: string | null = null;
+    for (const file of toAdd) {
+      try {
+        validateImageFile(file);
+        added.push({
+          id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          file,
+          preview: URL.createObjectURL(file),
+        });
+      } catch (err) {
+        if (!firstError) firstError = err instanceof Error ? err.message : '파일 형식 또는 용량을 확인해 주세요.';
+      }
+    }
+    if (added.length > 0) setPhotoItems((prev) => [...prev, ...added]);
+    if (firstError) alert(firstError);
     e.target.value = '';
   };
 
@@ -294,7 +306,7 @@ export default function CommunityWritePage() {
           <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300" />
           <input
             type="file"
-            accept="image/*"
+            accept={IMAGE_ACCEPT_ATTR}
             multiple
             onChange={handlePhotoChange}
             className="hidden"

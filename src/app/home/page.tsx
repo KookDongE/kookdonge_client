@@ -10,7 +10,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { parseAsString, useQueryState } from 'nuqs';
 import { createPortal } from 'react-dom';
 
-import { diag, getAndIncrementHomeImageLoadCount, resetHomeImageLoadCount } from '@/lib/diagnostic';
 import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
@@ -227,11 +226,7 @@ function RankingSection({ returnTo }: { returnTo?: string }) {
                               imageLoaded[club.id] ? 'opacity-100' : 'opacity-0'
                             }`}
                             sizes="56px"
-                            onLoad={() => {
-                              setImageLoaded((prev) => ({ ...prev, [club.id]: true }));
-                              const n = getAndIncrementHomeImageLoadCount();
-                              if (n === 5 || n === 10) diag.memory(`홈 인기동아리 이미지 로드 누적 ${n}장`);
-                            }}
+                            onLoad={() => setImageLoaded((prev) => ({ ...prev, [club.id]: true }))}
                             onError={() => setImageError((prev) => ({ ...prev, [club.id]: true }))}
                           />
                         </>
@@ -528,43 +523,9 @@ function HomeContent() {
 
   const FILTER_CLEAR_PENDING_KEY = 'filterClearPending_home';
 
-  // 진단: 홈 마운트 시 이미지 카운터 리셋, 2초 후 이미지 개수·뷰포트 로그 (메모리/vh 추적)
-  useEffect(() => {
-    resetHomeImageLoadCount();
-    const t = setTimeout(() => {
-      const imgCount = typeof document !== 'undefined' ? document.querySelectorAll('img').length : 0;
-      const vh = typeof window !== 'undefined' ? window.innerHeight : 0;
-      const vv = typeof window !== 'undefined' && window.visualViewport ? window.visualViewport.height : 0;
-      diag.memory('홈 마운트 2초 후', { imgCount, innerHeight: vh, visualViewportHeight: vv });
-    }, 2000);
-    return () => clearTimeout(t);
-  }, []);
-
-  // 진단: resize/visualViewport 변경 시 vh 이슈 추적 (쓰로틀)
-  useEffect(() => {
-    if (typeof window === 'undefined' || window.location.pathname !== '/home') return;
-    let rafId: number;
-    const onResize = () => {
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        const vh = window.innerHeight;
-        const vv = window.visualViewport?.height ?? vh;
-        if (Math.abs(vh - vv) > 2) diag.viewport('innerHeight ≠ visualViewport (주소창 등)', { innerHeight: vh, visualViewportHeight: vv });
-      });
-    };
-    window.visualViewport?.addEventListener('resize', onResize);
-    window.addEventListener('resize', onResize);
-    return () => {
-      cancelAnimationFrame(rafId);
-      window.visualViewport?.removeEventListener('resize', onResize);
-      window.removeEventListener('resize', onResize);
-    };
-  }, []);
-
   // 새로고침 시 필터 초기화 (마운트 후 1회만 검사 → 드롭다운 선택 시에는 초기화되지 않음)
   // 앱뷰: 이전 문서가 pagehide 시 남긴 sessionStorage 플래그가 있으면 초기화
   useEffect(() => {
-    diag.recordEffectRun('home-effect-initial');
     if (typeof window === 'undefined' || pathname !== '/home') return;
     if (didInitialClearCheckRef.current) return;
     didInitialClearCheckRef.current = true;
@@ -577,23 +538,14 @@ function HomeContent() {
       (searchParams.get('sort') && searchParams.get('sort') !== 'name,asc');
     const pendingFromReload =
       typeof sessionStorage !== 'undefined' && sessionStorage.getItem(FILTER_CLEAR_PENDING_KEY);
-    console.log('[home-debug] 초기 effect', {
-      hasFilter: !!hasFilter,
-      pendingFromReload,
-      search: window.location.search,
-    });
     if (hasFilter || pendingFromReload) {
       if (pendingFromReload) sessionStorage.removeItem(FILTER_CLEAR_PENDING_KEY);
-      if (hasFilter) {
-        console.log('[home-debug] 초기 effect → router.replace(/home) 호출');
-        router.replace('/home', { scroll: false });
-      }
+      if (hasFilter) router.replace('/home', { scroll: false });
     }
   }, [pathname, router, searchParams]);
 
   // 앱뷰 풀리프레시: 페이지가 사라지기 직전에(필터가 있을 때만) 플래그 설정 → 새 문서 로드 시 위 effect에서 초기화
   useEffect(() => {
-    diag.recordEffectRun('home-effect-pagehide');
     const handlePagehide = () => {
       try {
         if (window.location.pathname !== '/home') return;
@@ -605,12 +557,7 @@ function HomeContent() {
           params.get('college') ??
           params.get('q') ??
           (params.get('sort') && params.get('sort') !== 'name,asc');
-        if (hasFilter) {
-          console.log('[home-debug] pagehide → sessionStorage 플래그 설정', {
-            search: window.location.search,
-          });
-          sessionStorage.setItem(FILTER_CLEAR_PENDING_KEY, '1');
-        }
+        if (hasFilter) sessionStorage.setItem(FILTER_CLEAR_PENDING_KEY, '1');
       } catch {
         // ignore
       }
@@ -621,9 +568,7 @@ function HomeContent() {
 
   // 앱뷰 풀리프레시: bfcache 복원 시 필터 초기화 + 동아리 목록 순서만 다시 셔플
   useEffect(() => {
-    diag.recordEffectRun('home-effect-pageshow');
     const handlePageshow = (e: PageTransitionEvent) => {
-      console.log('[home-debug] pageshow', { persisted: e.persisted, pathname: window.location.pathname });
       if (e.persisted !== true) return;
       if (typeof window === 'undefined' || window.location.pathname !== '/home') return;
       setReshuffleKey((k) => k + 1);
@@ -635,11 +580,7 @@ function HomeContent() {
         params.get('college') ??
         params.get('q') ??
         (params.get('sort') && params.get('sort') !== 'name,asc');
-      console.log('[home-debug] pageshow(persisted) → hasFilter', hasFilter, 'search', window.location.search);
-      if (hasFilter) {
-        console.log('[home-debug] pageshow → router.replace(/home) 호출');
-        router.replace('/home', { scroll: false });
-      }
+      if (hasFilter) router.replace('/home', { scroll: false });
     };
     window.addEventListener('pageshow', handlePageshow);
     return () => window.removeEventListener('pageshow', handlePageshow);
@@ -647,23 +588,13 @@ function HomeContent() {
 
   // 앱뷰 풀리프레시: 리마운트가 안 되는 WebView는 visibilitychange로 감지 (숨김 → 보임 시 0.8초 이상 지났으면 필터 초기화)
   useEffect(() => {
-    diag.recordEffectRun('home-effect-visibility');
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
         hiddenAtRef.current = Date.now();
-        console.log('[home-debug] visibilitychange → hidden', { at: hiddenAtRef.current });
       }
       if (document.visibilityState !== 'visible') return;
       if (typeof window === 'undefined' || window.location.pathname !== '/home') return;
       const hiddenAt = hiddenAtRef.current;
-      const elapsed = hiddenAt != null ? Date.now() - hiddenAt : 0;
-      const over800 = hiddenAt != null && elapsed >= 800;
-      console.log('[home-debug] visibilitychange → visible', {
-        hiddenAt,
-        elapsedMs: hiddenAt != null ? elapsed : null,
-        over800,
-        search: window.location.search,
-      });
       if (hiddenAt == null || Date.now() - hiddenAt < 800) return;
       hiddenAtRef.current = null;
       const params = new URLSearchParams(window.location.search);
@@ -674,10 +605,7 @@ function HomeContent() {
         params.get('college') ??
         params.get('q') ??
         (params.get('sort') && params.get('sort') !== 'name,asc');
-      if (hasFilter) {
-        console.log('[home-debug] visibilitychange → router.replace(/home) 호출');
-        router.replace('/home', { scroll: false });
-      }
+      if (hasFilter) router.replace('/home', { scroll: false });
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
@@ -690,7 +618,6 @@ function HomeContent() {
 
   // 홈 진입 시 실제 스크롤 컨테이너(data-scroll-container)를 맨 위로. Next.js 기본 스크롤은 window 기준이라 필터/인기동아리 겹침 방지.
   useLayoutEffect(() => {
-    diag.recordEffectRun('home-layoutEffect-scroll');
     if (pathname !== '/home') return;
     const el = document.querySelector('[data-scroll-container]') as HTMLElement | null;
     if (el) el.scrollTo(0, 0);

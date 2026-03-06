@@ -5,8 +5,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 
-import { diag } from '@/lib/diagnostic';
-
 /** 풀투리프레시 당기는 중·새로고침 중일 때 플로팅 버튼 등을 숨기기 위한 context */
 export const PullToRefreshActiveContext = createContext(false);
 export function usePullToRefreshActive(): boolean {
@@ -66,7 +64,6 @@ export function PullToRefresh({
   }, [pathname, fullScreen]);
 
   const triggerRefresh = useCallback(() => {
-    diag.redirect('pull-to-refresh', pathname ?? '', '당겨서 새로고침');
     setIsRefreshing(true);
     if (pathname) router.replace(pathname, { scroll: false });
     router.refresh();

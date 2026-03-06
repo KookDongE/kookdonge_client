@@ -10,6 +10,7 @@ import { Reorder, useDragControls } from 'framer-motion';
 import type { ClubFeedRes } from '@/types/api';
 import { FormPageSkeleton } from '@/components/common/skeletons';
 import { useClubDetail } from '@/features/club/hooks';
+import { IMAGE_ACCEPT_ATTR, validateImageFile } from '@/lib/image-upload-validation';
 import { useFeed, useImageUpload, useUpdateFeed } from '@/features/feed/hooks';
 
 type PageProps = {
@@ -126,6 +127,13 @@ function EditFeedForm({
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
     try {
+      for (const file of files) validateImageFile(file);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : '파일 형식 또는 용량을 확인해 주세요.');
+      e.target.value = '';
+      return;
+    }
+    try {
       const result = await uploadImages(files);
       setItems((prev) => [...prev, ...result.map((f) => ({ uuid: f.uuid, url: f.fileUrl }))]);
     } catch (error) {
@@ -133,6 +141,7 @@ function EditFeedForm({
       alert(message);
       console.error(error);
     }
+    e.target.value = '';
   };
 
   const handleRemoveImage = (item: FeedImageItem) => {
@@ -195,7 +204,7 @@ function EditFeedForm({
       <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-hidden p-4">
         <input
           type="file"
-          accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+          accept={IMAGE_ACCEPT_ATTR}
           multiple
           onChange={handleImageFileChange}
           className="hidden"

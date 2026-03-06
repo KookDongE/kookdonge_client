@@ -17,6 +17,7 @@ import {
   useUpdateClubDetail,
   useUpdateRecruitmentInfo,
 } from '@/features/club/hooks';
+import { IMAGE_ACCEPT_ATTR, validateImageFile } from '@/lib/image-upload-validation';
 import { useClubFeeds, useUploadFeedFiles } from '@/features/feed/hooks';
 import { useAddInterest, useMyInterests, useRemoveInterest } from '@/features/interest/hooks';
 import {
@@ -435,6 +436,12 @@ function ClubManageContent({ clubId }: { clubId: number }) {
 
   const handleImageUpload = async (file: File) => {
     try {
+      validateImageFile(file);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : '파일 형식 또는 용량을 확인해 주세요.');
+      return;
+    }
+    try {
       const result = await uploadFeedFiles.mutateAsync([file]);
       if (result[0]) {
         setImage(result[0].fileUrl);
@@ -466,6 +473,12 @@ function ClubManageContent({ clubId }: { clubId: number }) {
 
   /** 동아리 소개 이미지 1장 업로드 (프로필 이미지와 동일: Presigned URL → S3 → POST /files → UUID 저장) */
   const handleContentImageUpload = async (file: File) => {
+    try {
+      validateImageFile(file);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : '파일 형식 또는 용량을 확인해 주세요.');
+      return;
+    }
     try {
       const result = await uploadFeedFiles.mutateAsync([file]);
       if (result[0]) {
@@ -1288,7 +1301,7 @@ function ClubInfoTab({
               <div className="flex items-center gap-4">
                 <input
                   type="file"
-                  accept="image/*"
+                  accept={IMAGE_ACCEPT_ATTR}
                   onChange={handleImageFileChange}
                   className="hidden"
                   id="profile-image-upload"
@@ -1612,7 +1625,7 @@ function ClubInfoTab({
             <div>
               <input
                 type="file"
-                accept="image/*"
+                accept={IMAGE_ACCEPT_ATTR}
                 onChange={handleContentImageFileChange}
                 className="hidden"
                 id="content-image-upload"

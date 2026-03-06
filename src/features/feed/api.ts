@@ -8,11 +8,12 @@ import {
   PresignedUrlResponse,
 } from '@/types/api';
 import { apiClient } from '@/lib/api';
+import {
+  ALLOWED_IMAGE_EXTENSIONS,
+  validateImageFile,
+} from '@/lib/image-upload-validation';
 
-/** 허용 이미지 확장자 (스웨거 extension 패턴과 동일) */
-export const ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp'] as const;
-/** 최대 파일 크기 10MB */
-export const MAX_IMAGE_FILE_SIZE = 10 * 1024 * 1024;
+export { ALLOWED_IMAGE_EXTENSIONS, validateImageFile } from '@/lib/image-upload-validation';
 
 const CONTENT_TYPE_TO_EXT: Record<string, (typeof ALLOWED_IMAGE_EXTENSIONS)[number]> = {
   'image/jpeg': 'jpeg',
@@ -21,25 +22,6 @@ const CONTENT_TYPE_TO_EXT: Record<string, (typeof ALLOWED_IMAGE_EXTENSIONS)[numb
   'image/gif': 'gif',
   'image/webp': 'webp',
 };
-
-/**
- * 파일 확장자·크기 검증. 실패 시 메시지 throw.
- */
-export function validateImageFile(file: File): void {
-  const ext = (file.name.split('.').pop()?.toLowerCase() ?? '').replace(/[^a-z]/g, '');
-  const allowed = [...ALLOWED_IMAGE_EXTENSIONS];
-  if (!ext || !allowed.includes(ext as (typeof ALLOWED_IMAGE_EXTENSIONS)[number])) {
-    throw new Error(`지원하지 않는 형식입니다. (${file.name}) 허용: ${allowed.join(', ')}`);
-  }
-  if (file.size <= 0) {
-    throw new Error(`파일 크기를 읽을 수 없습니다: ${file.name}`);
-  }
-  if (file.size > MAX_IMAGE_FILE_SIZE) {
-    throw new Error(
-      `파일 크기는 10MB 이하여야 합니다. (${file.name}: ${(file.size / 1024 / 1024).toFixed(2)}MB)`
-    );
-  }
-}
 
 /** API가 snake_case(post_urls 등)로 올 수 있으므로 피드 목록을 camelCase로 정규화 */
 function normalizeClubFeedListRes(raw: unknown): ClubFeedListRes {

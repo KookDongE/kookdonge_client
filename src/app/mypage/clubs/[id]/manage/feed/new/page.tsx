@@ -9,6 +9,7 @@ import { Reorder, useDragControls } from 'framer-motion';
 
 import { FormPageSkeleton } from '@/components/common/skeletons';
 import { useClubDetail } from '@/features/club/hooks';
+import { IMAGE_ACCEPT_ATTR, validateImageFile } from '@/lib/image-upload-validation';
 import { useCreateFeed, useImageUpload } from '@/features/feed/hooks';
 
 type PageProps = {
@@ -132,6 +133,13 @@ function NewFeedContent({ clubId }: { clubId: number }) {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
     try {
+      for (const file of files) validateImageFile(file);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : '파일 형식 또는 용량을 확인해 주세요.');
+      e.target.value = '';
+      return;
+    }
+    try {
       const result = await uploadImages(files);
       setUploadedFiles((prev) => [...prev, ...result]);
     } catch (error) {
@@ -139,6 +147,7 @@ function NewFeedContent({ clubId }: { clubId: number }) {
       alert(message);
       console.error(error);
     }
+    e.target.value = '';
   };
 
   const handleRemoveImage = (uuid: string) => {
@@ -198,7 +207,7 @@ function NewFeedContent({ clubId }: { clubId: number }) {
         {/* 이미지 추가 버튼만 */}
         <input
           type="file"
-          accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+          accept={IMAGE_ACCEPT_ATTR}
           multiple
           onChange={handleImageFileChange}
           className="hidden"
