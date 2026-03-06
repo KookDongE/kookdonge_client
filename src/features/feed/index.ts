@@ -1,4 +1,4 @@
-export { feedApi, validateImageFile, ALLOWED_IMAGE_EXTENSIONS, MAX_IMAGE_FILE_SIZE } from './api';
+export { feedApi, validateImageFile, ALLOWED_IMAGE_EXTENSIONS } from './api';
 export {
   feedKeys,
   useClubFeeds,
