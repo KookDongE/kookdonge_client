@@ -30,10 +30,10 @@ export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
     <>
       {/* 왼쪽: 제목·본문·메타 */}
       <div className="min-w-0 flex-1">
-        <h3 className="line-clamp-2 text-[15px] leading-snug font-semibold text-zinc-900 dark:text-zinc-100">
+        <h3 className="line-clamp-2 text-sm leading-snug font-medium text-zinc-700 dark:text-zinc-300">
           {post.title}
         </h3>
-        <p className="mt-1 line-clamp-1 text-[13px] leading-snug text-zinc-500 dark:text-zinc-400">
+        <p className="mt-1 line-clamp-1 text-xs leading-snug font-normal text-zinc-500 dark:text-zinc-500">
           {contentPreview}
         </p>
         <div className="mt-2 flex items-center gap-3 text-[12px] text-zinc-500 dark:text-zinc-500">

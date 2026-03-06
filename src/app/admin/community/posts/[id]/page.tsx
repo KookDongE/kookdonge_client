@@ -194,7 +194,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
     <div className="min-h-screen bg-white pb-24 dark:bg-zinc-900">
       <article className="px-4 py-4">
         {/* 작성자: 프로필 사진 + 이름/시간 세로, 오른쪽 ... 메뉴(수정/삭제/신고) */}
-        <div className="mb-3 flex items-center gap-3">
+        <div className="mb-4 flex items-center gap-4">
           <div
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-sm font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
             aria-hidden
@@ -270,17 +270,17 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
         </div>
 
         {/* 제목 */}
-        <h1 className="text-lg leading-snug font-bold text-zinc-900 dark:text-zinc-100">
+        <h1 className="text-base leading-snug font-medium text-zinc-700 dark:text-zinc-300">
           {post.title}
         </h1>
 
         {/* 본문 */}
-        <div className="mt-4 text-[15px] leading-relaxed break-words whitespace-pre-wrap text-zinc-800 dark:text-zinc-200">
+        <div className="mt-4 text-sm leading-relaxed break-words whitespace-pre-wrap font-normal text-zinc-600 dark:text-zinc-400">
           {post.content}
         </div>
 
         {/* 액션 바: 좋아요·저장 버튼(클릭 시 채움/비움 토글), 댓글은 표시만. 순서: 좋아요 → 저장 → 댓글 */}
-        <div className="mt-6 flex items-center gap-6 pt-4">
+        <div className="mt-6 flex items-center gap-4 pt-4">
           <button
             type="button"
             onClick={() =>
@@ -498,7 +498,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                         </div>
                       </div>
                     </div>
-                    <p className="mt-0.5 text-sm text-zinc-800 dark:text-zinc-200">{c.content}</p>
+                    <p className="mt-0.5 text-sm font-normal text-zinc-600 dark:text-zinc-400">{c.content}</p>
                   </div>
                 </li>
               );
