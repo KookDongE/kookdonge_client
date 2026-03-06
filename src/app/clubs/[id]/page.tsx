@@ -359,10 +359,10 @@ function ClubHeader({
               {CATEGORY_LABEL[club.category]}
             </span>
           </div>
-          {/* 동아리 이름: 태그 바로 아래. admin/관리자일 때 우측에 더보기 메뉴(수정, 삭제) */}
+          {/* 동아리 이름: 태그 바로 아래. admin/리더는 더보기(수정·삭제), 일반 유저는 신고 버튼 */}
           <div className="mt-1.5 flex items-center justify-between gap-2">
             <h1 className="min-w-0 flex-1 truncate text-xl font-bold text-zinc-900 dark:text-zinc-100">{club.name}</h1>
-            {showManageButton && (
+            {showManageButton ? (
               <Dropdown>
                 <Dropdown.Trigger>
                   <button
@@ -412,6 +412,30 @@ function ClubHeader({
                   </Dropdown.Menu>
                 </Dropdown.Popover>
               </Dropdown>
+            ) : (
+              <button
+                type="button"
+                onClick={() => router.push(`/mypage/settings/report?type=club&id=${clubId}`)}
+                className="shrink-0 rounded-full p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                title="신고"
+                aria-label="동아리 신고"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-5 w-5"
+                  aria-hidden
+                >
+                  <path d="M12 9v4" />
+                  <path d="M12 17h.01" />
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                </svg>
+              </button>
             )}
           </div>
           <p className="mt-1 max-h-[1.5rem] overflow-hidden line-clamp-1 min-h-[1.5rem] text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">

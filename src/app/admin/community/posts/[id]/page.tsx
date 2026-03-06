@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { createPortal } from 'react-dom';
 
 import { useMyProfile } from '@/features/auth/hooks';
-import { isSystemAdmin } from '@/features/auth/permissions';
+import { isClubManager, isSystemAdmin } from '@/features/auth/permissions';
 import {
   getCommentsByPostId,
   getPostById,
@@ -129,21 +129,23 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
   const [deleteDeniedToast, setDeleteDeniedToast] = useState(false);
   /** 댓글별 좋아요 수 로컬 오버라이드 (id -> count) */
   const [commentLikeOverrides, setCommentLikeOverrides] = useState<Record<number, number>>({});
+  /** 댓글별 좋아요 클릭(하트) 토글 */
+  const [commentLikedByMe, setCommentLikedByMe] = useState<Record<number, boolean>>({});
   /** 목 데이터: 현재 사용자 authorId (실제로는 profile.id 등) */
   const myAuthorId = 1;
+  const isAdmin = profile ? isSystemAdmin(profile) : false;
+  const isAuthor = post ? post.authorId === myAuthorId : false;
+  const isLeader =
+    profile && post?.clubId != null ? isClubManager(profile, post.clubId) : false;
+  const canDelete = isAdmin || isAuthor || isLeader;
+  const canEdit = isAdmin;
 
   useEffect(() => {
     if (profileLoading) return;
-    if (profile && !isSystemAdmin(profile)) {
-      router.replace('/home');
-    }
-  }, [profile, profileLoading, router]);
-
-  useEffect(() => {
-    if (!profileLoading && profile && isSystemAdmin(profile) && (id <= 0 || !post)) {
+    if (id <= 0 || !post) {
       router.replace('/admin/community');
     }
-  }, [id, post, profile, profileLoading, router]);
+  }, [id, post, profileLoading, router]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -179,7 +181,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
     el.style.height = `${Math.min(el.scrollHeight, maxH)}px`;
   }, [commentText]);
 
-  if (profileLoading || (profile && !isSystemAdmin(profile)) || (id > 0 && !post)) {
+  if (profileLoading || (id > 0 && !post)) {
     return <CommunityPostDetailSkeleton />;
   }
 
@@ -229,27 +231,36 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                 className="absolute top-full right-0 z-10 mt-1 min-w-[120px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
                 role="menu"
               >
-                <button
-                  type="button"
-                  className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
-                  role="menuitem"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  수정
-                </button>
-                <button
-                  type="button"
-                  className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
-                  role="menuitem"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  삭제
-                </button>
+                {canEdit && (
+                  <button
+                    type="button"
+                    className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                    role="menuitem"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    수정
+                  </button>
+                )}
+                {canDelete && (
+                  <button
+                    type="button"
+                    className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                    role="menuitem"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    삭제
+                  </button>
+                )}
                 <button
                   type="button"
                   className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
                   role="menuitem"
-                  onClick={() => setMenuOpen(false)}
+                  onClick={() => {
+                    setMenuOpen(false);
+                    router.push(
+                      `/mypage/settings/report?type=post&id=${post.id}`
+                    );
+                  }}
                 >
                   신고
                 </button>
@@ -275,9 +286,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
             onClick={() =>
               setLikedOverride((prev) => (prev !== null ? !prev : !(post.liked ?? false)))
             }
-            className={`flex items-center gap-1.5 text-sm transition-opacity hover:opacity-80 ${
-              liked ? 'text-red-500 dark:text-red-400' : 'text-red-400/80 dark:text-red-400/70'
-            }`}
+            className="flex items-center gap-1.5 text-sm text-red-400/80 transition-opacity hover:opacity-80 dark:text-red-400/70"
             aria-label={liked ? '공감 취소' : '공감'}
           >
             <svg
@@ -301,11 +310,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
             onClick={() =>
               setSavedOverride((prev) => (prev !== null ? !prev : !(post.saved ?? false)))
             }
-            className={`flex items-center gap-1.5 text-sm transition-opacity hover:opacity-80 ${
-              saved
-                ? 'text-amber-500 dark:text-amber-400'
-                : 'text-amber-400/80 dark:text-amber-400/70'
-            }`}
+            className="flex items-center gap-1.5 text-sm text-amber-400/80 transition-opacity hover:opacity-80 dark:text-amber-400/70"
             aria-label={saved ? '저장 취소' : '저장'}
           >
             <svg
@@ -360,6 +365,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
           <ul className="space-y-4">
             {comments.map((c) => {
               const likeCount = commentLikeOverrides[c.id] ?? c.likeCount;
+              const liked = commentLikedByMe[c.id] ?? false;
               const isMine = c.authorId === myAuthorId;
               return (
                 <li key={c.id} className="flex gap-3">
@@ -378,19 +384,25 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                       <div className="flex shrink-0 items-center gap-0.5">
                         <button
                           type="button"
-                          className="flex items-center gap-0.5 rounded p-1 text-zinc-500 transition-colors hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                          className={`flex items-center gap-0.5 rounded p-1 transition-opacity hover:opacity-80 ${
+                            liked
+                              ? 'text-red-500 dark:text-red-400'
+                              : 'text-red-400/80 dark:text-red-400/70'
+                          }`}
                           aria-label={`좋아요 ${likeCount}개`}
-                          onClick={() =>
+                          onClick={() => {
+                            const newLiked = !liked;
+                            setCommentLikedByMe((prev) => ({ ...prev, [c.id]: newLiked }));
                             setCommentLikeOverrides((prev) => ({
                               ...prev,
-                              [c.id]: (prev[c.id] ?? c.likeCount) + 1,
-                            }))
-                          }
+                              [c.id]: (prev[c.id] ?? c.likeCount) + (newLiked ? 1 : -1),
+                            }));
+                          }}
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
-                            fill="none"
+                            fill={liked ? 'currentColor' : 'none'}
                             stroke="currentColor"
                             strokeWidth={1.5}
                             className="h-4 w-4"
@@ -398,7 +410,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
-                              d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.06.725 1.06h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.653.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23h-.777Z"
+                              d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
                             />
                           </svg>
                           <span className="text-xs">{likeCount}</span>

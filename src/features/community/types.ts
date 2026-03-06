@@ -18,4 +18,6 @@ export type CommunityPost = {
   saved?: boolean;
   /** 목록 썸네일 이미지 URL (없으면 placeholder) */
   imageUrl?: string | null;
+  /** 소속 동아리 ID (삭제 권한: 동아리 리더 여부 판단용) */
+  clubId?: number | null;
 };

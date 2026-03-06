@@ -26,6 +26,7 @@ export function Header() {
     pathname === '/mypage/clubs/apply' ||
     pathname === '/admin/community/write' ||
     pathname === '/mypage/settings/bug-report' ||
+    pathname === '/mypage/settings/report' ||
     pathname === '/mypage/settings/name'; // 특정 페이지만 헤더 숨김
   if (isHidden) return null;
 

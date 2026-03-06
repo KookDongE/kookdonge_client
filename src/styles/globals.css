@@ -86,6 +86,7 @@ html:not(.dark) .club-request-detail-header {
 
 /* 라이트 모드: 드롭다운(Select) 트리거·팝오버·리스트 박스 항상 밝게 */
 html:not(.dark) [data-slot='trigger'][role='combobox'],
+html:not(.dark) [data-slot='select-trigger'],
 html:not(.dark) [data-slot='listbox'],
 html:not(.dark) [data-slot='popover'],
 html:not(.dark) [role='listbox'] {
@@ -106,8 +107,9 @@ html:not(.dark) [role='listbox'] [role='option']:hover {
   background-color: #f4f4f5;
 }
 
-/* 동아리 관리: 포탈로 뜨는 드롭다운 라이트 모드 강제 (폰에서 다크로 보이는 오류 방지) */
-html:not(.dark) .club-manage-select-trigger {
+/* 동아리 관리: 셀렉트 트리거 라이트 모드 강제 (PWA 앱뷰에서 다크로 보이는 오류 방지, data-slot까지 명시) */
+html:not(.dark) .club-manage-select-trigger,
+html:not(.dark) .club-manage-card [data-slot='select-trigger'] {
   color-scheme: light;
   background-color: #ffffff !important;
   color: #09090b !important;

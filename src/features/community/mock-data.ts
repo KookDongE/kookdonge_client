@@ -54,6 +54,7 @@ function createMockPosts(): CommunityPost[] {
         commentCount: 0 + (id % 15),
         liked: id % 4 === 0,
         saved: id % 5 === 0,
+        clubId: id % 3 === 0 ? 1 : undefined,
       });
     });
   });
