@@ -14,7 +14,14 @@ export function Header() {
   const isNotificationSettingsPage = pathname === '/mypage/notification-settings';
   const isCommunityPostDetail = pathname?.startsWith('/admin/community/posts/');
   const isCommunitySearchPage = pathname === '/admin/community/search';
-  const showBackButton = isCommunityPostDetail || isCommunitySearchPage || isNotificationSettingsPage;
+  const isClubRequestDetail = /^\/my\/club-requests\/[^/]+$/.test(pathname ?? '');
+  const isAdminApplicationDetail = /^\/admin\/applications\/[^/]+$/.test(pathname ?? '');
+  const showBackButton =
+    isCommunityPostDetail ||
+    isCommunitySearchPage ||
+    isNotificationSettingsPage ||
+    isClubRequestDetail ||
+    isAdminApplicationDetail;
 
   const isHidden =
     pathname === '/' ||

@@ -118,15 +118,7 @@ export default function AdminDeletionRequestDetailPage({ params }: PageProps) {
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-[var(--card)]">
       <div className="shrink-0 bg-[var(--card)]">
-        <div className="flex h-16 items-center justify-between px-4">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="flex items-center gap-1 text-base font-medium text-[var(--foreground)]"
-          >
-            <span className="inline-block">←</span>
-            <span>뒤로가기</span>
-          </button>
+        <div className="flex h-16 items-center justify-end px-4">
           <div className="flex items-center gap-2">
             <span className="text-xs text-[var(--muted-foreground)]">
               {formatDateTimeNoSeconds(request.createdAt)}
