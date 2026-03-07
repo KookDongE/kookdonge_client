@@ -241,7 +241,10 @@ export const clubApi = {
   ): Promise<ClubDeletionRequestRes> => {
     return apiClient<ClubDeletionRequestRes>('/api/clubs/deletion-requests', {
       method: 'POST',
-      body: data,
+      body: {
+        clubId: Number(data.clubId),
+        deletionReason: String(data.deletionReason ?? ''),
+      },
     });
   },
 
@@ -253,14 +256,27 @@ export const clubApi = {
   }): Promise<PageResponse<ClubDeletionRequestRes>> => {
     const page = params?.page ?? 0;
     const size = params?.size ?? 20;
-    const query: Record<string, string | number | undefined> = { page, size };
+    const query: Record<string, string | number | undefined> = { page, size, sort: 'createdAt,DESC' };
     if (params?.status) query.status = params.status;
-    return apiClient<PageResponse<ClubDeletionRequestRes>>(
-      '/api/admin/clubs/deletion-requests',
-      {
-        params: query as Record<string, string | number | boolean | undefined>,
-      }
-    );
+    type RawPage = PageResponse<ClubDeletionRequestRes> | { data?: { content?: ClubDeletionRequestRes[] }; content?: ClubDeletionRequestRes[]; totalPages?: number; totalElements?: number; size?: number; number?: number; first?: boolean; last?: boolean };
+    const raw = await apiClient<RawPage>('/api/admin/clubs/deletion-requests', {
+      params: query as Record<string, string | number | boolean | undefined>,
+    });
+    // 백엔드가 content를 한 단계 더 감싼 경우 대비 (data.content 등)
+    const content: ClubDeletionRequestRes[] = Array.isArray((raw as { content?: ClubDeletionRequestRes[] }).content)
+      ? (raw as { content: ClubDeletionRequestRes[] }).content
+      : Array.isArray((raw as { data?: { content?: ClubDeletionRequestRes[] } })?.data?.content)
+        ? (raw as { data: { content: ClubDeletionRequestRes[] } }).data.content
+        : [];
+    return {
+      content,
+      totalPages: raw?.totalPages ?? 0,
+      totalElements: raw?.totalElements ?? content.length,
+      size: raw?.size ?? size,
+      number: raw?.number ?? page,
+      first: raw?.first ?? true,
+      last: raw?.last ?? true,
+    };
   },
 
   approveDeletionRequest: async (
