@@ -771,7 +771,9 @@ function ClubQnaTab({
   const deleteQuestion = useDeleteQuestion(clubId);
   const [questionText, setQuestionText] = useState('');
   const [questionMenuOpenId, setQuestionMenuOpenId] = useState<number | null>(null);
+  const [answerMenuOpenId, setAnswerMenuOpenId] = useState<number | null>(null);
   const questionMenuRef = useRef<HTMLDivElement>(null);
+  const answerMenuRef = useRef<HTMLDivElement>(null);
   const questions = data?.content ?? [];
 
   useEffect(() => {
@@ -783,6 +785,16 @@ function ClubQnaTab({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [questionMenuOpenId]);
+
+  useEffect(() => {
+    if (answerMenuOpenId == null) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (answerMenuRef.current?.contains(e.target as Node)) return;
+      setAnswerMenuOpenId(null);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [answerMenuOpenId]);
 
   const handleSubmit = () => {
     if (!questionText.trim() || !profile) return;
@@ -926,9 +938,85 @@ function ClubQnaTab({
                 >
                   A
                 </span>
-                <p className="flex-1 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
-                  {qna.answer}
-                </p>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
+                        {qna.answer}
+                      </p>
+                      {(qna.answeredBy || qna.answeredAt) && (
+                        <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                          {[qna.answeredBy, qna.answeredAt && formatQnaDateTime(qna.answeredAt)]
+                            .filter(Boolean)
+                            .join(' · ')}
+                        </p>
+                      )}
+                    </div>
+                    <div
+                      className="relative shrink-0"
+                      ref={answerMenuOpenId === qna.id ? answerMenuRef : undefined}
+                    >
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setAnswerMenuOpenId((prev) =>
+                            prev === qna.id ? null : qna.id
+                          )
+                        }
+                        className="rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                        aria-label="더보기"
+                        aria-expanded={answerMenuOpenId === qna.id}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                          className="h-5 w-5"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"
+                          />
+                        </svg>
+                      </button>
+                      {answerMenuOpenId === qna.id && (
+                        <div
+                          className="absolute right-0 top-full z-10 mt-0.5 min-w-[100px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+                          role="menu"
+                        >
+                          <button
+                            type="button"
+                            className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                            role="menuitem"
+                            onClick={() => {
+                              setAnswerMenuOpenId(null);
+                              router.push(
+                                `/mypage/settings/report?type=qna&id=${qna.id}`
+                              );
+                            }}
+                          >
+                            신고
+                          </button>
+                          <button
+                            type="button"
+                            className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
+                            role="menuitem"
+                            onClick={() => {
+                              setAnswerMenuOpenId(null);
+                              deleteQuestion.mutate(qna.id);
+                            }}
+                            disabled={deleteQuestion.isPending}
+                          >
+                            삭제
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>

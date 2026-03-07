@@ -15,7 +15,44 @@ import { FormPageSkeleton } from '@/components/common/skeletons';
 /** 사진 한 칸: id(Reorder용) + file + preview */
 type PhotoItem = { id: string; file: File; preview: string };
 
-/** 드래그는 밑 그립에서만 가능, 사진 영역은 그립 안 켜짐 (동아리 피드와 동일) */
+/** 단일 사진 미리보기: 가로 꽉, 비율 유지 */
+function SinglePhotoPreview({
+  item,
+  onRemove,
+}: {
+  item: PhotoItem;
+  onRemove: () => void;
+}) {
+  return (
+    <div className="relative w-full overflow-hidden rounded-xl bg-zinc-200 dark:bg-zinc-700">
+      <img
+        src={item.preview}
+        alt=""
+        className="block h-auto w-full max-h-[70vh] select-none"
+        draggable={false}
+      />
+      <button
+        type="button"
+        onClick={onRemove}
+        className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
+        aria-label="사진 삭제"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2.5}
+          className="h-4 w-4"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+  );
+}
+
+/** 여러 장일 때: 세로4:가로3 고정, 드래그 순서 변경 (동아리 피드와 동일) */
 function PhotoReorderItem({
   item,
   onRemove,
@@ -34,7 +71,7 @@ function PhotoReorderItem({
       whileDrag={{ scale: 1.02, zIndex: 50 }}
       className="relative flex shrink-0 flex-col gap-1 rounded-xl"
     >
-      <div className="relative aspect-square w-36 overflow-hidden rounded-xl bg-zinc-200 dark:bg-zinc-700">
+      <div className="relative aspect-[3/4] w-36 overflow-hidden rounded-xl bg-zinc-200 dark:bg-zinc-700">
         <img
           src={item.preview}
           alt=""
@@ -322,6 +359,20 @@ export default function CommunityWritePage() {
                 <img src="/icons/stash_image-open-light.svg" alt="" className="h-12 w-12" />
               </span>
             </label>
+          ) : photoItems.length === 1 ? (
+            <div className="w-full space-y-2">
+              <SinglePhotoPreview
+                item={photoItems[0]}
+                onRemove={() => removePhoto(photoItems[0].id)}
+              />
+              {photoItems.length < 10 && (
+                <label htmlFor="community-write-photo" className="block w-full cursor-pointer">
+                  <span className="flex aspect-[3/4] w-36 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 text-zinc-400 transition-colors hover:border-zinc-500 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
+                    <img src="/icons/stash_image-open-light.svg" alt="" className="h-12 w-12" />
+                  </span>
+                </label>
+              )}
+            </div>
           ) : (
             <div className="drag-area-no-select no-scrollbar -mx-4 shrink-0 overflow-x-auto overflow-y-hidden px-4 pb-2">
               <div className="flex items-center gap-3" style={{ width: 'max-content' }}>
@@ -345,7 +396,7 @@ export default function CommunityWritePage() {
                     htmlFor="community-write-photo"
                     className="block shrink-0 cursor-pointer"
                   >
-                    <span className="flex aspect-square w-36 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 text-zinc-400 transition-colors hover:border-zinc-500 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
+                    <span className="flex aspect-[3/4] w-36 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 text-zinc-400 transition-colors hover:border-zinc-500 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
                       <img src="/icons/stash_image-open-light.svg" alt="" className="h-12 w-12" />
                     </span>
                   </label>

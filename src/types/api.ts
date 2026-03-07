@@ -319,15 +319,16 @@ export type AnswerCreateReq = {
 
 export type QuestionAnswerRes = {
   id: number;
+  clubId?: number;
+  clubName?: string;
   createdAt: string;
   question: string;
   answer?: string;
   answeredBy?: string;
+  /** 답변 등록/수정 시 서버에서 반환. 답변 시간 표시용 */
+  answeredAt?: string;
   userId?: number;
   userName?: string;
-  /** 내 질문 목록 API (GET /api/clubs/questions/me) 응답 시 포함 */
-  clubId?: number;
-  clubName?: string;
 };
 
 export type ClubApplyReq = {
@@ -475,6 +476,76 @@ export type ClubCreationRequestRes = {
   /** 신청 사유 (서버 필수 필드) */
   applicationReason?: string;
   description?: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  rejectionReason?: string;
+  createdAt: string;
+  updatedAt?: string;
+};
+
+// ---------- 신고 (Report) ----------
+export type ReportType = 'QNA' | 'CLUB' | 'COMMUNITY_POST' | 'COMMUNITY_COMMENT';
+export type ReportReason = 'ABUSE' | 'SPAM' | 'ILLEGAL' | 'OTHER';
+
+export type ReportCreateReq = {
+  reportType: ReportType;
+  contentId: number;
+  reportReason: ReportReason;
+  reasonDetail?: string;
+};
+
+export type ReportRes = {
+  reportId: number;
+  reportType: ReportType;
+  contentId: number;
+  reporterId?: number;
+  reporterName?: string;
+  reporterEmail?: string;
+  targetUserId?: number;
+  targetUserName?: string;
+  targetUserEmail?: string;
+  reportReason: ReportReason;
+  reasonDetail?: string;
+  status: 'PENDING' | 'COMPLETED';
+  createdAt: string;
+  processedAt?: string;
+  /** 신고당한 글 본문 등 (상세 조회 시) */
+  contentSnapshot?: string;
+};
+
+// ---------- 버그 신고/건의사항 (Feedback) ----------
+export type FeedbackType = 'BUG_REPORT' | 'SUGGESTION';
+
+export type FeedbackCreateReq = {
+  feedbackType: FeedbackType;
+  content: string;
+};
+
+export type FeedbackRes = {
+  feedbackId: number;
+  feedbackType: FeedbackType;
+  userId?: number;
+  userName?: string;
+  userEmail?: string;
+  content: string;
+  status: 'PENDING' | 'COMPLETED';
+  createdAt: string;
+  processedAt?: string;
+};
+
+// ---------- 동아리 삭제 신청 ----------
+export type ClubDeletionReq = {
+  clubId: number;
+  deletionReason: string;
+};
+
+export type ClubDeletionRequestRes = {
+  requestId: number;
+  clubId: number;
+  userId?: number;
+  clubName: string;
+  requesterName?: string;
+  requesterEmail?: string;
+  deletionReason: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   rejectionReason?: string;
   createdAt: string;

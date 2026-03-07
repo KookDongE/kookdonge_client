@@ -2,6 +2,8 @@ import {
   AdminApplicationItem,
   ClubCreationReq,
   ClubCreationRequestRes,
+  ClubDeletionReq,
+  ClubDeletionRequestRes,
   ClubDetailRes,
   ClubListParams,
   ClubListRes,
@@ -230,6 +232,57 @@ export const clubApi = {
   /** 관리자 전용 동아리 삭제 (Soft Delete). 권한: ADMIN */
   deleteClub: async (clubId: number): Promise<void> => {
     return apiClient<void>(`/api/admin/clubs/${clubId}`, { method: 'DELETE' });
+  },
+
+  // ---------- 동아리 삭제 신청 (Leader) ----------
+  /** 동아리 리더가 삭제 신청. POST /api/clubs/deletion-requests */
+  createDeletionRequest: async (
+    data: ClubDeletionReq
+  ): Promise<ClubDeletionRequestRes> => {
+    return apiClient<ClubDeletionRequestRes>('/api/clubs/deletion-requests', {
+      method: 'POST',
+      body: data,
+    });
+  },
+
+  // ---------- 동아리 삭제 신청 (Admin) ----------
+  getDeletionRequests: async (params?: {
+    status?: 'PENDING' | 'APPROVED' | 'REJECTED';
+    page?: number;
+    size?: number;
+  }): Promise<PageResponse<ClubDeletionRequestRes>> => {
+    const page = params?.page ?? 0;
+    const size = params?.size ?? 20;
+    const query: Record<string, string | number | undefined> = { page, size };
+    if (params?.status) query.status = params.status;
+    return apiClient<PageResponse<ClubDeletionRequestRes>>(
+      '/api/admin/clubs/deletion-requests',
+      {
+        params: query as Record<string, string | number | boolean | undefined>,
+      }
+    );
+  },
+
+  approveDeletionRequest: async (
+    requestId: number
+  ): Promise<ClubDeletionRequestRes> => {
+    return apiClient<ClubDeletionRequestRes>(
+      `/api/admin/clubs/deletion-requests/${requestId}/approve`,
+      { method: 'POST' }
+    );
+  },
+
+  rejectDeletionRequest: async (
+    requestId: number,
+    reason: string
+  ): Promise<ClubDeletionRequestRes> => {
+    return apiClient<ClubDeletionRequestRes>(
+      `/api/admin/clubs/deletion-requests/${requestId}/reject`,
+      {
+        method: 'POST',
+        body: { reason },
+      }
+    );
   },
 
   getApplications: async (

@@ -53,7 +53,7 @@ const STATUS_OPTIONS: { value: RecruitmentStatus | 'ALL'; label: string }[] = [
   { value: 'CLOSED', label: '모집마감' },
 ];
 
-/** 관리자 개설승인 페이지용: 상태 = 대기/승인/거절 */
+/** 관리자 개설승인 페이지용: 상태 = 대기/승인/반려 */
 const APPLICATION_STATUS_OPTIONS: {
   value: 'PENDING' | 'APPROVED' | 'REJECTED' | 'ALL';
   label: string;
@@ -61,7 +61,7 @@ const APPLICATION_STATUS_OPTIONS: {
   { value: 'ALL', label: '상태' },
   { value: 'PENDING', label: '대기' },
   { value: 'APPROVED', label: '승인' },
-  { value: 'REJECTED', label: '거절' },
+  { value: 'REJECTED', label: '반려' },
 ];
 
 /** 정렬: 기본순(무작위) 항상 첫 번째, 그 다음 이름순/좋아요순/조회수순 */
@@ -124,7 +124,7 @@ type SearchFilterBarProps = {
   stickyHideOnScroll?: boolean;
   useGlass?: boolean;
   className?: string;
-  /** true면 4번째 필터가 "모집상태" 대신 "상태"(대기/승인/거절)로 표시 (관리자 개설승인용) */
+  /** true면 4번째 필터가 "모집상태" 대신 "상태"(대기/승인/반려)로 표시 (관리자 개설승인용) */
   applicationStatusFilter?: boolean;
 };
 
@@ -388,7 +388,7 @@ export function SearchFilterBar({
           </Select.Popover>
         </Select>
 
-        {/* 4. 모집상태 (일반) / 상태·대기·승인·거절 (관리자 개설승인) */}
+        {/* 4. 모집상태 (일반) / 상태·대기·승인·반려 (관리자 개설승인) */}
         <Select
           className="shrink-0"
           placeholder={applicationStatusFilter ? '상태' : '모집상태'}

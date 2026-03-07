@@ -17,6 +17,7 @@ import {
   useUpdateClubDetail,
   useUpdateRecruitmentInfo,
 } from '@/features/club/hooks';
+import { clubApi } from '@/features/club/api';
 import { IMAGE_ACCEPT_ATTR, validateImageFile } from '@/lib/image-upload-validation';
 import { useClubFeeds, useUploadFeedFiles } from '@/features/feed/hooks';
 import { useAddInterest, useMyInterests, useRemoveInterest } from '@/features/interest/hooks';
@@ -840,15 +841,22 @@ function AdminManageSection({
         <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300">
           관리자 추가
         </label>
-        <div className="flex gap-2">
+        <div className="relative flex min-h-0 w-full rounded-xl border border-zinc-200 bg-gray-50 dark:border-zinc-600 dark:bg-zinc-800/50">
           <input
             type="email"
             placeholder="admin@kookmin.ac.kr"
             value={newAdminEmail}
             onChange={(e) => setNewAdminEmail(e.target.value)}
-            className="flex-1 rounded-xl border-0 bg-gray-50 p-4 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-zinc-700 dark:text-zinc-100 dark:placeholder-zinc-400"
+            className="min-h-[2.5rem] w-full min-w-0 rounded-xl border-0 bg-transparent py-2 pr-14 pl-3 text-sm text-gray-900 placeholder-gray-400 focus:ring-0 focus:outline-none dark:text-zinc-100 dark:placeholder-zinc-400"
           />
-          <Button variant="primary" onPress={handleAddAdmin} isPending={addAdmin.isPending}>
+          <Button
+            variant="primary"
+            size="sm"
+            onPress={handleAddAdmin}
+            isPending={addAdmin.isPending}
+            isDisabled={!newAdminEmail.trim()}
+            className="absolute top-1/2 right-1.5 shrink-0 -translate-y-1/2"
+          >
             추가
           </Button>
         </div>
@@ -1893,6 +1901,71 @@ function ClubInfoTab({
         <h3 className="mb-3 font-semibold text-zinc-900 dark:text-zinc-100">관리자</h3>
         <AdminManageSection clubId={clubId} onClose={() => {}} />
       </div>
+
+      {/* 동아리 삭제 신청 (리더 전용) */}
+      <div className={cardClass}>
+        <h3 className="mb-3 font-semibold text-zinc-900 dark:text-zinc-100">동아리 삭제 신청</h3>
+        <ClubDeletionRequestSection clubId={clubId} clubName={club.name} />
+      </div>
+    </div>
+  );
+}
+
+function ClubDeletionRequestSection({
+  clubId,
+  clubName,
+}: {
+  clubId: number;
+  clubName: string;
+}) {
+  const [reason, setReason] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = () => {
+    const trimmed = reason.trim();
+    if (!trimmed) {
+      alert('삭제 신청 사유를 입력해 주세요.');
+      return;
+    }
+    if (!window.confirm(`"${clubName}" 동아리 삭제를 신청하시겠습니까? 승인 후 삭제됩니다.`)) {
+      return;
+    }
+    setIsSubmitting(true);
+    clubApi
+      .createDeletionRequest({ clubId, deletionReason: trimmed })
+      .then(() => {
+        alert('삭제 신청이 접수되었습니다. 관리자 검토 후 알림으로 안내드립니다.');
+        setReason('');
+      })
+      .catch(() => {
+        alert('삭제 신청에 실패했습니다. 다시 시도해 주세요.');
+      })
+      .finally(() => {
+        setIsSubmitting(false);
+      });
+  };
+
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        동아리를 삭제하려면 아래 사유를 입력한 뒤 신청해 주세요. 관리자 승인 후 삭제됩니다.
+      </p>
+      <TextArea
+        placeholder="삭제 신청 사유"
+        value={reason}
+        onChange={(e) => setReason(e.target.value)}
+        className="w-full min-h-[6rem]"
+        disabled={isSubmitting}
+      />
+      <Button
+        variant="primary"
+        size="sm"
+        onPress={handleSubmit}
+        isDisabled={!reason.trim() || isSubmitting}
+        isPending={isSubmitting}
+      >
+        삭제 신청
+      </Button>
     </div>
   );
 }
@@ -1960,9 +2033,11 @@ function ClubQnaTab({
   const createAnswer = useCreateAnswer();
   const deleteQuestion = useDeleteQuestion(clubId);
   const [openMenuAllQuestionId, setOpenMenuAllQuestionId] = useState<number | null>(null);
+  const [openMenuAllAnswerId, setOpenMenuAllAnswerId] = useState<number | null>(null);
   const [expandedAnswerQuestionId, setExpandedAnswerQuestionId] = useState<number | null>(null);
   const [answerTexts, setAnswerTexts] = useState<Record<number, string>>({});
   const menuRefAll = useRef<HTMLDivElement>(null);
+  const menuRefAllAnswer = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (openMenuAllQuestionId == null) return;
@@ -1973,6 +2048,16 @@ function ClubQnaTab({
     document.addEventListener('mousedown', close);
     return () => document.removeEventListener('mousedown', close);
   }, [openMenuAllQuestionId]);
+
+  useEffect(() => {
+    if (openMenuAllAnswerId == null) return;
+    const close = (e: MouseEvent) => {
+      if (menuRefAllAnswer.current?.contains(e.target as Node)) return;
+      setOpenMenuAllAnswerId(null);
+    };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [openMenuAllAnswerId]);
 
   // 질문으로 스크롤
   useEffect(() => {
@@ -2158,9 +2243,72 @@ function ClubQnaTab({
                     >
                       A
                     </span>
-                    <p className="flex-1 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
-                      {qna.answer}
-                    </p>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
+                            {qna.answer}
+                          </p>
+                          {(qna.answeredBy || qna.answeredAt) && (
+                            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                              {[qna.answeredBy, qna.answeredAt && formatQnaDateTime(qna.answeredAt)]
+                                .filter(Boolean)
+                                .join(' · ')}
+                            </p>
+                          )}
+                        </div>
+                        <div
+                          className="relative shrink-0"
+                          ref={openMenuAllAnswerId === qna.id ? menuRefAllAnswer : undefined}
+                        >
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onPress={() =>
+                              setOpenMenuAllAnswerId((prev) =>
+                                prev === qna.id ? null : qna.id
+                              )
+                            }
+                            isDisabled={deleteQuestion.isPending}
+                            className="min-w-0 px-2"
+                            aria-label="더보기"
+                            aria-expanded={openMenuAllAnswerId === qna.id}
+                          >
+                            …
+                          </Button>
+                          {openMenuAllAnswerId === qna.id && (
+                            <div
+                              className="absolute top-full right-0 z-10 mt-1 min-w-[7rem] rounded-lg border bg-[var(--card)] py-1 shadow-lg"
+                              style={{ borderColor: 'var(--border)' }}
+                              role="menu"
+                            >
+                              <button
+                                type="button"
+                                role="menuitem"
+                                className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
+                                onClick={() => {
+                                  setOpenMenuAllAnswerId(null);
+                                  handleDeleteClick(qna.id);
+                                }}
+                              >
+                                삭제
+                              </button>
+                              <button
+                                type="button"
+                                role="menuitem"
+                                className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                                onClick={() => {
+                                  setOpenMenuAllAnswerId(null);
+                                  alert('아직 준비중인 기능입니다.');
+                                }}
+                              >
+                                신고
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

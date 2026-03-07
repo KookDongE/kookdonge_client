@@ -15,7 +15,7 @@ import { ListCardSkeleton, PageCenteredSkeleton } from '@/components/common/skel
 const STATUS_CHIP: Record<string, { label: string; color: 'warning' | 'success' | 'danger' }> = {
   PENDING: { label: '대기', color: 'warning' },
   APPROVED: { label: '승인', color: 'success' },
-  REJECTED: { label: '거절', color: 'danger' },
+  REJECTED: { label: '반려', color: 'danger' },
 };
 
 type ApplicationStatusFilter = 'PENDING' | 'APPROVED' | 'REJECTED' | 'ALL';
@@ -23,7 +23,7 @@ type ApplicationStatusFilter = 'PENDING' | 'APPROVED' | 'REJECTED' | 'ALL';
 const APPLICATION_TABS: { value: ApplicationStatusFilter; label: string }[] = [
   { value: 'PENDING', label: '대기' },
   { value: 'APPROVED', label: '승인' },
-  { value: 'REJECTED', label: '거절' },
+  { value: 'REJECTED', label: '반려' },
   { value: 'ALL', label: '전체' },
 ];
 

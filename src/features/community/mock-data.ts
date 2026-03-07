@@ -67,6 +67,26 @@ function createMockPosts(): CommunityPost[] {
       });
     });
   });
+
+  // 사진 한 장(16:9) 더미 — 상세 링크: /admin/community/posts/100
+  posts.push({
+    id: 100,
+    boardType: 'free',
+    title: '사진 한 장 (16:9) 더미',
+    content:
+      '커뮤니티 사진 한 장 첨부 더미 데이터입니다. 세로 16 : 가로 9 비율 이미지입니다.',
+    authorName: '작성자1',
+    authorId: 1,
+    createdAt: makeDate(0),
+    likeCount: 5,
+    saveCount: 0,
+    commentCount: 0,
+    liked: false,
+    saved: false,
+    clubId: undefined,
+    imageUrls: ['https://picsum.photos/seed/single-16x9/640/360'],
+  });
+
   return posts;
 }
 

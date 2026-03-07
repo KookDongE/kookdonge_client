@@ -364,3 +364,44 @@ export function useMyRequests() {
     queryFn: () => clubApi.getMyRequests(),
   });
 }
+
+// ---------- 동아리 삭제 신청 (Admin) ----------
+export const adminDeletionRequestKeys = {
+  all: [...clubKeys.all, 'admin', 'deletion-requests'] as const,
+  list: (status?: 'PENDING' | 'APPROVED' | 'REJECTED') =>
+    [...adminDeletionRequestKeys.all, status ?? 'all'] as const,
+};
+
+export function useAdminDeletionRequests(
+  status?: 'PENDING' | 'APPROVED' | 'REJECTED',
+  options?: { enabled?: boolean }
+) {
+  const enabled = options?.enabled ?? true;
+  return useQuery({
+    queryKey: adminDeletionRequestKeys.list(status),
+    queryFn: () => clubApi.getDeletionRequests({ status, page: 0, size: 100 }),
+    enabled,
+  });
+}
+
+export function useApproveDeletionRequest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (requestId: number) => clubApi.approveDeletionRequest(requestId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminDeletionRequestKeys.all });
+      queryClient.invalidateQueries({ queryKey: clubKeys.all });
+    },
+  });
+}
+
+export function useRejectDeletionRequest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ requestId, reason }: { requestId: number; reason: string }) =>
+      clubApi.rejectDeletionRequest(requestId, reason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminDeletionRequestKeys.all });
+    },
+  });
+}

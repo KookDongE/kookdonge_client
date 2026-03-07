@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 
 import { ListBox, Select, TextArea } from '@heroui/react';
 
+import type { FeedbackType } from '@/types/api';
+import { feedbackApi } from '@/features/feedback/api';
+
 type ReportType = 'bug' | 'suggestion';
 
 const REPORT_TYPE_OPTIONS: { value: ReportType; label: string }[] = [
@@ -12,21 +15,33 @@ const REPORT_TYPE_OPTIONS: { value: ReportType; label: string }[] = [
   { value: 'suggestion', label: '건의사항' },
 ];
 
+const REPORT_TYPE_TO_API: Record<ReportType, FeedbackType> = {
+  bug: 'BUG_REPORT',
+  suggestion: 'SUGGESTION',
+};
+
 export default function BugReportPage() {
   const router = useRouter();
   const [content, setContent] = useState('');
   const [reportType, setReportType] = useState<ReportType>('bug');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim()) return;
     setIsSubmitting(true);
-    // 아직 준비중: 실제 전송 없이 잠깐 로딩 후 안내만
-    setTimeout(() => {
+    try {
+      await feedbackApi.create({
+        feedbackType: REPORT_TYPE_TO_API[reportType],
+        content: content.trim(),
+      });
+      alert('접수되었습니다. 검토 후 반영하겠습니다.');
+      router.back();
+    } catch {
+      alert('전송에 실패했습니다. 다시 시도해 주세요.');
+    } finally {
       setIsSubmitting(false);
-      alert('아직 준비중인 기능이에요. 곧 열릴 예정이에요!');
-    }, 600);
+    }
   };
 
   return (

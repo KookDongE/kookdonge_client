@@ -142,7 +142,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
       { applicationId, reason: rejectReason.trim() || '사유 없음' },
       {
         onSuccess: () => {
-          alert('신청이 거절되었습니다.');
+          alert('신청이 반려되었습니다.');
           router.push('/admin/applications');
         },
       }
@@ -178,7 +178,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
                 ? '승인 대기'
                 : application.status === 'APPROVED'
                   ? '승인됨'
-                  : '거절됨'}
+                  : '반려됨'}
             </span>
           </div>
         </div>
@@ -186,10 +186,10 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="space-y-6 p-4 pb-24">
-          {/* 거절 사유 — 최상단 (거절된 경우만) */}
+          {/* 반려 사유 — 최상단 (반려된 경우만) */}
           {application.status === 'REJECTED' && application.rejectionReason && (
             <div>
-              <label className={labelClass}>거절 사유</label>
+              <label className={labelClass}>반려 사유</label>
               <div className={`${valueBoxClass} text-red-600 dark:text-red-400`}>
                 {application.rejectionReason}
               </div>
@@ -234,16 +234,16 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* 대기 시: 제일 밑에 거절/수락 버튼 (shadcn 스타일), 거절 시 껍데기 없이 사유+버튼만 */}
+          {/* 대기 시: 제일 밑에 반려/수락 버튼 (shadcn 스타일), 반려 시 껍데기 없이 사유+버튼만 */}
           {isPending && (
             <div className="space-y-4 pt-2">
               {showRejectInput ? (
                 <>
                   <label className="block text-xs font-normal text-gray-500 dark:text-zinc-400">
-                    거절 사유 (선택)
+                    반려 사유 (선택)
                   </label>
                   <textarea
-                    placeholder="거절 사유를 입력하세요. 신청자에게 전달됩니다."
+                    placeholder="반려 사유를 입력하세요. 신청자에게 전달됩니다."
                     value={rejectReason}
                     onChange={(e) => setRejectReason(e.target.value)}
                     className="min-h-[80px] w-full resize-y rounded-lg border border-gray-200 bg-white p-3 text-sm text-gray-900 placeholder-gray-400 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
@@ -266,7 +266,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
                       disabled={rejectApplication.isPending}
                       className="inline-flex h-10 flex-1 items-center justify-center rounded-md border border-red-200 bg-white px-4 text-sm font-medium text-red-600 shadow-sm transition-colors hover:bg-red-50 disabled:opacity-50 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-950/30"
                     >
-                      {rejectApplication.isPending ? '처리 중...' : '거절하기'}
+                      {rejectApplication.isPending ? '처리 중...' : '반려하기'}
                     </button>
                   </div>
                 </>
@@ -277,7 +277,7 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
                     onClick={handleRejectClick}
                     className="inline-flex h-10 flex-1 items-center justify-center rounded-md border border-red-200 bg-white px-4 text-sm font-medium text-red-600 shadow-sm transition-colors hover:bg-red-50 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-950/30"
                   >
-                    거절
+                    반려
                   </button>
                   <button
                     type="button"

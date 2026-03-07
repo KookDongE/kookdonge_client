@@ -100,8 +100,8 @@ function ClubApplyContent() {
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white dark:bg-zinc-900">
-      {/* 헤더: 라이트/다크 모드 모두 대응 */}
-      <div className="shrink-0 bg-white dark:bg-zinc-900">
+      {/* 헤더: PWA 앱뷰 라이트모드에서도 흰 배경 유지 (globals.css .club-apply-header) */}
+      <div className="club-apply-header shrink-0 bg-white dark:bg-zinc-900">
         <div className="flex h-16 items-center justify-between px-4">
           <button
             type="button"

@@ -549,7 +549,7 @@ function MyApplicationsSection() {
                   ? '대기중'
                   : app.status === 'APPROVED'
                     ? '승인됨'
-                    : '거절됨'}
+                    : '반려됨'}
               </Chip>
             </Link>
           ))}

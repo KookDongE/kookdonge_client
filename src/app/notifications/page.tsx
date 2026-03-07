@@ -18,7 +18,7 @@ function typeLabel(type: string): string {
   const labels: Record<string, string> = {
     CLUB_CREATE_REQUEST: '동아리 생성 신청',
     CLUB_CREATE_APPROVED: '동아리 생성 승인',
-    CLUB_CREATE_REJECTED: '동아리 생성 거절',
+    CLUB_CREATE_REJECTED: '동아리 생성 반려',
     QNA_QUESTION_CREATED: '새 질문',
     QNA_ANSWER_CREATED: '답변 등록',
     RECRUITMENT_START: '모집 시작',

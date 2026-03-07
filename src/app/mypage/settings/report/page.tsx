@@ -5,6 +5,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import { ListBox, Select, TextArea } from '@heroui/react';
 
+import type { ReportReason as ApiReportReason, ReportType } from '@/types/api';
+import { reportApi } from '@/features/report/api';
+
 type ReportReason = 'abuse' | 'spam' | 'illegal' | 'etc';
 
 const REPORT_REASON_OPTIONS: { value: ReportReason; label: string }[] = [
@@ -14,7 +17,21 @@ const REPORT_REASON_OPTIONS: { value: ReportReason; label: string }[] = [
   { value: 'etc', label: '기타' },
 ];
 
+const REPORT_REASON_TO_API: Record<ReportReason, ApiReportReason> = {
+  abuse: 'ABUSE',
+  spam: 'SPAM',
+  illegal: 'ILLEGAL',
+  etc: 'OTHER',
+};
+
 type ReportTargetType = 'qna' | 'post' | 'comment' | 'club';
+
+const REPORT_TARGET_TO_API: Record<ReportTargetType, ReportType> = {
+  qna: 'QNA',
+  post: 'COMMUNITY_POST',
+  comment: 'COMMUNITY_COMMENT',
+  club: 'CLUB',
+};
 
 /** 수정 불가 드롭다운용 구분 라벨 (Q&A / 게시글 / 댓글 / 동아리) */
 const REPORT_TARGET_LABEL: Record<ReportTargetType, string> = {
@@ -27,7 +44,7 @@ const REPORT_TARGET_LABEL: Record<ReportTargetType, string> = {
 export default function ReportPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const targetType = (searchParams.get('type') ?? 'post') as ReportTargetType; // 'qna' | 'post' | 'comment' | 'club'
+  const targetType = (searchParams.get('type') ?? 'post') as ReportTargetType;
   const targetId = searchParams.get('id') ?? '';
 
   const targetLabel = REPORT_TARGET_LABEL[targetType] ?? '게시글';
@@ -36,16 +53,29 @@ export default function ReportPage() {
   const [reportReason, setReportReason] = useState<ReportReason>('abuse');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim()) return;
+    const contentId = parseInt(targetId, 10);
+    if (Number.isNaN(contentId) || contentId < 1) {
+      alert('잘못된 대상입니다.');
+      return;
+    }
     setIsSubmitting(true);
-    // TODO: 실제 신고 API 호출 (targetType: qna|post|comment|club, targetId, reportReason, content)
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await reportApi.create({
+        reportType: REPORT_TARGET_TO_API[targetType],
+        contentId,
+        reportReason: REPORT_REASON_TO_API[reportReason],
+        reasonDetail: content.trim(),
+      });
       alert('신고가 접수되었습니다. 검토 후 조치하겠습니다.');
       router.back();
-    }, 600);
+    } catch {
+      alert('신고 접수에 실패했습니다. 다시 시도해 주세요.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

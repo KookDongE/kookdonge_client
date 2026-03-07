@@ -126,7 +126,7 @@ export default function MyApplicationDetailPage() {
                 ? '승인 대기'
                 : application.status === 'APPROVED'
                   ? '승인됨'
-                  : '거절됨'}
+                  : '반려됨'}
             </span>
           </div>
         </div>
@@ -134,10 +134,10 @@ export default function MyApplicationDetailPage() {
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="space-y-6 p-4 pb-32">
-          {/* 거절 사유 — 최상단 */}
+          {/* 반려 사유 — 최상단 */}
           {application.status === 'REJECTED' && application.rejectionReason && (
             <div>
-              <label className={labelClass}>거절 사유</label>
+              <label className={labelClass}>반려 사유</label>
               <div className={`${valueBoxClass} text-red-600 dark:text-red-400`}>
                 {application.rejectionReason}
               </div>
