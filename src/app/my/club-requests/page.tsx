@@ -16,9 +16,6 @@ function MyApplicationsListContent() {
   return (
     <div className="pb-6">
       <div className="px-4 py-4">
-        <h3 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-          동아리 및 소모임 신청
-        </h3>
         {isLoading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (

@@ -156,26 +156,6 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-[var(--card)]">
-      {/* 헤더: my/club-requests/[id]와 동일 — 뒤로가기(좌) | 날짜·상태 뱃지(우) */}
-      <div className="shrink-0 bg-[var(--card)]">
-        <div className="flex h-16 items-center justify-end px-4">
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-[var(--muted-foreground)]">
-              {formatDateTimeNoSeconds(application.createdAt)}
-            </span>
-            <span
-              className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_CHIP_CLASS[application.status] ?? 'bg-[var(--muted)] text-[var(--muted-foreground)]'}`}
-            >
-              {application.status === 'PENDING'
-                ? '승인 대기'
-                : application.status === 'APPROVED'
-                  ? '승인됨'
-                  : '반려됨'}
-            </span>
-          </div>
-        </div>
-      </div>
-
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="space-y-6 p-4 pb-24">
           {/* 반려 사유 — 최상단 (반려된 경우만) */}
@@ -188,9 +168,27 @@ export default function AdminApplicationDetailPage({ params }: PageProps) {
             </div>
           )}
 
-          {/* 동아리 이름 */}
+          {/* 동아리 이름 + 날짜·상태 */}
           <div>
-            <label className={labelClass}>동아리 이름</label>
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <label className="block text-xs font-normal text-[var(--muted-foreground)]">
+                동아리 이름
+              </label>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-[var(--muted-foreground)]">
+                  {formatDateTimeNoSeconds(application.createdAt)}
+                </span>
+                <span
+                  className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_CHIP_CLASS[application.status] ?? 'bg-[var(--muted)] text-[var(--muted-foreground)]'}`}
+                >
+                  {application.status === 'PENDING'
+                    ? '승인 대기'
+                    : application.status === 'APPROVED'
+                      ? '승인됨'
+                      : '반려됨'}
+                </span>
+              </div>
+            </div>
             <div className={valueBoxClass}>{application.name}</div>
           </div>
 
