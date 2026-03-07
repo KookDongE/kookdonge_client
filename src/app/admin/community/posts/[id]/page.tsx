@@ -155,6 +155,8 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
   const [commentLikeOverrides, setCommentLikeOverrides] = useState<Record<number, number>>({});
   /** 댓글별 좋아요 클릭(하트) 토글 */
   const [commentLikedByMe, setCommentLikedByMe] = useState<Record<number, boolean>>({});
+  /** 첨부 사진 확대 보기 (인덱스 또는 null) */
+  const [expandedImageIndex, setExpandedImageIndex] = useState<number | null>(null);
   /** 목 데이터: 현재 사용자 authorId (실제로는 profile.id 등) */
   const myAuthorId = 1;
   const isAdmin = profile ? isSystemAdmin(profile) : false;
@@ -219,12 +221,14 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
       <article className="px-4 py-4">
         {/* 작성자: 프로필 사진 + 이름/시간 세로, 오른쪽 ... 메뉴(수정/삭제/신고) */}
         <div className="mb-4 flex items-center gap-4">
-          <div
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-sm font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
-            aria-hidden
-          >
-            {post.authorName.slice(0, 1)}
-          </div>
+          {post.clubId != null && (
+            <div
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-sm font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
+              aria-hidden
+            >
+              {post.authorName.slice(0, 1)}
+            </div>
+          )}
           <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-xs text-zinc-500 dark:text-zinc-400">
             <span>{post.authorName}</span>
             <span>{formatDate(post.createdAt)}</span>
@@ -303,6 +307,29 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
           {post.content}
         </div>
 
+        {/* 첨부 사진: 가로 슬라이드, 클릭 시 확대 */}
+        {post.imageUrls && post.imageUrls.length > 0 && (
+          <div className="no-scrollbar -mx-4 mt-4 overflow-x-auto overflow-y-hidden px-4">
+            <div className="flex gap-3" style={{ width: 'max-content' }}>
+              {post.imageUrls.map((url, idx) => (
+                <button
+                  key={url}
+                  type="button"
+                  onClick={() => setExpandedImageIndex(idx)}
+                  className="relative aspect-[4/3] w-36 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800"
+                  aria-label={`사진 ${idx + 1} 확대 보기`}
+                >
+                  <img
+                    src={url}
+                    alt=""
+                    className="size-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* 액션 바: 좋아요·저장 버튼(클릭 시 채움/비움 토글), 댓글은 표시만. 순서: 좋아요 → 저장 → 댓글 */}
         <div className="mt-6 flex items-center gap-4 pt-4">
           <button
@@ -376,6 +403,34 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
         </div>
       </article>
 
+      {/* 첨부 사진 확대 보기 오버레이 */}
+      {post.imageUrls && expandedImageIndex !== null && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="사진 확대"
+          onClick={() => setExpandedImageIndex(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setExpandedImageIndex(null)}
+            className="absolute right-4 top-4 z-10 rounded-full p-2 text-white/90 transition-colors hover:bg-white/10 hover:text-white"
+            aria-label="닫기"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-8 w-8">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <img
+            src={post.imageUrls[expandedImageIndex]}
+            alt=""
+            className="max-h-full max-w-full object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
+
       {/* 댓글: 더미 데이터 */}
       <section className="mt-6 border-t border-zinc-100 px-4 py-4 dark:border-zinc-800">
         <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
@@ -393,12 +448,14 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
               const isMine = c.authorId === myAuthorId;
               return (
                 <li key={c.id} className="flex gap-3">
-                  <div
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
-                    aria-hidden
-                  >
-                    {c.authorName.slice(0, 1)}
-                  </div>
+                  {c.clubId != null && (
+                    <div
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
+                      aria-hidden
+                    >
+                      {c.authorName.slice(0, 1)}
+                    </div>
+                  )}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex min-w-0 flex-1 items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">

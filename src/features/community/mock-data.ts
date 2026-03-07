@@ -36,13 +36,21 @@ function createMockPosts(): CommunityPost[] {
       '정보 공유합니다',
     ],
   };
+  /** 사진 첨부 예시용 더미 URL (picsum.photos). 일부 글에만 첨부 */
+  const dummyImageUrls = (count: number, seed: number) =>
+    Array.from({ length: count }, (_, j) =>
+      `https://picsum.photos/seed/${seed}-${j}/400/300`
+    );
+
   let id = 1;
   const posts: CommunityPost[] = [];
   boards.forEach((boardType) => {
     const list = titles[boardType];
     list.forEach((title, i) => {
+      const postId = id++;
+      const hasImages = postId % 4 === 0 || postId % 5 === 0;
       posts.push({
-        id: id++,
+        id: postId,
         boardType,
         title,
         content: `${title}에 대한 내용입니다. 본문 미리보기...`,
@@ -55,6 +63,7 @@ function createMockPosts(): CommunityPost[] {
         liked: id % 4 === 0,
         saved: id % 5 === 0,
         clubId: id % 3 === 0 ? 1 : undefined,
+        imageUrls: hasImages ? dummyImageUrls(2 + (postId % 3), postId) : undefined,
       });
     });
   });
@@ -81,6 +90,8 @@ export type CommunityComment = {
   content: string;
   createdAt: string;
   likeCount: number;
+  /** 동아리 계정으로 작성했을 때만 설정 (프로필 사진 노출 여부) */
+  clubId?: number | null;
 };
 
 function commentDate(ago: number) {
@@ -105,6 +116,7 @@ export function getCommentsByPostId(postId: number): CommunityComment[] {
     content: contents[(postId + i) % contents.length],
     createdAt: commentDate((postId + i) * 5 + 10),
     likeCount: (postId + i) % 5,
+    clubId: i % 2 === 0 ? 1 : undefined,
   }));
 }
 
