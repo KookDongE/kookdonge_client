@@ -530,7 +530,16 @@ function MyApplicationsSection() {
                   {app.name}
                 </h4>
                 <div className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-500">
-                  신청일: {new Date(app.createdAt).toLocaleDateString()}
+                  신청일:{' '}
+                  {(() => {
+                    const d = new Date(app.createdAt);
+                    const yy = String(d.getFullYear()).slice(-2);
+                    const mm = String(d.getMonth() + 1).padStart(2, '0');
+                    const dd = String(d.getDate()).padStart(2, '0');
+                    const hh = String(d.getHours()).padStart(2, '0');
+                    const min = String(d.getMinutes()).padStart(2, '0');
+                    return `${yy}.${mm}.${dd} ${hh}:${min}`;
+                  })()}
                 </div>
               </div>
               <Chip
