@@ -12,8 +12,8 @@ export function Header() {
   const { data: unreadCount = 0 } = useUnreadCount();
   const isNotificationsPage = pathname === '/notifications';
   const isNotificationSettingsPage = pathname === '/mypage/notification-settings';
-  const isCommunityPostDetail = pathname?.startsWith('/admin/community/posts/');
-  const isCommunitySearchPage = pathname === '/admin/community/search';
+  const isCommunityPostDetail = pathname?.startsWith('/community/posts/');
+  const isCommunitySearchPage = pathname === '/community/search';
   const isClubRequestDetail = /^\/my\/club-requests\/[^/]+$/.test(pathname ?? '');
   const isAdminApplicationDetail = /^\/admin\/applications\/[^/]+$/.test(pathname ?? '');
   const showBackButton =
@@ -32,7 +32,7 @@ export function Header() {
     pathname.includes('/feed') ||
     pathname === '/mypage/clubs/apply' ||
     /^\/mypage\/clubs\/[^/]+\/delete-request$/.test(pathname ?? '') || // 동아리 삭제 신청
-    pathname === '/admin/community/write' ||
+    pathname === '/community/write' ||
     pathname === '/mypage/settings/bug-report' ||
     pathname === '/mypage/settings/report' ||
     pathname === '/mypage/settings/name'; // 특정 페이지만 헤더 숨김

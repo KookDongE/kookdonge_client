@@ -180,25 +180,25 @@ export function CommunitySearchFilter({
             </button>
           </div>
           <Link
-            href="/admin/community/my-posts"
+            href="/community/my-posts"
             className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
           >
             내가 쓴 글
           </Link>
           <Link
-            href="/admin/community/commented"
+            href="/community/commented"
             className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
           >
             댓글 단 글
           </Link>
           <Link
-            href="/admin/community/liked"
+            href="/community/liked"
             className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
           >
             좋아요 누른 글
           </Link>
           <Link
-            href="/admin/community/saved"
+            href="/community/saved"
             className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
           >
             저장 누른 글

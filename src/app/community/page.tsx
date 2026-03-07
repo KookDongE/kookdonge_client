@@ -12,16 +12,16 @@ import { CommunityWriteFloatingButton } from '@/components/community/community-w
 
 /** 게시판: 인기/홍보/자유 */
 const BOARD_ITEMS = [
-  { href: '/admin/community/popular', label: '인기게시판', icon: 'fire' },
-  { href: '/admin/community/promo', label: '홍보게시판', icon: 'megaphone' },
-  { href: '/admin/community/free', label: '자유게시판', icon: 'chat' },
+  { href: '/community/popular', label: '인기게시판', icon: 'fire' },
+  { href: '/community/promo', label: '홍보게시판', icon: 'megaphone' },
+  { href: '/community/free', label: '자유게시판', icon: 'chat' },
 ] as const;
 
 /** 내관련글: 내가 쓴 글, 댓글 단 글, 저장한 글 */
 const MY_RELATED_ITEMS = [
-  { href: '/admin/community/my-posts', label: '내가 쓴 글', icon: 'user' },
-  { href: '/admin/community/commented', label: '댓글 단 글', icon: 'comment' },
-  { href: '/admin/community/saved', label: '저장한 글', icon: 'bookmark' },
+  { href: '/community/my-posts', label: '내가 쓴 글', icon: 'user' },
+  { href: '/community/commented', label: '댓글 단 글', icon: 'comment' },
+  { href: '/community/saved', label: '저장한 글', icon: 'bookmark' },
 ] as const;
 
 function MenuIcon({ type }: { type: string }) {
@@ -122,7 +122,7 @@ export default function AdminCommunityPage() {
   const handleSearchSubmit = () => {
     const q = searchInput.trim();
     if (q) {
-      router.push(`/admin/community/search?q=${encodeURIComponent(q)}`);
+      router.push(`/community/search?q=${encodeURIComponent(q)}`);
     }
   };
 

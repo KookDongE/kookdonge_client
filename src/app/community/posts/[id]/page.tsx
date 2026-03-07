@@ -283,7 +283,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
   useEffect(() => {
     if (profileLoading) return;
     if (id <= 0 || !post) {
-      router.replace('/admin/community');
+      router.replace('/community');
     }
   }, [id, post, profileLoading, router]);
 

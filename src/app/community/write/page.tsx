@@ -208,7 +208,7 @@ export default function CommunityWritePage() {
       // TODO: 백엔드 API 연동 (boardType, accountKey, trimmedTitle, trimmedContent, photoItems.map(i => i.file))
       await new Promise((r) => setTimeout(r, 500));
       alert('글이 등록되었습니다. (현재 목 데이터)');
-      router.push('/admin/community');
+      router.push('/community');
     } catch {
       alert('등록에 실패했습니다.');
     } finally {

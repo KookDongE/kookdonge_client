@@ -10,7 +10,7 @@ import { PullToRefresh } from '@/components/common/pull-to-refresh';
 const FULL_SCREEN_PATHS = ['/', '/login'];
 
 /** 앱 헤더를 숨기는 경로 (Header 컴포넌트와 동일). 헤더 숨길 때 main 상단 패딩 제거 */
-const HEADER_HIDDEN_PATHS = ['/', '/login', '/welcome', '/mypage/clubs/apply', '/admin/community/write', '/mypage/settings/bug-report', '/mypage/settings/report', '/mypage/settings/name'];
+const HEADER_HIDDEN_PATHS = ['/', '/login', '/welcome', '/mypage/clubs/apply', '/community/write', '/mypage/settings/bug-report', '/mypage/settings/report', '/mypage/settings/name'];
 function isHeaderHidden(pathname: string): boolean {
   if (!pathname) return false;
   if (HEADER_HIDDEN_PATHS.includes(pathname)) return true;
@@ -29,7 +29,7 @@ const PULL_TO_REFRESH_DISABLED_PATHS = [
   /^\/mypage\/clubs\/apply$/, // 동아리 신청
   /^\/mypage\/settings(\/|$)/, // 설정 (메인·이름변경·버그신고 등 하위 포함)
   /^\/mypage\/notification-settings(\/|$)/, // 알림설정
-  /^\/admin\/community\/write$/, // 글쓰기 페이지만 비활성, 커뮤니티 메인(/admin/community)은 풀투리프레시 활성
+  /^\/admin\/community\/write$/, // 글쓰기 페이지만 비활성, 커뮤니티 메인(/community)은 풀투리프레시 활성
 ];
 
 /** 메인 스크롤 비활성화 경로 (동아리 신청, 피드 추가/수정, 설정 메인만, 알림설정, 관리자 메인만, 커뮤니티 메인·글쓰기 — 하위 페이지는 스크롤 가능) */
@@ -40,7 +40,7 @@ const SCROLL_DISABLED_PATHS = [
   /^\/mypage\/settings\/?$/, // 설정 메인만 (/mypage/settings, /mypage/settings/) — 하위(이름변경, 버그신고 등) 제외
   /^\/mypage\/notification-settings(\/|$)/,
   /^\/admin\/?$/, // 관리자 메인만 (trailing slash 포함)
-  /^\/admin\/community\/?$/, // 커뮤니티 메인만, 하위(/admin/community/popular 등)는 스크롤 가능. trailing slash 포함.
+  /^\/admin\/community\/?$/, // 커뮤니티 메인만, 하위(/community/popular 등)는 스크롤 가능. trailing slash 포함.
   /^\/admin\/community\/write$/, // 글쓰기 페이지 스크롤 비활성
 ];
 

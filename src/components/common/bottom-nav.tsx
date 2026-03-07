@@ -88,7 +88,7 @@ const HOME_ITEM: NavItem = {
 };
 
 const COMMUNITY_ITEM: NavItem = {
-  href: '/admin/community',
+  href: '/community',
   label: '커뮤니티',
   icon: (active) => <CommunityIcon active={active} />,
 };
@@ -119,12 +119,12 @@ export function BottomNav() {
     pathname.startsWith('/login/') ||
     pathname === '/welcome' ||
     pathname.startsWith('/welcome/') ||
-    pathname?.startsWith('/admin/community/posts/');
+    pathname?.startsWith('/community/posts/');
 
   const isActive = useCallback(
     (href: string) => {
       if (href === '/home') return pathname === '/home';
-      if (href === '/admin') return pathname === '/admin'; // 관리자 메인만, /admin/community 제외
+      if (href === '/admin') return pathname === '/admin'; // 관리자 메인만, /community 제외
       if (href.includes('?')) return false;
       return pathname.startsWith(href);
     },

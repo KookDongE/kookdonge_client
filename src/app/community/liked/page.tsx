@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
-import { useCommentedPosts } from '@/features/community/hooks';
+import { useLikedPosts } from '@/features/community/hooks';
 import { CommunityListPageSkeleton } from '@/components/common/skeletons';
 import { CommunityPostCard } from '@/components/community/community-post-card';
 import {
@@ -13,20 +13,20 @@ import {
   type CommunitySort,
 } from '@/components/community/community-search-filter';
 
-export default function CommunityCommentedPage() {
+export default function CommunityLikedPage() {
   const router = useRouter();
   const { data: profile, isLoading: profileLoading } = useMyProfile();
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<CommunitySort>('latest');
 
-  const commentedPosts = useCommentedPosts();
+  const likedPosts = useLikedPosts();
   const filtered = query.trim()
-    ? commentedPosts.filter(
+    ? likedPosts.filter(
         (p) =>
           p.title.toLowerCase().includes(query.toLowerCase()) ||
           p.content.toLowerCase().includes(query.toLowerCase())
       )
-    : commentedPosts;
+    : likedPosts;
   const sorted =
     sort === 'popular'
       ? [...filtered].sort((a, b) => b.likeCount - a.likeCount)
@@ -59,14 +59,14 @@ export default function CommunityCommentedPage() {
       <div className="space-y-0 px-0 py-4">
         {sorted.length === 0 ? (
           <p className="py-12 text-center text-sm text-zinc-400 dark:text-zinc-500">
-            {query.trim() ? '검색 결과가 없습니다.' : '댓글 단 글이 없습니다.'}
+            {query.trim() ? '검색 결과가 없습니다.' : '좋아요 누른 글이 없습니다.'}
           </p>
         ) : (
           sorted.map((post) => (
             <CommunityPostCard
               key={post.id}
               post={post}
-              boardHref={`/admin/community/posts/${post.id}`}
+              boardHref={`/community/posts/${post.id}`}
             />
           ))
         )}

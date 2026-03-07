@@ -34,7 +34,7 @@ export default function CommunitySearchPage() {
     const params = new URLSearchParams(searchParams.toString());
     if (v.trim()) params.set('q', v.trim());
     else params.delete('q');
-    router.replace(params.toString() ? `?${params.toString()}` : '/admin/community/search', {
+    router.replace(params.toString() ? `?${params.toString()}` : '/community/search', {
       scroll: false,
     });
   };
@@ -79,7 +79,7 @@ export default function CommunitySearchPage() {
               <CommunityPostCard
                 key={post.id}
                 post={post}
-                boardHref={`/admin/community/posts/${post.id}`}
+                boardHref={`/community/posts/${post.id}`}
               />
             ))}
           </div>

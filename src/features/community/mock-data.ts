@@ -68,7 +68,7 @@ function createMockPosts(): CommunityPost[] {
     });
   });
 
-  // 사진 한 장(16:9) 더미 — 상세 링크: /admin/community/posts/100
+  // 사진 한 장(16:9) 더미 — 상세 링크: /community/posts/100
   posts.push({
     id: 100,
     boardType: 'free',

@@ -7,7 +7,7 @@ import { Button } from '@heroui/react';
 
 import { usePullToRefreshActive } from '@/components/common/pull-to-refresh';
 
-const WRITE_HREF = '/admin/community/write';
+const WRITE_HREF = '/community/write';
 
 const emptySubscribe = () => () => {};
 

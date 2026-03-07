@@ -106,28 +106,38 @@ export default function MyApplicationDetailPage() {
     <div className="club-request-detail-page flex h-full min-h-0 flex-col overflow-hidden bg-white dark:bg-zinc-900">
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="space-y-6 p-4 pb-32">
-          {/* 날짜·상태 — 상단 표시 (글로벌 헤더 사용으로 커스텀 헤더 제거) */}
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <span className="text-xs text-gray-500 dark:text-zinc-400">
-              {formatDateTimeNoSeconds(application.createdAt)}
-            </span>
-            <span
-              className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_CHIP_CLASS[application.status] ?? 'bg-zinc-100 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300'}`}
-            >
-              {application.status === 'PENDING'
-                ? '승인 대기'
-                : application.status === 'APPROVED'
-                  ? '승인됨'
-                  : '반려됨'}
-            </span>
-          </div>
-          {/* 반려 사유 — 최상단 */}
+          {/* 반려 사유 — 날짜·상태는 라벨 오른쪽에 표시 */}
           {application.status === 'REJECTED' && application.rejectionReason && (
             <div>
-              <label className={labelClass}>반려 사유</label>
+              <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                <label className={labelClass + ' mb-0'}>반려 사유</label>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500 dark:text-zinc-400">
+                    {formatDateTimeNoSeconds(application.createdAt)}
+                  </span>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_CHIP_CLASS[application.status] ?? 'bg-zinc-100 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300'}`}
+                  >
+                    반려됨
+                  </span>
+                </div>
+              </div>
               <div className={`${valueBoxClass} text-red-600 dark:text-red-400`}>
                 {application.rejectionReason}
               </div>
+            </div>
+          )}
+          {/* 승인 대기 / 승인됨일 때만 상단에 날짜·상태 표시 */}
+          {application.status !== 'REJECTED' && (
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <span className="text-xs text-gray-500 dark:text-zinc-400">
+                {formatDateTimeNoSeconds(application.createdAt)}
+              </span>
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_CHIP_CLASS[application.status] ?? 'bg-zinc-100 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300'}`}
+              >
+                {application.status === 'PENDING' ? '승인 대기' : '승인됨'}
+              </span>
             </div>
           )}
 

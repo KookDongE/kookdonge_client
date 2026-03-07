@@ -5,28 +5,34 @@ import { useRouter } from 'next/navigation';
 
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
-import { useBoardPosts } from '@/features/community/hooks';
+import { useSavedPosts } from '@/features/community/hooks';
 import { CommunityListPageSkeleton } from '@/components/common/skeletons';
 import { CommunityPostCard } from '@/components/community/community-post-card';
 import {
   CommunitySearchFilter,
   type CommunitySort,
 } from '@/components/community/community-search-filter';
-import { CommunityWriteFloatingButton } from '@/components/community/community-write-floating-button';
 
-export default function CommunityFreePage() {
+export default function CommunitySavedPage() {
   const router = useRouter();
   const { data: profile, isLoading: profileLoading } = useMyProfile();
+  const [query, setQuery] = useState('');
   const [sort, setSort] = useState<CommunitySort>('latest');
 
-  const posts = useBoardPosts('free', '', sort);
-
-  const handleSearchSubmit = (q: string) => {
-    const path = q.trim()
-      ? `/admin/community/search?q=${encodeURIComponent(q.trim())}`
-      : '/admin/community/search';
-    router.push(path);
-  };
+  const savedPosts = useSavedPosts();
+  const filtered = query.trim()
+    ? savedPosts.filter(
+        (p) =>
+          p.title.toLowerCase().includes(query.toLowerCase()) ||
+          p.content.toLowerCase().includes(query.toLowerCase())
+      )
+    : savedPosts;
+  const sorted =
+    sort === 'popular'
+      ? [...filtered].sort((a, b) => b.likeCount - a.likeCount)
+      : [...filtered].sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
 
   useEffect(() => {
     if (profileLoading) return;
@@ -42,31 +48,29 @@ export default function CommunityFreePage() {
   return (
     <div className="min-h-screen bg-white pb-20 dark:bg-zinc-900">
       <CommunitySearchFilter
-        query=""
-        onQueryChange={handleSearchSubmit}
+        query={query}
+        onQueryChange={setQuery}
         sort={sort}
         onSortChange={setSort}
         stickyHideOnScroll
         hideFilters
-        submitOnly
       />
 
       <div className="space-y-0 px-0 py-4">
-        {posts.length === 0 ? (
+        {sorted.length === 0 ? (
           <p className="py-12 text-center text-sm text-zinc-400 dark:text-zinc-500">
-            게시글이 없습니다.
+            {query.trim() ? '검색 결과가 없습니다.' : '저장 누른 글이 없습니다.'}
           </p>
         ) : (
-          posts.map((post) => (
+          sorted.map((post) => (
             <CommunityPostCard
               key={post.id}
               post={post}
-              boardHref={`/admin/community/posts/${post.id}`}
+              boardHref={`/community/posts/${post.id}`}
             />
           ))
         )}
       </div>
-      <CommunityWriteFloatingButton />
     </div>
   );
 }

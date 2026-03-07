@@ -14,17 +14,17 @@ import {
 } from '@/components/community/community-search-filter';
 import { CommunityWriteFloatingButton } from '@/components/community/community-write-floating-button';
 
-export default function CommunityPopularPage() {
+export default function CommunityPromoPage() {
   const router = useRouter();
   const { data: profile, isLoading: profileLoading } = useMyProfile();
   const [sort, setSort] = useState<CommunitySort>('latest');
 
-  const posts = useBoardPosts('popular', '', sort);
+  const posts = useBoardPosts('promo', '', sort);
 
   const handleSearchSubmit = (q: string) => {
     const path = q.trim()
-      ? `/admin/community/search?q=${encodeURIComponent(q.trim())}`
-      : '/admin/community/search';
+      ? `/community/search?q=${encodeURIComponent(q.trim())}`
+      : '/community/search';
     router.push(path);
   };
 
@@ -61,7 +61,7 @@ export default function CommunityPopularPage() {
             <CommunityPostCard
               key={post.id}
               post={post}
-              boardHref={`/admin/community/posts/${post.id}`}
+              boardHref={`/community/posts/${post.id}`}
             />
           ))
         )}

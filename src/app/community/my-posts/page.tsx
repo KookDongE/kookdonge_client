@@ -66,7 +66,7 @@ export default function CommunityMyPostsPage() {
             <CommunityPostCard
               key={post.id}
               post={post}
-              boardHref={`/admin/community/posts/${post.id}`}
+              boardHref={`/community/posts/${post.id}`}
             />
           ))
         )}
