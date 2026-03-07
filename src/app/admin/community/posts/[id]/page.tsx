@@ -139,28 +139,6 @@ function ImageLightbox({
           onClick={(e) => e.stopPropagation()}
           draggable={false}
         />
-        {currentIndex < imageUrls.length - 1 && (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              goNext();
-            }}
-            className="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-full p-2 text-white/90 transition-colors hover:bg-white/10 hover:text-white"
-            aria-label="다음 사진"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              className="h-8 w-8"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-            </svg>
-          </button>
-        )}
       </div>
     </div>
   );
@@ -471,13 +449,13 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
             <button
               type="button"
               onClick={() => setExpandedImageIndex(0)}
-              className="mt-4 block w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800"
+              className="mt-4 block w-full overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800 aspect-[9/16]"
               aria-label="사진 확대 보기"
             >
               <img
                 src={post.imageUrls[0]}
                 alt=""
-                className="block h-auto w-full object-contain object-left-top"
+                className="size-full object-cover"
               />
             </button>
           ) : (
@@ -488,7 +466,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                     key={url}
                     type="button"
                     onClick={() => setExpandedImageIndex(idx)}
-                    className="relative aspect-[3/4] w-36 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800"
+                    className="relative aspect-[3/4] w-36 shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800"
                     aria-label={`사진 ${idx + 1} 확대 보기`}
                   >
                     <img

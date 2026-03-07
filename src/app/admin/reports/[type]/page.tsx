@@ -252,30 +252,30 @@ export default function AdminReportTypePage() {
               {reports.map((r) => (
                 <div
                   key={r.reportId}
-                  className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
+                  className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                        [{r.reportType}] contentId: {r.contentId}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                      [{r.reportType}] contentId: {r.contentId}
+                    </p>
+                    <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                      신고자: {r.reporterName ?? '-'} · {formatDate(r.createdAt)}
+                    </p>
+                    {r.reasonDetail && (
+                      <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300 line-clamp-2">
+                        {r.reasonDetail}
                       </p>
-                      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                        신고자: {r.reporterName ?? '-'} · {formatDate(r.createdAt)}
-                      </p>
-                      {r.reasonDetail && (
-                        <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300 line-clamp-2">
-                          {r.reasonDetail}
-                        </p>
-                      )}
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      onPress={() => completeReport.mutate(r.reportId)}
-                      isDisabled={completeReport.isPending}
+                    )}
+                  </div>
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => completeReport.mutate(r.reportId)}
+                      disabled={completeReport.isPending}
+                      className="inline-flex h-8 items-center justify-center rounded-md bg-blue-400 px-3 text-xs font-medium text-white shadow transition-colors hover:bg-blue-500 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
                     >
-                      처리완료
-                    </Button>
+                      {completeReport.isPending ? '처리 중...' : '처리완료'}
+                    </button>
                   </div>
                 </div>
               ))}
@@ -285,28 +285,28 @@ export default function AdminReportTypePage() {
               {feedbacks.map((f) => (
                 <div
                   key={f.feedbackId}
-                  className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
+                  className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                        [{f.feedbackType}] {f.userName ?? '-'}
-                      </p>
-                      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                        {formatDate(f.createdAt)}
-                      </p>
-                      <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300 line-clamp-3">
-                        {f.content}
-                      </p>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      onPress={() => completeFeedback.mutate(f.feedbackId)}
-                      isDisabled={completeFeedback.isPending}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                      [{f.feedbackType}] {f.userName ?? '-'}
+                    </p>
+                    <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                      {formatDate(f.createdAt)}
+                    </p>
+                    <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300 line-clamp-3">
+                      {f.content}
+                    </p>
+                  </div>
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => completeFeedback.mutate(f.feedbackId)}
+                      disabled={completeFeedback.isPending}
+                      className="inline-flex h-8 items-center justify-center rounded-md bg-blue-400 px-3 text-xs font-medium text-white shadow transition-colors hover:bg-blue-500 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
                     >
-                      처리완료
-                    </Button>
+                      {completeFeedback.isPending ? '처리 중...' : '처리완료'}
+                    </button>
                   </div>
                 </div>
               ))}
