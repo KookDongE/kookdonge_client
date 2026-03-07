@@ -36,6 +36,106 @@ function formatCommentTime(iso: string): string {
   return d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
 }
 
+const SWIPE_THRESHOLD = 50;
+
+/** 이미지 확대 라이트박스: 가로 스와이프·좌우 버튼으로 이전/다음 이미지 */
+function ImageLightbox({
+  imageUrls,
+  currentIndex,
+  onIndexChange,
+  onClose,
+}: {
+  imageUrls: string[];
+  currentIndex: number;
+  onIndexChange: (index: number) => void;
+  onClose: () => void;
+}) {
+  const touchStartX = useRef<number | null>(null);
+
+  const goPrev = () => {
+    if (currentIndex > 0) onIndexChange(currentIndex - 1);
+  };
+  const goNext = () => {
+    if (currentIndex < imageUrls.length - 1) onIndexChange(currentIndex + 1);
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current == null) return;
+    const endX = e.changedTouches[0].clientX;
+    const delta = touchStartX.current - endX;
+    touchStartX.current = null;
+    if (delta > SWIPE_THRESHOLD) goNext();
+    else if (delta < -SWIPE_THRESHOLD) goPrev();
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex flex-col bg-black/90 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label="사진 확대"
+      onClick={onClose}
+    >
+      <div className="flex shrink-0 items-center justify-between px-1 py-2">
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onClose(); }}
+          className="rounded-full p-1.5 text-white/90 transition-colors hover:bg-white/10 hover:text-white"
+          aria-label="닫기"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-5 w-5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <span className="text-sm text-white/90" aria-live="polite">
+          {currentIndex + 1}/{imageUrls.length}
+        </span>
+        <div className="w-9" aria-hidden />
+      </div>
+      <div
+        className="relative flex min-h-0 flex-1 items-center justify-center gap-2"
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
+        {currentIndex > 0 && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); goPrev(); }}
+            className="absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded-full p-2 text-white/90 transition-colors hover:bg-white/10 hover:text-white"
+            aria-label="이전 사진"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-8 w-8">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+          </button>
+        )}
+        <img
+          src={imageUrls[currentIndex]}
+          alt=""
+          className="max-h-full max-w-full select-none object-contain touch-none"
+          onClick={(e) => e.stopPropagation()}
+          draggable={false}
+        />
+        {currentIndex < imageUrls.length - 1 && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); goNext(); }}
+            className="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-full p-2 text-white/90 transition-colors hover:bg-white/10 hover:text-white"
+            aria-label="다음 사진"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-8 w-8">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 const emptySubscribe = () => () => {};
 
 /** 댓글 계정 선택 옵션: 익명, 내이름, 내가 관리중인 동아리 (글쓰기와 동일) */
@@ -49,6 +149,8 @@ function CommentBarPortal({
   commentAccountKey,
   setCommentAccountKey,
   commentAccountOptions,
+  replyingTo,
+  onClearReply,
 }: {
   commentText: string;
   setCommentText: (v: string) => void;
@@ -56,6 +158,8 @@ function CommentBarPortal({
   commentAccountKey: string;
   setCommentAccountKey: (v: string) => void;
   commentAccountOptions: CommentAccountOption[];
+  replyingTo: { commentId: number; authorName: string } | null;
+  onClearReply: () => void;
 }) {
   const isClient = useSyncExternalStore(
     emptySubscribe,
@@ -68,6 +172,21 @@ function CommentBarPortal({
 
   const bar = (
     <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-md -translate-x-1/2 overflow-visible !bg-white px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] dark:!bg-zinc-900">
+      {replyingTo && (
+        <div className="mb-1 flex items-center justify-between gap-2 rounded-lg bg-zinc-100 px-3 py-1.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+          <span>{replyingTo.authorName}에게 답글 작성</span>
+          <button
+            type="button"
+            onClick={onClearReply}
+            className="rounded p-0.5 hover:bg-zinc-200 hover:text-zinc-800 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+            aria-label="답글 취소"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
       <div className="flex w-full items-end overflow-visible">
         <div className="comment-input-wrap relative flex min-w-0 flex-1 items-end overflow-visible rounded-lg border border-zinc-200 bg-white pl-1 dark:border-zinc-700 dark:bg-zinc-800">
           {commentText.trim().length === 0 && (
@@ -87,12 +206,12 @@ function CommentBarPortal({
           )}
           <textarea
             ref={commentTextareaRef}
-            placeholder="댓글을 입력하세요"
+            placeholder={replyingTo ? `${replyingTo.authorName}에게 답글을 입력하세요` : '댓글을 입력하세요'}
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
             rows={1}
             className="max-h-[7.5rem] min-h-[2.4375rem] min-w-0 flex-1 resize-none overflow-y-auto border-0 bg-transparent px-3 py-[0.5625rem] text-sm leading-normal text-zinc-900 placeholder:text-zinc-400 focus:ring-0 focus:outline-none dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-500"
-            aria-label="댓글 입력"
+            aria-label={replyingTo ? '답글 입력' : '댓글 입력'}
             style={{ height: 'auto' }}
           />
           <button
@@ -157,6 +276,15 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
   const [commentLikedByMe, setCommentLikedByMe] = useState<Record<number, boolean>>({});
   /** 첨부 사진 확대 보기 (인덱스 또는 null) */
   const [expandedImageIndex, setExpandedImageIndex] = useState<number | null>(null);
+  /** 답글 작성 중인 댓글 (commentId, authorName) */
+  const [replyingToCommentId, setReplyingToCommentId] = useState<number | null>(null);
+  const replyingTo =
+    replyingToCommentId != null
+      ? (() => {
+          const c = comments.find((x) => x.id === replyingToCommentId);
+          return c ? { commentId: c.id, authorName: c.authorName } : null;
+        })()
+      : null;
   /** 목 데이터: 현재 사용자 authorId (실제로는 profile.id 등) */
   const myAuthorId = 1;
   const isAdmin = profile ? isSystemAdmin(profile) : false;
@@ -403,32 +531,14 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
         </div>
       </article>
 
-      {/* 첨부 사진 확대 보기 오버레이 */}
+      {/* 첨부 사진 확대 보기 오버레이 (가로 스와이프·좌우 버튼으로 이전/다음) */}
       {post.imageUrls && expandedImageIndex !== null && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-label="사진 확대"
-          onClick={() => setExpandedImageIndex(null)}
-        >
-          <button
-            type="button"
-            onClick={() => setExpandedImageIndex(null)}
-            className="absolute right-4 top-4 z-10 rounded-full p-2 text-white/90 transition-colors hover:bg-white/10 hover:text-white"
-            aria-label="닫기"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-8 w-8">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-          <img
-            src={post.imageUrls[expandedImageIndex]}
-            alt=""
-            className="max-h-full max-w-full object-contain"
-            onClick={(e) => e.stopPropagation()}
-          />
-        </div>
+        <ImageLightbox
+          imageUrls={post.imageUrls}
+          currentIndex={expandedImageIndex}
+          onIndexChange={setExpandedImageIndex}
+          onClose={() => setExpandedImageIndex(null)}
+        />
       )}
 
       {/* 댓글: 더미 데이터 */}
@@ -500,6 +610,12 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           type="button"
                           className="rounded p-1 text-zinc-500 transition-colors hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
                           aria-label="답글"
+                          onClick={() => {
+                            setReplyingToCommentId(c.id);
+                            requestAnimationFrame(() => {
+                              commentTextareaRef.current?.focus();
+                            });
+                          }}
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -606,6 +722,8 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
         commentAccountKey={commentAccountKey}
         setCommentAccountKey={setCommentAccountKey}
         commentAccountOptions={commentAccountOptions}
+        replyingTo={replyingTo}
+        onClearReply={() => setReplyingToCommentId(null)}
       />
     </div>
   );
