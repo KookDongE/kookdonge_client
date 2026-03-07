@@ -36,6 +36,136 @@ function formatCommentTime(iso: string): string {
   return d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
 }
 
+const SWIPE_THRESHOLD = 50;
+
+/** 이미지 확대 라이트박스: 가로 스와이프·좌우 버튼으로 이전/다음 이미지 */
+function ImageLightbox({
+  imageUrls,
+  currentIndex,
+  onIndexChange,
+  onClose,
+}: {
+  imageUrls: string[];
+  currentIndex: number;
+  onIndexChange: (index: number) => void;
+  onClose: () => void;
+}) {
+  const touchStartX = useRef<number | null>(null);
+
+  const goPrev = () => {
+    if (currentIndex > 0) onIndexChange(currentIndex - 1);
+  };
+  const goNext = () => {
+    if (currentIndex < imageUrls.length - 1) onIndexChange(currentIndex + 1);
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current == null) return;
+    const endX = e.changedTouches[0].clientX;
+    const delta = touchStartX.current - endX;
+    touchStartX.current = null;
+    if (delta > SWIPE_THRESHOLD) goNext();
+    else if (delta < -SWIPE_THRESHOLD) goPrev();
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex flex-col bg-black/90 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label="사진 확대"
+      onClick={onClose}
+    >
+      <div className="flex shrink-0 items-center justify-between px-1 py-2">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }}
+          className="rounded-full p-1.5 text-white/90 transition-colors hover:bg-white/10 hover:text-white"
+          aria-label="닫기"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            className="h-5 w-5"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <span className="text-sm text-white/90" aria-live="polite">
+          {currentIndex + 1}/{imageUrls.length}
+        </span>
+        <div className="w-9" aria-hidden />
+      </div>
+      <div
+        className="relative flex min-h-0 flex-1 items-center justify-center gap-2"
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
+        {currentIndex > 0 && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              goPrev();
+            }}
+            className="absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded-full p-2 text-white/90 transition-colors hover:bg-white/10 hover:text-white"
+            aria-label="이전 사진"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              className="h-8 w-8"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+          </button>
+        )}
+        <img
+          src={imageUrls[currentIndex]}
+          alt=""
+          className="max-h-full max-w-full select-none object-contain"
+          onClick={(e) => e.stopPropagation()}
+          draggable={false}
+        />
+        {currentIndex < imageUrls.length - 1 && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              goNext();
+            }}
+            className="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-full p-2 text-white/90 transition-colors hover:bg-white/10 hover:text-white"
+            aria-label="다음 사진"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              className="h-8 w-8"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 const emptySubscribe = () => () => {};
 
 /** 댓글 계정 선택 옵션: 익명, 내이름, 내가 관리중인 동아리 (글쓰기와 동일) */
@@ -161,6 +291,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
   const [likedOverride, setLikedOverride] = useState<boolean | null>(null);
   const [savedOverride, setSavedOverride] = useState<boolean | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [expandedImageIndex, setExpandedImageIndex] = useState<number | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const [commentText, setCommentText] = useState('');
   const [commentAccountKey, setCommentAccountKey] = useState('me');
@@ -334,24 +465,42 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
           {post.content}
         </div>
 
-        {/* 첨부 사진: 가로 슬라이드 */}
+        {/* 첨부 사진: 단일이면 원본 비율, 여러 장이면 가로 슬라이드 4:3. 클릭 시 확대 미리보기 */}
         {post.imageUrls && post.imageUrls.length > 0 && (
-          <div className="no-scrollbar -mx-4 mt-4 overflow-x-auto overflow-y-hidden px-4">
-            <div className="flex gap-3" style={{ width: 'max-content' }}>
-              {post.imageUrls.map((url) => (
-                <div
-                  key={url}
-                  className="relative aspect-[4/3] w-36 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800"
-                >
-                  <img
-                    src={url}
-                    alt=""
-                    className="size-full object-cover"
-                  />
-                </div>
-              ))}
+          post.imageUrls.length === 1 ? (
+            <button
+              type="button"
+              onClick={() => setExpandedImageIndex(0)}
+              className="mt-4 block w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800"
+              aria-label="사진 확대 보기"
+            >
+              <img
+                src={post.imageUrls[0]}
+                alt=""
+                className="block h-auto w-full object-contain object-left-top"
+              />
+            </button>
+          ) : (
+            <div className="no-scrollbar -mx-4 mt-4 overflow-x-auto overflow-y-hidden px-4">
+              <div className="flex gap-3" style={{ width: 'max-content' }}>
+                {post.imageUrls.map((url, idx) => (
+                  <button
+                    key={url}
+                    type="button"
+                    onClick={() => setExpandedImageIndex(idx)}
+                    className="relative aspect-[4/3] w-36 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800"
+                    aria-label={`사진 ${idx + 1} 확대 보기`}
+                  >
+                    <img
+                      src={url}
+                      alt=""
+                      className="size-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )
         )}
 
         {/* 액션 바: 좋아요·저장 버튼(클릭 시 채움/비움 토글), 댓글은 표시만. 순서: 좋아요 → 저장 → 댓글 */}
@@ -426,6 +575,16 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
           </span>
         </div>
       </article>
+
+      {/* 첨부 사진 확대 보기 오버레이 (가로 스와이프·좌우 버튼으로 이전/다음) */}
+      {post.imageUrls && expandedImageIndex !== null && (
+        <ImageLightbox
+          imageUrls={post.imageUrls}
+          currentIndex={expandedImageIndex}
+          onIndexChange={setExpandedImageIndex}
+          onClose={() => setExpandedImageIndex(null)}
+        />
+      )}
 
       {/* 댓글: 더미 데이터 */}
       <section className="mt-6 border-t border-zinc-100 px-4 py-4 dark:border-zinc-800">
