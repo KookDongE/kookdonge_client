@@ -365,6 +365,14 @@ export function useMyRequests() {
   });
 }
 
+/** 내 동아리 삭제 신청 목록. GET /api/clubs/deletion-requests/my */
+export function useMyDeletionRequests() {
+  return useQuery({
+    queryKey: [...clubKeys.all, 'my-deletion-requests'],
+    queryFn: () => clubApi.getMyDeletionRequests(),
+  });
+}
+
 // ---------- 동아리 삭제 신청 (Admin) ----------
 export const adminDeletionRequestKeys = {
   all: [...clubKeys.all, 'admin', 'deletion-requests'] as const,

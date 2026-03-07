@@ -104,18 +104,10 @@ export default function MyApplicationDetailPage() {
 
   return (
     <div className="club-request-detail-page flex h-full min-h-0 flex-col overflow-hidden bg-white dark:bg-zinc-900">
-      {/* 헤더: 뒤로가기(좌) | 상태 뱃지(우) — apply 페이지와 동일한 상단 구조 */}
-      <div className="club-request-detail-header shrink-0 bg-white dark:bg-zinc-900">
-        <div className="flex h-16 items-center justify-between px-4">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="flex items-center gap-1 text-base font-medium text-gray-700 dark:text-zinc-200"
-          >
-            <span className="inline-block">←</span>
-            <span>뒤로가기</span>
-          </button>
-          <div className="flex items-center gap-2">
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="space-y-6 p-4 pb-32">
+          {/* 날짜·상태 — 상단 표시 (글로벌 헤더 사용으로 커스텀 헤더 제거) */}
+          <div className="flex flex-wrap items-center justify-end gap-2">
             <span className="text-xs text-gray-500 dark:text-zinc-400">
               {formatDateTimeNoSeconds(application.createdAt)}
             </span>
@@ -129,11 +121,6 @@ export default function MyApplicationDetailPage() {
                   : '반려됨'}
             </span>
           </div>
-        </div>
-      </div>
-
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        <div className="space-y-6 p-4 pb-32">
           {/* 반려 사유 — 최상단 */}
           {application.status === 'REJECTED' && application.rejectionReason && (
             <div>

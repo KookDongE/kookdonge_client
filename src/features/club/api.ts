@@ -248,6 +248,14 @@ export const clubApi = {
     });
   },
 
+  /** 내가 신청한 동아리 삭제 신청 목록. GET /api/clubs/deletion-requests/my */
+  getMyDeletionRequests: async (): Promise<ClubDeletionRequestRes[]> => {
+    const data = await apiClient<ClubDeletionRequestRes[] | { content?: ClubDeletionRequestRes[] }>(
+      '/api/clubs/deletion-requests/my'
+    );
+    return Array.isArray(data) ? data : data?.content ?? [];
+  },
+
   // ---------- 동아리 삭제 신청 (Admin) ----------
   getDeletionRequests: async (params?: {
     status?: 'PENDING' | 'APPROVED' | 'REJECTED';

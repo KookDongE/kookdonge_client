@@ -110,7 +110,7 @@ function ClubApplyContent() {
           >
             취소
           </button>
-          <h1 className="text-lg font-semibold text-gray-900 dark:text-zinc-100">동아리 신청</h1>
+          <h1 className="text-lg font-semibold text-gray-900 dark:text-zinc-100">동아리 및 소모임 신청</h1>
           <button
             type="button"
             onClick={handleSubmit}
