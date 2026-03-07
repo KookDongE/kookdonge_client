@@ -16,6 +16,7 @@ function isHeaderHidden(pathname: string): boolean {
   if (HEADER_HIDDEN_PATHS.includes(pathname)) return true;
   if (pathname.startsWith('/login/') || pathname.startsWith('/welcome/')) return true;
   if (pathname.includes('/feed')) return true;
+  if (/^\/mypage\/clubs\/[^/]+\/delete-request$/.test(pathname)) return true; // 동아리 삭제 신청
   return false;
 }
 

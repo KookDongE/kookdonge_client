@@ -24,6 +24,7 @@ export function Header() {
     pathname.startsWith('/welcome/') ||
     pathname.includes('/feed') ||
     pathname === '/mypage/clubs/apply' ||
+    /^\/mypage\/clubs\/[^/]+\/delete-request$/.test(pathname ?? '') || // 동아리 삭제 신청
     pathname === '/admin/community/write' ||
     pathname === '/mypage/settings/bug-report' ||
     pathname === '/mypage/settings/report' ||

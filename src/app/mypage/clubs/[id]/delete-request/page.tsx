@@ -66,16 +66,16 @@ export default function ClubDeleteRequestPage({ params }: PageProps) {
         className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4 pb-8"
         onSubmit={handleSubmit}
       >
-        <p className="mb-1 text-sm font-medium text-gray-700 dark:text-zinc-300">
+        <p className="mb-0.5 text-sm font-medium text-gray-700 dark:text-zinc-300">
           동아리
         </p>
-        <p className="mb-4 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-base font-medium text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
+        <p className="mb-3 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-base font-medium text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
           {club.name}
         </p>
 
         <label
           htmlFor="delete-reason"
-          className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300"
+          className="mb-1 block text-sm font-medium text-gray-700 dark:text-zinc-300"
         >
           삭제신청이유
         </label>
