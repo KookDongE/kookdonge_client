@@ -384,6 +384,15 @@ export function useAdminDeletionRequests(
   });
 }
 
+/** 단건 조회: 목록에서 requestId로 찾음 (상세 페이지용) */
+export function useAdminDeletionRequest(requestId: number) {
+  const { data, ...rest } = useAdminDeletionRequests(undefined, {
+    enabled: !!requestId && requestId > 0,
+  });
+  const request = data?.content?.find((d) => d.requestId === requestId);
+  return { data: request, ...rest };
+}
+
 export function useApproveDeletionRequest() {
   const queryClient = useQueryClient();
   return useMutation({

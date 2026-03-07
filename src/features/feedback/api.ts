@@ -63,15 +63,16 @@ if (sort.length) {
       };
     }
     if (raw && typeof raw === 'object' && Array.isArray((raw as { content?: FeedbackRes[] }).content)) {
+      const content = (raw as { content: FeedbackRes[] }).content;
       return {
-        content: (raw as { content: FeedbackRes[] }).content,
+        content,
         totalPages: (raw as { totalPages?: number }).totalPages ?? 0,
         totalElements: (raw as { totalElements?: number }).totalElements ?? 0,
         size: (raw as { size?: number }).size ?? 20,
         number: (raw as { number?: number }).number ?? 0,
         first: (raw as { first?: boolean }).first ?? true,
         last: (raw as { last?: boolean }).last ?? true,
-        empty: (raw as { empty?: boolean }).empty ?? false,
+        empty: content.length === 0,
       };
     }
     return {

@@ -22,10 +22,12 @@ export type PageResponse<T> = {
   size: number;
   content: T[];
   number: number;
-  numberOfElements: number;
+  /** @deprecated 백엔드 PageResponse DTO에서 제거됨. 로컬 계산 시에만 사용 */
+  numberOfElements?: number;
   first: boolean;
   last: boolean;
-  empty: boolean;
+  /** @deprecated 백엔드 PageResponse DTO에서 제거됨. content.length === 0 로 대체 */
+  empty?: boolean;
 };
 
 export type ClubCategory =

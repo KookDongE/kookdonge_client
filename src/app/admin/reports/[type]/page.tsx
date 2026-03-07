@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 
 import { useEffect, useRef, useState } from 'react';
 
-import { Button, Chip, Tabs, TextArea } from '@heroui/react';
+import { Chip, Tabs } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
 
 import { PageCenteredSkeleton } from '@/components/common/skeletons';
@@ -13,11 +13,7 @@ import { ListCardSkeleton } from '@/components/common/skeletons';
 
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
-import {
-  useAdminDeletionRequests,
-  useApproveDeletionRequest,
-  useRejectDeletionRequest,
-} from '@/features/club/hooks';
+import { useAdminDeletionRequests } from '@/features/club/hooks';
 import {
   useAdminFeedbacks,
   useCompleteFeedback,
@@ -122,14 +118,6 @@ export default function AdminReportTypePage() {
 
   const completeReport = useCompleteReport();
   const completeFeedback = useCompleteFeedback();
-  const approveDeletion = useApproveDeletionRequest();
-  const rejectDeletion = useRejectDeletionRequest();
-
-  const [rejectModal, setRejectModal] = useState<{
-    requestId: number;
-    clubName: string;
-  } | null>(null);
-  const [rejectReason, setRejectReason] = useState('');
 
   useEffect(() => {
     if (profileLoading) return;
@@ -194,23 +182,6 @@ export default function AdminReportTypePage() {
     (reportType.api === 'feedback' && feedbacks.length === 0) ||
     (reportType.api === 'deletion' && deletions.length === 0);
 
-  const handleRejectSubmit = () => {
-    if (!rejectModal) return;
-    if (!rejectReason.trim()) {
-      alert('거절 사유를 입력해 주세요.');
-      return;
-    }
-    rejectDeletion.mutate(
-      { requestId: rejectModal.requestId, reason: rejectReason.trim() },
-      {
-        onSuccess: () => {
-          setRejectModal(null);
-          setRejectReason('');
-        },
-      }
-    );
-  };
-
   return (
     <div className="min-h-screen bg-white pb-20 dark:bg-zinc-900">
       <Tabs
@@ -256,23 +227,26 @@ export default function AdminReportTypePage() {
                 >
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                      [{r.reportType}] contentId: {r.contentId}
+                      [{r.reportType}] {r.reporterName ?? '-'}
+                      {r.reporterEmail != null && r.reporterEmail !== '' && (
+                        <span className="ml-1 text-zinc-500 dark:text-zinc-400">· {r.reporterEmail}</span>
+                      )}
                     </p>
-                    <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                      신고자: {r.reporterName ?? '-'} · {formatDate(r.createdAt)}
-                    </p>
-                    {r.reasonDetail && (
-                      <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300 line-clamp-2">
-                        {r.reasonDetail}
+                    {(r.reasonDetail ?? r.contentSnapshot) && (
+                      <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300 line-clamp-3 whitespace-pre-wrap">
+                        {r.reasonDetail ?? r.contentSnapshot}
                       </p>
                     )}
                   </div>
-                  <div className="flex justify-end">
+                  <div className="flex items-end justify-between gap-2">
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      {formatDate(r.createdAt)}
+                    </p>
                     <button
                       type="button"
                       onClick={() => completeReport.mutate(r.reportId)}
                       disabled={completeReport.isPending}
-                      className="inline-flex h-8 items-center justify-center rounded-md bg-blue-400 px-3 text-xs font-medium text-white shadow transition-colors hover:bg-blue-500 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+                      className="inline-flex h-8 shrink-0 items-center justify-center rounded-md bg-blue-400 px-3 text-xs font-medium text-white shadow transition-colors hover:bg-blue-500 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
                     >
                       {completeReport.isPending ? '처리 중...' : '처리완료'}
                     </button>
@@ -290,20 +264,23 @@ export default function AdminReportTypePage() {
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                       [{f.feedbackType}] {f.userName ?? '-'}
+                      {f.userEmail != null && f.userEmail !== '' && (
+                        <span className="ml-1 text-zinc-500 dark:text-zinc-400">· {f.userEmail}</span>
+                      )}
                     </p>
-                    <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                      {formatDate(f.createdAt)}
-                    </p>
-                    <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300 line-clamp-3">
+                    <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300 line-clamp-4 whitespace-pre-wrap">
                       {f.content}
                     </p>
                   </div>
-                  <div className="flex justify-end">
+                  <div className="flex items-end justify-between gap-2">
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      {formatDate(f.createdAt)}
+                    </p>
                     <button
                       type="button"
                       onClick={() => completeFeedback.mutate(f.feedbackId)}
                       disabled={completeFeedback.isPending}
-                      className="inline-flex h-8 items-center justify-center rounded-md bg-blue-400 px-3 text-xs font-medium text-white shadow transition-colors hover:bg-blue-500 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+                      className="inline-flex h-8 shrink-0 items-center justify-center rounded-md bg-blue-400 px-3 text-xs font-medium text-white shadow transition-colors hover:bg-blue-500 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
                     >
                       {completeFeedback.isPending ? '처리 중...' : '처리완료'}
                     </button>
@@ -314,43 +291,38 @@ export default function AdminReportTypePage() {
           ) : (
             <div className="space-y-3">
               {deletions.map((d) => (
-                <div
+                <Link
                   key={d.requestId}
-                  className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
+                  href={`/admin/deletion-requests/${d.requestId}`}
+                  className="flex items-center justify-between gap-2 rounded-xl border border-zinc-100 bg-white px-3 py-2.5 transition-all hover:border-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700"
                 >
-                  <div className="flex flex-col gap-2">
-                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                      {d.clubName} (clubId: {d.clubId})
-                    </p>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      신청자: {d.requesterName ?? '-'} · {formatDate(d.createdAt)}
-                    </p>
-                    <p className="text-sm text-zinc-700 dark:text-zinc-300">
-                      사유: {d.deletionReason}
-                    </p>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="primary"
-                        onPress={() =>
-                          window.confirm(`"${d.clubName}" 삭제를 승인하시겠습니까?`) &&
-                          approveDeletion.mutate(d.requestId)
-                        }
-                        isDisabled={approveDeletion.isPending}
-                      >
-                        승인
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="danger"
-                        onPress={() => setRejectModal({ requestId: d.requestId, clubName: d.clubName })}
-                        isDisabled={rejectDeletion.isPending}
-                      >
-                        거절
-                      </Button>
+                  <div className="min-w-0 flex-1">
+                    <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
+                      {d.clubName}
+                    </h4>
+                    <div className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
+                      신청일: {formatDate(d.createdAt)}
                     </div>
                   </div>
-                </div>
+                  <Chip
+                    size="sm"
+                    color="warning"
+                    variant="soft"
+                    className="shrink-0"
+                  >
+                    대기
+                  </Chip>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
               ))}
             </div>
           )}
@@ -370,17 +342,25 @@ export default function AdminReportTypePage() {
               {reports.map((r) => (
                 <div
                   key={r.reportId}
-                  className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
+                  className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
                 >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                        [{r.reportType}] contentId: {r.contentId}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                      [{r.reportType}] {r.reporterName ?? '-'}
+                      {r.reporterEmail != null && r.reporterEmail !== '' && (
+                        <span className="ml-1 text-zinc-500 dark:text-zinc-400">· {r.reporterEmail}</span>
+                      )}
+                    </p>
+                    {(r.reasonDetail ?? r.contentSnapshot) && (
+                      <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300 line-clamp-3 whitespace-pre-wrap">
+                        {r.reasonDetail ?? r.contentSnapshot}
                       </p>
-                      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                        {formatDate(r.createdAt)} · 처리: {formatDate(r.processedAt)}
-                      </p>
-                    </div>
+                    )}
+                  </div>
+                  <div className="flex items-end justify-between gap-2">
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      {formatDate(r.createdAt)}
+                    </p>
                     <Chip size="sm" color="success" variant="soft">
                       완료
                     </Chip>
@@ -393,17 +373,23 @@ export default function AdminReportTypePage() {
               {feedbacks.map((f) => (
                 <div
                   key={f.feedbackId}
-                  className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
+                  className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
                 >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                        [{f.feedbackType}] {f.userName ?? '-'}
-                      </p>
-                      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                        {formatDate(f.processedAt)}
-                      </p>
-                    </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                      [{f.feedbackType}] {f.userName ?? '-'}
+                      {f.userEmail != null && f.userEmail !== '' && (
+                        <span className="ml-1 text-zinc-500 dark:text-zinc-400">· {f.userEmail}</span>
+                      )}
+                    </p>
+                    <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300 line-clamp-4 whitespace-pre-wrap">
+                      {f.content}
+                    </p>
+                  </div>
+                  <div className="flex items-end justify-between gap-2">
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      {formatDate(f.createdAt)}
+                    </p>
                     <Chip size="sm" color="success" variant="soft">
                       완료
                     </Chip>
@@ -414,24 +400,33 @@ export default function AdminReportTypePage() {
           ) : (
             <div className="space-y-3">
               {deletions.map((d) => (
-                <div
+                <Link
                   key={d.requestId}
-                  className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
+                  href={`/admin/deletion-requests/${d.requestId}`}
+                  className="flex items-center justify-between gap-2 rounded-xl border border-zinc-100 bg-white px-3 py-2.5 transition-all hover:border-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700"
                 >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                        {d.clubName}
-                      </p>
-                      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                        승인: {formatDate(d.updatedAt)}
-                      </p>
+                  <div className="min-w-0 flex-1">
+                    <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
+                      {d.clubName}
+                    </h4>
+                    <div className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
+                      승인: {formatDate(d.updatedAt)}
                     </div>
-                    <Chip size="sm" color="success" variant="soft">
-                      승인됨
-                    </Chip>
                   </div>
-                </div>
+                  <Chip size="sm" color="success" variant="soft" className="shrink-0">
+                    승인
+                  </Chip>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
               ))}
             </div>
           )}
@@ -451,20 +446,33 @@ export default function AdminReportTypePage() {
           ) : (
             <div className="space-y-3">
               {deletions.map((d) => (
-                <div
+                <Link
                   key={d.requestId}
-                  className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
+                  href={`/admin/deletion-requests/${d.requestId}`}
+                  className="flex items-center justify-between gap-2 rounded-xl border border-zinc-100 bg-white px-3 py-2.5 transition-all hover:border-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700"
                 >
-                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                    {d.clubName}
-                  </p>
-                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                    거절: {formatDate(d.updatedAt)} · {d.rejectionReason ?? ''}
-                  </p>
-                  <Chip size="sm" color="danger" variant="soft" className="mt-2">
-                    거절됨
+                  <div className="min-w-0 flex-1">
+                    <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
+                      {d.clubName}
+                    </h4>
+                    <div className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
+                      거절: {formatDate(d.updatedAt)}
+                    </div>
+                  </div>
+                  <Chip size="sm" color="danger" variant="soft" className="shrink-0">
+                    거절
                   </Chip>
-                </div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
               ))}
             </div>
           )}
@@ -484,17 +492,25 @@ export default function AdminReportTypePage() {
               {reports.map((r) => (
                 <div
                   key={r.reportId}
-                  className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
+                  className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
                 >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                        [{r.reportType}] contentId: {r.contentId}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                      [{r.reportType}] {r.reporterName ?? '-'}
+                      {r.reporterEmail != null && r.reporterEmail !== '' && (
+                        <span className="ml-1 text-zinc-500 dark:text-zinc-400">· {r.reporterEmail}</span>
+                      )}
+                    </p>
+                    {(r.reasonDetail ?? r.contentSnapshot) && (
+                      <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300 line-clamp-3 whitespace-pre-wrap">
+                        {r.reasonDetail ?? r.contentSnapshot}
                       </p>
-                      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                        {formatDate(r.createdAt)}
-                      </p>
-                    </div>
+                    )}
+                  </div>
+                  <div className="flex items-end justify-between gap-2">
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      {formatDate(r.createdAt)}
+                    </p>
                     <Chip size="sm" color={r.status === 'COMPLETED' ? 'success' : 'warning'} variant="soft">
                       {r.status === 'COMPLETED' ? '완료' : '대기'}
                     </Chip>
@@ -507,17 +523,23 @@ export default function AdminReportTypePage() {
               {feedbacks.map((f) => (
                 <div
                   key={f.feedbackId}
-                  className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
+                  className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
                 >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                        [{f.feedbackType}] {f.userName ?? '-'}
-                      </p>
-                      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                        {formatDate(f.createdAt)}
-                      </p>
-                    </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                      [{f.feedbackType}] {f.userName ?? '-'}
+                      {f.userEmail != null && f.userEmail !== '' && (
+                        <span className="ml-1 text-zinc-500 dark:text-zinc-400">· {f.userEmail}</span>
+                      )}
+                    </p>
+                    <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300 line-clamp-4 whitespace-pre-wrap">
+                      {f.content}
+                    </p>
+                  </div>
+                  <div className="flex items-end justify-between gap-2">
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      {formatDate(f.createdAt)}
+                    </p>
                     <Chip size="sm" color={f.status === 'COMPLETED' ? 'success' : 'warning'} variant="soft">
                       {f.status === 'COMPLETED' ? '완료' : '대기'}
                     </Chip>
@@ -528,76 +550,45 @@ export default function AdminReportTypePage() {
           ) : (
             <div className="space-y-3">
               {deletions.map((d) => (
-                <div
+                <Link
                   key={d.requestId}
-                  className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
+                  href={`/admin/deletion-requests/${d.requestId}`}
+                  className="flex items-center justify-between gap-2 rounded-xl border border-zinc-100 bg-white px-3 py-2.5 transition-all hover:border-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700"
                 >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                        {d.clubName}
-                      </p>
-                      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                        {formatDate(d.createdAt)}
-                      </p>
+                  <div className="min-w-0 flex-1">
+                    <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
+                      {d.clubName}
+                    </h4>
+                    <div className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
+                      신청일: {formatDate(d.createdAt)}
                     </div>
-                    <Chip
-                      size="sm"
-                      color={
-                        d.status === 'APPROVED' ? 'success' : d.status === 'REJECTED' ? 'danger' : 'warning'
-                      }
-                      variant="soft"
-                    >
-                      {d.status === 'PENDING' ? '대기' : d.status === 'APPROVED' ? '승인' : '거절'}
-                    </Chip>
                   </div>
-                </div>
+                  <Chip
+                    size="sm"
+                    color={
+                      d.status === 'APPROVED' ? 'success' : d.status === 'REJECTED' ? 'danger' : 'warning'
+                    }
+                    variant="soft"
+                    className="shrink-0"
+                  >
+                    {d.status === 'PENDING' ? '대기' : d.status === 'APPROVED' ? '승인' : '거절'}
+                  </Chip>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
               ))}
             </div>
           )}
         </Tabs.Panel>
       </Tabs>
-
-      {/* 거절 사유 모달 */}
-      {rejectModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="reject-modal-title"
-        >
-          <div className="w-full max-w-md rounded-xl bg-white p-4 dark:bg-zinc-800">
-            <h2 id="reject-modal-title" className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              삭제 신청 반려
-            </h2>
-            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-              {rejectModal.clubName}
-            </p>
-            <label className="mt-4 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              반려 사유
-            </label>
-            <TextArea
-              placeholder="반려 사유를 입력하세요"
-              value={rejectReason}
-              onChange={(e) => setRejectReason(e.target.value)}
-              className="mt-1 min-h-[6rem]"
-            />
-            <div className="mt-4 flex justify-end gap-2">
-              <Button variant="ghost" onPress={() => { setRejectModal(null); setRejectReason(''); }}>
-                취소
-              </Button>
-              <Button
-                variant="danger"
-                onPress={handleRejectSubmit}
-                isDisabled={!rejectReason.trim() || rejectDeletion.isPending}
-                isPending={rejectDeletion.isPending}
-              >
-                반려
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
