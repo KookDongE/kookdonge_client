@@ -69,7 +69,7 @@ export default function ReportPage() {
         reportReason: REPORT_REASON_TO_API[reportReason],
         reasonDetail: content.trim(),
       });
-      alert('신고가 접수되었습니다. 검토 후 조치하겠습니다.');
+      alert('전송이 완료되었습니다.');
       router.back();
     } catch {
       alert('신고 접수에 실패했습니다. 다시 시도해 주세요.');

@@ -1934,7 +1934,7 @@ function ClubDeletionRequestSection({
     clubApi
       .createDeletionRequest({ clubId, deletionReason: trimmed })
       .then(() => {
-        alert('삭제 신청이 접수되었습니다. 관리자 검토 후 알림으로 안내드립니다.');
+        alert('신청이 완료되었습니다.');
         setReason('');
       })
       .catch(() => {

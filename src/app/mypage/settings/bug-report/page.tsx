@@ -35,7 +35,7 @@ export default function BugReportPage() {
         feedbackType: REPORT_TYPE_TO_API[reportType],
         content: content.trim(),
       });
-      alert('접수되었습니다. 검토 후 반영하겠습니다.');
+      alert('전송이 완료되었습니다.');
       router.back();
     } catch {
       alert('전송에 실패했습니다. 다시 시도해 주세요.');

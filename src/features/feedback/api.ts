@@ -35,10 +35,55 @@ export const adminFeedbackApi = {
     const query: Record<string, string | number | undefined> = { page, size };
     if (params?.status) query.status = params.status;
     if (params?.feedbackType) query.feedbackType = params.feedbackType;
-    if (sort.length) query.sort = Array.isArray(sort) ? sort[0] : sort;
-    return apiClient('/api/admin/feedbacks', {
+    // Spring Data 호환: createdAt,desc (소문자)
+if (sort.length) {
+  const s = Array.isArray(sort) ? sort[0] : sort;
+  query.sort =
+    typeof s === 'string'
+      ? s.replace(/,DESC$/i, ',desc').replace(/,ASC$/i, ',asc')
+      : s;
+}
+    const raw = await apiClient<
+      | { content: FeedbackRes[]; totalPages?: number; totalElements?: number; size?: number; number?: number; first?: boolean; last?: boolean; empty?: boolean }
+      | FeedbackRes[]
+    >('/api/admin/feedbacks', {
       params: query as Record<string, string | number | boolean | undefined>,
     });
+    // 백엔드가 페이지 객체 { content: [] } 또는 배열 [] 직접 반환하는 경우 모두 처리
+    if (Array.isArray(raw)) {
+      return {
+        content: raw,
+        totalPages: 1,
+        totalElements: raw.length,
+        size: raw.length,
+        number: 0,
+        first: true,
+        last: true,
+        empty: raw.length === 0,
+      };
+    }
+    if (raw && typeof raw === 'object' && Array.isArray((raw as { content?: FeedbackRes[] }).content)) {
+      return {
+        content: (raw as { content: FeedbackRes[] }).content,
+        totalPages: (raw as { totalPages?: number }).totalPages ?? 0,
+        totalElements: (raw as { totalElements?: number }).totalElements ?? 0,
+        size: (raw as { size?: number }).size ?? 20,
+        number: (raw as { number?: number }).number ?? 0,
+        first: (raw as { first?: boolean }).first ?? true,
+        last: (raw as { last?: boolean }).last ?? true,
+        empty: (raw as { empty?: boolean }).empty ?? false,
+      };
+    }
+    return {
+      content: [],
+      totalPages: 0,
+      totalElements: 0,
+      size: params?.size ?? 20,
+      number: params?.page ?? 0,
+      first: true,
+      last: true,
+      empty: true,
+    };
   },
 
   getOne: async (feedbackId: number): Promise<FeedbackRes> => {

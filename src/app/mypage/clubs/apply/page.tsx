@@ -88,7 +88,7 @@ function ClubApplyContent() {
       },
       {
         onSuccess: () => {
-          alert('동아리 신청이 완료되었습니다. 검토 후 승인됩니다.');
+          alert('신청이 완료되었습니다.');
           router.push('/mypage');
         },
         onError: () => {
