@@ -488,7 +488,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                     key={url}
                     type="button"
                     onClick={() => setExpandedImageIndex(idx)}
-                    className="relative aspect-[4/3] w-36 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800"
+                    className="relative aspect-[3/4] w-36 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800"
                     aria-label={`사진 ${idx + 1} 확대 보기`}
                   >
                     <img
