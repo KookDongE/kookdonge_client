@@ -29,7 +29,7 @@ const PULL_TO_REFRESH_DISABLED_PATHS = [
   /^\/mypage\/clubs\/apply$/, // 동아리 신청
   /^\/mypage\/settings(\/|$)/, // 설정 (메인·이름변경·버그신고 등 하위 포함)
   /^\/mypage\/notification-settings(\/|$)/, // 알림설정
-  /^\/admin\/community\/write$/, // 글쓰기 페이지만 비활성, 커뮤니티 메인(/community)은 풀투리프레시 활성
+  /^\/community\/write$/, // 커뮤니티 글쓰기 — 풀투리프레시 비활성
 ];
 
 /** 메인 스크롤 비활성화 경로 (동아리 신청, 피드 추가/수정, 설정 메인만, 알림설정, 관리자 메인만, 커뮤니티 메인·글쓰기 — 하위 페이지는 스크롤 가능) */
@@ -40,8 +40,8 @@ const SCROLL_DISABLED_PATHS = [
   /^\/mypage\/settings\/?$/, // 설정 메인만 (/mypage/settings, /mypage/settings/) — 하위(이름변경, 버그신고 등) 제외
   /^\/mypage\/notification-settings(\/|$)/,
   /^\/admin\/?$/, // 관리자 메인만 (trailing slash 포함)
-  /^\/admin\/community\/?$/, // 커뮤니티 메인만, 하위(/community/popular 등)는 스크롤 가능. trailing slash 포함.
-  /^\/admin\/community\/write$/, // 글쓰기 페이지 스크롤 비활성
+  /^\/community\/?$/, // 커뮤니티 메인만, 하위(/community/popular 등)는 스크롤 가능. trailing slash 포함.
+  /^\/community\/write$/, // 글쓰기 페이지 스크롤 비활성
 ];
 
 function isFullScreenPath(pathname: string): boolean {

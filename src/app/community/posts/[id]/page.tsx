@@ -661,7 +661,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           </button>
                           {commentMenuOpenId === c.id && (
                             <div
-                              className="absolute right-0 top-full z-10 mt-0.5 min-w-[100px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+                              className="action-menu-dropdown absolute right-0 top-full z-10 mt-0.5 min-w-[100px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
                               role="menu"
                             >
                               <button

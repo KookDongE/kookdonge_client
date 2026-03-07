@@ -2117,7 +2117,7 @@ function ClubQnaTab({
                     </Button>
                     {openMenuAllQuestionId === qna.id && (
                       <div
-                        className="absolute top-full right-0 z-10 mt-1 min-w-[7rem] rounded-lg border bg-[var(--card)] py-1 shadow-lg"
+                        className="action-menu-dropdown absolute top-full right-0 z-10 mt-1 min-w-[7rem] rounded-lg border bg-[var(--card)] py-1 shadow-lg"
                         style={{ borderColor: 'var(--border)' }}
                         role="menu"
                       >
@@ -2214,7 +2214,7 @@ function ClubQnaTab({
                           </Button>
                           {openMenuAllAnswerId === qna.id && (
                             <div
-                              className="absolute top-full right-0 z-10 mt-1 min-w-[7rem] rounded-lg border bg-[var(--card)] py-1 shadow-lg"
+                              className="action-menu-dropdown absolute top-full right-0 z-10 mt-1 min-w-[7rem] rounded-lg border bg-[var(--card)] py-1 shadow-lg"
                               style={{ borderColor: 'var(--border)' }}
                               role="menu"
                             >

@@ -89,6 +89,25 @@ html:not(.dark) .club-apply-header {
   background-color: #ffffff !important;
 }
 
+/* PWA 앱뷰 라이트 모드: 신고/삭제 등 드롭다운 메뉴 배경이 다크로 보이는 현상 방지 */
+html:not(.dark) .action-menu-dropdown {
+  background-color: #ffffff !important;
+  border-color: #e4e4e7 !important;
+  color: #09090b;
+}
+html:not(.dark) .action-menu-dropdown [role='menuitem'],
+html:not(.dark) .action-menu-dropdown button {
+  color: inherit;
+}
+html:not(.dark) .action-menu-dropdown [role='menuitem']:hover,
+html:not(.dark) .action-menu-dropdown button:hover {
+  background-color: #f4f4f5 !important;
+}
+html:not(.dark) .action-menu-dropdown button.text-red-600:hover,
+html:not(.dark) .action-menu-dropdown [role='menuitem'].text-red-600:hover {
+  background-color: #fef2f2 !important;
+}
+
 /* 라이트 모드: 드롭다운(Select) 트리거·팝오버·리스트 박스 항상 밝게 */
 html:not(.dark) [data-slot='trigger'][role='combobox'],
 html:not(.dark) [data-slot='select-trigger'],
