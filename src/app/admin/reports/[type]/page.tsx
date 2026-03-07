@@ -30,14 +30,23 @@ const REPORT_TYPE_MAP = {
   'delete-request': { label: '삭제 신청', api: 'deletion' as const },
 } as const;
 
-const STATUS_TABS = [
+const STATUS_TABS_WITH_REJECT = [
   { value: 'pending', label: '대기' },
   { value: 'completed', label: '완료' },
   { value: 'rejected', label: '반려' },
   { value: 'all', label: '전체' },
 ] as const;
 
-type StatusTabValue = (typeof STATUS_TABS)[number]['value'];
+/** 시스템오류, 건의사항, 동아리 및 유저신고에는 반려 탭 없음 */
+const STATUS_TABS_NO_REJECT = [
+  { value: 'pending', label: '대기' },
+  { value: 'completed', label: '완료' },
+  { value: 'all', label: '전체' },
+] as const;
+
+type StatusTabValue =
+  | (typeof STATUS_TABS_WITH_REJECT)[number]['value']
+  | (typeof STATUS_TABS_NO_REJECT)[number]['value'];
 
 function ReportListPlaceholder({
   typeLabel,
@@ -77,13 +86,16 @@ export default function AdminReportTypePage() {
       ? REPORT_TYPE_MAP[typeSlug as keyof typeof REPORT_TYPE_MAP]
       : null;
 
+  /** 삭제 신청만 반려 탭 있음. 그 외는 rejected 선택 시 pending으로 취급 */
+  const hasRejectTab = reportType?.api === 'deletion';
   const statusKey: StatusTabValue =
     statusTab === 'pending' ||
     statusTab === 'completed' ||
-    statusTab === 'rejected' ||
+    (statusTab === 'rejected' && hasRejectTab) ||
     statusTab === 'all'
       ? statusTab
       : 'pending';
+  const statusTabs = hasRejectTab ? STATUS_TABS_WITH_REJECT : STATUS_TABS_NO_REJECT;
 
   // API status param
   const reportStatusParam =
@@ -196,7 +208,7 @@ export default function AdminReportTypePage() {
             aria-label="처리 상태"
             className="flex w-full min-w-0"
           >
-            {STATUS_TABS.map((opt) => (
+            {statusTabs.map((opt) => (
               <Tabs.Tab
                 key={opt.value}
                 id={opt.value}
@@ -432,20 +444,19 @@ export default function AdminReportTypePage() {
           )}
         </Tabs.Panel>
 
-        <Tabs.Panel id="rejected" className="p-4 pt-0">
-          {reportType.api !== 'deletion' ? (
-            <ReportListPlaceholder typeLabel={reportType.label} statusLabel="반려" />
-          ) : isLoading ? (
-            <div className="space-y-3">
-              {[1, 2].map((i) => (
-                <ListCardSkeleton key={i} />
-              ))}
-            </div>
-          ) : showEmpty ? (
-            <ReportListPlaceholder typeLabel={reportType.label} statusLabel="반려" />
-          ) : (
-            <div className="space-y-3">
-              {deletions.map((d) => (
+        {hasRejectTab && (
+          <Tabs.Panel id="rejected" className="p-4 pt-0">
+            {isLoading ? (
+              <div className="space-y-3">
+                {[1, 2].map((i) => (
+                  <ListCardSkeleton key={i} />
+                ))}
+              </div>
+            ) : showEmpty ? (
+              <ReportListPlaceholder typeLabel={reportType.label} statusLabel="반려" />
+            ) : (
+              <div className="space-y-3">
+                {deletions.map((d) => (
                 <Link
                   key={d.requestId}
                   href={`/admin/deletion-requests/${d.requestId}`}
@@ -473,10 +484,12 @@ export default function AdminReportTypePage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
                 </Link>
-              ))}
-            </div>
-          )}
-        </Tabs.Panel>
+                ))}
+              </div>
+            )}
+          </Tabs.Panel>
+        )}
+
 
         <Tabs.Panel id="all" className="p-4 pt-0">
           {isLoading ? (
