@@ -111,6 +111,7 @@ export type UserRole = 'USER' | 'ADMIN';
  * - role: 레거시. isAdmin 없을 때 fallback
  */
 export type UserProfileRes = {
+  id?: number;
   externalUserId?: string;
   name?: string;
   email: string;

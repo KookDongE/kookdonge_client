@@ -1,8 +1,9 @@
 'use client';
 
-import { use, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { use, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { useQueries } from '@tanstack/react-query';
 import { createPortal } from 'react-dom';
 
 import { useMyProfile } from '@/features/auth/hooks';
@@ -22,6 +23,7 @@ import {
 import type { CommunityComment } from '@/features/community/types';
 import { CommunityPostDetailSkeleton } from '@/components/common/skeletons';
 import type { CommunityAuthorType } from '@/types/api';
+import { clubApi, clubKeys } from '@/features/club';
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
@@ -271,6 +273,8 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
   const commentMenuRef = useRef<HTMLDivElement>(null);
   /** 삭제 불가 토스트 "본인이 작성한 게 아니라면 삭제할 수 없습니다" */
   const [deleteDeniedToast, setDeleteDeniedToast] = useState(false);
+  /** 게시글 삭제 중: 빈 화면 표시 후 API 호출·이전 페이지 이동 */
+  const [isDeleting, setIsDeleting] = useState(false);
   /** 댓글별 좋아요 수 로컬 오버라이드 (id -> count) */
   const [commentLikeOverrides, setCommentLikeOverrides] = useState<Record<number, number>>({});
   /** 댓글별 좋아요 클릭(하트) 토글 */
@@ -299,6 +303,36 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
   const createCommentMutation = useCreateComment(id);
   const likeCommentMutation = useLikeCommentMutation(id);
   const deleteCommentMutation = useDeleteCommentMutation(id);
+
+  /** 게시글·댓글에 등장하는 동아리 ID 목록 (중복 제거) */
+  const uniqueClubIds = useMemo(() => {
+    const ids = new Set<number>();
+    if (post?.clubId != null) ids.add(post.clubId);
+    (comments ?? []).forEach((c) => {
+      if (c.clubId != null) ids.add(c.clubId);
+      (c.replies ?? []).forEach((r) => {
+        if (r.clubId != null) ids.add(r.clubId);
+      });
+    });
+    return Array.from(ids);
+  }, [post?.clubId, comments]);
+
+  const clubDetailQueries = useQueries({
+    queries: uniqueClubIds.map((clubId) => ({
+      queryKey: clubKeys.detail(clubId),
+      queryFn: () => clubApi.getClubDetail(clubId),
+    })),
+  });
+
+  /** 동아리 ID → 프로필 이미지 URL (게시글/댓글 작성자 아바타용) */
+  const clubImageMap = useMemo(() => {
+    const map: Record<number, string> = {};
+    clubDetailQueries.forEach((q, i) => {
+      const clubId = uniqueClubIds[i];
+      if (clubId != null && q.data?.image) map[clubId] = q.data.image;
+    });
+    return map;
+  }, [uniqueClubIds, clubDetailQueries]);
 
   useEffect(() => {
     if (profileLoading || postLoading) return;
@@ -348,10 +382,11 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
   if (!post) return null;
 
   const handleLike = () => {
-    setLikedOverride((prev) => (prev !== null ? !prev : !(post.liked ?? false)));
+    const currentLiked = likedOverride !== null ? likedOverride : (post.liked ?? false);
+    if (currentLiked) return; // 한 번 좋아요하면 취소 불가
+    setLikedOverride(true);
     likePostMutation.mutate(undefined, {
-      onError: () =>
-        setLikedOverride((prev) => (prev !== null ? !prev : !(post.liked ?? false))),
+      onError: () => setLikedOverride(null),
     });
   };
   const handleSave = () => {
@@ -363,8 +398,10 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
   };
   const handleDeletePost = () => {
     setMenuOpen(false);
+    setIsDeleting(true);
     deletePostMutation.mutate(undefined, {
-      onSuccess: () => router.push('/community'),
+      onSuccess: () => router.back(),
+      onError: () => setIsDeleting(false),
     });
   };
   const resolveAuthorTypeAndClubId = (
@@ -398,6 +435,10 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
   const liked = likedOverride !== null ? likedOverride : (post.liked ?? false);
   const saved = savedOverride !== null ? savedOverride : (post.saved ?? false);
 
+  if (isDeleting) {
+    return <div className="min-h-screen bg-white dark:bg-zinc-900" aria-busy="true" />;
+  }
+
   return (
     <div className="min-h-screen bg-white pb-24 dark:bg-zinc-900">
       <article className="px-4 py-4">
@@ -405,10 +446,20 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
         <div className="mb-4 flex items-center gap-4">
           {post.clubId != null && (
             <div
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-sm font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
+              className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-zinc-200 text-sm font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
               aria-hidden
             >
-              {post.authorName.slice(0, 1)}
+              {clubImageMap[post.clubId] ? (
+                <img
+                  src={clubImageMap[post.clubId]}
+                  alt=""
+                  className="size-full object-cover"
+                />
+              ) : (
+                <span className="flex size-full items-center justify-center">
+                  {post.authorName.slice(0, 1)}
+                </span>
+              )}
             </div>
           )}
           <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-xs text-zinc-500 dark:text-zinc-400">
@@ -446,7 +497,10 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                     type="button"
                     className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
                     role="menuitem"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      router.push(`/community/posts/${post.id}/edit`);
+                    }}
                   >
                     수정
                   </button>
@@ -457,6 +511,10 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                   role="menuitem"
                   onClick={() => {
                     setMenuOpen(false);
+                    if (isAuthor) {
+                      alert('본인은 신고할 수 없습니다.');
+                      return;
+                    }
                     router.push(
                       `/mypage/settings/report?type=post&id=${post.id}`
                     );
@@ -620,48 +678,69 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
           </p>
         ) : (
           <ul className="space-y-4">
-            {comments.flatMap((c) => [c, ...(c.replies ?? [])]).map((c) => {
+            {comments.flatMap((c) => [
+              { comment: c, isReply: false as const },
+              ...(c.replies ?? []).map((r) => ({
+                comment: r,
+                isReply: true as const,
+                parentAuthor: c.authorName,
+              })),
+            ]).map(({ comment: c, isReply, parentAuthor }) => {
               const likeCount = commentLikeOverrides[c.id] ?? c.likeCount;
               const liked = commentLikedByMe[c.id] ?? (c.liked ?? false);
               const isMine = c.mine ?? false;
               return (
-                <li key={c.id} className="flex gap-3">
+                <li
+                  key={c.id}
+                  className={`flex gap-3 ${isReply ? 'pl-6 sm:pl-8' : ''}`}
+                >
                   {c.clubId != null && (
                     <div
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
+                      className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
                       aria-hidden
                     >
-                      {c.authorName.slice(0, 1)}
+                      {clubImageMap[c.clubId] ? (
+                        <img
+                          src={clubImageMap[c.clubId]}
+                          alt=""
+                          className="size-full object-cover"
+                        />
+                      ) : (
+                        <span className="flex size-full items-center justify-center">
+                          {c.authorName.slice(0, 1)}
+                        </span>
+                      )}
                     </div>
                   )}
-                  <div className="min-w-0 flex-1">
+                  <div className={`min-w-0 flex-1 ${isReply ? 'rounded-r border-l-2 border-zinc-100 pl-3 dark:border-zinc-800' : ''}`}>
                     <div className="flex items-center justify-between gap-2">
-                      <div className="flex min-w-0 flex-1 items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+                      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
                         <span>{c.authorName}</span>
+                        {isReply && parentAuthor && (
+                          <span className="text-zinc-400 dark:text-zinc-500">
+                            · {parentAuthor}님에게 답글
+                          </span>
+                        )}
                         <span>{formatCommentTime(c.createdAt)}</span>
                       </div>
                       <div className="flex shrink-0 items-center gap-0.5">
                         <button
                           type="button"
-                          className={`flex items-center gap-0.5 rounded p-1 transition-opacity hover:opacity-80 ${
-                            liked
-                              ? 'text-red-500 dark:text-red-400'
-                              : 'text-red-400/80 dark:text-red-400/70'
-                          }`}
+                          className="flex items-center gap-0.5 rounded p-1 transition-opacity hover:opacity-80 text-red-400/80 dark:text-red-400/70"
                           aria-label={`좋아요 ${likeCount}개`}
                           onClick={() => {
-                            const newLiked = !liked;
-                            setCommentLikedByMe((prev) => ({ ...prev, [c.id]: newLiked }));
+                            if (liked) return; // 한 번 좋아요하면 취소 불가
+                            setCommentLikedByMe((prev) => ({ ...prev, [c.id]: true }));
                             setCommentLikeOverrides((prev) => ({
                               ...prev,
-                              [c.id]: (prev[c.id] ?? c.likeCount) + (newLiked ? 1 : -1),
+                              [c.id]: (prev[c.id] ?? c.likeCount) + 1,
                             }));
                             likeCommentMutation.mutate(c.id, {
                               onError: () => {
-                                setCommentLikedByMe((prev) => ({ ...prev, [c.id]: !newLiked }));
+                                setCommentLikedByMe((prev) => ({ ...prev, [c.id]: false }));
                                 setCommentLikeOverrides((prev) => ({
                                   ...prev,
-                                  [c.id]: (prev[c.id] ?? c.likeCount) + (newLiked ? -1 : 1),
+                                  [c.id]: (prev[c.id] ?? c.likeCount) - 1,
                                 }));
                               },
                             });
@@ -746,6 +825,10 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                                 role="menuitem"
                                 onClick={() => {
                                   setCommentMenuOpenId(null);
+                                  if (isMine) {
+                                    alert('본인은 신고할 수 없습니다.');
+                                    return;
+                                  }
                                   router.push(`/mypage/settings/report?type=comment&id=${c.id}`);
                                 }}
                               >

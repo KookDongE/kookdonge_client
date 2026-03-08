@@ -29,8 +29,18 @@ type RankingTab = 'view' | 'like';
 function RankingSection({ returnTo }: { returnTo?: string }) {
   const [activeTab, setActiveTab] = useState<RankingTab>('view');
   const rankingScrollRef = useRef<HTMLDivElement>(null);
-  const { data: viewRankings, isLoading: viewLoading } = useTopWeeklyView();
-  const { data: likeRankings, isLoading: likeLoading } = useTopWeeklyLike();
+  const {
+    data: viewRankings,
+    isLoading: viewLoading,
+    isError: viewError,
+    refetch: refetchView,
+  } = useTopWeeklyView();
+  const {
+    data: likeRankings,
+    isLoading: likeLoading,
+    isError: likeError,
+    refetch: refetchLike,
+  } = useTopWeeklyLike();
   const [imageLoaded, setImageLoaded] = useState<Record<number, boolean>>({});
   const [imageError, setImageError] = useState<Record<number, boolean>>({});
 
@@ -80,6 +90,8 @@ function RankingSection({ returnTo }: { returnTo?: string }) {
   };
 
   const isLoading = activeTab === 'view' ? viewLoading : likeLoading;
+  const isError = activeTab === 'view' ? viewError : likeError;
+  const refetchRanking = activeTab === 'view' ? refetchView : refetchLike;
   const rawRankings = activeTab === 'view' ? viewRankings : likeRankings;
 
   // API 응답이 배열 또는 { content: [...] } 형태일 수 있음
@@ -111,6 +123,22 @@ function RankingSection({ returnTo }: { returnTo?: string }) {
           {[1, 2, 3].map((i) => (
             <div key={i} className="skeleton h-32 w-24 shrink-0 rounded-2xl" />
           ))}
+        </div>
+      </section>
+    );
+  }
+
+  if (isError) {
+    return (
+      <section className="py-5">
+        <div className="mb-4 flex items-center justify-between px-4">
+          <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100">이번 주 인기</span>
+        </div>
+        <div className="mx-4 flex h-36 flex-col items-center justify-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">인기 동아리를 불러오지 못했습니다</p>
+          <Button size="sm" color="primary" onPress={() => refetchRanking()}>
+            다시 시도
+          </Button>
         </div>
       </section>
     );
@@ -167,8 +195,9 @@ function RankingSection({ returnTo }: { returnTo?: string }) {
       </div>
 
       {isEmpty ? (
-        <div className="mx-4 flex h-36 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 text-sm text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
-          인기 동아리가 없습니다
+        <div className="mx-4 flex h-36 flex-col items-center justify-center gap-1 rounded-xl border border-zinc-200 bg-zinc-50 text-center text-sm text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
+          <span>이번 주 인기 동아리가 없습니다</span>
+          <span className="text-xs text-zinc-400 dark:text-zinc-600">매주 월요일 00:00에 갱신됩니다</span>
         </div>
       ) : (
         <AnimatePresence mode="wait">

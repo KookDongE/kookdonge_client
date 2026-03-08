@@ -9,6 +9,7 @@ import { parseAsString, useQueryState } from 'nuqs';
 
 import { ClubCategory, ClubDetailRes, ClubType, College, RecruitmentStatus } from '@/types/api';
 import { formatQnaDateTime, parseApiIsoToDate } from '@/lib/utils';
+import { useMyProfile } from '@/features/auth/hooks';
 import {
   useAddClubAdmin,
   useClubDetail,
@@ -1942,6 +1943,8 @@ function ClubQnaTab({
   highlightQuestionId: string;
   onClearHighlightQuestionId: () => void;
 }) {
+  const router = useRouter();
+  const { data: profile } = useMyProfile();
   const { data: pendingQuestions, isLoading: pendingLoading } = usePendingQuestions(clubId, {
     page: 0,
     size: 50,
@@ -2119,7 +2122,11 @@ function ClubQnaTab({
                           className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
                           onClick={() => {
                             setOpenMenuAllQuestionId(null);
-                            alert('아직 준비중인 기능입니다.');
+                            if (profile?.id != null && qna.userId != null && profile.id === qna.userId) {
+                              alert('본인은 신고할 수 없습니다.');
+                              return;
+                            }
+                            router.push(`/mypage/settings/report?type=qna&id=${qna.id}`);
                           }}
                         >
                           신고
@@ -2216,7 +2223,11 @@ function ClubQnaTab({
                                 className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
                                 onClick={() => {
                                   setOpenMenuAllAnswerId(null);
-                                  alert('아직 준비중인 기능입니다.');
+                                  if (profile?.id != null && qna.userId != null && profile.id === qna.userId) {
+                                    alert('본인은 신고할 수 없습니다.');
+                                    return;
+                                  }
+                                  router.push(`/mypage/settings/report?type=qna&id=${qna.id}`);
                                 }}
                               >
                                 신고

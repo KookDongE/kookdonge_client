@@ -393,7 +393,13 @@ function ClubHeader({
                       수정
                     </Dropdown.Item>
                     <Dropdown.Item
-                      onPress={() => router.push(`/mypage/settings/report?type=club&id=${clubId}`)}
+                      onPress={() => {
+                        if (showManageButton) {
+                          alert('본인은 신고할 수 없습니다.');
+                          return;
+                        }
+                        router.push(`/mypage/settings/report?type=club&id=${clubId}`);
+                      }}
                       textValue="신고"
                     >
                       신고
@@ -421,7 +427,13 @@ function ClubHeader({
             ) : (
               <button
                 type="button"
-                onClick={() => router.push(`/mypage/settings/report?type=club&id=${clubId}`)}
+                onClick={() => {
+                  if (showManageButton) {
+                    alert('본인은 신고할 수 없습니다.');
+                    return;
+                  }
+                  router.push(`/mypage/settings/report?type=club&id=${clubId}`);
+                }}
                 className="shrink-0 rounded-full p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
                 title="신고"
                 aria-label="동아리 신고"
@@ -907,6 +919,10 @@ function ClubQnaTab({
                           role="menuitem"
                           onClick={() => {
                             setQuestionMenuOpenId(null);
+                            if (profile?.id != null && qna.userId != null && profile.id === qna.userId) {
+                              alert('본인은 신고할 수 없습니다.');
+                              return;
+                            }
                             router.push(`/mypage/settings/report?type=qna&id=${qna.id}`);
                           }}
                         >
@@ -993,6 +1009,10 @@ function ClubQnaTab({
                             role="menuitem"
                             onClick={() => {
                               setAnswerMenuOpenId(null);
+                              if (profile?.id != null && qna.userId != null && profile.id === qna.userId) {
+                                alert('본인은 신고할 수 없습니다.');
+                                return;
+                              }
                               router.push(
                                 `/mypage/settings/report?type=qna&id=${qna.id}`
                               );
