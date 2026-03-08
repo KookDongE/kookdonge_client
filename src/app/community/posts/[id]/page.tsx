@@ -207,7 +207,7 @@ function CommentBarPortal({
         </div>
       )}
       <div className="flex w-full items-end overflow-visible">
-        <div className="comment-input-wrap relative flex min-w-0 flex-1 items-end overflow-visible rounded-lg border border-zinc-200 bg-white pl-1 dark:border-zinc-700 dark:bg-zinc-800">
+        <div className="comment-input-wrap relative flex min-w-0 flex-1 items-end overflow-visible rounded-lg border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
           {commentText.trim().length === 0 && (
             <select
               className="shrink-0 rounded-l-md border-0 bg-transparent py-2.5 pr-6 pl-3 text-sm text-zinc-900 focus:ring-0 focus:outline-none dark:text-zinc-100"
@@ -515,7 +515,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
               )}
             </div>
           )}
-          <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+          <div className="flex min-w-0 shrink-0 flex-col gap-0.5 text-xs text-zinc-500 dark:text-zinc-400">
             <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{post.authorName}</span>
             <span>{formatDate(post.createdAt)}</span>
           </div>
@@ -542,7 +542,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
               </svg>
             </button>
           )}
-          <div className="relative shrink-0" ref={menuRef}>
+          <div className="relative ml-auto shrink-0" ref={menuRef}>
             <button
               type="button"
               onClick={() => setMenuOpen((o) => !o)}
@@ -765,14 +765,14 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
-                      <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-xs text-zinc-500 dark:text-zinc-400">
-                        <span className={`text-sm font-medium ${root.mine ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}>{root.authorName.replace(/([^\s])\(글쓴이\)/, '$1 (글쓴이)')}{root.mine && !root.authorName.includes('(글쓴이)') ? ' (글쓴이)' : ''}</span>
-                        <span className="text-zinc-400 dark:text-zinc-500">{formatCommentWrittenAt(root.createdAt)}</span>
+                      <div className="flex min-w-0 flex-1 flex-col gap-0 text-xs text-zinc-500 dark:text-zinc-400">
+                        <span className={`text-[13px] font-medium ${root.mine ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}>{root.authorName.replace(/([^\s])\(글쓴이\)/, '$1 (글쓴이)')}{root.mine && !root.authorName.includes('(글쓴이)') ? ' (글쓴이)' : ''}</span>
+                        <span className="text-[11px] text-zinc-400 dark:text-zinc-500">{formatCommentWrittenAt(root.createdAt)}</span>
                       </div>
-                      <div className="flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-700">
+                      <div className="mr-3 flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-700">
                         <button
                           type="button"
-                          className="flex items-center gap-0.5 rounded p-0.5 text-zinc-500 transition-opacity hover:opacity-80 dark:text-zinc-500"
+                          className={`flex items-center gap-0.5 rounded p-0.5 transition-opacity hover:opacity-80 ${(commentLikedByMe[root.id] ?? root.liked) ? 'text-red-500 dark:text-red-400' : 'text-zinc-500 dark:text-zinc-500'}`}
                           aria-label={`좋아요 ${commentLikeOverrides[root.id] ?? root.likeCount}개`}
                           onClick={() => {
                             if (commentLikedByMe[root.id] ?? root.liked) return;
@@ -798,7 +798,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           </svg>
                         </button>
                         {(commentLikeOverrides[root.id] ?? root.likeCount) > 0 && (
-                          <span className="text-xs text-zinc-500 dark:text-zinc-400" aria-label={`좋아요 ${commentLikeOverrides[root.id] ?? root.likeCount}개`}>
+                          <span className="ml-0.5 text-xs text-zinc-500 dark:text-zinc-400" aria-label={`좋아요 ${commentLikeOverrides[root.id] ?? root.likeCount}개`}>
                             {commentLikeOverrides[root.id] ?? root.likeCount}
                           </span>
                         )}
@@ -841,7 +841,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                     </div>
                   </div>
                   <div className="w-full -mt-3">
-                    <p className="mt-3 text-sm font-normal text-zinc-600 dark:text-zinc-400 break-words">{root.content}</p>
+                    <p className="mt-3 pb-4 text-sm font-normal text-zinc-600 dark:text-zinc-400 break-words">{root.content}</p>
                   </div>
                 </div>
                 {/* 답글들: 왼쪽 화살표로 답글 표시 */}
@@ -873,14 +873,14 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-2">
-                            <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-xs text-zinc-500 dark:text-zinc-400">
-                              <span className={`text-sm font-medium ${isMine ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}>{reply.authorName.replace(/([^\s])\(글쓴이\)/, '$1 (글쓴이)')}{isMine && !reply.authorName.includes('(글쓴이)') ? ' (글쓴이)' : ''}</span>
-                              <span className="text-zinc-400 dark:text-zinc-500">{formatCommentWrittenAt(reply.createdAt)}</span>
+                            <div className="flex min-w-0 flex-1 flex-col gap-0 text-xs text-zinc-500 dark:text-zinc-400">
+                              <span className={`text-[13px] font-medium ${isMine ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}>{reply.authorName.replace(/([^\s])\(글쓴이\)/, '$1 (글쓴이)')}{isMine && !reply.authorName.includes('(글쓴이)') ? ' (글쓴이)' : ''}</span>
+                              <span className="text-[11px] text-zinc-400 dark:text-zinc-500">{formatCommentWrittenAt(reply.createdAt)}</span>
                             </div>
-                            <div className="flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-700">
+                            <div className="mr-3 flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-700">
                               <button
                                 type="button"
-                                className="flex items-center gap-0.5 rounded p-0.5 text-zinc-500 transition-opacity hover:opacity-80 dark:text-zinc-500"
+                                className={`flex items-center gap-0.5 rounded p-0.5 transition-opacity hover:opacity-80 ${liked ? 'text-red-500 dark:text-red-400' : 'text-zinc-500 dark:text-zinc-500'}`}
                                 aria-label={`좋아요 ${likeCount}개`}
                                 onClick={() => {
                                   if (liked) return;
@@ -900,7 +900,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                                 </svg>
                               </button>
                               {likeCount > 0 && (
-                                <span className="text-xs text-zinc-500 dark:text-zinc-400" aria-label={`좋아요 ${likeCount}개`}>
+                                <span className="ml-0.5 text-xs text-zinc-500 dark:text-zinc-400" aria-label={`좋아요 ${likeCount}개`}>
                                   {likeCount}
                                 </span>
                               )}
@@ -928,7 +928,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           </div>
                         </div>
                         <div className="w-full -mt-3 pr-[5.75rem]">
-                          <p className="mt-3 text-sm font-normal text-zinc-600 dark:text-zinc-400 break-words">{reply.content}</p>
+                          <p className="mt-3 min-w-0 w-full pb-4 text-sm font-normal text-zinc-600 dark:text-zinc-400 break-words">{reply.content}</p>
                         </div>
                       </div>
                     </div>
