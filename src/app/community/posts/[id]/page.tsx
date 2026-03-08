@@ -547,19 +547,19 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
           {post.content}
         </div>
 
-        {/* 첨부 사진: 단일이면 원본 비율, 여러 장이면 가로 슬라이드 4:3. 클릭 시 확대 미리보기 */}
+        {/* 첨부 사진: 단일이면 원본 비율, 여러 장이면 가로 슬라이드 1:1. 클릭 시 확대 미리보기 */}
         {post.imageUrls && post.imageUrls.length > 0 && (
           post.imageUrls.length === 1 ? (
             <button
               type="button"
               onClick={() => setExpandedImageIndex(0)}
-              className="mt-4 block w-full overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800 aspect-[9/16]"
+              className="mt-4 block w-full overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800"
               aria-label="사진 확대 보기"
             >
               <img
                 src={post.imageUrls[0]}
                 alt=""
-                className="size-full object-cover"
+                className="w-full h-auto max-w-full object-contain"
               />
             </button>
           ) : (
@@ -570,7 +570,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                     key={url}
                     type="button"
                     onClick={() => setExpandedImageIndex(idx)}
-                    className="relative aspect-[3/4] w-36 shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800"
+                    className="relative aspect-square w-36 shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800"
                     aria-label={`사진 ${idx + 1} 확대 보기`}
                   >
                     <img
