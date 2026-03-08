@@ -59,6 +59,15 @@ function preventBreakAfterQuestion(text: string): string {
   return text.replace(/\?/g, '?\u2060');
 }
 
+/** PWA/앱 뷰(standalone) 여부. 앱 뷰에서만 답글 행 여백을 넓혀 웹과 동일한 시인성 유지 */
+function isAppView(): boolean {
+  if (typeof window === 'undefined') return false;
+  const standalone = window.matchMedia('(display-mode: standalone)').matches;
+  const fullscreen = window.matchMedia('(display-mode: fullscreen)').matches;
+  const iosStandalone = (navigator as Navigator & { standalone?: boolean }).standalone === true;
+  return standalone || fullscreen || iosStandalone;
+}
+
 const SWIPE_THRESHOLD = 50;
 
 /** 상세조회 전용 배너 풀 (public/banner의 detail1, 2, 3 중 랜덤 1장) */
@@ -319,6 +328,10 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
   /** 첨부 사진 확대 보기 (인덱스 또는 null) */
   /** 답글 작성 중인 댓글 (commentId, authorName) */
   const [replyingToCommentId, setReplyingToCommentId] = useState<number | null>(null);
+  const [replyRowIsAppView, setReplyRowIsAppView] = useState(false);
+  useEffect(() => {
+    setReplyRowIsAppView(isAppView());
+  }, []);
   const replyingTo =
     replyingToCommentId != null
       ? (() => {
@@ -872,7 +885,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                   return (
                     <div
                       key={reply.id}
-                      className="relative flex gap-2 pl-5 pt-3 sm:pl-7"
+                      className={`relative flex gap-2 pt-3 ${replyRowIsAppView ? 'pl-7 sm:pl-9' : 'pl-5 sm:pl-7'}`}
                       data-comment-id={reply.id}
                     >
                       <span className="absolute left-0 top-4 z-[1] flex h-5 w-5 shrink-0 items-center justify-center text-zinc-400 dark:text-zinc-500" aria-hidden>
