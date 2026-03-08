@@ -7,20 +7,18 @@ import { usePathname } from 'next/navigation';
 import { saveCommunityListScroll } from '@/features/community/hooks';
 import type { CommunityPost } from '@/features/community/types';
 
+/** 게시글 목록용: 년도·날짜·시간 표기 (올해면 MM.DD HH:mm, 올해 아니면 YY.MM.DD HH:mm) */
 function formatDate(iso: string): string {
   const d = new Date(iso);
   const now = new Date();
-  const diff = now.getTime() - d.getTime();
-  if (diff < 60 * 1000) return '방금 전';
-  if (diff < 60 * 60 * 1000) return `${Math.floor(diff / 60000)}분 전`;
-  if (diff < 24 * 60 * 60 * 1000) return `${Math.floor(diff / 3600000)}시간 전`;
-  if (diff < 7 * 24 * 60 * 60 * 1000) return `${Math.floor(diff / 86400000)}일 전`;
+  const mm = (d.getMonth() + 1).toString().padStart(2, '0');
+  const dd = d.getDate().toString().padStart(2, '0');
+  const hh = d.getHours().toString().padStart(2, '0');
+  const min = d.getMinutes().toString().padStart(2, '0');
   const isCurrentYear = d.getFullYear() === now.getFullYear();
-  return d.toLocaleDateString('ko-KR', {
-    year: isCurrentYear ? undefined : '2-digit',
-    month: 'short',
-    day: 'numeric',
-  });
+  if (isCurrentYear) return `${mm}.${dd} ${hh}:${min}`;
+  const yy = d.getFullYear().toString().slice(-2);
+  return `${yy}.${mm}.${dd} ${hh}:${min}`;
 }
 
 type CommunityPostCardProps = {
