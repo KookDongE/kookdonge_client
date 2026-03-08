@@ -3,12 +3,13 @@
 import { use, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { useQueries } from '@tanstack/react-query';
+import { useQueries, useQueryClient } from '@tanstack/react-query';
 import { createPortal } from 'react-dom';
 
 import { useMyProfile } from '@/features/auth/hooks';
 import { isClubManager, isSystemAdmin } from '@/features/auth/permissions';
 import {
+  communityKeys,
   useCommentsAsList,
   useDeleteCommentMutation,
   useDeletePost,
@@ -246,6 +247,7 @@ type PageProps = { params: Promise<{ id: string }> };
 
 export default function CommunityPostDetailPage({ params }: PageProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { data: profile, isLoading: profileLoading } = useMyProfile();
   const { data: managedClubs = [] } = useManagedClubsForPost();
   const { id: idParam } = use(params);
@@ -400,7 +402,13 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
     setMenuOpen(false);
     setIsDeleting(true);
     deletePostMutation.mutate(undefined, {
-      onSuccess: () => router.back(),
+      onSuccess: () => {
+        router.back();
+        // 상세 페이지를 벗어난 뒤 목록 갱신 (무효화를 상세에서 하면 삭제된 글 refetch → 404 토스트)
+        setTimeout(() => {
+          queryClient.invalidateQueries({ queryKey: communityKeys.all });
+        }, 0);
+      },
       onError: () => setIsDeleting(false),
     });
   };
@@ -712,7 +720,9 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                       )}
                     </div>
                   )}
-                  <div className={`min-w-0 flex-1 ${isReply ? 'rounded-r border-l-2 border-zinc-100 pl-3 dark:border-zinc-800' : ''}`}>
+                  <div
+                    className={`min-w-0 flex-1 ${isReply ? 'relative rounded-r pl-3 before:absolute before:left-0 before:top-0 before:h-full before:w-3 before:border-l-2 before:border-t-2 before:border-zinc-100 before:block before:rounded-tl before:content-[""] dark:before:border-zinc-800' : ''}`}
+                  >
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
                         <span>{c.authorName}</span>

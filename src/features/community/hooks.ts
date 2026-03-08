@@ -232,7 +232,10 @@ export function useDeletePost(postId: number) {
   return useMutation({
     mutationFn: () => communityApi.deletePost(postId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: communityKeys.all });
+      // 삭제된 글 상세/댓글 캐시 제거. invalidate는 호출하지 않음(상세 refetch → 404 토스트 방지).
+      // 목록 갱신은 페이지에서 router.back() 후 invalidate로 처리.
+      queryClient.removeQueries({ queryKey: communityKeys.postDetail(postId) });
+      queryClient.removeQueries({ queryKey: communityKeys.comments(postId) });
     },
   });
 }

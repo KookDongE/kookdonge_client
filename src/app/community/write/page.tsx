@@ -35,7 +35,7 @@ function PhotoReorderItem({
       whileDrag={{ scale: 1.02, zIndex: 50 }}
       className="relative flex shrink-0 flex-col gap-1 rounded-xl"
     >
-      <div className="relative aspect-[3/4] w-36 overflow-hidden rounded-xl bg-zinc-200 dark:bg-zinc-700">
+      <div className="relative aspect-square w-36 overflow-hidden rounded-xl bg-zinc-200 dark:bg-zinc-700">
         <img
           src={item.preview}
           alt=""
@@ -360,7 +360,7 @@ export default function CommunityWritePage() {
               htmlFor="community-write-photo"
               className="block w-36 shrink-0 cursor-pointer"
             >
-              <span className="flex aspect-[3/4] w-36 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 text-zinc-600 transition-colors hover:border-zinc-400 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
+              <span className="flex aspect-square w-36 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 text-zinc-600 transition-colors hover:border-zinc-400 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
                 <img src="/icons/stash_image-open-light.svg" alt="" className="h-12 w-12" />
               </span>
             </label>
@@ -387,7 +387,7 @@ export default function CommunityWritePage() {
                     htmlFor="community-write-photo"
                     className="block shrink-0 cursor-pointer"
                   >
-                    <span className="flex aspect-[3/4] w-36 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 text-zinc-400 transition-colors hover:border-zinc-500 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
+                    <span className="flex aspect-square w-36 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 text-zinc-400 transition-colors hover:border-zinc-500 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
                       <img src="/icons/stash_image-open-light.svg" alt="" className="h-12 w-12" />
                     </span>
                   </label>

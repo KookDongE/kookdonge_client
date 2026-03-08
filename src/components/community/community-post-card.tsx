@@ -24,8 +24,8 @@ type CommunityPostCardProps = {
 
 /** 제목 → 본문 한 줄 → 아이콘 + 숫자 + 시간 + 작성자 */
 export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
-  const text = post.content || post.title;
-  const contentPreview = text.slice(0, 80) + (text.length > 80 ? '...' : '');
+  const bodyText = post.content?.trim() ?? '';
+  const contentPreview = bodyText.slice(0, 80) + (bodyText.length > 80 ? '...' : '');
 
   const linkContent = (
     <>
@@ -102,9 +102,9 @@ export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
           <span className="text-zinc-500 dark:text-zinc-500">{post.authorName}</span>
         </div>
       </div>
-      {/* 오른쪽: 썸네일 */}
-      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
-        {post.imageUrl ? (
+      {/* 오른쪽: 썸네일 (사진 있을 때만 표시) */}
+      {post.imageUrl ? (
+        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
           <Image
             src={post.imageUrl}
             alt=""
@@ -112,12 +112,8 @@ export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
             className="object-cover"
             sizes="64px"
           />
-        ) : (
-          <div className="flex size-full items-center justify-center text-[10px] font-medium text-zinc-400 dark:text-zinc-500">
-            {post.title.slice(0, 1)}
-          </div>
-        )}
-      </div>
+        </div>
+      ) : null}
     </>
   );
 
