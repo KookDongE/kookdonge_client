@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
 import { useSearchPosts } from '@/features/community/hooks';
+import type { CommunityPostCategory } from '@/types/api';
 import { CommunityListPageSkeleton } from '@/components/common/skeletons';
 import { CommunityPostCard } from '@/components/community/community-post-card';
 import {
@@ -13,15 +14,22 @@ import {
   type CommunitySort,
 } from '@/components/community/community-search-filter';
 
+const CATEGORY_VALUES = ['FREE', 'PROMOTION'] as const;
+function parseCategory(value: string | null): CommunityPostCategory | undefined {
+  if (value === 'FREE' || value === 'PROMOTION') return value;
+  return undefined;
+}
+
 export default function CommunitySearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const q = searchParams.get('q') ?? '';
+  const category = parseCategory(searchParams.get('category'));
   const [query, setQuery] = useState(q);
   const [sort, setSort] = useState<CommunitySort>('latest');
 
-  const posts = useSearchPosts(query, sort);
+  const posts = useSearchPosts(query, sort, category);
   const { data: profile, isLoading: profileLoading } = useMyProfile();
 
   useEffect(() => {
@@ -34,6 +42,7 @@ export default function CommunitySearchPage() {
     const params = new URLSearchParams(searchParams.toString());
     if (v.trim()) params.set('q', v.trim());
     else params.delete('q');
+    if (category && CATEGORY_VALUES.includes(category)) params.set('category', category);
     router.replace(params.toString() ? `?${params.toString()}` : '/community/search', {
       scroll: false,
     });

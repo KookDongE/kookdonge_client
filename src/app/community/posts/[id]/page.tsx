@@ -700,7 +700,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
               return (
                 <li
                   key={c.id}
-                  className={`flex gap-3 ${isReply ? 'pl-6 sm:pl-8' : ''}`}
+                  className={`flex gap-3 ${isReply ? 'relative pl-6 sm:pl-8 before:absolute before:left-0 before:top-0 before:block before:h-full before:w-6 before:border-l-2 before:border-t-2 before:border-zinc-200 before:content-[""] sm:before:w-8 dark:before:border-zinc-700' : ''}`}
                 >
                   {c.clubId != null && (
                     <div
@@ -720,9 +720,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                       )}
                     </div>
                   )}
-                  <div
-                    className={`min-w-0 flex-1 ${isReply ? 'relative rounded-r pl-3 before:absolute before:left-0 before:top-0 before:h-full before:w-3 before:border-l-2 before:border-t-2 before:border-zinc-100 before:block before:rounded-tl before:content-[""] dark:before:border-zinc-800' : ''}`}
-                  >
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
                         <span>{c.authorName}</span>
@@ -772,32 +770,34 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           </svg>
                           <span className="text-xs">{likeCount}</span>
                         </button>
-                        <button
-                          type="button"
-                          className="rounded p-1 text-sky-400/80 transition-colors hover:text-sky-400 dark:text-sky-400/70 dark:hover:text-sky-400"
-                          aria-label="답글"
-                          onClick={() => {
-                            setReplyingToCommentId(c.id);
-                            requestAnimationFrame(() => {
-                              commentTextareaRef.current?.focus();
-                            });
-                          }}
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth={1.5}
-                            className="h-4 w-4"
+                        {!isReply && (
+                          <button
+                            type="button"
+                            className="rounded p-1 text-sky-400/80 transition-colors hover:text-sky-400 dark:text-sky-400/70 dark:hover:text-sky-400"
+                            aria-label="답글"
+                            onClick={() => {
+                              setReplyingToCommentId(c.id);
+                              requestAnimationFrame(() => {
+                                commentTextareaRef.current?.focus();
+                              });
+                            }}
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
-                            />
-                          </svg>
-                        </button>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth={1.5}
+                              className="h-4 w-4"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
+                              />
+                            </svg>
+                          </button>
+                        )}
                         <div
                           className="relative"
                           ref={commentMenuOpenId === c.id ? commentMenuRef : undefined}

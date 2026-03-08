@@ -20,10 +20,12 @@ export default function CommunityPromoPage() {
   const posts = useBoardPosts('promo', '', sort);
 
   const handleSearchSubmit = (q: string) => {
-    const path = q.trim()
-      ? `/community/search?q=${encodeURIComponent(q.trim())}`
-      : '/community/search';
-    router.push(path);
+    if (!q.trim()) {
+      router.push('/community/search');
+      return;
+    }
+    const params = new URLSearchParams({ q: q.trim(), category: 'PROMOTION' });
+    router.push(`/community/search?${params.toString()}`);
   };
 
   useEffect(() => {

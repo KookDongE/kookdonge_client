@@ -26,8 +26,12 @@ export const communityKeys = {
   comments: (postId: number) => [...communityKeys.all, 'comments', postId] as const,
   popular: (params?: { page?: number; size?: number; sort?: string }) =>
     [...communityKeys.all, 'popular', params] as const,
-  search: (params: { keyword: string; page?: number; size?: number }) =>
-    [...communityKeys.all, 'search', params] as const,
+  search: (params: {
+    keyword: string;
+    category?: CommunityPostCategory;
+    page?: number;
+    size?: number;
+  }) => [...communityKeys.all, 'search', params] as const,
   myPosts: (params?: { page?: number; size?: number; sort?: string }) =>
     [...communityKeys.all, 'myPosts', params] as const,
   mySaved: (params?: { page?: number; size?: number; sort?: string }) =>
@@ -109,12 +113,17 @@ export function usePopularPosts(params?: {
 }
 
 /** 게시글 검색 (query key / refetch용) */
-function useSearchPostsQuery(keyword: string, sort: 'latest' | 'popular') {
+function useSearchPostsQuery(
+  keyword: string,
+  sort: 'latest' | 'popular',
+  category?: CommunityPostCategory
+) {
   return useQuery({
-    queryKey: communityKeys.search({ keyword, page: 0, size: 100 }),
+    queryKey: communityKeys.search({ keyword, category, page: 0, size: 100 }),
     queryFn: () =>
       communityApi.searchPosts({
         keyword,
+        category,
         page: 0,
         size: 100,
         sort: sortParam(sort),
@@ -374,12 +383,14 @@ export function useCommunitySections(query: string, sort: 'latest' | 'popular') 
   };
 }
 
-/** 검색 결과 (CommunityPost[]) */
+/** 검색 결과 (CommunityPost[]) - category: FREE면 자유만, PROMOTION이면 홍보만, 없으면 전체 */
 export function useSearchPosts(
   keyword: string,
-  sort: 'latest' | 'popular'
+  sort: 'latest' | 'popular',
+  category?: CommunityPostCategory
 ): CommunityPost[] {
-  const q = useSearchPostsQuery(keyword, sort);
+  const q = useSearchPostsQuery(keyword, sort, category);
   const raw = q.data?.content ?? [];
-  return raw.map((r) => mapPostResToPost(r, 'free'));
+  const board = category === 'PROMOTION' ? 'promo' : 'free';
+  return raw.map((r) => mapPostResToPost(r, board));
 }
