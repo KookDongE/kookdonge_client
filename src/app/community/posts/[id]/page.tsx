@@ -145,6 +145,8 @@ function CommentBarPortal({
   commentAccountOptions,
   replyingTo,
   onClearReply,
+  onSubmitComment,
+  isCommentSubmitting,
 }: {
   commentText: string;
   setCommentText: (v: string) => void;
@@ -154,6 +156,8 @@ function CommentBarPortal({
   commentAccountOptions: CommentAccountOption[];
   replyingTo: { commentId: number; authorName: string } | null;
   onClearReply: () => void;
+  onSubmitComment: () => void;
+  isCommentSubmitting: boolean;
 }) {
   const isClient = useSyncExternalStore(
     emptySubscribe,
@@ -210,8 +214,8 @@ function CommentBarPortal({
           />
           <button
             type="button"
-            onClick={handleSubmitComment}
-            disabled={!commentText.trim() || createCommentMutation.isPending}
+            onClick={onSubmitComment}
+            disabled={!commentText.trim() || isCommentSubmitting}
             className="shrink-0 rounded-full p-2 text-zinc-500 transition-opacity hover:opacity-80 dark:text-zinc-400 disabled:opacity-50"
             aria-label="댓글 등록"
           >
@@ -798,6 +802,8 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
         commentAccountOptions={commentAccountOptions}
         replyingTo={replyingTo}
         onClearReply={() => setReplyingToCommentId(null)}
+        onSubmitComment={handleSubmitComment}
+        isCommentSubmitting={createCommentMutation.isPending}
       />
     </div>
   );
