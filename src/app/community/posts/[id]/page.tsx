@@ -400,18 +400,6 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
     el.style.height = `${Math.min(el.scrollHeight, maxH)}px`;
   }, [commentText]);
 
-  /** 답글 버튼 클릭 시 입력창 포커스 (PWA에서 state 반영 후 바로 입력 가능하도록) */
-  useEffect(() => {
-    if (replyingToCommentId == null) return;
-    const t = setTimeout(() => {
-      const el = commentTextareaRef.current;
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        el.focus();
-      }
-    }, 100);
-    return () => clearTimeout(t);
-  }, [replyingToCommentId]);
 
   if (profileLoading || postLoading || (id > 0 && !post)) {
     return <CommunityPostDetailSkeleton />;
@@ -738,7 +726,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                 const replyLineClass = isReply
                   ? `relative pl-3 sm:pl-4 before:absolute before:-top-4 before:left-0 before:block before:w-px before:bg-zinc-200 before:content-[""] dark:before:bg-zinc-600/80 ${
                       isLastReplyInGroup ? 'before:h-[2rem]' : 'before:h-[calc(100%+1rem)]'
-                    } after:absolute after:left-0 after:top-3.5 after:block after:h-px after:w-2.5 after:bg-zinc-200 after:content-[""] sm:after:w-3.5 dark:after:bg-zinc-600/80`
+                    } after:absolute after:left-0 after:top-3 after:block after:h-px after:w-2 after:bg-zinc-200 after:content-[""] sm:after:w-3 dark:after:bg-zinc-600/80`
                   : '';
                 return (
                 <li
@@ -820,7 +808,19 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                             type="button"
                             className="rounded p-1 text-sky-400/80 transition-colors hover:text-sky-400 dark:text-sky-400/70 dark:hover:text-sky-400"
                             aria-label="답글"
-                            onClick={() => setReplyingToCommentId(c.id)}
+                            onClick={() => {
+                              setReplyingToCommentId(c.id);
+                              const el = commentTextareaRef.current;
+                              if (el) {
+                                el.scrollIntoView({ behavior: 'auto', block: 'end' });
+                                el.focus();
+                              } else {
+                                requestAnimationFrame(() => {
+                                  commentTextareaRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
+                                  commentTextareaRef.current?.focus();
+                                });
+                              }
+                            }}
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
