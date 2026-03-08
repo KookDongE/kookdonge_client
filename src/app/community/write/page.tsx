@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type Key } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { Input, ListBox, Select, TextArea } from '@heroui/react';
 import { Reorder, useDragControls } from 'framer-motion';
@@ -92,6 +92,8 @@ const BOARD_TYPE_OPTIONS: { value: 'promo' | 'free'; label: string }[] = [
 
 export default function CommunityWritePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get('returnTo') ?? '/community';
   const { data: profile, isLoading: profileLoading } = useMyProfile();
   const { data: managedClubs = [] } = useManagedClubsForPost();
   const createPostMutation = useCreatePost();
@@ -202,7 +204,7 @@ export default function CommunityWritePage() {
           fileUuids: fileUuids.length > 0 ? fileUuids : undefined,
         },
         {
-          onSuccess: () => router.back(),
+          onSuccess: () => router.replace(returnTo),
           onError: (e) => alert(e?.message ?? '등록에 실패했습니다.'),
           onSettled: () => setIsSubmitting(false),
         }

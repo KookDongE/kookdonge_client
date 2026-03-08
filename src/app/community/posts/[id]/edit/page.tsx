@@ -239,7 +239,7 @@ export default function CommunityPostEditPage({ params }: PageProps) {
           fileUuids: fileUuids.length > 0 ? fileUuids : undefined,
         },
         {
-          onSuccess: () => router.push(`/community/posts/${id}`),
+          onSuccess: () => router.replace(`/community/posts/${id}`),
           onError: (e) => alert(e?.message ?? '수정에 실패했습니다.'),
           onSettled: () => setIsSubmitting(false),
         }

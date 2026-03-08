@@ -725,7 +725,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                 const isMine = c.mine ?? false;
                 const replyLineClass = isReply
                   ? `relative pl-3 sm:pl-4 before:absolute before:-top-4 before:left-0 before:block before:w-px before:bg-zinc-200 before:content-[""] dark:before:bg-zinc-600/80 ${
-                      isLastReplyInGroup ? 'before:h-[2rem]' : 'before:h-[calc(100%+1rem)]'
+                      isLastReplyInGroup ? 'before:h-[1.75rem]' : 'before:h-[calc(100%+1rem)]'
                     } after:absolute after:left-0 after:top-3 after:block after:h-px after:w-2 after:bg-zinc-200 after:content-[""] sm:after:w-3 dark:after:bg-zinc-600/80`
                   : '';
                 return (

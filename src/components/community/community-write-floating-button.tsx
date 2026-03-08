@@ -1,7 +1,7 @@
 'use client';
 
 import { useSyncExternalStore } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 import { Button } from '@heroui/react';
 
@@ -12,6 +12,7 @@ const emptySubscribe = () => () => {};
 /** 앱 뷰 안에서만 보이도록 body 포탈 없이 인라인 렌더 (app-shell의 max-w-md overflow-hidden에 의해 웹에서 앱 열 밖은 잘림). 풀리프레시/스크롤과 무관하게 항상 표시 */
 export function CommunityWriteFloatingButton() {
   const router = useRouter();
+  const pathname = usePathname();
   const isClient = useSyncExternalStore(
     emptySubscribe,
     () => true,
@@ -19,6 +20,9 @@ export function CommunityWriteFloatingButton() {
   );
 
   if (!isClient) return null;
+
+  const hrefWithReturn =
+    WRITE_HREF + (pathname ? `?returnTo=${encodeURIComponent(pathname)}` : '');
 
   return (
     <div
@@ -29,7 +33,7 @@ export function CommunityWriteFloatingButton() {
         size="sm"
         className="min-w-0 rounded-full px-4 py-2 text-sm font-semibold"
         variant="primary"
-        onPress={() => router.push(WRITE_HREF)}
+        onPress={() => router.push(hrefWithReturn)}
       >
         글쓰기
       </Button>
