@@ -35,7 +35,7 @@ export type CommunityPost = {
   popular?: boolean;
 };
 
-/** API 목록 응답 → UI CommunityPost (content 없음, 목록 카드용) */
+/** API 목록 응답 → UI CommunityPost (목록에도 content 포함 시 본문 미리보기 표시, Swagger 참고) */
 export function mapPostResToPost(
   res: CommunityPostRes,
   boardType: BoardType = res.postCategory === 'PROMOTION' ? 'promo' : 'free'
@@ -44,7 +44,7 @@ export function mapPostResToPost(
     id: res.postId,
     boardType,
     title: res.title,
-    content: '',
+    content: res.content ?? '',
     authorName: res.authorName,
     authorId: 0,
     createdAt: res.createdAt,

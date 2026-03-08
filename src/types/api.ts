@@ -568,6 +568,8 @@ export type CommunityPostRes = {
   clubId?: number;
   authorName: string;
   title: string;
+  /** 게시글 내용 (목록 조회 시에도 반환, Swagger 참고) */
+  content?: string;
   likeCount: number;
   commentCount: number;
   saveCount: number;
