@@ -61,14 +61,11 @@ function preventBreakAfterQuestion(text: string): string {
 
 const SWIPE_THRESHOLD = 50;
 
-/** 상세조회 전용 배너 풀 (페이지 로드 시 하나 랜덤 표시). 새 배너는 public/banner에 넣고 아래 배열에 경로 추가 */
+/** 상세조회 전용 배너 풀 (커뮤 홈 배너와 별도). 로드 시 랜덤 1장 표시 */
 const DETAIL_VIEW_BANNERS = [
   '/banner/detail.png',
-  '/banner/1.png',
-  '/banner/2.png',
-  '/banner/3.png',
-  // '/banner/naver-store.png',  // 네이버+ 스토어 앱 배너 추가 시 주석 해제
-  // '/banner/point-event.png',  // 꽁포인트 이벤트 배너 추가 시 주석 해제
+  '/banner/detail-point.png',
+  '/banner/detail-store.png',
 ] as const;
 
 /** 액션 바 ~ 댓글 사이 배너 (상세조회 전용, 풀에서 랜덤 1장) */
