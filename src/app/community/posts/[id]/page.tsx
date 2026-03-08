@@ -243,7 +243,7 @@ function CommentBarPortal({
             type="button"
             onClick={onSubmitComment}
             disabled={!commentText.trim() || isCommentSubmitting}
-            className="shrink-0 rounded-full p-2 text-zinc-500 transition-opacity hover:opacity-80 dark:text-zinc-400 disabled:opacity-50"
+            className="shrink-0 rounded-full bg-transparent p-2 text-zinc-500 transition-opacity hover:opacity-80 dark:bg-zinc-800 dark:text-zinc-400 disabled:opacity-50"
             aria-label="댓글 등록"
           >
             <svg
@@ -851,7 +851,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                     </div>
                   </div>
                   <div className="min-w-0 w-full -mt-3">
-                    <p className="mt-3 min-w-0 w-full pl-0.5 pb-1.5 break-all break-words text-sm font-normal text-zinc-600 dark:text-zinc-400">{preventBreakAfterQuestion(root.content)}</p>
+                    <p className="mt-3 min-w-0 w-full pl-0.5 pr-3 pb-1.5 break-all break-words text-sm font-normal text-zinc-600 dark:text-zinc-400">{preventBreakAfterQuestion(root.content)}</p>
                   </div>
                 </div>
                 {/* 답글들: 왼쪽 화살표로 답글 표시 */}
@@ -942,7 +942,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           </div>
                         </div>
                         <div className="min-w-0 w-full -mt-3">
-                          <p className="mt-3 min-w-0 w-full pl-0.5 pb-1.5 break-all break-words text-sm font-normal text-zinc-600 dark:text-zinc-400">{preventBreakAfterQuestion(reply.content)}</p>
+                          <p className="mt-3 min-w-0 w-full pl-0.5 pr-3 pb-1.5 break-all break-words text-sm font-normal text-zinc-600 dark:text-zinc-400">{preventBreakAfterQuestion(reply.content)}</p>
                         </div>
                       </div>
                     </div>
