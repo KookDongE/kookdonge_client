@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useMyProfile } from '@/features/auth/hooks';
-import { isSystemAdmin } from '@/features/auth/permissions';
 import { useMyPosts } from '@/features/community/hooks';
 import { CommunityListPageSkeleton } from '@/components/common/skeletons';
 import { CommunityPostCard } from '@/components/community/community-post-card';
@@ -34,14 +33,7 @@ export default function CommunityMyPostsPage() {
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
 
-  useEffect(() => {
-    if (profileLoading) return;
-    if (profile && !isSystemAdmin(profile)) {
-      router.replace('/home');
-    }
-  }, [profile, profileLoading, router]);
-
-  if (profileLoading || (profile && !isSystemAdmin(profile))) {
+  if (profileLoading) {
     return <CommunityListPageSkeleton />;
   }
 

@@ -131,11 +131,11 @@ export function BottomNav() {
     [pathname]
   );
 
-  // 순서: 홈 → 커뮤니티(관리자만) → 마이 → 관리자(관리자만)
+  // 순서: 홈 → 커뮤니티 → 마이 → 관리자(관리자만)
   const allNavItems = useMemo<NavItem[]>(
     () => [
       HOME_ITEM,
-      ...(isAdmin ? [COMMUNITY_ITEM] : []),
+      COMMUNITY_ITEM,
       MYPAGE_ITEM,
       ...(isAdmin ? [ADMIN_ITEM] : []),
     ],

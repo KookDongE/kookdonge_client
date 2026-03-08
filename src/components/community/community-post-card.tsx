@@ -39,7 +39,7 @@ export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
         </p>
         <div className="mt-2 flex items-center gap-3 text-[12px] text-zinc-500 dark:text-zinc-500">
           <span
-            className="flex items-center gap-1 text-red-400/80 dark:text-red-400/70"
+            className="flex items-center gap-1 text-red-500/90 dark:text-red-500/85"
             aria-label={`좋아요 ${post.likeCount}개`}
           >
             <svg
@@ -59,7 +59,7 @@ export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
             {post.likeCount}
           </span>
           <span
-            className="flex items-center gap-1 text-amber-400/80 dark:text-amber-400/70"
+            className="flex items-center gap-1 text-amber-500/90 dark:text-amber-500/85"
             aria-label={`저장 ${post.saveCount}개`}
           >
             <svg

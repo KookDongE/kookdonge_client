@@ -1,11 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { useMyProfile } from '@/features/auth/hooks';
-import { isSystemAdmin } from '@/features/auth/permissions';
 import { CommunityHomeSkeleton } from '@/components/common/skeletons';
 import { CommunitySearchInputRow } from '@/components/community/community-search-filter';
 
@@ -125,14 +124,7 @@ export default function AdminCommunityPage() {
     }
   };
 
-  useEffect(() => {
-    if (profileLoading) return;
-    if (profile && !isSystemAdmin(profile)) {
-      router.replace('/home');
-    }
-  }, [profile, profileLoading, router]);
-
-  if (profileLoading || (profile && !isSystemAdmin(profile))) {
+  if (profileLoading) {
     return <CommunityHomeSkeleton />;
   }
 

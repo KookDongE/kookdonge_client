@@ -386,6 +386,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
   const handleLike = () => {
     const currentLiked = likedOverride !== null ? likedOverride : (post.liked ?? false);
     if (currentLiked) return; // 한 번 좋아요하면 취소 불가
+    if (!confirm('좋아요를 누르시겠습니까?')) return;
     setLikedOverride(true);
     likePostMutation.mutate(undefined, {
       onError: () => setLikedOverride(null),
@@ -599,7 +600,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
             type="button"
             onClick={handleLike}
             disabled={likePostMutation.isPending}
-            className="flex items-center gap-1.5 text-sm text-red-400/80 transition-opacity hover:opacity-80 dark:text-red-400/70 disabled:opacity-50"
+            className="flex items-center gap-1.5 text-sm text-red-500/90 transition-opacity hover:opacity-80 dark:text-red-500/85 disabled:opacity-50"
             aria-label={liked ? '공감 취소' : '공감'}
           >
             <svg
@@ -622,7 +623,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
             type="button"
             onClick={handleSave}
             disabled={savePostMutation.isPending || unsavePostMutation.isPending}
-            className="flex items-center gap-1.5 text-sm text-amber-400/80 transition-opacity hover:opacity-80 dark:text-amber-400/70 disabled:opacity-50"
+            className="flex items-center gap-1.5 text-sm text-amber-500/90 transition-opacity hover:opacity-80 dark:text-amber-500/85 disabled:opacity-50"
             aria-label={saved ? '저장 취소' : '저장'}
           >
             <svg
@@ -700,7 +701,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
               return (
                 <li
                   key={c.id}
-                  className={`flex gap-3 ${isReply ? 'relative pl-6 sm:pl-8 before:absolute before:left-0 before:top-0 before:block before:h-full before:w-6 before:border-l-2 before:border-t-2 before:border-zinc-200 before:content-[""] sm:before:w-8 dark:before:border-zinc-700' : ''}`}
+                  className={`flex gap-3 ${isReply ? 'relative pl-6 sm:pl-8 before:absolute before:left-0 before:bottom-0 before:block before:h-full before:w-6 before:border-b-2 before:border-l-2 before:rounded-bl before:border-zinc-200 before:content-[""] sm:before:w-8 dark:before:border-zinc-700' : ''}`}
                 >
                   {c.clubId != null && (
                     <div
@@ -734,10 +735,11 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                       <div className="flex shrink-0 items-center gap-0.5">
                         <button
                           type="button"
-                          className="flex items-center gap-0.5 rounded p-1 transition-opacity hover:opacity-80 text-red-400/80 dark:text-red-400/70"
+                          className="flex items-center gap-0.5 rounded p-1 transition-opacity hover:opacity-80 text-red-500/90 dark:text-red-500/85"
                           aria-label={`좋아요 ${likeCount}개`}
                           onClick={() => {
                             if (liked) return; // 한 번 좋아요하면 취소 불가
+                            if (!confirm('좋아요를 누르시겠습니까?')) return;
                             setCommentLikedByMe((prev) => ({ ...prev, [c.id]: true }));
                             setCommentLikeOverrides((prev) => ({
                               ...prev,

@@ -22,10 +22,14 @@ function typeLabel(type: string): string {
     CLUB_DELETE_REQUEST: '동아리 삭제 신청',
     CLUB_DELETE_APPROVED: '동아리 삭제 승인',
     CLUB_DELETE_REJECTED: '동아리 삭제 반려',
+    CLUB_MEMBER_ADDED: '관리 권한 부여',
     QNA_QUESTION_CREATED: '새 질문',
     QNA_ANSWER_CREATED: '답변 등록',
     RECRUITMENT_START: '모집 시작',
     RECRUITMENT_DEADLINE: '모집 마감 임박',
+    COMMUNITY_COMMENT: '댓글',
+    COMMUNITY_REPLY: '답글',
+    COMMUNITY_POPULAR: '인기글',
   };
   return labels[type] ?? type;
 }
@@ -38,10 +42,14 @@ function typeBadgeColor(type: string): string {
     CLUB_DELETE_REQUEST: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
     CLUB_DELETE_APPROVED: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
     CLUB_DELETE_REJECTED: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+    CLUB_MEMBER_ADDED: 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300',
     QNA_QUESTION_CREATED: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
     QNA_ANSWER_CREATED: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
     RECRUITMENT_START: 'bg-lime-100 text-lime-700 dark:bg-lime-900/40 dark:text-lime-300',
     RECRUITMENT_DEADLINE: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+    COMMUNITY_COMMENT: 'bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300',
+    COMMUNITY_REPLY: 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300',
+    COMMUNITY_POPULAR: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
   };
   return colors[type] ?? 'bg-zinc-100 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300';
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type Key } from 'react';
+import { useState, type Key } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { Input, ListBox, Select, TextArea } from '@heroui/react';
@@ -10,7 +10,6 @@ import { IMAGE_ACCEPT_ATTR, validateImageFile } from '@/lib/image-upload-validat
 import { useMyProfile } from '@/features/auth/hooks';
 import { useCreatePost, useManagedClubsForPost } from '@/features/community/hooks';
 import { getPresignedUrl, registerFileUpload } from '@/features/community/api';
-import { isSystemAdmin } from '@/features/auth/permissions';
 import { FormPageSkeleton } from '@/components/common/skeletons';
 
 /** 사진 한 칸: id(Reorder용) + file + preview */
@@ -103,13 +102,6 @@ export default function CommunityWritePage() {
   const [content, setContent] = useState('');
   const [photoItems, setPhotoItems] = useState<PhotoItem[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (profileLoading) return;
-    if (profile && !isSystemAdmin(profile)) {
-      router.replace('/home');
-    }
-  }, [profile, profileLoading, router]);
 
   const accountOptions = [
     { key: 'anonymous', label: '익명' },
@@ -221,7 +213,7 @@ export default function CommunityWritePage() {
     }
   };
 
-  if (profileLoading || (profile && !isSystemAdmin(profile))) {
+  if (profileLoading) {
     return (
       <div className="min-h-screen bg-white dark:bg-zinc-900">
         <FormPageSkeleton />

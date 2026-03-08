@@ -18,10 +18,11 @@ function isHeaderHidden(pathname: string): boolean {
   if (pathname.startsWith('/login/') || pathname.startsWith('/welcome/')) return true;
   if (pathname.includes('/feed')) return true;
   if (/^\/mypage\/clubs\/[^/]+\/delete-request$/.test(pathname)) return true; // 동아리 삭제 신청
+  if (/^\/community\/posts\/[^/]+\/edit$/.test(pathname)) return true; // 커뮤니티 글 수정
   return false;
 }
 
-/** 풀투리프레시 비활성화 경로 (피드 상세, 피드 생성/수정, 버그 신고, 동아리 신청, 설정, 알림설정, 글쓰기만 — 커뮤니티 메인·인기/홍보/자유 등 하위는 풀투리프레시 가능) */
+/** 풀투리프레시 비활성화 경로 (피드 상세, 피드 생성/수정, 버그 신고, 동아리 신청, 설정, 알림설정, 글쓰기·글수정 — 커뮤니티 메인·인기/홍보/자유 등 하위는 풀투리프레시 가능) */
 const PULL_TO_REFRESH_DISABLED_PATHS = [
   /^\/clubs\/[^/]+\/feed$/, // 피드 상세
   /^\/mypage\/clubs\/[^/]+\/manage\/feed\/new$/, // 피드 생성
@@ -30,10 +31,11 @@ const PULL_TO_REFRESH_DISABLED_PATHS = [
   /^\/mypage\/clubs\/apply$/, // 동아리 신청
   /^\/mypage\/settings(\/|$)/, // 설정 (메인·이름변경·버그신고 등 하위 포함)
   /^\/mypage\/notification-settings(\/|$)/, // 알림설정
-  /^\/community\/write$/, // 커뮤니티 글쓰기 — 풀투리프레시 비활성
+  /^\/community\/write$/, // 커뮤니티 글쓰기
+  /^\/community\/posts\/[^/]+\/edit$/, // 커뮤니티 글 수정
 ];
 
-/** 메인 스크롤 비활성화 경로 (동아리 신청, 피드 추가/수정, 설정 메인만, 알림설정, 관리자 메인만, 커뮤니티 메인·글쓰기 — 하위 페이지는 스크롤 가능) */
+/** 메인 스크롤 비활성화 경로 (동아리 신청, 피드 추가/수정, 설정 메인만, 알림설정, 관리자 메인만, 커뮤니티 메인·글쓰기·글수정 — 하위 페이지는 스크롤 가능) */
 const SCROLL_DISABLED_PATHS = [
   /^\/mypage\/clubs\/apply$/,
   /^\/mypage\/clubs\/[^/]+\/manage\/feed\/new$/, // 피드 추가
@@ -43,6 +45,7 @@ const SCROLL_DISABLED_PATHS = [
   /^\/admin\/?$/, // 관리자 메인만 (trailing slash 포함)
   /^\/community\/?$/, // 커뮤니티 메인만, 하위(/community/popular 등)는 스크롤 가능. trailing slash 포함.
   /^\/community\/write$/, // 글쓰기 페이지 스크롤 비활성
+  /^\/community\/posts\/[^/]+\/edit$/, // 글 수정 페이지 스크롤 비활성
 ];
 
 function isFullScreenPath(pathname: string): boolean {
