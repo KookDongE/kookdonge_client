@@ -515,10 +515,33 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
               )}
             </div>
           )}
-          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-xs text-zinc-500 dark:text-zinc-400">
             <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{post.authorName}</span>
             <span>{formatDate(post.createdAt)}</span>
           </div>
+          {post.clubId != null && (
+            <button
+              type="button"
+              onClick={() => router.push(`/clubs/${post.clubId}`)}
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+              aria-label="동아리 상세 보기"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                className="h-4 w-4 rotate-180"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 19.5L8.25 12l7.5-7.5"
+                />
+              </svg>
+            </button>
+          )}
           <div className="relative shrink-0" ref={menuRef}>
             <button
               type="button"
@@ -743,7 +766,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-                        <span className={`text-sm font-medium ${root.mine ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}>{root.authorName}{root.mine && !root.authorName.includes('(글쓴이)') ? ' (글쓴이)' : ''}</span>
+                        <span className={`text-sm font-medium ${root.mine ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}>{root.authorName.replace(/([^\s])\(글쓴이\)/, '$1 (글쓴이)')}{root.mine && !root.authorName.includes('(글쓴이)') ? ' (글쓴이)' : ''}</span>
                       </div>
                       <div className="flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-700">
                         <button
@@ -856,7 +879,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-                              <span className={`text-sm font-medium ${isMine ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}>{reply.authorName}{isMine && !reply.authorName.includes('(글쓴이)') ? ' (글쓴이)' : ''}</span>
+                              <span className={`text-sm font-medium ${isMine ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}>{reply.authorName.replace(/([^\s])\(글쓴이\)/, '$1 (글쓴이)')}{isMine && !reply.authorName.includes('(글쓴이)') ? ' (글쓴이)' : ''}</span>
                             </div>
                             <div className="flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-700">
                               <button
