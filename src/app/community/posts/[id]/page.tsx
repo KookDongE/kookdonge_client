@@ -878,7 +878,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                       className="relative flex gap-2 pl-5 pt-3 sm:pl-7"
                       data-comment-id={reply.id}
                     >
-                      <span className="absolute left-1 top-4 z-[1] flex h-5 w-5 shrink-0 items-center justify-center text-zinc-400 dark:text-zinc-500" aria-hidden>
+                      <span className="absolute left-0 top-4 z-[1] flex h-5 w-5 shrink-0 items-center justify-center text-zinc-400 dark:text-zinc-500" aria-hidden>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="stroke-current">
                           <path d="M16 19L21 14L16 9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                           <path d="M21 14H13C7.477 14 3 9.523 3 4V3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
