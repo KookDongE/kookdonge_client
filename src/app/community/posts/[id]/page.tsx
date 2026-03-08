@@ -59,7 +59,7 @@ function PostDetailBanner() {
     []
   );
   return (
-    <div className="relative w-full aspect-[2560/423] shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800/50" aria-hidden>
+    <div className="-mt-4 relative w-full aspect-[1855/453] shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800/50" aria-hidden>
       <Image src={src} alt="" fill className="object-cover" sizes="(max-width: 448px) 100vw, 448px" />
     </div>
   );
@@ -637,7 +637,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
         )}
 
         {/* 액션 바: 공감 | 댓글 N | 스크랩 (가로 3등분) */}
-        <div className="-mx-4 mt-6 flex items-center border-t border-zinc-200 px-4 pt-4 dark:border-zinc-700">
+        <div className="-mx-4 mt-6 flex items-center border-t border-zinc-200 px-4 py-5 dark:border-zinc-700">
           <button
             type="button"
             onClick={handleLike}

@@ -77,7 +77,9 @@ export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
               {post.commentCount}
             </span>
           )}
-          <span className="h-2 w-px shrink-0 self-center bg-zinc-300 dark:bg-zinc-600" aria-hidden />
+          {(post.likeCount > 0 || post.saveCount > 0 || post.commentCount > 0) && (
+            <span className="h-2 w-px shrink-0 self-center bg-zinc-300 dark:bg-zinc-600" aria-hidden />
+          )}
           <span className="text-zinc-500 dark:text-zinc-500">{formatDate(post.createdAt)}</span>
           <span className="h-2 w-px shrink-0 self-center bg-zinc-300 dark:bg-zinc-600" aria-hidden />
           <span className="text-zinc-500 dark:text-zinc-500">{post.authorName}</span>
