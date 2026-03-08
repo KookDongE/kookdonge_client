@@ -216,7 +216,7 @@ function CommentBarPortal({
         <div className="comment-input-wrap relative flex min-w-0 flex-1 items-end overflow-visible rounded-lg border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
           {commentText.trim().length === 0 && (
             <select
-              className="shrink-0 rounded-l-md border-0 bg-transparent py-2.5 pr-6 pl-3 text-sm text-zinc-900 focus:ring-0 focus:outline-none dark:text-zinc-100"
+              className="shrink-0 rounded-l-md border-0 bg-transparent py-2.5 pr-4 pl-3 text-sm text-zinc-900 focus:ring-0 focus:outline-none dark:text-zinc-100"
               aria-label="댓글 작성 계정 선택"
               title="계정 선택"
               value={commentAccountKey}
@@ -851,7 +851,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                     </div>
                   </div>
                   <div className="min-w-0 w-full -mt-3">
-                    <p className="mt-3 min-w-0 w-full pl-0.5 pb-1.5 pr-[5.75rem] break-all break-words text-sm font-normal text-zinc-600 dark:text-zinc-400">{preventBreakAfterQuestion(root.content)}</p>
+                    <p className="mt-3 min-w-0 w-full pl-0.5 pb-1.5 pr-[6.5rem] break-all break-words text-sm font-normal text-zinc-600 dark:text-zinc-400">{preventBreakAfterQuestion(root.content)}</p>
                   </div>
                 </div>
                 {/* 답글들: 왼쪽 화살표로 답글 표시 */}
@@ -942,7 +942,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           </div>
                         </div>
                         <div className="min-w-0 w-full -mt-3">
-                          <p className="mt-3 min-w-0 w-full pl-0.5 pb-1.5 pr-[5.75rem] break-all break-words text-sm font-normal text-zinc-600 dark:text-zinc-400">{preventBreakAfterQuestion(reply.content)}</p>
+                          <p className="mt-3 min-w-0 w-full pl-0.5 pb-1.5 pr-[6.5rem] break-all break-words text-sm font-normal text-zinc-600 dark:text-zinc-400">{preventBreakAfterQuestion(reply.content)}</p>
                         </div>
                       </div>
                     </div>
