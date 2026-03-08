@@ -1,6 +1,7 @@
 'use client';
 
 import { use, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { useQueries, useQueryClient } from '@tanstack/react-query';
@@ -48,6 +49,21 @@ function formatCommentTime(iso: string): string {
 }
 
 const SWIPE_THRESHOLD = 50;
+
+const BANNER_IMAGES = ['/banner/1.png', '/banner/2.png', '/banner/3.png'];
+
+/** 액션 바 ~ 댓글 사이 배너 (배너 이미지 중 하나 랜덤 표시) */
+function PostDetailBanner() {
+  const src = useMemo(
+    () => BANNER_IMAGES[Math.floor(Math.random() * BANNER_IMAGES.length)],
+    []
+  );
+  return (
+    <div className="relative w-full aspect-[2560/423] shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800/50" aria-hidden>
+      <Image src={src} alt="" fill className="object-cover" sizes="(max-width: 448px) 100vw, 448px" />
+    </div>
+  );
+}
 
 /** 이미지 확대 라이트박스: 가로 스와이프·좌우 버튼으로 이전/다음 이미지 */
 function ImageLightbox({
@@ -621,7 +637,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
         )}
 
         {/* 액션 바: 공감 | 댓글 N | 스크랩 (가로 3등분) */}
-        <div className="mt-6 flex items-center border-t border-zinc-200 px-4 pt-4 dark:border-zinc-700">
+        <div className="-mx-4 mt-6 flex items-center border-t border-zinc-200 px-4 pt-4 dark:border-zinc-700">
           <button
             type="button"
             onClick={handleLike}
@@ -675,8 +691,8 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
         </div>
       </article>
 
-      {/* 액션 바 ~ 댓글 사이 가로 꽉찬 배너 (1546:423 비율, 이미지 추후 적용) */}
-      <div className="w-full aspect-[1546/423] shrink-0 bg-zinc-100 dark:bg-zinc-800/50" aria-hidden />
+      {/* 액션 바 ~ 댓글 사이 가로 꽉찬 배너 (배너 이미지 중 랜덤) */}
+      <PostDetailBanner />
 
       {/* 첨부 사진 확대 보기 오버레이 (가로 스와이프·좌우 버튼으로 이전/다음) */}
       {post.imageUrls && expandedImageIndex !== null && (
@@ -728,7 +744,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                         <span>{root.authorName}</span>
                         <span>{formatCommentTime(root.createdAt)}</span>
                       </div>
-                      <div className="flex shrink-0 items-center gap-0.5 rounded-md bg-zinc-100 px-1 py-0.5">
+                      <div className="flex shrink-0 items-center gap-0.5 rounded-md bg-zinc-100 px-1 py-0.5 pr-7">
                         <button
                           type="button"
                           className={`flex items-center gap-0.5 rounded p-0.5 transition-opacity hover:opacity-80 ${(commentLikedByMe[root.id] ?? root.liked ?? false) ? 'text-red-500/90 dark:text-red-500/85' : 'text-zinc-500 dark:text-zinc-500'}`}
@@ -808,7 +824,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                       className="relative flex gap-3 pl-8 pt-3 sm:pl-10"
                       data-comment-id={reply.id}
                     >
-                      <span className="absolute left-1.5 top-6 z-[1] flex h-5 w-5 shrink-0 items-center justify-center text-zinc-400 dark:text-zinc-500" aria-hidden>
+                      <span className="absolute left-3 top-4 z-[1] flex h-5 w-5 shrink-0 items-center justify-center text-zinc-400 dark:text-zinc-500" aria-hidden>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="stroke-current">
                           <path d="M16 19L21 14L16 9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                           <path d="M21 14H13C7.477 14 3 9.523 3 4V3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
