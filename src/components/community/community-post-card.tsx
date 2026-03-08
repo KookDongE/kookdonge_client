@@ -2,7 +2,9 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
+import { saveCommunityListScroll } from '@/features/community/hooks';
 import type { CommunityPost } from '@/features/community/types';
 
 function formatDate(iso: string): string {
@@ -24,8 +26,12 @@ type CommunityPostCardProps = {
 
 /** 제목 → 본문 한 줄 → 아이콘 + 숫자 + 시간 + 작성자 */
 export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
+  const pathname = usePathname();
   const bodyText = post.content?.trim() ?? '';
   const contentPreview = bodyText.slice(0, 80) + (bodyText.length > 80 ? '...' : '');
+  const handleNavigate = () => {
+    if (pathname) saveCommunityListScroll(pathname);
+  };
 
   const linkContent = (
     <>
@@ -102,7 +108,11 @@ export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
   return (
     <article className="flex items-start gap-3 border-b border-zinc-100 px-4 py-3 dark:border-zinc-800">
       {boardHref ? (
-        <Link href={boardHref} className="flex min-w-0 flex-1 gap-3">
+        <Link
+          href={boardHref}
+          className="flex min-w-0 flex-1 gap-3"
+          onClick={handleNavigate}
+        >
           {linkContent}
         </Link>
       ) : (

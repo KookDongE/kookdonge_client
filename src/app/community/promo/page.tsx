@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useMyProfile } from '@/features/auth/hooks';
-import { useBoardPosts } from '@/features/community/hooks';
+import { useBoardPosts, useRestoreCommunityListScroll } from '@/features/community/hooks';
 import { CommunityListPageSkeleton } from '@/components/common/skeletons';
 import { CommunityPostCard } from '@/components/community/community-post-card';
 import {
@@ -15,6 +15,7 @@ export default function CommunityPromoPage() {
   const router = useRouter();
   const { data: profile, isLoading: profileLoading } = useMyProfile();
   const [sort, setSort] = useState<CommunitySort>('latest');
+  useRestoreCommunityListScroll();
 
   const posts = useBoardPosts('promo', '', sort);
 

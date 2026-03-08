@@ -626,7 +626,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
             type="button"
             onClick={handleLike}
             disabled={likePostMutation.isPending}
-            className={`flex w-full items-center justify-center gap-1.5 text-sm transition-opacity hover:opacity-80 disabled:opacity-50 ${liked ? 'text-red-500/90 dark:text-red-500/85' : 'text-zinc-500 dark:text-zinc-500'}`}
+            className={`flex w-full items-center justify-center gap-1.5 text-sm transition-none hover:opacity-80 disabled:opacity-50 ${liked ? 'text-red-500/90 dark:text-red-500/85' : 'text-zinc-500 dark:text-zinc-500'}`}
             aria-label={liked ? '공감 취소' : '공감'}
           >
             <svg
@@ -658,7 +658,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
             type="button"
             onClick={handleSave}
             disabled={savePostMutation.isPending || unsavePostMutation.isPending}
-            className={`flex w-full items-center justify-center gap-1.5 text-sm transition-opacity hover:opacity-80 disabled:opacity-50 ${saved ? 'text-amber-500/90 dark:text-amber-500/85' : 'text-zinc-500 dark:text-zinc-500'}`}
+            className={`flex w-full items-center justify-center gap-1.5 text-sm transition-none hover:opacity-80 disabled:opacity-50 ${saved ? 'text-amber-500/90 dark:text-amber-500/85' : 'text-zinc-500 dark:text-zinc-500'}`}
             aria-label={saved ? '저장 취소' : '스크랩'}
           >
             <svg
@@ -686,7 +686,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
       )}
 
       {/* 댓글 목록 (개수는 상단 액션 바 '댓글 N'에 표시) */}
-      <section className="mt-6 border-t border-zinc-100 px-4 py-4 dark:border-zinc-800">
+      <section className="mt-4 border-t border-zinc-100 px-4 py-4 dark:border-zinc-800">
         {comments.length === 0 ? (
           <p className="py-6 text-center text-sm text-zinc-400 dark:text-zinc-500">
             댓글이 없습니다.
@@ -704,15 +704,24 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                 const liked = commentLikedByMe[c.id] ?? (c.liked ?? false);
                 const isMine = c.mine ?? false;
                 const replyLineClass = isReply
-                  ? `relative pl-6 sm:pl-8 before:absolute before:-top-10 before:left-4 before:block before:w-px before:bg-zinc-200 before:content-[""] dark:before:bg-zinc-600/80 ${
-                      isLastReplyInGroup ? 'before:h-[3.5rem]' : 'before:h-[calc(100%+3.5rem)]'
-                    } after:absolute after:left-4 after:top-4 after:block after:h-px after:w-3 after:bg-zinc-200 after:content-[""] sm:after:w-4 dark:after:bg-zinc-600/80`
+                  ? `relative pl-6 sm:pl-8 before:absolute before:-top-16 before:left-4 before:z-[0] before:block before:w-px before:bg-zinc-200 before:content-[""] dark:before:bg-zinc-600/80 ${
+                      isLastReplyInGroup ? 'before:h-[5rem]' : 'before:h-[calc(100%+5rem)]'
+                    } after:absolute after:left-4 after:top-4 after:z-[0] after:block after:h-px after:w-3 after:bg-zinc-200 after:content-[""] sm:after:w-4 dark:after:bg-zinc-600/80`
+                  : '';
+                /** 원댓글끼리만 구분선: 두 번째 이후 원댓글 위에만 상단 보더 */
+                const rootCommentDividerClass =
+                  !isReply && index > 0
+                    ? 'border-t border-zinc-200 pt-4 dark:border-zinc-700'
+                    : '';
+                /** 답글만 연한 회색 배경 */
+                const replyBgClass = isReply
+                  ? 'rounded-lg bg-zinc-50 py-2 -mx-4 pr-4 dark:bg-zinc-800/50'
                   : '';
                 return (
                 <li
                   key={c.id}
                   data-comment-id={c.id}
-                  className={`flex gap-3 ${replyLineClass}`}
+                  className={`flex gap-3 ${replyLineClass} ${rootCommentDividerClass} ${replyBgClass}`}
                 >
                   <div
                     className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
@@ -872,7 +881,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                         </div>
                       </div>
                     </div>
-                    <p className="mt-1.5 text-sm font-normal text-zinc-600 dark:text-zinc-400">{c.content}</p>
+                    <p className="mt-2.5 text-sm font-normal text-zinc-600 dark:text-zinc-400">{c.content}</p>
                   </div>
                 </li>
                 );

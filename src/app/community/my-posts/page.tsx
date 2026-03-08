@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useMyProfile } from '@/features/auth/hooks';
-import { useMyPosts } from '@/features/community/hooks';
+import { useMyPosts, useRestoreCommunityListScroll } from '@/features/community/hooks';
 import { CommunityListPageSkeleton } from '@/components/common/skeletons';
 import { CommunityPostCard } from '@/components/community/community-post-card';
 import {
@@ -17,6 +17,7 @@ export default function CommunityMyPostsPage() {
   const { data: profile, isLoading: profileLoading } = useMyProfile();
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<CommunitySort>('latest');
+  useRestoreCommunityListScroll();
 
   const myPosts = useMyPosts({ sort });
   const filtered = query.trim()

@@ -1,5 +1,7 @@
 'use client';
 
+import { useLayoutEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import type { CommunityPostCategory } from '@/types/api';
@@ -387,4 +389,35 @@ export function useSearchPosts(
   const raw = q.data?.content ?? [];
   const board = category === 'PROMOTION' ? 'promo' : 'free';
   return raw.map((r) => mapPostResToPost(r, board));
+}
+
+const COMMUNITY_LIST_SCROLL_KEY = 'community-list-scroll';
+
+/** 글 상세에서 뒤로가기 시 목록 스크롤 복원: 목록 페이지에서 호출 */
+export function useRestoreCommunityListScroll(): void {
+  const pathname = usePathname();
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined' || !pathname) return;
+    const key = `${COMMUNITY_LIST_SCROLL_KEY}-${pathname}`;
+    const saved = sessionStorage.getItem(key);
+    if (saved === null) return;
+    sessionStorage.removeItem(key);
+    const scrollTop = parseInt(saved, 10);
+    if (!Number.isFinite(scrollTop) || scrollTop <= 0) return;
+    const el = document.querySelector('[data-scroll-container]') as HTMLElement | null;
+    if (!el) return;
+    const rafId = requestAnimationFrame(() => {
+      el.scrollTop = scrollTop;
+    });
+    return () => cancelAnimationFrame(rafId);
+  }, [pathname]);
+}
+
+/** 목록 → 상세 이동 시 현재 스크롤 저장 (CommunityPostCard의 Link에서 호출) */
+export function saveCommunityListScroll(pathname: string | null): void {
+  if (typeof window === 'undefined' || !pathname) return;
+  const el = document.querySelector('[data-scroll-container]') as HTMLElement | null;
+  if (!el) return;
+  const key = `${COMMUNITY_LIST_SCROLL_KEY}-${pathname}`;
+  sessionStorage.setItem(key, String(el.scrollTop));
 }

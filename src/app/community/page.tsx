@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 
 import { useMyProfile } from '@/features/auth/hooks';
 import { CommunityHomeSkeleton } from '@/components/common/skeletons';
+import { CommunityBannerCarousel } from '@/components/community/community-banner-carousel';
 import { CommunitySearchInputRow } from '@/components/community/community-search-filter';
 
 /** 게시판: 인기/홍보/자유 */
@@ -140,16 +141,13 @@ export default function AdminCommunityPage() {
         />
       </div>
 
-      {/* 광고 배너: 가로2 세로1 비율, 좌우 여백, 하단 마진 */}
+      {/* 광고 배너: 가로2 세로1 비율 캐러셀, 3초 자동 전환, 인디케이터 점 */}
       <div className="mb-4 px-4 pt-4">
         <div
-          className="w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800"
+          className="w-full overflow-hidden"
           style={{ aspectRatio: '2/1' }}
         >
-          {/* 배너 플레이스홀더 (이미지/광고 연동 시 교체) */}
-          <div className="flex h-full w-full items-center justify-center text-sm text-zinc-400 dark:text-zinc-500">
-            광고 배너
-          </div>
+          <CommunityBannerCarousel />
         </div>
       </div>
 

@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { useMyProfile } from '@/features/auth/hooks';
-import { useSearchPosts } from '@/features/community/hooks';
+import { useRestoreCommunityListScroll, useSearchPosts } from '@/features/community/hooks';
 import type { CommunityPostCategory } from '@/types/api';
 import { CommunityListPageSkeleton } from '@/components/common/skeletons';
 import { CommunityPostCard } from '@/components/community/community-post-card';
@@ -27,6 +27,7 @@ export default function CommunitySearchPage() {
   const category = parseCategory(searchParams.get('category'));
   const [query, setQuery] = useState(q);
   const [sort, setSort] = useState<CommunitySort>('latest');
+  useRestoreCommunityListScroll();
 
   const posts = useSearchPosts(query, sort, category);
   const { data: profile, isLoading: profileLoading } = useMyProfile();
