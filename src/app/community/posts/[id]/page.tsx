@@ -61,14 +61,25 @@ function preventBreakAfterQuestion(text: string): string {
 
 const SWIPE_THRESHOLD = 50;
 
-/** 상세조회 전용 배너 (커뮤니티 홈 배너와 별도) */
-const DETAIL_VIEW_BANNER = '/banner/detail.png';
+/** 상세조회 전용 배너 풀 (페이지 로드 시 하나 랜덤 표시). 새 배너는 public/banner에 넣고 아래 배열에 경로 추가 */
+const DETAIL_VIEW_BANNERS = [
+  '/banner/detail.png',
+  '/banner/1.png',
+  '/banner/2.png',
+  '/banner/3.png',
+  // '/banner/naver-store.png',  // 네이버+ 스토어 앱 배너 추가 시 주석 해제
+  // '/banner/point-event.png',  // 꽁포인트 이벤트 배너 추가 시 주석 해제
+] as const;
 
-/** 액션 바 ~ 댓글 사이 배너 (상세조회 전용 이미지) */
+/** 액션 바 ~ 댓글 사이 배너 (상세조회 전용, 풀에서 랜덤 1장) */
 function PostDetailBanner() {
+  const src = useMemo(
+    () => DETAIL_VIEW_BANNERS[Math.floor(Math.random() * DETAIL_VIEW_BANNERS.length)],
+    []
+  );
   return (
     <div className="-mt-4 relative w-full aspect-[1855/380] shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800/50" aria-hidden>
-      <Image src={DETAIL_VIEW_BANNER} alt="" fill className="object-cover" sizes="(max-width: 448px) 100vw, 448px" />
+      <Image src={src} alt="" fill className="object-cover" sizes="(max-width: 448px) 100vw, 448px" />
     </div>
   );
 }
@@ -867,13 +878,13 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                       className="relative flex gap-2 pl-5 pt-3 sm:pl-7"
                       data-comment-id={reply.id}
                     >
-                      <span className="absolute left-2 top-4 z-[1] flex h-5 w-5 shrink-0 items-center justify-center text-zinc-400 dark:text-zinc-500" aria-hidden>
+                      <span className="absolute left-1 top-4 z-[1] flex h-5 w-5 shrink-0 items-center justify-center text-zinc-400 dark:text-zinc-500" aria-hidden>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="stroke-current">
                           <path d="M16 19L21 14L16 9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                           <path d="M21 14H13C7.477 14 3 9.523 3 4V3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                       </span>
-                      <div className="relative z-[1] flex min-w-0 flex-1 flex-wrap gap-2 rounded-lg bg-zinc-50 py-2 px-3 dark:bg-zinc-800/50">
+                      <div className="relative z-[1] flex min-w-0 flex-1 flex-wrap gap-2 rounded-lg bg-zinc-50 pt-2.5 pb-2 px-3 dark:bg-zinc-800/50">
                         <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300" aria-hidden>
                           {reply.clubId != null && clubImageMap[reply.clubId] ? (
                             <img src={clubImageMap[reply.clubId]} alt="" className="size-full object-cover" />
@@ -884,12 +895,12 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           )}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="flex min-w-0 flex-1 flex-col gap-0 text-xs text-zinc-500 dark:text-zinc-400">
-                              <span className={`text-[13px] font-medium ${isMine ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}>{reply.authorName.replace(/([^\s])\(글쓴이\)/, '$1 (글쓴이)')}{isMine && !reply.authorName.includes('(글쓴이)') ? ' (글쓴이)' : ''}</span>
-                              <span className="text-[11px] text-zinc-400 dark:text-zinc-500">{formatCommentWrittenAt(reply.createdAt)}</span>
+                          <div className="flex h-7 items-center justify-between gap-2">
+                            <div className="flex min-w-0 flex-1 flex-col justify-center gap-0 text-xs text-zinc-500 dark:text-zinc-400">
+                              <span className={`leading-tight text-[13px] font-medium ${isMine ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}>{reply.authorName.replace(/([^\s])\(글쓴이\)/, '$1 (글쓴이)')}{isMine && !reply.authorName.includes('(글쓴이)') ? ' (글쓴이)' : ''}</span>
+                              <span className="leading-tight text-[11px] text-zinc-400 dark:text-zinc-500">{formatCommentWrittenAt(reply.createdAt)}</span>
                             </div>
-                            <div className="flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-700">
+                            <div className="flex h-7 shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-1.5 py-0 dark:bg-zinc-700">
                               <div className="flex items-center gap-0">
                                 <button
                                   type="button"
