@@ -620,8 +620,8 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
           )
         )}
 
-        {/* 액션 바: 공감 | 댓글 N | 스크랩 (가로 3등분, 사이 세로 구분선) */}
-        <div className="mt-6 flex items-center rounded-xl bg-zinc-50 px-4 py-4 dark:bg-zinc-800/30">
+        {/* 액션 바: 공감 | 댓글 N | 스크랩 (가로 3등분) */}
+        <div className="mt-6 flex items-center border-t border-zinc-200 px-4 pt-4 dark:border-zinc-700">
           <button
             type="button"
             onClick={handleLike}
@@ -640,7 +640,6 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
             <span>공감</span>
             <span>{post.likeCount}</span>
           </button>
-          <div className="h-4 w-px shrink-0 bg-zinc-300 dark:bg-zinc-600" aria-hidden />
           <span
             className="flex flex-1 items-center justify-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-500"
             aria-label="댓글"
@@ -655,7 +654,6 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
             </svg>
             <span>댓글 {post.commentCount}</span>
           </span>
-          <div className="h-4 w-px shrink-0 bg-zinc-300 dark:bg-zinc-600" aria-hidden />
           <button
             type="button"
             onClick={handleSave}
@@ -678,7 +676,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
       </article>
 
       {/* 액션 바 ~ 댓글 사이 가로 꽉찬 배너 (1546:423 비율, 이미지 추후 적용) */}
-      <div className="mt-6 w-full aspect-[1546/423] shrink-0 bg-zinc-100 dark:bg-zinc-800/50" aria-hidden />
+      <div className="w-full aspect-[1546/423] shrink-0 bg-zinc-100 dark:bg-zinc-800/50" aria-hidden />
 
       {/* 첨부 사진 확대 보기 오버레이 (가로 스와이프·좌우 버튼으로 이전/다음) */}
       {post.imageUrls && expandedImageIndex !== null && (
@@ -703,9 +701,9 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                 key={root.id}
                 className={`relative ${rootIndex > 0 ? 'border-t border-zinc-100 pt-4 dark:border-zinc-800' : ''}`}
               >
-                {/* 원댓글: 답글과 버튼 가로 정렬 맞추기 위해 동일 좌측 여백 */}
+                {/* 원댓글: 왼쪽 끝부터 가로로 꽉 차게 */}
                 <div
-                  className="relative flex gap-3 pl-8 sm:pl-10"
+                  className="relative flex gap-3"
                   data-comment-id={root.id}
                 >
                   <div
@@ -810,7 +808,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                       className="relative flex gap-3 pl-8 pt-3 sm:pl-10"
                       data-comment-id={reply.id}
                     >
-                      <span className="absolute left-0 top-6 z-[1] flex h-5 w-5 shrink-0 items-center justify-center text-zinc-400 dark:text-zinc-500" aria-hidden>
+                      <span className="absolute left-1.5 top-6 z-[1] flex h-5 w-5 shrink-0 items-center justify-center text-zinc-400 dark:text-zinc-500" aria-hidden>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="stroke-current">
                           <path d="M16 19L21 14L16 9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                           <path d="M21 14H13C7.477 14 3 9.523 3 4V3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
