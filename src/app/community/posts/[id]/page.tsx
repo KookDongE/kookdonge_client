@@ -516,30 +516,34 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
             </div>
           )}
           <div className="flex min-w-0 shrink-0 flex-col gap-0.5 text-xs text-zinc-500 dark:text-zinc-400">
-            <div className="flex items-center gap-1.5">
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{post.authorName}</span>
-              {post.clubId != null && (
+            <div className="flex items-center">
+              {post.clubId != null ? (
                 <button
                   type="button"
                   onClick={() => router.push(`/clubs/${post.clubId}`)}
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                  className="flex items-center gap-1 rounded-full py-0.5 pr-0.5 text-left text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
                   aria-label="동아리 상세 보기"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    className="h-4 w-4 rotate-180"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15.75 19.5L8.25 12l7.5-7.5"
-                    />
-                  </svg>
+                  <span className="min-w-0 truncate">{post.authorName}</span>
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-zinc-500 dark:text-zinc-400">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      className="h-3.5 w-3.5 rotate-180"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15.75 19.5L8.25 12l7.5-7.5"
+                      />
+                    </svg>
+                  </span>
                 </button>
+              ) : (
+                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{post.authorName}</span>
               )}
             </div>
             <span>{formatDate(post.createdAt)}</span>
@@ -843,7 +847,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                     </div>
                   </div>
                   <div className="w-full -mt-3">
-                    <p className="mt-3 pl-0.5 pb-3 text-sm font-normal text-zinc-600 dark:text-zinc-400 break-words">{root.content}</p>
+                    <p className="mt-3 pl-0.5 pb-3 text-sm font-normal text-zinc-600 dark:text-zinc-400 whitespace-nowrap overflow-x-auto">{root.content}</p>
                   </div>
                 </div>
                 {/* 답글들: 왼쪽 화살표로 답글 표시 */}
@@ -930,7 +934,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           </div>
                         </div>
                         <div className="w-full -mt-3">
-                          <p className="mt-3 min-w-0 w-full pl-0.5 pb-3 pr-[5.75rem] text-sm font-normal text-zinc-600 dark:text-zinc-400 break-words">{reply.content}</p>
+                          <p className="mt-3 min-w-0 w-full pl-0.5 pb-3 pr-[5.75rem] text-sm font-normal text-zinc-600 dark:text-zinc-400 whitespace-nowrap overflow-x-auto">{reply.content}</p>
                         </div>
                       </div>
                     </div>
