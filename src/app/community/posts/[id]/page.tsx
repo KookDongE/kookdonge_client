@@ -55,17 +55,14 @@ function formatCommentWrittenAt(iso: string): string {
 
 const SWIPE_THRESHOLD = 50;
 
-const BANNER_IMAGES = ['/banner/1.png', '/banner/2.png', '/banner/3.png'];
+/** 상세조회 전용 배너 (커뮤니티 홈 배너와 별도) */
+const DETAIL_VIEW_BANNER = '/banner/detail.png';
 
-/** 액션 바 ~ 댓글 사이 배너 (배너 이미지 중 하나 랜덤 표시) */
+/** 액션 바 ~ 댓글 사이 배너 (상세조회 전용 이미지) */
 function PostDetailBanner() {
-  const src = useMemo(
-    () => BANNER_IMAGES[Math.floor(Math.random() * BANNER_IMAGES.length)],
-    []
-  );
   return (
     <div className="-mt-4 relative w-full aspect-[1855/453] shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800/50" aria-hidden>
-      <Image src={src} alt="" fill className="object-cover" sizes="(max-width: 448px) 100vw, 448px" />
+      <Image src={DETAIL_VIEW_BANNER} alt="" fill className="object-cover" sizes="(max-width: 448px) 100vw, 448px" />
     </div>
   );
 }
@@ -499,7 +496,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
     <div className="min-h-screen bg-white pb-24 dark:bg-zinc-900">
       <article className="px-4 py-4">
         {/* 작성자: 프로필 사진 + 이름/시간 세로, 오른쪽 ... 메뉴(수정/삭제/신고) */}
-        <div className="mb-4 flex items-center gap-4">
+        <div className="mb-4 flex items-center gap-2">
           {post.clubId != null && (
             <div
               className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-zinc-200 text-sm font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
@@ -519,7 +516,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
             </div>
           )}
           <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-            <span className={`text-sm font-medium ${isAuthor ? 'text-blue-500 dark:text-blue-300' : 'text-zinc-700 dark:text-zinc-300'}`}>{post.authorName}</span>
+            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{post.authorName}</span>
             <span>{formatDate(post.createdAt)}</span>
           </div>
           <div className="relative shrink-0" ref={menuRef}>
@@ -724,7 +721,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
               >
                 {/* 원댓글: 왼쪽 끝부터 가로로 꽉 차게 */}
                 <div
-                  className="relative flex flex-wrap gap-3"
+                  className="relative flex flex-wrap gap-2"
                   data-comment-id={root.id}
                 >
                   <div
@@ -746,9 +743,9 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-                        <span className={`text-sm font-medium ${root.mine ? 'text-blue-500 dark:text-blue-300' : 'text-zinc-700 dark:text-zinc-300'}`}>{root.authorName}</span>
+                        <span className={`text-sm font-medium ${root.mine ? 'text-sky-600 dark:text-sky-400' : 'text-zinc-700 dark:text-zinc-300'}`}>{root.authorName}{root.mine ? ' (글쓴이)' : ''}</span>
                       </div>
-                      <div className="flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-1.5 py-0.5">
+                      <div className="flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-700">
                         <button
                           type="button"
                           className="flex items-center gap-0.5 rounded p-0.5 text-zinc-500 transition-opacity hover:opacity-80 dark:text-zinc-500"
@@ -815,7 +812,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                     </div>
                   </div>
                   <div className="w-full -mt-3">
-                    <p className="mt-0 text-sm font-normal text-zinc-600 dark:text-zinc-400 break-words">{root.content}</p>
+                    <p className="mt-1.5 text-sm font-normal text-zinc-600 dark:text-zinc-400 break-words">{root.content}</p>
                     <div className="mt-1 flex items-center gap-2 text-xs text-zinc-400 dark:text-zinc-500">
                       <span>{formatCommentWrittenAt(root.createdAt)}</span>
                       {(commentLikeOverrides[root.id] ?? root.likeCount) > 0 && (
@@ -839,16 +836,16 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                   return (
                     <div
                       key={reply.id}
-                      className="relative flex gap-3 pl-8 pt-3 sm:pl-10"
+                      className="relative flex gap-2 pl-6 pt-3 sm:pl-8"
                       data-comment-id={reply.id}
                     >
-                      <span className="absolute left-3 top-4 z-[1] flex h-5 w-5 shrink-0 items-center justify-center text-zinc-400 dark:text-zinc-500" aria-hidden>
+                      <span className="absolute left-2 top-4 z-[1] flex h-5 w-5 shrink-0 items-center justify-center text-zinc-400 dark:text-zinc-500" aria-hidden>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="stroke-current">
                           <path d="M16 19L21 14L16 9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                           <path d="M21 14H13C7.477 14 3 9.523 3 4V3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                       </span>
-                      <div className="relative z-[1] flex min-w-0 flex-1 flex-wrap gap-3 rounded-lg bg-zinc-50 py-2 px-3 dark:bg-zinc-800/50">
+                      <div className="relative z-[1] flex min-w-0 flex-1 flex-wrap gap-2 rounded-lg bg-zinc-50 py-2 px-3 dark:bg-zinc-800/50">
                         <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300" aria-hidden>
                           {reply.clubId != null && clubImageMap[reply.clubId] ? (
                             <img src={clubImageMap[reply.clubId]} alt="" className="size-full object-cover" />
@@ -859,9 +856,9 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-                              <span className={`text-sm font-medium ${isMine ? 'text-blue-500 dark:text-blue-300' : 'text-zinc-700 dark:text-zinc-300'}`}>{reply.authorName}</span>
+                              <span className={`text-sm font-medium ${isMine ? 'text-sky-600 dark:text-sky-400' : 'text-zinc-700 dark:text-zinc-300'}`}>{reply.authorName}{isMine ? ' (글쓴이)' : ''}</span>
                             </div>
-                            <div className="flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-1.5 py-0.5">
+                            <div className="flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-700">
                               <button
                                 type="button"
                                 className="flex items-center gap-0.5 rounded p-0.5 text-zinc-500 transition-opacity hover:opacity-80 dark:text-zinc-500"
@@ -907,7 +904,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           </div>
                         </div>
                         <div className="w-full -mt-3">
-                          <p className="mt-0 text-sm font-normal text-zinc-600 dark:text-zinc-400 break-words">{reply.content}</p>
+                          <p className="mt-1.5 text-sm font-normal text-zinc-600 dark:text-zinc-400 break-words">{reply.content}</p>
                           <div className="mt-1 flex items-center gap-2 text-xs text-zinc-400 dark:text-zinc-500">
                           <span>{formatCommentWrittenAt(reply.createdAt)}</span>
                           {likeCount > 0 && (
