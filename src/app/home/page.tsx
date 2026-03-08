@@ -136,7 +136,7 @@ function RankingSection({ returnTo }: { returnTo?: string }) {
         </div>
         <div className="mx-4 flex h-36 flex-col items-center justify-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">인기 동아리를 불러오지 못했습니다</p>
-          <Button size="sm" color="primary" onPress={() => refetchRanking()}>
+          <Button size="sm" variant="primary" onPress={() => refetchRanking()}>
             다시 시도
           </Button>
         </div>
