@@ -553,3 +553,79 @@ export type ClubDeletionRequestRes = {
   createdAt: string;
   updatedAt?: string;
 };
+
+// ---------- Community Post / Comment (스웨거 Community Post, Community Comment) ----------
+export type CommunityAuthorType = 'ANONYMOUS' | 'USER' | 'CLUB';
+export type CommunityPostCategory = 'FREE' | 'PROMOTION';
+
+export type CommunityPostRes = {
+  postId: number;
+  authorType: CommunityAuthorType;
+  postCategory: CommunityPostCategory;
+  clubId?: number;
+  authorName: string;
+  title: string;
+  likeCount: number;
+  commentCount: number;
+  saveCount: number;
+  viewCount: number;
+  imageUrls?: string[];
+  createdAt: string;
+  liked?: boolean;
+  mine?: boolean;
+  popular?: boolean;
+  saved?: boolean;
+};
+
+export type CommunityPostDetailRes = CommunityPostRes & {
+  content: string;
+  fileUuids?: string[];
+  updatedAt?: string;
+};
+
+export type CommunityCommentRes = {
+  commentId: number;
+  authorType: CommunityAuthorType;
+  clubId?: number;
+  authorName: string;
+  parentCommentId?: number;
+  content: string;
+  likeCount: number;
+  createdAt: string;
+  replies?: CommunityCommentRes[];
+  liked?: boolean;
+  mine?: boolean;
+};
+
+export type CommunityPostCreateReq = {
+  authorType: CommunityAuthorType;
+  postCategory: CommunityPostCategory;
+  clubId?: number;
+  title: string;
+  content: string;
+  fileUuids?: string[];
+};
+
+export type CommunityPostUpdateReq = {
+  title: string;
+  content: string;
+  fileUuids?: string[] | null;
+};
+
+export type CommunityCommentCreateReq = {
+  authorType: CommunityAuthorType;
+  clubId?: number;
+  parentCommentId?: number;
+  content: string;
+};
+
+export type CommunityCommentUpdateReq = {
+  content: string;
+};
+
+/** GET /api/community/posts/managed-clubs - 글쓰기 시 동아리 선택용 */
+export type ManagedClubRes = {
+  clubId: number;
+  clubName: string;
+  profileImageUrl: string;
+};

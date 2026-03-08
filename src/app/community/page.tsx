@@ -8,7 +8,6 @@ import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
 import { CommunityHomeSkeleton } from '@/components/common/skeletons';
 import { CommunitySearchInputRow } from '@/components/community/community-search-filter';
-import { CommunityWriteFloatingButton } from '@/components/community/community-write-floating-button';
 
 /** 게시판: 인기/홍보/자유 */
 const BOARD_ITEMS = [
@@ -219,7 +218,6 @@ export default function AdminCommunityPage() {
           ))}
         </div>
       </div>
-      <CommunityWriteFloatingButton />
     </div>
   );
 }

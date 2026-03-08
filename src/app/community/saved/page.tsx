@@ -19,12 +19,12 @@ export default function CommunitySavedPage() {
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<CommunitySort>('latest');
 
-  const savedPosts = useSavedPosts();
+  const savedPosts = useSavedPosts({ sort });
   const filtered = query.trim()
     ? savedPosts.filter(
         (p) =>
           p.title.toLowerCase().includes(query.toLowerCase()) ||
-          p.content.toLowerCase().includes(query.toLowerCase())
+          (p.content && p.content.toLowerCase().includes(query.toLowerCase()))
       )
     : savedPosts;
   const sorted =

@@ -24,7 +24,8 @@ type CommunityPostCardProps = {
 
 /** 제목 → 본문 한 줄 → 아이콘 + 숫자 + 시간 + 작성자 */
 export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
-  const contentPreview = post.content.slice(0, 80) + (post.content.length > 80 ? '...' : '');
+  const text = post.content || post.title;
+  const contentPreview = text.slice(0, 80) + (text.length > 80 ? '...' : '');
 
   const linkContent = (
     <>

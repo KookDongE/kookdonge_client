@@ -5,15 +5,23 @@ import { useRouter } from 'next/navigation';
 
 import { createPortal } from 'react-dom';
 
-import { useManagedClubs } from '@/features/club/hooks';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isClubManager, isSystemAdmin } from '@/features/auth/permissions';
 import {
-  getCommentsByPostId,
-  getPostById,
-  type CommunityComment,
-} from '@/features/community/mock-data';
+  useCommentsAsList,
+  useDeleteCommentMutation,
+  useDeletePost,
+  useLikeCommentMutation,
+  useLikePost,
+  usePostDetailAsPost,
+  useSavePost,
+  useUnsavePost,
+  useCreateComment,
+  useManagedClubsForPost,
+} from '@/features/community/hooks';
+import type { CommunityComment } from '@/features/community/types';
 import { CommunityPostDetailSkeleton } from '@/components/common/skeletons';
+import type { CommunityAuthorType } from '@/types/api';
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
@@ -202,7 +210,9 @@ function CommentBarPortal({
           />
           <button
             type="button"
-            className="shrink-0 rounded-full p-2 text-zinc-500 transition-opacity hover:opacity-80 dark:text-zinc-400"
+            onClick={handleSubmitComment}
+            disabled={!commentText.trim() || createCommentMutation.isPending}
+            className="shrink-0 rounded-full p-2 text-zinc-500 transition-opacity hover:opacity-80 dark:text-zinc-400 disabled:opacity-50"
             aria-label="댓글 등록"
           >
             <svg
@@ -231,16 +241,16 @@ type PageProps = { params: Promise<{ id: string }> };
 export default function CommunityPostDetailPage({ params }: PageProps) {
   const router = useRouter();
   const { data: profile, isLoading: profileLoading } = useMyProfile();
-  const { data: managedClubs = [] } = useManagedClubs();
+  const { data: managedClubs = [] } = useManagedClubsForPost();
   const { id: idParam } = use(params);
   const id = Number(idParam);
-  const post = id > 0 ? getPostById(id) : null;
-  const comments: CommunityComment[] = post ? getCommentsByPostId(post.id) : [];
+  const { data: post, isLoading: postLoading, refetch: refetchPost } = usePostDetailAsPost(id);
+  const { data: comments, refetch: refetchComments } = useCommentsAsList(id);
 
   const commentAccountOptions: CommentAccountOption[] = [
     { key: 'anonymous', label: '익명' },
     { key: 'me', label: profile?.name ?? '내이름' },
-    ...managedClubs.map((c) => ({ key: `club-${c.id}`, label: c.name })),
+    ...managedClubs.map((c) => ({ key: `club-${c.clubId}`, label: c.clubName })),
   ];
 
   /** 클릭 토글만 로컬 상태로 두고, 없으면 post 값 사용 (훅 규칙·effect setState 회피) */
@@ -271,21 +281,27 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
           return c ? { commentId: c.id, authorName: c.authorName } : null;
         })()
       : null;
-  /** 목 데이터: 현재 사용자 authorId (실제로는 profile.id 등) */
-  const myAuthorId = 1;
   const isAdmin = profile ? isSystemAdmin(profile) : false;
-  const isAuthor = post ? post.authorId === myAuthorId : false;
+  const isAuthor = post?.mine ?? false;
   const isLeader =
     profile && post?.clubId != null ? isClubManager(profile, post.clubId) : false;
   const canDelete = isAdmin || isAuthor || isLeader;
   const canEdit = isAdmin;
 
+  const likePostMutation = useLikePost(id);
+  const savePostMutation = useSavePost(id);
+  const unsavePostMutation = useUnsavePost(id);
+  const deletePostMutation = useDeletePost(id);
+  const createCommentMutation = useCreateComment(id);
+  const likeCommentMutation = useLikeCommentMutation(id);
+  const deleteCommentMutation = useDeleteCommentMutation(id);
+
   useEffect(() => {
-    if (profileLoading) return;
-    if (id <= 0 || !post) {
+    if (profileLoading || postLoading) return;
+    if (id <= 0 || (id > 0 && !post)) {
       router.replace('/community');
     }
-  }, [id, post, profileLoading, router]);
+  }, [id, post, profileLoading, postLoading, router]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -321,11 +337,59 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
     el.style.height = `${Math.min(el.scrollHeight, maxH)}px`;
   }, [commentText]);
 
-  if (profileLoading || (id > 0 && !post)) {
+  if (profileLoading || postLoading || (id > 0 && !post)) {
     return <CommunityPostDetailSkeleton />;
   }
 
   if (!post) return null;
+
+  const handleLike = () => {
+    setLikedOverride((prev) => (prev !== null ? !prev : !(post.liked ?? false)));
+    likePostMutation.mutate(undefined, {
+      onError: () =>
+        setLikedOverride((prev) => (prev !== null ? !prev : !(post.liked ?? false))),
+    });
+  };
+  const handleSave = () => {
+    setSavedOverride((prev) => (prev !== null ? !prev : !(post.saved ?? false)));
+    (post.saved ? unsavePostMutation : savePostMutation).mutate(undefined, {
+      onError: () =>
+        setSavedOverride((prev) => (prev !== null ? !prev : !(post.saved ?? false))),
+    });
+  };
+  const handleDeletePost = () => {
+    setMenuOpen(false);
+    deletePostMutation.mutate(undefined, {
+      onSuccess: () => router.push('/community'),
+    });
+  };
+  const resolveAuthorTypeAndClubId = (
+    key: string
+  ): { authorType: CommunityAuthorType; clubId?: number } => {
+    if (key === 'anonymous') return { authorType: 'ANONYMOUS' };
+    if (key === 'me') return { authorType: 'USER' };
+    if (key.startsWith('club-')) {
+      const clubId = Number(key.replace('club-', ''));
+      return { authorType: 'CLUB', clubId: Number.isNaN(clubId) ? undefined : clubId };
+    }
+    return { authorType: 'USER' };
+  };
+  const handleSubmitComment = () => {
+    const content = commentText.trim();
+    if (!content) return;
+    const { authorType, clubId } = resolveAuthorTypeAndClubId(commentAccountKey);
+    createCommentMutation.mutate(
+      { authorType, content, parentCommentId: replyingToCommentId ?? undefined, clubId },
+      {
+        onSuccess: () => {
+          setCommentText('');
+          setReplyingToCommentId(null);
+          refetchComments();
+          refetchPost();
+        },
+      }
+    );
+  };
 
   const liked = likedOverride !== null ? likedOverride : (post.liked ?? false);
   const saved = savedOverride !== null ? savedOverride : (post.saved ?? false);
@@ -401,7 +465,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                     type="button"
                     className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
                     role="menuitem"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleDeletePost}
                   >
                     삭제
                   </button>
@@ -463,10 +527,9 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
         <div className="mt-6 flex items-center gap-4 pt-4">
           <button
             type="button"
-            onClick={() =>
-              setLikedOverride((prev) => (prev !== null ? !prev : !(post.liked ?? false)))
-            }
-            className="flex items-center gap-1.5 text-sm text-red-400/80 transition-opacity hover:opacity-80 dark:text-red-400/70"
+            onClick={handleLike}
+            disabled={likePostMutation.isPending}
+            className="flex items-center gap-1.5 text-sm text-red-400/80 transition-opacity hover:opacity-80 dark:text-red-400/70 disabled:opacity-50"
             aria-label={liked ? '공감 취소' : '공감'}
           >
             <svg
@@ -487,10 +550,9 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
           </button>
           <button
             type="button"
-            onClick={() =>
-              setSavedOverride((prev) => (prev !== null ? !prev : !(post.saved ?? false)))
-            }
-            className="flex items-center gap-1.5 text-sm text-amber-400/80 transition-opacity hover:opacity-80 dark:text-amber-400/70"
+            onClick={handleSave}
+            disabled={savePostMutation.isPending || unsavePostMutation.isPending}
+            className="flex items-center gap-1.5 text-sm text-amber-400/80 transition-opacity hover:opacity-80 dark:text-amber-400/70 disabled:opacity-50"
             aria-label={saved ? '저장 취소' : '저장'}
           >
             <svg
@@ -542,10 +604,11 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
         />
       )}
 
-      {/* 댓글: 더미 데이터 */}
+      {/* 댓글 */}
       <section className="mt-6 border-t border-zinc-100 px-4 py-4 dark:border-zinc-800">
         <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-          댓글 {comments.length}개
+          댓글{' '}
+          {comments.reduce((sum, c) => sum + 1 + (c.replies?.length ?? 0), 0)}개
         </h2>
         {comments.length === 0 ? (
           <p className="py-6 text-center text-sm text-zinc-400 dark:text-zinc-500">
@@ -553,10 +616,10 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
           </p>
         ) : (
           <ul className="space-y-4">
-            {comments.map((c) => {
+            {comments.flatMap((c) => [c, ...(c.replies ?? [])]).map((c) => {
               const likeCount = commentLikeOverrides[c.id] ?? c.likeCount;
-              const liked = commentLikedByMe[c.id] ?? false;
-              const isMine = c.authorId === myAuthorId;
+              const liked = commentLikedByMe[c.id] ?? (c.liked ?? false);
+              const isMine = c.mine ?? false;
               return (
                 <li key={c.id} className="flex gap-3">
                   {c.clubId != null && (
@@ -589,6 +652,15 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                               ...prev,
                               [c.id]: (prev[c.id] ?? c.likeCount) + (newLiked ? 1 : -1),
                             }));
+                            likeCommentMutation.mutate(c.id, {
+                              onError: () => {
+                                setCommentLikedByMe((prev) => ({ ...prev, [c.id]: !newLiked }));
+                                setCommentLikeOverrides((prev) => ({
+                                  ...prev,
+                                  [c.id]: (prev[c.id] ?? c.likeCount) + (newLiked ? -1 : 1),
+                                }));
+                              },
+                            });
                           }}
                         >
                           <svg
@@ -680,12 +752,13 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                                 className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
                                 role="menuitem"
                                 onClick={() => {
+                                  setCommentMenuOpenId(null);
                                   if (isMine) {
-                                    setCommentMenuOpenId(null);
-                                    // TODO: 실제 삭제 API 호출
+                                    deleteCommentMutation.mutate(c.id, {
+                                      onSuccess: () => refetchComments(),
+                                    });
                                   } else {
                                     setDeleteDeniedToast(true);
-                                    setCommentMenuOpenId(null);
                                   }
                                 }}
                               >

@@ -36,8 +36,15 @@ async function tryReissue(): Promise<boolean> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
-    const json = (await res.json()) as ResponseDTO<{ accessToken: string; refreshToken: string }>;
-    if (json.status === 200 && json.data?.accessToken && json.data?.refreshToken) {
+    const text = await res.text();
+    let json: ResponseDTO<{ accessToken: string; refreshToken: string }>;
+    try {
+      const parsed = JSON.parse(text || '{}');
+      json = typeof parsed === 'object' && parsed !== null ? parsed : ({} as ResponseDTO<{ accessToken: string; refreshToken: string }>);
+    } catch {
+      return false;
+    }
+    if (json?.status === 200 && json?.data?.accessToken && json?.data?.refreshToken) {
       useAuthStore.getState().setTokens(json.data.accessToken, json.data.refreshToken);
       return true;
     }
@@ -118,11 +125,25 @@ export async function apiClient<T>(
     body: hasBody ? JSON.stringify(shouldWrapBody ? wrapRequest(body) : body) : undefined,
   });
 
-  const json: ResponseDTO<T> = await response.json();
+  const text = await response.text();
+  let json: ResponseDTO<T>;
+  try {
+    const parsed = JSON.parse(text || '{}');
+    json = typeof parsed === 'object' && parsed !== null ? parsed : ({} as ResponseDTO<T>);
+  } catch {
+    const message =
+      response.status >= 500
+        ? '서버 일시 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'
+        : '응답을 처리할 수 없습니다.';
+    toast.error(message);
+    throw new Error(`${response.status}: ${message}`);
+  }
 
-  if (json.status !== 200) {
-    const message = json.message ?? '';
-    const isUnauthorized = response.status === 401 || json.status === 401;
+  const status = Number(json?.status) || response.status;
+  const message = typeof json?.message === 'string' ? json.message : '';
+
+  if (status !== 200) {
+    const isUnauthorized = response.status === 401 || status === 401;
     const isAuthHeaderMissing =
       /헤더가\s*존재하지\s*않습니다/i.test(message) ||
       (/authorization/i.test(message) && /헤더|header/i.test(message));
@@ -137,8 +158,8 @@ export async function apiClient<T>(
     } else {
       toast.error(message || '오류가 발생했습니다');
     }
-    throw new Error(`${json.status}: ${json.message}`);
+    throw new Error(`${status}: ${message}`);
   }
 
-  return json.data;
+  return json.data as T;
 }

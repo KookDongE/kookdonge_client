@@ -19,12 +19,12 @@ export default function CommunityMyPostsPage() {
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<CommunitySort>('latest');
 
-  const myPosts = useMyPosts();
+  const myPosts = useMyPosts({ sort });
   const filtered = query.trim()
     ? myPosts.filter(
         (p) =>
           p.title.toLowerCase().includes(query.toLowerCase()) ||
-          p.content.toLowerCase().includes(query.toLowerCase())
+          (p.content && p.content.toLowerCase().includes(query.toLowerCase()))
       )
     : myPosts;
   const sorted =

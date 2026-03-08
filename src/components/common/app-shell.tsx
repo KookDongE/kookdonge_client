@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
 import { BottomNav } from '@/components/common/bottom-nav';
+import { FloatingButtonsLayer } from '@/components/common/floating-buttons-layer';
 import { Header } from '@/components/common/header';
 import { PullToRefresh } from '@/components/common/pull-to-refresh';
 
@@ -114,13 +115,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <main
         className={`flex flex-col overflow-hidden ${fullScreen ? 'h-dvh min-h-0' : 'h-[calc(100dvh-4rem)]'} ${!fullScreen && !headerHidden ? 'pt-[4.25rem]' : ''}`}
       >
-        <PullToRefresh
-          fullScreen={fullScreen}
-          disabled={pullToRefreshDisabled}
-          scrollDisabled={scrollDisabled}
-        >
-          {children}
-        </PullToRefresh>
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <PullToRefresh
+            fullScreen={fullScreen}
+            disabled={pullToRefreshDisabled}
+            scrollDisabled={scrollDisabled}
+          >
+            {children}
+          </PullToRefresh>
+        </div>
+        <FloatingButtonsLayer />
       </main>
       <BottomNav />
     </div>

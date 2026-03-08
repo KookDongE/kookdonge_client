@@ -11,17 +11,8 @@ export function Header() {
   const router = useRouter();
   const { data: unreadCount = 0 } = useUnreadCount();
   const isNotificationsPage = pathname === '/notifications';
-  const isNotificationSettingsPage = pathname === '/mypage/notification-settings';
-  const isCommunityPostDetail = pathname?.startsWith('/community/posts/');
-  const isCommunitySearchPage = pathname === '/community/search';
-  const isClubRequestDetail = /^\/my\/club-requests\/[^/]+$/.test(pathname ?? '');
-  const isAdminApplicationDetail = /^\/admin\/applications\/[^/]+$/.test(pathname ?? '');
-  const showBackButton =
-    isCommunityPostDetail ||
-    isCommunitySearchPage ||
-    isNotificationSettingsPage ||
-    isClubRequestDetail ||
-    isAdminApplicationDetail;
+  // 헤더가 보이는 모든 페이지에서 뒤로가기 버튼 표시 (community-detail-header와 동일)
+  const showBackButton = true;
 
   const isHidden =
     pathname === '/' ||

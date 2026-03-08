@@ -7,8 +7,9 @@ import { Input, ListBox, Select, TextArea } from '@heroui/react';
 import { Reorder, useDragControls } from 'framer-motion';
 
 import { IMAGE_ACCEPT_ATTR, validateImageFile } from '@/lib/image-upload-validation';
-import { useManagedClubs } from '@/features/club/hooks';
 import { useMyProfile } from '@/features/auth/hooks';
+import { useCreatePost, useManagedClubsForPost } from '@/features/community/hooks';
+import { getPresignedUrl, registerFileUpload } from '@/features/community/api';
 import { isSystemAdmin } from '@/features/auth/permissions';
 import { FormPageSkeleton } from '@/components/common/skeletons';
 
@@ -130,7 +131,8 @@ const BOARD_TYPE_OPTIONS: { value: 'promo' | 'free'; label: string }[] = [
 export default function CommunityWritePage() {
   const router = useRouter();
   const { data: profile, isLoading: profileLoading } = useMyProfile();
-  const { data: managedClubs = [] } = useManagedClubs();
+  const { data: managedClubs = [] } = useManagedClubsForPost();
+  const createPostMutation = useCreatePost();
 
   const [boardType, setBoardType] = useState<'promo' | 'free' | ''>('');
   const [accountKey, setAccountKey] = useState<string>('');
@@ -149,7 +151,7 @@ export default function CommunityWritePage() {
   const accountOptions = [
     { key: 'anonymous', label: '익명' },
     { key: 'me', label: profile?.name ?? '내이름' },
-    ...managedClubs.map((c) => ({ key: `club-${c.id}`, label: c.name })),
+    ...managedClubs.map((c) => ({ key: `club-${c.clubId}`, label: c.clubName })),
   ];
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -205,13 +207,51 @@ export default function CommunityWritePage() {
     }
     setIsSubmitting(true);
     try {
-      // TODO: 백엔드 API 연동 (boardType, accountKey, trimmedTitle, trimmedContent, photoItems.map(i => i.file))
-      await new Promise((r) => setTimeout(r, 500));
-      alert('글이 등록되었습니다. (현재 목 데이터)');
-      router.push('/community');
-    } catch {
-      alert('등록에 실패했습니다.');
-    } finally {
+      const fileUuids: string[] = [];
+      for (const item of photoItems) {
+        const file = item.file;
+        const ext = (file.name.split('.').pop()?.toLowerCase() ?? 'jpg').replace(/[^a-z]/g, '') || 'jpg';
+        const contentType = file.type || 'image/jpeg';
+        const res = await getPresignedUrl(file.name, contentType);
+        const uuid = res.uuid;
+        const presignedUrl = res.presignedUrl;
+        if (!uuid || !presignedUrl) throw new Error('Presigned URL 응답 오류');
+        const putRes = await fetch(presignedUrl, {
+          method: 'PUT',
+          body: file,
+          headers: { 'Content-Type': contentType },
+        });
+        if (!putRes.ok) throw new Error('이미지 업로드 실패');
+        await registerFileUpload({
+          uuid,
+          fileName: file.name,
+          fileSize: file.size,
+          extension: ext,
+        });
+        fileUuids.push(uuid);
+      }
+      const authorType =
+        accountKey === 'anonymous' ? 'ANONYMOUS' : accountKey === 'me' ? 'USER' : 'CLUB';
+      const clubId =
+        authorType === 'CLUB' ? Number(accountKey.replace('club-', '')) : undefined;
+      const postCategory = boardType === 'promo' ? 'PROMOTION' : 'FREE';
+      createPostMutation.mutate(
+        {
+          authorType,
+          postCategory,
+          clubId,
+          title: trimmedTitle,
+          content: trimmedContent,
+          fileUuids: fileUuids.length > 0 ? fileUuids : undefined,
+        },
+        {
+          onSuccess: () => router.push('/community'),
+          onError: (e) => alert(e?.message ?? '등록에 실패했습니다.'),
+          onSettled: () => setIsSubmitting(false),
+        }
+      );
+    } catch (err) {
+      alert(err instanceof Error ? err.message : '등록에 실패했습니다.');
       setIsSubmitting(false);
     }
   };

@@ -1026,62 +1026,6 @@ function ClubQnaTab({
   );
 }
 
-/** 정보 탭에서만 노출. fixed 우측 하단 (풀리프레시/스크롤과 무관하게 고정). 앱 뷰(max-w-md) 열 안에만 오도록 포탈 래퍼 사용 */
-function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: string }) {
-  const { data: club } = useClubDetail(clubId);
-  const applicationLink = club?.applicationLink || club?.recruitmentUrl;
-  const shouldShow = !!club && !!applicationLink && currentTab === 'info';
-
-  // 목표 오프셋을 한 번 더 스프링으로 따라가서 “기본 위치로 돌아가려는” 느낌
-  if (!club || !applicationLink) return null;
-
-  const handleApplyClick = () => {
-    window.open(applicationLink, '_blank');
-  };
-
-  // 네비(4rem) + safe-area + 여유 공간 위에 배치해 네비와 겹치지 않게
-  const bottomOffset = 'calc(8rem + env(safe-area-inset-bottom, 0px))';
-  const buttonBottom = 'calc(4rem + 2.5rem + env(safe-area-inset-bottom, 0px))';
-
-  // 앱 뷰 안에서만 보이도록 body 포탈 없이 인라인 렌더 (app-shell의 max-w-md overflow-hidden에 의해 웹에서 앱 열 밖은 잘림)
-  return (
-    <div
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-50"
-      style={{ top: 'auto', height: bottomOffset }}
-      aria-hidden
-    >
-      <div className="pointer-events-none relative mx-auto h-full w-full max-w-md">
-        <div
-          className="pointer-events-auto absolute right-4"
-          style={{ bottom: buttonBottom }}
-        >
-          <AnimatePresence mode="wait">
-            {shouldShow && (
-              <motion.div
-                key="club-cta"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="rounded-full bg-white/95 shadow-lg backdrop-blur-sm dark:bg-zinc-900/95"
-              >
-                <Button
-                  size="sm"
-                  className="min-w-0 rounded-full px-4 py-2 text-sm font-semibold"
-                  variant="primary"
-                  onPress={handleApplyClick}
-                >
-                  지원하기
-                </Button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function ClubDetailContent({ clubId }: { clubId: number }) {
   const { data: club, isLoading: clubLoading, isError: clubError } = useClubDetail(clubId);
   const searchParams = useSearchParams();
@@ -1166,7 +1110,6 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
       </Tabs>
       {/* 하단 네비 + CTA 공간 확보 (지원 버튼 있을 때) */}
       <div className="h-32" />
-      <ClubCTABottom clubId={clubId} currentTab={tab} />
       <NotificationPermissionInlineModal
         open={notificationPromptOpen}
         onClose={() => setNotificationPromptOpen(false)}

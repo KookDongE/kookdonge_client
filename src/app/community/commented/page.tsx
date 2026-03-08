@@ -19,12 +19,12 @@ export default function CommunityCommentedPage() {
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<CommunitySort>('latest');
 
-  const commentedPosts = useCommentedPosts();
+  const commentedPosts = useCommentedPosts({ sort });
   const filtered = query.trim()
     ? commentedPosts.filter(
         (p) =>
           p.title.toLowerCase().includes(query.toLowerCase()) ||
-          p.content.toLowerCase().includes(query.toLowerCase())
+          (p.content && p.content.toLowerCase().includes(query.toLowerCase()))
       )
     : commentedPosts;
   const sorted =

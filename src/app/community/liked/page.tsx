@@ -19,12 +19,12 @@ export default function CommunityLikedPage() {
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<CommunitySort>('latest');
 
-  const likedPosts = useLikedPosts();
+  const likedPosts = useLikedPosts({ sort });
   const filtered = query.trim()
     ? likedPosts.filter(
         (p) =>
           p.title.toLowerCase().includes(query.toLowerCase()) ||
-          p.content.toLowerCase().includes(query.toLowerCase())
+          (p.content && p.content.toLowerCase().includes(query.toLowerCase()))
       )
     : likedPosts;
   const sorted =
