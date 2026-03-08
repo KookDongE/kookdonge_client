@@ -108,12 +108,12 @@ export function CommunitySearchFilter({
     return () => clearTimeout(t);
   }, [query]);
 
-  // submitOnly가 아닐 때만 입력값 변경 시 디바운스로 onQueryChange 호출
+  // submitOnly일 때는 검색 버튼/엔터 시에만 검색하므로, 입력 중 디바운스 호출 안 함
   useEffect(() => {
     if (submitOnly) return;
     const timer = setTimeout(() => onQueryChange(searchInput.trim()), 300);
     return () => clearTimeout(timer);
-  }, [searchInput, onQueryChange, submitOnly]);
+  }, [submitOnly, searchInput, onQueryChange]);
 
   useEffect(() => {
     if (!stickyHideOnScroll) return;

@@ -67,7 +67,7 @@ const DETAIL_VIEW_BANNER = '/banner/detail.png';
 /** 액션 바 ~ 댓글 사이 배너 (상세조회 전용 이미지) */
 function PostDetailBanner() {
   return (
-    <div className="-mt-4 relative w-full aspect-[1855/453] shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800/50" aria-hidden>
+    <div className="-mt-4 relative w-full aspect-[1855/380] shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800/50" aria-hidden>
       <Image src={DETAIL_VIEW_BANNER} alt="" fill className="object-cover" sizes="(max-width: 448px) 100vw, 448px" />
     </div>
   );
@@ -851,7 +851,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                     </div>
                   </div>
                   <div className="min-w-0 w-full -mt-3">
-                    <p className="mt-3 pl-0.5 pb-1.5 pr-[5.75rem] break-all break-words text-sm font-normal text-zinc-600 dark:text-zinc-400">{preventBreakAfterQuestion(root.content)}</p>
+                    <p className="mt-3 min-w-0 w-full pl-0.5 pb-1.5 pr-[5.75rem] break-all break-words text-sm font-normal text-zinc-600 dark:text-zinc-400">{preventBreakAfterQuestion(root.content)}</p>
                   </div>
                 </div>
                 {/* 답글들: 왼쪽 화살표로 답글 표시 */}

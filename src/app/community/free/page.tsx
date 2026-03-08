@@ -41,7 +41,7 @@ export default function CommunityFreePage() {
         onSortChange={setSort}
         stickyHideOnScroll
         hideFilters
-        submitOnly
+        submitOnly={true}
       />
 
       <div className="space-y-0 px-0 py-4">
