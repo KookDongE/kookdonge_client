@@ -11,8 +11,9 @@ export function Header() {
   const router = useRouter();
   const { data: unreadCount = 0 } = useUnreadCount();
   const isNotificationsPage = pathname === '/notifications';
-  // 헤더가 보이는 모든 페이지에서 뒤로가기 버튼 표시 (community-detail-header와 동일)
-  const showBackButton = true;
+  // 홈/커뮤니티/마이페이지 최상위에서는 뒤로가기 숨김, 하위 페이지는 그대로 표시
+  const showBackButton =
+    pathname !== '/home' && pathname !== '/community' && pathname !== '/mypage';
 
   const isHidden =
     pathname === '/' ||

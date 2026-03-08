@@ -620,74 +620,58 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
           )
         )}
 
-        {/* 액션 바: 좋아요·저장 버튼(클릭 시 채움/비움 토글), 댓글은 표시만. 순서: 좋아요 → 저장 → 댓글 */}
-        <div className="mt-6 flex items-center gap-4 pt-4">
+        {/* 액션 바: 공감 | 댓글 N | 스크랩 (사진 참고: 회색 채움 아이콘 + 라벨, 좋아요/스크랩만 누르면 색 변경) */}
+        <div className="mt-6 flex items-center gap-6 pt-4">
           <button
             type="button"
             onClick={handleLike}
             disabled={likePostMutation.isPending}
-            className="flex items-center gap-1.5 text-sm text-red-500/90 transition-opacity hover:opacity-80 dark:text-red-500/85 disabled:opacity-50"
+            className={`flex items-center gap-1.5 text-sm transition-opacity hover:opacity-80 disabled:opacity-50 ${liked ? 'text-red-500/90 dark:text-red-500/85' : 'text-zinc-500 dark:text-zinc-500'}`}
             aria-label={liked ? '공감 취소' : '공감'}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
-              fill={liked ? 'currentColor' : 'none'}
-              stroke="currentColor"
-              strokeWidth={1.5}
+              fill="currentColor"
               className="h-5 w-5"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-              />
+              <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
             </svg>
-            {post.likeCount}
-          </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={savePostMutation.isPending || unsavePostMutation.isPending}
-            className="flex items-center gap-1.5 text-sm text-amber-500/90 transition-opacity hover:opacity-80 dark:text-amber-500/85 disabled:opacity-50"
-            aria-label={saved ? '저장 취소' : '저장'}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill={saved ? 'currentColor' : 'none'}
-              stroke="currentColor"
-              strokeWidth={1.5}
-              className="h-5 w-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.407 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"
-              />
-            </svg>
-            {post.saveCount}
+            <span>공감</span>
+            <span>{post.likeCount}</span>
           </button>
           <span
-            className="invisible flex items-center gap-1.5 text-sm text-sky-400/80 dark:text-sky-400/70"
+            className="flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-500"
             aria-label="댓글"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.5}
+              fill="currentColor"
               className="h-5 w-5"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
-              />
+              <path d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
             </svg>
-            {post.commentCount}
+            <span>댓글 {post.commentCount}</span>
           </span>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={savePostMutation.isPending || unsavePostMutation.isPending}
+            className={`flex items-center gap-1.5 text-sm transition-opacity hover:opacity-80 disabled:opacity-50 ${saved ? 'text-amber-500/90 dark:text-amber-500/85' : 'text-zinc-500 dark:text-zinc-500'}`}
+            aria-label={saved ? '저장 취소' : '스크랩'}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="h-5 w-5"
+            >
+              <path d="M4.5 3A2.25 2.25 0 002.25 5.25v14.25c0 1.08 1.176 1.75 2.25 1.75h15c1.074 0 2.25-.67 2.25-1.75V5.25A2.25 2.25 0 0019.5 3h-15z" />
+            </svg>
+            <span>스크랩</span>
+            <span>{post.saveCount}</span>
+          </button>
         </div>
       </article>
 
@@ -701,12 +685,8 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
         />
       )}
 
-      {/* 댓글 */}
+      {/* 댓글 목록 (개수는 상단 액션 바 '댓글 N'에 표시) */}
       <section className="mt-6 border-t border-zinc-100 px-4 py-4 dark:border-zinc-800">
-        <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-          댓글{' '}
-          {comments.reduce((sum, c) => sum + 1 + (c.replies?.length ?? 0), 0)}개
-        </h2>
         {comments.length === 0 ? (
           <p className="py-6 text-center text-sm text-zinc-400 dark:text-zinc-500">
             댓글이 없습니다.
@@ -724,9 +704,9 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                 const liked = commentLikedByMe[c.id] ?? (c.liked ?? false);
                 const isMine = c.mine ?? false;
                 const replyLineClass = isReply
-                  ? `relative pl-3 sm:pl-4 before:absolute before:-top-4 before:left-0 before:block before:w-px before:bg-zinc-200 before:content-[""] dark:before:bg-zinc-600/80 ${
+                  ? `relative pl-6 sm:pl-8 before:absolute before:-top-4 before:left-3 before:block before:w-px before:bg-zinc-200 before:content-[""] dark:before:bg-zinc-600/80 ${
                       isLastReplyInGroup ? 'before:h-[1.75rem]' : 'before:h-[calc(100%+1rem)]'
-                    } after:absolute after:left-0 after:top-3 after:block after:h-px after:w-2 after:bg-zinc-200 after:content-[""] sm:after:w-3 dark:after:bg-zinc-600/80`
+                    } after:absolute after:left-3 after:top-3 after:block after:h-px after:w-3 after:bg-zinc-200 after:content-[""] sm:after:w-4 dark:after:bg-zinc-600/80`
                   : '';
                 return (
                 <li
@@ -734,24 +714,22 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                   data-comment-id={c.id}
                   className={`flex gap-3 ${replyLineClass}`}
                 >
-                  {c.clubId != null && (
-                    <div
-                      className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
-                      aria-hidden
-                    >
-                      {clubImageMap[c.clubId] ? (
-                        <img
-                          src={clubImageMap[c.clubId]}
-                          alt=""
-                          className="size-full object-cover"
-                        />
-                      ) : (
-                        <span className="flex size-full items-center justify-center">
-                          {c.authorName.slice(0, 1)}
-                        </span>
-                      )}
-                    </div>
-                  )}
+                  <div
+                    className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
+                    aria-hidden
+                  >
+                    {c.clubId != null && clubImageMap[c.clubId] ? (
+                      <img
+                        src={clubImageMap[c.clubId]}
+                        alt=""
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      <span className="flex size-full items-center justify-center">
+                        {c.authorName.slice(0, 1)}
+                      </span>
+                    )}
+                  </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
@@ -763,10 +741,10 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                         )}
                         <span>{formatCommentTime(c.createdAt)}</span>
                       </div>
-                      <div className="flex shrink-0 items-center gap-0.5">
+                      <div className="flex shrink-0 items-center gap-0.5 rounded-lg bg-zinc-100 px-1 py-0.5 dark:bg-zinc-800">
                         <button
                           type="button"
-                          className="flex items-center gap-0.5 rounded p-1 transition-opacity hover:opacity-80 text-red-500/90 dark:text-red-500/85"
+                          className={`flex items-center gap-0.5 rounded p-1 transition-opacity hover:opacity-80 ${liked ? 'text-red-500/90 dark:text-red-500/85' : 'text-zinc-500 dark:text-zinc-500'}`}
                           aria-label={`좋아요 ${likeCount}개`}
                           onClick={() => {
                             if (liked) return; // 한 번 좋아요하면 취소 불가
@@ -790,23 +768,17 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
-                            fill={liked ? 'currentColor' : 'none'}
-                            stroke="currentColor"
-                            strokeWidth={1.5}
+                            fill="currentColor"
                             className="h-4 w-4"
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-                            />
+                            <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
                           </svg>
                           <span className="text-xs">{likeCount}</span>
                         </button>
                         {!isReply && (
                           <button
                             type="button"
-                            className="rounded p-1 text-sky-400/80 transition-colors hover:text-sky-400 dark:text-sky-400/70 dark:hover:text-sky-400"
+                            className="rounded p-1 text-zinc-500 transition-colors hover:opacity-80 dark:text-zinc-500"
                             aria-label="답글"
                             onClick={() => {
                               setReplyingToCommentId(c.id);
@@ -825,16 +797,10 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth={1.5}
+                              fill="currentColor"
                               className="h-4 w-4"
                             >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
-                              />
+                              <path d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
                             </svg>
                           </button>
                         )}
@@ -847,7 +813,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                             onClick={() =>
                               setCommentMenuOpenId((prev) => (prev === c.id ? null : c.id))
                             }
-                            className="rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                            className="rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-200 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
                             aria-label="더보기"
                             aria-expanded={commentMenuOpenId === c.id}
                           >
