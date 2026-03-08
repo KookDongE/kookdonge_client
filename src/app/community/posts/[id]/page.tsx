@@ -54,6 +54,11 @@ function formatCommentWrittenAt(iso: string): string {
   return `${yy}.${mm}.${dd} ${hh}:${min}`;
 }
 
+/** 물음표 뒤에서 줄바꿈되지 않도록 Zero-Width Word Joiner(U+2060) 삽입 */
+function preventBreakAfterQuestion(text: string): string {
+  return text.replace(/\?/g, '?\u2060');
+}
+
 const SWIPE_THRESHOLD = 50;
 
 /** 상세조회 전용 배너 (커뮤니티 홈 배너와 별도) */
@@ -514,7 +519,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
               </span>
             )}
           </div>
-          <div className="flex min-w-0 shrink-0 flex-col gap-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+          <div className="flex min-w-0 shrink-0 flex-col gap-0 text-xs text-zinc-500 dark:text-zinc-400">
             <div className="flex items-center">
               {post.clubId != null ? (
                 <button
@@ -761,8 +766,8 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                         className="size-full object-cover"
                       />
                     ) : (
-                      <span className="flex size-full items-center justify-center">
-                        <PersonFillIcon className="size-full" />
+                      <span className="flex size-full items-end justify-center">
+                        <PersonFillIcon className="h-5 w-5 shrink-0 text-zinc-500 dark:text-zinc-500" />
                       </span>
                     )}
                   </div>
@@ -845,8 +850,8 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                       </div>
                     </div>
                   </div>
-                  <div className="min-w-0 w-full -mt-3 overflow-hidden">
-                    <p className="mt-3 pl-0.5 pb-3 pr-[5.75rem] text-sm font-normal text-zinc-600 dark:text-zinc-400 overflow-hidden [word-break:keep-all]">{root.content}</p>
+                  <div className="min-w-0 w-full -mt-3">
+                    <p className="mt-3 pl-0.5 pb-3 pr-[5.75rem] break-words text-sm font-normal text-zinc-600 dark:text-zinc-400">{preventBreakAfterQuestion(root.content)}</p>
                   </div>
                 </div>
                 {/* 답글들: 왼쪽 화살표로 답글 표시 */}
@@ -873,8 +878,8 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           {reply.clubId != null && clubImageMap[reply.clubId] ? (
                             <img src={clubImageMap[reply.clubId]} alt="" className="size-full object-cover" />
                           ) : (
-                            <span className="flex size-full items-center justify-center">
-                              <PersonFillIcon className="size-full" />
+                            <span className="flex size-full items-end justify-center">
+                              <PersonFillIcon className="h-5 w-5 shrink-0 text-zinc-500 dark:text-zinc-500" />
                             </span>
                           )}
                         </div>
@@ -936,8 +941,8 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                             </div>
                           </div>
                         </div>
-                        <div className="min-w-0 w-full -mt-3 overflow-hidden">
-                          <p className="mt-3 min-w-0 w-full pl-0.5 pb-3 pr-[5.75rem] text-sm font-normal text-zinc-600 dark:text-zinc-400 overflow-hidden [word-break:keep-all]">{reply.content}</p>
+                        <div className="min-w-0 w-full -mt-3">
+                          <p className="mt-3 min-w-0 w-full pl-0.5 pb-3 pr-[5.75rem] break-words text-sm font-normal text-zinc-600 dark:text-zinc-400">{preventBreakAfterQuestion(reply.content)}</p>
                         </div>
                       </div>
                     </div>
