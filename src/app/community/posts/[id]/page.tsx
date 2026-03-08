@@ -61,11 +61,11 @@ function preventBreakAfterQuestion(text: string): string {
 
 const SWIPE_THRESHOLD = 50;
 
-/** 상세조회 전용 배너 풀 (커뮤 홈 배너와 별도). 로드 시 랜덤 1장 표시 */
+/** 상세조회 전용 배너 풀 (public/banner의 detail1, 2, 3 중 랜덤 1장) */
 const DETAIL_VIEW_BANNERS = [
-  '/banner/detail.png',
-  '/banner/detail-point.png',
-  '/banner/detail-store.png',
+  '/banner/detail1.png',
+  '/banner/detail2.png',
+  '/banner/detail3.png',
 ] as const;
 
 /** 액션 바 ~ 댓글 사이 배너 (상세조회 전용, 풀에서 랜덤 1장) */
