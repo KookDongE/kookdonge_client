@@ -228,12 +228,12 @@ function EditFeedForm({
           </label>
         ) : (
           <div className="drag-area-no-select no-scrollbar -mx-4 shrink-0 overflow-x-auto overflow-y-hidden px-4 pb-2">
-            <div className="flex items-center gap-3" style={{ width: 'max-content' }}>
+            <div className="flex items-start gap-3" style={{ width: 'max-content' }}>
               <Reorder.Group
                 axis="x"
                 values={items}
                 onReorder={setItems}
-                className="flex items-center gap-3"
+                className="flex items-start gap-3"
               >
                 {items.map((item) => (
                   <EditFeedImageReorderItem

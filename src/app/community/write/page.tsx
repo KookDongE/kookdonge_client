@@ -10,51 +10,13 @@ import { IMAGE_ACCEPT_ATTR, validateImageFile } from '@/lib/image-upload-validat
 import { useMyProfile } from '@/features/auth/hooks';
 import { useCreatePost, useManagedClubsForPost } from '@/features/community/hooks';
 import { getPresignedUrl, registerFileUpload } from '@/features/community/api';
-import { feedApi } from '@/features/feed/api';
 import { isSystemAdmin } from '@/features/auth/permissions';
 import { FormPageSkeleton } from '@/components/common/skeletons';
 
 /** 사진 한 칸: id(Reorder용) + file + preview */
 type PhotoItem = { id: string; file: File; preview: string };
 
-/** 단일 사진 미리보기: 가로 꽉, 비율 유지 */
-function SinglePhotoPreview({
-  item,
-  onRemove,
-}: {
-  item: PhotoItem;
-  onRemove: () => void;
-}) {
-  return (
-    <div className="relative w-full overflow-hidden rounded-xl bg-zinc-200 dark:bg-zinc-700">
-      <img
-        src={item.preview}
-        alt=""
-        className="block h-auto w-full max-h-[70vh] select-none"
-        draggable={false}
-      />
-      <button
-        type="button"
-        onClick={onRemove}
-        className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
-        aria-label="사진 삭제"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2.5}
-          className="h-4 w-4"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-    </div>
-  );
-}
-
-/** 여러 장일 때: 세로4:가로3 고정, 드래그 순서 변경 (동아리 피드와 동일) */
+/** 1장 이상일 때: 세로4:가로3 고정, 드래그 순서 변경 (동아리 피드와 동일) */
 function PhotoReorderItem({
   item,
   onRemove,
@@ -218,46 +180,23 @@ export default function CommunityWritePage() {
         const file = item.file;
         const ext = (file.name.split('.').pop()?.toLowerCase() ?? 'jpg').replace(/[^a-z]/g, '') || 'jpg';
         const contentType = file.type || 'image/jpeg';
-
-        let uuid: string;
-        let presignedUrl: string;
-
-        if (clubId != null) {
-          const res = await feedApi.getPresignedUrl(clubId, file.name, contentType);
-          const raw = res as { uuid?: string; presignedUrl?: string; presigned_url?: string };
-          uuid = raw.uuid ?? '';
-          presignedUrl = raw.presignedUrl ?? raw.presigned_url ?? '';
-          if (!uuid || !presignedUrl) throw new Error('Presigned URL 응답 오류');
-          const putRes = await fetch(presignedUrl, {
-            method: 'PUT',
-            body: file,
-            headers: { 'Content-Type': contentType },
-          });
-          if (!putRes.ok) throw new Error('이미지 업로드 실패');
-          await feedApi.registerUploadComplete(clubId, {
-            uuid,
-            fileName: file.name,
-            fileSize: file.size,
-            extension: ext,
-          });
-        } else {
-          const res = await getPresignedUrl(file.name, contentType);
-          uuid = res.uuid ?? '';
-          presignedUrl = res.presignedUrl ?? '';
-          if (!uuid || !presignedUrl) throw new Error('Presigned URL 응답 오류');
-          const putRes = await fetch(presignedUrl, {
-            method: 'PUT',
-            body: file,
-            headers: { 'Content-Type': contentType },
-          });
-          if (!putRes.ok) throw new Error('이미지 업로드 실패');
-          await registerFileUpload({
-            uuid,
-            fileName: file.name,
-            fileSize: file.size,
-            extension: ext,
-          });
-        }
+        const res = await getPresignedUrl(file.name, contentType);
+        const uuid = res.uuid;
+        const presignedUrl = res.presignedUrl;
+        if (!uuid || !presignedUrl) throw new Error('Presigned URL 응답 오류');
+        const putRes = await fetch(presignedUrl, {
+          method: 'PUT',
+          body: file,
+          headers: { 'Content-Type': contentType },
+        });
+        if (!putRes.ok) throw new Error('이미지 업로드 실패');
+        await registerFileUpload({
+          uuid,
+          fileName: file.name,
+          fileSize: file.size,
+          extension: ext,
+          ...(clubId != null && { clubId }),
+        });
         fileUuids.push(uuid);
       }
       const postCategory = boardType === 'promo' ? 'PROMOTION' : 'FREE';
@@ -425,28 +364,14 @@ export default function CommunityWritePage() {
                 <img src="/icons/stash_image-open-light.svg" alt="" className="h-12 w-12" />
               </span>
             </label>
-          ) : photoItems.length === 1 ? (
-            <div className="w-full space-y-2">
-              <SinglePhotoPreview
-                item={photoItems[0]}
-                onRemove={() => removePhoto(photoItems[0].id)}
-              />
-              {photoItems.length < 10 && (
-                <label htmlFor="community-write-photo" className="block w-full cursor-pointer">
-                  <span className="flex aspect-[3/4] w-36 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 text-zinc-400 transition-colors hover:border-zinc-500 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
-                    <img src="/icons/stash_image-open-light.svg" alt="" className="h-12 w-12" />
-                  </span>
-                </label>
-              )}
-            </div>
           ) : (
             <div className="drag-area-no-select no-scrollbar -mx-4 shrink-0 overflow-x-auto overflow-y-hidden px-4 pb-2">
-              <div className="flex items-center gap-3" style={{ width: 'max-content' }}>
+              <div className="flex items-start gap-3" style={{ width: 'max-content' }}>
                 <Reorder.Group
                   axis="x"
                   values={photoItems}
                   onReorder={setPhotoItems}
-                  className="flex items-center gap-3"
+                  className="flex items-start gap-3"
                 >
                   {photoItems.map((item) => (
                     <PhotoReorderItem
