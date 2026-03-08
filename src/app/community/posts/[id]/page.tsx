@@ -743,7 +743,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-                        <span className={`text-sm font-medium ${root.mine ? 'text-sky-600 dark:text-sky-400' : 'text-zinc-700 dark:text-zinc-300'}`}>{root.authorName}{root.mine ? ' (글쓴이)' : ''}</span>
+                        <span className={`text-sm font-medium ${root.mine ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}>{root.authorName}{root.mine && !root.authorName.includes('(글쓴이)') ? ' (글쓴이)' : ''}</span>
                       </div>
                       <div className="flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-700">
                         <button
@@ -812,7 +812,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                     </div>
                   </div>
                   <div className="w-full -mt-3">
-                    <p className="mt-1.5 text-sm font-normal text-zinc-600 dark:text-zinc-400 break-words">{root.content}</p>
+                    <p className="mt-3 text-sm font-normal text-zinc-600 dark:text-zinc-400 break-words">{root.content}</p>
                     <div className="mt-1 flex items-center gap-2 text-xs text-zinc-400 dark:text-zinc-500">
                       <span>{formatCommentWrittenAt(root.createdAt)}</span>
                       {(commentLikeOverrides[root.id] ?? root.likeCount) > 0 && (
@@ -856,7 +856,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-                              <span className={`text-sm font-medium ${isMine ? 'text-sky-600 dark:text-sky-400' : 'text-zinc-700 dark:text-zinc-300'}`}>{reply.authorName}{isMine ? ' (글쓴이)' : ''}</span>
+                              <span className={`text-sm font-medium ${isMine ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}>{reply.authorName}{isMine && !reply.authorName.includes('(글쓴이)') ? ' (글쓴이)' : ''}</span>
                             </div>
                             <div className="flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-700">
                               <button
@@ -904,7 +904,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           </div>
                         </div>
                         <div className="w-full -mt-3">
-                          <p className="mt-1.5 text-sm font-normal text-zinc-600 dark:text-zinc-400 break-words">{reply.content}</p>
+                          <p className="mt-3 text-sm font-normal text-zinc-600 dark:text-zinc-400 break-words">{reply.content}</p>
                           <div className="mt-1 flex items-center gap-2 text-xs text-zinc-400 dark:text-zinc-500">
                           <span>{formatCommentWrittenAt(reply.createdAt)}</span>
                           {likeCount > 0 && (
