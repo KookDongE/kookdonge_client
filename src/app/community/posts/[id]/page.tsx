@@ -1,7 +1,7 @@
 'use client';
 
 import { use, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { useQueries, useQueryClient } from '@tanstack/react-query';
 import { createPortal } from 'react-dom';
@@ -247,6 +247,7 @@ type PageProps = { params: Promise<{ id: string }> };
 
 export default function CommunityPostDetailPage({ params }: PageProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const { data: profile, isLoading: profileLoading } = useMyProfile();
   const { data: managedClubs = [] } = useManagedClubsForPost();
@@ -254,6 +255,8 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
   const id = Number(idParam);
   const { data: post, isLoading: postLoading, refetch: refetchPost } = usePostDetailAsPost(id);
   const { data: comments, refetch: refetchComments } = useCommentsAsList(id);
+  const scrollToCommentId = searchParams.get('commentId');
+  const hasScrolledToComment = useRef(false);
 
   const commentAccountOptions: CommentAccountOption[] = [
     { key: 'anonymous', label: '익명' },
@@ -343,6 +346,26 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
     }
   }, [id, post, profileLoading, postLoading, router]);
 
+  /** 알림에서 진입 시 commentId 쿼리 있으면 해당 댓글/답글으로 스크롤 */
+  useEffect(() => {
+    const commentId = searchParams.get('commentId');
+    if (!commentId || hasScrolledToComment.current || !comments.length) return;
+    const targetId = parseInt(commentId, 10);
+    if (!Number.isInteger(targetId)) return;
+    const rafId = requestAnimationFrame(() => {
+      hasScrolledToComment.current = true;
+      const el = document.querySelector(`[data-comment-id="${targetId}"]`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const q = new URLSearchParams(searchParams.toString());
+        q.delete('commentId');
+        const next = q.toString() ? `?${q.toString()}` : '';
+        router.replace(`${window.location.pathname}${next}`, { scroll: false });
+      }
+    });
+    return () => cancelAnimationFrame(rafId);
+  }, [searchParams, comments.length, router]);
+
   useEffect(() => {
     if (!menuOpen) return;
     const handleClick = (e: MouseEvent) => {
@@ -404,11 +427,13 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
     setIsDeleting(true);
     deletePostMutation.mutate(undefined, {
       onSuccess: () => {
+        // 먼저 이탈해야 상세 useQuery가 refetch하지 않음 (refetch 시 404 → 토스트)
         router.back();
-        // 상세 페이지를 벗어난 뒤 목록 갱신 (무효화를 상세에서 하면 삭제된 글 refetch → 404 토스트)
         setTimeout(() => {
+          queryClient.removeQueries({ queryKey: communityKeys.postDetail(id) });
+          queryClient.removeQueries({ queryKey: communityKeys.comments(id) });
           queryClient.invalidateQueries({ queryKey: communityKeys.all });
-        }, 0);
+        }, 150);
       },
       onError: () => setIsDeleting(false),
     });
@@ -701,7 +726,8 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
               return (
                 <li
                   key={c.id}
-                  className={`flex gap-3 ${isReply ? 'relative pl-6 sm:pl-8 before:absolute before:left-0 before:bottom-0 before:block before:h-full before:w-6 before:border-b-2 before:border-l-2 before:rounded-bl before:border-zinc-200 before:content-[""] sm:before:w-8 dark:before:border-zinc-700' : ''}`}
+                  data-comment-id={c.id}
+                  className={`flex gap-3 ${isReply ? 'relative pl-3 sm:pl-4 before:absolute before:-top-4 before:left-0 before:block before:h-[calc(100%+1rem)] before:w-px before:bg-zinc-100 before:content-[""] dark:before:bg-zinc-600/60 after:absolute after:left-0 after:top-0 after:block after:h-px after:w-3 after:bg-zinc-100 after:content-[""] sm:after:w-4 dark:after:bg-zinc-600/60' : ''}`}
                 >
                   {c.clubId != null && (
                     <div

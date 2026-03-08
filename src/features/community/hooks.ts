@@ -237,15 +237,9 @@ export function useUpdatePost(postId: number) {
 }
 
 export function useDeletePost(postId: number) {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => communityApi.deletePost(postId),
-    onSuccess: () => {
-      // 삭제된 글 상세/댓글 캐시 제거. invalidate는 호출하지 않음(상세 refetch → 404 토스트 방지).
-      // 목록 갱신은 페이지에서 router.back() 후 invalidate로 처리.
-      queryClient.removeQueries({ queryKey: communityKeys.postDetail(postId) });
-      queryClient.removeQueries({ queryKey: communityKeys.comments(postId) });
-    },
+    // 캐시 정리/무효화는 페이지에서 router.back() 후 지연 실행(상세 refetch → 404 토스트 방지).
   });
 }
 
