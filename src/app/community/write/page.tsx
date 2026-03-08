@@ -202,7 +202,7 @@ export default function CommunityWritePage() {
           fileUuids: fileUuids.length > 0 ? fileUuids : undefined,
         },
         {
-          onSuccess: () => router.push('/community'),
+          onSuccess: () => router.back(),
           onError: (e) => alert(e?.message ?? '등록에 실패했습니다.'),
           onSettled: () => setIsSubmitting(false),
         }

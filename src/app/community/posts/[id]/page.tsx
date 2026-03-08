@@ -712,22 +712,26 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
           </p>
         ) : (
           <ul className="space-y-4">
-            {comments.flatMap((c) => [
-              { comment: c, isReply: false as const, parentAuthor: undefined },
-              ...(c.replies ?? []).map((r) => ({
-                comment: r,
-                isReply: true as const,
-                parentAuthor: c.authorName,
-              })),
-            ]).map(({ comment: c, isReply, parentAuthor }) => {
-              const likeCount = commentLikeOverrides[c.id] ?? c.likeCount;
-              const liked = commentLikedByMe[c.id] ?? (c.liked ?? false);
-              const isMine = c.mine ?? false;
-              return (
+            {(() => {
+              const flatList: { comment: CommunityComment; isReply: boolean; parentAuthor: string | undefined }[] = comments.flatMap((c) => [
+                { comment: c, isReply: false, parentAuthor: undefined },
+                ...(c.replies ?? []).map((r) => ({ comment: r, isReply: true, parentAuthor: c.authorName })),
+              ]);
+              return flatList.map(({ comment: c, isReply, parentAuthor }, index) => {
+                const isLastReplyInGroup = isReply && (flatList[index + 1] == null || !flatList[index + 1].isReply);
+                const likeCount = commentLikeOverrides[c.id] ?? c.likeCount;
+                const liked = commentLikedByMe[c.id] ?? (c.liked ?? false);
+                const isMine = c.mine ?? false;
+                const replyLineClass = isReply
+                  ? `relative pl-3 sm:pl-4 before:absolute before:-top-4 before:left-0 before:block before:w-px before:bg-zinc-200 before:content-[""] dark:before:bg-zinc-600/80 ${
+                      isLastReplyInGroup ? 'before:h-[2rem]' : 'before:h-[calc(100%+1rem)]'
+                    } after:absolute after:left-0 after:top-4 after:block after:h-px after:w-3 after:bg-zinc-200 after:content-[""] sm:after:w-4 dark:after:bg-zinc-600/80`
+                  : '';
+                return (
                 <li
                   key={c.id}
                   data-comment-id={c.id}
-                  className={`flex gap-3 ${isReply ? 'relative pl-3 sm:pl-4 before:absolute before:-top-4 before:left-0 before:block before:h-[calc(100%+1rem)] before:w-px before:bg-zinc-100 before:content-[""] dark:before:bg-zinc-600/60 after:absolute after:left-0 after:top-0 after:block after:h-px after:w-3 after:bg-zinc-100 after:content-[""] sm:after:w-4 dark:after:bg-zinc-600/60' : ''}`}
+                  className={`flex gap-3 ${replyLineClass}`}
                 >
                   {c.clubId != null && (
                     <div
@@ -897,8 +901,9 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                     <p className="mt-0.5 text-sm font-normal text-zinc-600 dark:text-zinc-400">{c.content}</p>
                   </div>
                 </li>
-              );
-            })}
+                );
+              });
+            })()}
           </ul>
         )}
       </section>
