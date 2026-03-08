@@ -154,7 +154,7 @@ export async function getPresignedUrl(fileName: string, contentType: string): Pr
   });
 }
 
-/** POST /api/files - 업로드 완료 등록 (커뮤니티) */
+/** POST /api/files - 업로드 완료 등록 (커뮤니티). 동아리로 작성 시 clubId 전달 시 file_information.club_id 설정 가능 */
 export async function registerFileUpload(body: FileUploadCompleteRequest): Promise<FileInfoResponse> {
   return apiClient<FileInfoResponse>('/api/files', { method: 'POST', body });
 }

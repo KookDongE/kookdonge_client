@@ -6,7 +6,7 @@ import { ClubCTAFloatingButton } from '@/components/club/club-cta-floating-butto
 import { CommunityWriteFloatingButton } from '@/components/community/community-write-floating-button';
 import { FeedAddFloatingButton } from '@/components/mypage/feed-add-floating-button';
 
-/** 커뮤니티 목록 경로: 글쓰기 버튼 노출 */
+/** 커뮤니티 목록 경로: 글쓰기 버튼 노출 (글쓰기 페이지 자체에서는 숨김) */
 const COMMUNITY_WRITE_PATHS = [
   '/community',
   '/community/popular',
@@ -15,6 +15,8 @@ const COMMUNITY_WRITE_PATHS = [
 ];
 function isCommunityWritePath(pathname: string): boolean {
   if (!pathname) return false;
+  // 글쓰기 페이지에서는 플로팅 버튼 숨김
+  if (pathname === '/community/write' || pathname.startsWith('/community/write/')) return false;
   if (pathname === '/community' || pathname === '/community/') return true;
   return COMMUNITY_WRITE_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'));
 }

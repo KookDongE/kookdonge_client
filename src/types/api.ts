@@ -295,6 +295,8 @@ export type FileUploadCompleteRequest = {
   fileName: string;
   fileSize: number;
   extension: string;
+  /** 커뮤니티 글쓰기에서 동아리로 작성 시 파일 소속 동아리. 백엔드 file_information.club_id NOT NULL 대응 */
+  clubId?: number;
 };
 
 export type FileInfoResponse = {

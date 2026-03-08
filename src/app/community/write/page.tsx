@@ -10,6 +10,7 @@ import { IMAGE_ACCEPT_ATTR, validateImageFile } from '@/lib/image-upload-validat
 import { useMyProfile } from '@/features/auth/hooks';
 import { useCreatePost, useManagedClubsForPost } from '@/features/community/hooks';
 import { getPresignedUrl, registerFileUpload } from '@/features/community/api';
+import { feedApi } from '@/features/feed/api';
 import { isSystemAdmin } from '@/features/auth/permissions';
 import { FormPageSkeleton } from '@/components/common/skeletons';
 
@@ -207,33 +208,58 @@ export default function CommunityWritePage() {
     }
     setIsSubmitting(true);
     try {
+      const authorType =
+        accountKey === 'anonymous' ? 'ANONYMOUS' : accountKey === 'me' ? 'USER' : 'CLUB';
+      const clubId =
+        authorType === 'CLUB' ? Number(accountKey.replace('club-', '')) : undefined;
+
       const fileUuids: string[] = [];
       for (const item of photoItems) {
         const file = item.file;
         const ext = (file.name.split('.').pop()?.toLowerCase() ?? 'jpg').replace(/[^a-z]/g, '') || 'jpg';
         const contentType = file.type || 'image/jpeg';
-        const res = await getPresignedUrl(file.name, contentType);
-        const uuid = res.uuid;
-        const presignedUrl = res.presignedUrl;
-        if (!uuid || !presignedUrl) throw new Error('Presigned URL 응답 오류');
-        const putRes = await fetch(presignedUrl, {
-          method: 'PUT',
-          body: file,
-          headers: { 'Content-Type': contentType },
-        });
-        if (!putRes.ok) throw new Error('이미지 업로드 실패');
-        await registerFileUpload({
-          uuid,
-          fileName: file.name,
-          fileSize: file.size,
-          extension: ext,
-        });
+
+        let uuid: string;
+        let presignedUrl: string;
+
+        if (clubId != null) {
+          const res = await feedApi.getPresignedUrl(clubId, file.name, contentType);
+          const raw = res as { uuid?: string; presignedUrl?: string; presigned_url?: string };
+          uuid = raw.uuid ?? '';
+          presignedUrl = raw.presignedUrl ?? raw.presigned_url ?? '';
+          if (!uuid || !presignedUrl) throw new Error('Presigned URL 응답 오류');
+          const putRes = await fetch(presignedUrl, {
+            method: 'PUT',
+            body: file,
+            headers: { 'Content-Type': contentType },
+          });
+          if (!putRes.ok) throw new Error('이미지 업로드 실패');
+          await feedApi.registerUploadComplete(clubId, {
+            uuid,
+            fileName: file.name,
+            fileSize: file.size,
+            extension: ext,
+          });
+        } else {
+          const res = await getPresignedUrl(file.name, contentType);
+          uuid = res.uuid ?? '';
+          presignedUrl = res.presignedUrl ?? '';
+          if (!uuid || !presignedUrl) throw new Error('Presigned URL 응답 오류');
+          const putRes = await fetch(presignedUrl, {
+            method: 'PUT',
+            body: file,
+            headers: { 'Content-Type': contentType },
+          });
+          if (!putRes.ok) throw new Error('이미지 업로드 실패');
+          await registerFileUpload({
+            uuid,
+            fileName: file.name,
+            fileSize: file.size,
+            extension: ext,
+          });
+        }
         fileUuids.push(uuid);
       }
-      const authorType =
-        accountKey === 'anonymous' ? 'ANONYMOUS' : accountKey === 'me' ? 'USER' : 'CLUB';
-      const clubId =
-        authorType === 'CLUB' ? Number(accountKey.replace('club-', '')) : undefined;
       const postCategory = boardType === 'promo' ? 'PROMOTION' : 'FREE';
       createPostMutation.mutate(
         {
@@ -395,7 +421,7 @@ export default function CommunityWritePage() {
               htmlFor="community-write-photo"
               className="block w-36 shrink-0 cursor-pointer"
             >
-              <span className="flex aspect-square w-36 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 text-zinc-600 transition-colors hover:border-zinc-400 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
+              <span className="flex aspect-[3/4] w-36 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 text-zinc-600 transition-colors hover:border-zinc-400 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
                 <img src="/icons/stash_image-open-light.svg" alt="" className="h-12 w-12" />
               </span>
             </label>
