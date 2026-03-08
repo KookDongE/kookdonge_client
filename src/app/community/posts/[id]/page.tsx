@@ -24,6 +24,7 @@ import {
 } from '@/features/community/hooks';
 import type { CommunityComment } from '@/features/community/types';
 import { CommunityPostDetailSkeleton } from '@/components/common/skeletons';
+import { PersonFillIcon } from '@/components/icons/person-fill-icon';
 import type { CommunityAuthorType } from '@/types/api';
 import { clubApi, clubKeys } from '@/features/club';
 
@@ -509,7 +510,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
               />
             ) : (
               <span className="flex size-full items-center justify-center">
-                {post.authorName.slice(0, 1)}
+                <PersonFillIcon className="size-full" />
               </span>
             )}
           </div>
@@ -523,22 +524,20 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                   aria-label="동아리 상세 보기"
                 >
                   <span className="min-w-0 truncate">{post.authorName}</span>
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-zinc-500 dark:text-zinc-400">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                      className="h-3.5 w-3.5 rotate-180"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M15.75 19.5L8.25 12l7.5-7.5"
-                      />
-                    </svg>
-                  </span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    className="h-3.5 w-3.5 shrink-0 rotate-180 text-zinc-500 dark:text-zinc-400"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15.75 19.5L8.25 12l7.5-7.5"
+                    />
+                  </svg>
                 </button>
               ) : (
                 <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{post.authorName}</span>
@@ -763,7 +762,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                       />
                     ) : (
                       <span className="flex size-full items-center justify-center">
-                        {root.authorName.slice(0, 1)}
+                        <PersonFillIcon className="size-full" />
                       </span>
                     )}
                   </div>
@@ -774,38 +773,40 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                         <span className="text-[11px] text-zinc-400 dark:text-zinc-500">{formatCommentWrittenAt(root.createdAt)}</span>
                       </div>
                       <div className="mr-3 flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-700">
-                        <button
-                          type="button"
-                          className={`flex items-center gap-0.5 rounded p-0.5 transition-opacity hover:opacity-80 ${(commentLikedByMe[root.id] ?? root.liked) ? 'text-red-500 dark:text-red-400' : 'text-zinc-500 dark:text-zinc-500'}`}
-                          aria-label={`좋아요 ${commentLikeOverrides[root.id] ?? root.likeCount}개`}
-                          onClick={() => {
-                            if (commentLikedByMe[root.id] ?? root.liked) return;
-                            if (!confirm('좋아요를 누르시겠습니까?')) return;
-                            setCommentLikedByMe((prev) => ({ ...prev, [root.id]: true }));
-                            setCommentLikeOverrides((prev) => ({
-                              ...prev,
-                              [root.id]: (prev[root.id] ?? root.likeCount) + 1,
-                            }));
-                            likeCommentMutation.mutate(root.id, {
-                              onError: () => {
-                                setCommentLikedByMe((prev) => ({ ...prev, [root.id]: false }));
-                                setCommentLikeOverrides((prev) => ({
-                                  ...prev,
-                                  [root.id]: (prev[root.id] ?? root.likeCount) - 1,
-                                }));
-                              },
-                            });
-                          }}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5 shrink-0">
-                            <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-                          </svg>
-                        </button>
-                        {(commentLikeOverrides[root.id] ?? root.likeCount) > 0 && (
-                          <span className="text-xs text-zinc-500 dark:text-zinc-400" aria-label={`좋아요 ${commentLikeOverrides[root.id] ?? root.likeCount}개`}>
-                            {commentLikeOverrides[root.id] ?? root.likeCount}
-                          </span>
-                        )}
+                        <div className="flex items-center gap-0">
+                          <button
+                            type="button"
+                            className={`flex items-center gap-0.5 rounded p-0.5 transition-opacity hover:opacity-80 ${(commentLikedByMe[root.id] ?? root.liked) ? 'text-red-500 dark:text-red-400' : 'text-zinc-500 dark:text-zinc-500'}`}
+                            aria-label={`좋아요 ${commentLikeOverrides[root.id] ?? root.likeCount}개`}
+                            onClick={() => {
+                              if (commentLikedByMe[root.id] ?? root.liked) return;
+                              if (!confirm('좋아요를 누르시겠습니까?')) return;
+                              setCommentLikedByMe((prev) => ({ ...prev, [root.id]: true }));
+                              setCommentLikeOverrides((prev) => ({
+                                ...prev,
+                                [root.id]: (prev[root.id] ?? root.likeCount) + 1,
+                              }));
+                              likeCommentMutation.mutate(root.id, {
+                                onError: () => {
+                                  setCommentLikedByMe((prev) => ({ ...prev, [root.id]: false }));
+                                  setCommentLikeOverrides((prev) => ({
+                                    ...prev,
+                                    [root.id]: (prev[root.id] ?? root.likeCount) - 1,
+                                  }));
+                                },
+                              });
+                            }}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5 shrink-0">
+                              <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                            </svg>
+                          </button>
+                          {(commentLikeOverrides[root.id] ?? root.likeCount) > 0 && (
+                            <span className="text-xs text-zinc-500 dark:text-zinc-400" aria-label={`좋아요 ${commentLikeOverrides[root.id] ?? root.likeCount}개`}>
+                              {commentLikeOverrides[root.id] ?? root.likeCount}
+                            </span>
+                          )}
+                        </div>
                         <span className="h-2.5 w-px shrink-0 bg-zinc-300 dark:bg-zinc-600" aria-hidden />
                         <button
                           type="button"
@@ -845,7 +846,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                     </div>
                   </div>
                   <div className="min-w-0 w-full -mt-3 overflow-hidden">
-                    <p className="mt-3 pl-0.5 pb-3 text-sm font-normal text-zinc-600 dark:text-zinc-400 break-words overflow-hidden">{root.content}</p>
+                    <p className="mt-3 pl-0.5 pb-3 pr-[5.75rem] text-sm font-normal text-zinc-600 dark:text-zinc-400 overflow-hidden [word-break:keep-all]">{root.content}</p>
                   </div>
                 </div>
                 {/* 답글들: 왼쪽 화살표로 답글 표시 */}
@@ -872,7 +873,9 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           {reply.clubId != null && clubImageMap[reply.clubId] ? (
                             <img src={clubImageMap[reply.clubId]} alt="" className="size-full object-cover" />
                           ) : (
-                            <span className="flex size-full items-center justify-center">{reply.authorName.slice(0, 1)}</span>
+                            <span className="flex size-full items-center justify-center">
+                              <PersonFillIcon className="size-full" />
+                            </span>
                           )}
                         </div>
                         <div className="min-w-0 flex-1">
@@ -882,32 +885,34 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                               <span className="text-[11px] text-zinc-400 dark:text-zinc-500">{formatCommentWrittenAt(reply.createdAt)}</span>
                             </div>
                             <div className="flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-700">
-                              <button
-                                type="button"
-                                className={`flex items-center gap-0.5 rounded p-0.5 transition-opacity hover:opacity-80 ${liked ? 'text-red-500 dark:text-red-400' : 'text-zinc-500 dark:text-zinc-500'}`}
-                                aria-label={`좋아요 ${likeCount}개`}
-                                onClick={() => {
-                                  if (liked) return;
-                                  if (!confirm('좋아요를 누르시겠습니까?')) return;
-                                  setCommentLikedByMe((prev) => ({ ...prev, [reply.id]: true }));
-                                  setCommentLikeOverrides((prev) => ({ ...prev, [reply.id]: (prev[reply.id] ?? reply.likeCount) + 1 }));
-                                  likeCommentMutation.mutate(reply.id, {
-                                    onError: () => {
-                                      setCommentLikedByMe((prev) => ({ ...prev, [reply.id]: false }));
-                                      setCommentLikeOverrides((prev) => ({ ...prev, [reply.id]: (prev[reply.id] ?? reply.likeCount) - 1 }));
-                                    },
-                                  });
-                                }}
-                              >
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5 shrink-0">
-                                  <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-                                </svg>
-                              </button>
-                              {likeCount > 0 && (
-                                <span className="text-xs text-zinc-500 dark:text-zinc-400" aria-label={`좋아요 ${likeCount}개`}>
-                                  {likeCount}
-                                </span>
-                              )}
+                              <div className="flex items-center gap-0">
+                                <button
+                                  type="button"
+                                  className={`flex items-center gap-0.5 rounded p-0.5 transition-opacity hover:opacity-80 ${liked ? 'text-red-500 dark:text-red-400' : 'text-zinc-500 dark:text-zinc-500'}`}
+                                  aria-label={`좋아요 ${likeCount}개`}
+                                  onClick={() => {
+                                    if (liked) return;
+                                    if (!confirm('좋아요를 누르시겠습니까?')) return;
+                                    setCommentLikedByMe((prev) => ({ ...prev, [reply.id]: true }));
+                                    setCommentLikeOverrides((prev) => ({ ...prev, [reply.id]: (prev[reply.id] ?? reply.likeCount) + 1 }));
+                                    likeCommentMutation.mutate(reply.id, {
+                                      onError: () => {
+                                        setCommentLikedByMe((prev) => ({ ...prev, [reply.id]: false }));
+                                        setCommentLikeOverrides((prev) => ({ ...prev, [reply.id]: (prev[reply.id] ?? reply.likeCount) - 1 }));
+                                      },
+                                    });
+                                  }}
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5 shrink-0">
+                                    <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                                  </svg>
+                                </button>
+                                {likeCount > 0 && (
+                                  <span className="text-xs text-zinc-500 dark:text-zinc-400" aria-label={`좋아요 ${likeCount}개`}>
+                                    {likeCount}
+                                  </span>
+                                )}
+                              </div>
                               <span className="h-2.5 w-px shrink-0 bg-zinc-300 dark:bg-zinc-600" aria-hidden />
                               <div className="relative" ref={commentMenuOpenId === reply.id ? commentMenuRef : undefined}>
                                 <button
@@ -932,7 +937,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           </div>
                         </div>
                         <div className="min-w-0 w-full -mt-3 overflow-hidden">
-                          <p className="mt-3 min-w-0 w-full pl-0.5 pb-3 pr-[5.75rem] text-sm font-normal text-zinc-600 dark:text-zinc-400 break-words overflow-hidden">{reply.content}</p>
+                          <p className="mt-3 min-w-0 w-full pl-0.5 pb-3 pr-[5.75rem] text-sm font-normal text-zinc-600 dark:text-zinc-400 overflow-hidden [word-break:keep-all]">{reply.content}</p>
                         </div>
                       </div>
                     </div>

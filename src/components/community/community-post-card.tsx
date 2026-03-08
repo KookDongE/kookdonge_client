@@ -96,7 +96,8 @@ export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
             alt=""
             fill
             className="object-cover"
-            sizes="64px"
+            sizes="128px"
+            quality={90}
           />
         </div>
       ) : null}
