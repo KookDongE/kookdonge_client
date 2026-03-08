@@ -624,10 +624,12 @@ function HomeContent() {
     if (el) el.scrollTo(0, 0);
   }, [pathname]);
 
+  const hasSearchQuery = Boolean(searchParams.get('q')?.trim());
+
   return (
     <>
       <ClubFilters />
-      <RankingSection returnTo={returnTo} />
+      {!hasSearchQuery && <RankingSection returnTo={returnTo} />}
       <ClubListSection returnTo={returnTo} reshuffleKey={reshuffleKey} />
     </>
   );

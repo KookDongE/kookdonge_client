@@ -270,7 +270,7 @@ export function SearchFilterBar({
       ref={filterBarRef}
       className={
         stickyHideOnScroll
-          ? `${bgClass} sticky top-0 z-30 border-y-0 px-4 pt-0 pb-2 transition-[transform,opacity] duration-300 ease-out ${isVisible ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-full opacity-0'} ${className}`
+          ? `${bgClass} sticky top-0 z-30 border-y-0 px-4 pt-3 pb-2 transition-[transform,opacity] duration-300 ease-out ${isVisible ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-full opacity-0'} ${className}`
           : `border-b border-zinc-200 ${bgClass} px-4 py-2 dark:border-zinc-700 ${className}`
       }
     >
