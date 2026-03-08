@@ -15,7 +15,12 @@ function formatDate(iso: string): string {
   if (diff < 60 * 60 * 1000) return `${Math.floor(diff / 60000)}분 전`;
   if (diff < 24 * 60 * 60 * 1000) return `${Math.floor(diff / 3600000)}시간 전`;
   if (diff < 7 * 24 * 60 * 60 * 1000) return `${Math.floor(diff / 86400000)}일 전`;
-  return d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+  const isCurrentYear = d.getFullYear() === now.getFullYear();
+  return d.toLocaleDateString('ko-KR', {
+    year: isCurrentYear ? undefined : '2-digit',
+    month: 'short',
+    day: 'numeric',
+  });
 }
 
 type CommunityPostCardProps = {

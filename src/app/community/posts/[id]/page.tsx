@@ -29,8 +29,9 @@ import { clubApi, clubKeys } from '@/features/club';
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
+  const isCurrentYear = d.getFullYear() === new Date().getFullYear();
   return d.toLocaleDateString('ko-KR', {
-    year: 'numeric',
+    year: isCurrentYear ? undefined : '2-digit',
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
@@ -45,7 +46,26 @@ function formatCommentTime(iso: string): string {
   if (diff < 1) return '방금 전';
   if (diff < 60) return `${Math.floor(diff)}분 전`;
   if (diff < 1440) return `${Math.floor(diff / 60)}시간 전`;
-  return d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+  const isCurrentYear = d.getFullYear() === now.getFullYear();
+  return d.toLocaleDateString('ko-KR', {
+    year: isCurrentYear ? undefined : '2-digit',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+/** 댓글 작성 시각 표기용: 올해면 MM.DD HH:mm, 올해 아니면 26.03.09 02:59 */
+function formatCommentWrittenAt(iso: string): string {
+  const d = new Date(iso);
+  const now = new Date();
+  const mm = (d.getMonth() + 1).toString().padStart(2, '0');
+  const dd = d.getDate().toString().padStart(2, '0');
+  const hh = d.getHours().toString().padStart(2, '0');
+  const min = d.getMinutes().toString().padStart(2, '0');
+  const isCurrentYear = d.getFullYear() === now.getFullYear();
+  if (isCurrentYear) return `${mm}.${dd} ${hh}:${min}`;
+  const yy = d.getFullYear().toString().slice(-2);
+  return `${yy}.${mm}.${dd} ${hh}:${min}`;
 }
 
 const SWIPE_THRESHOLD = 50;
@@ -744,7 +764,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                         <span>{root.authorName}</span>
                         <span>{formatCommentTime(root.createdAt)}</span>
                       </div>
-                      <div className="mr-7 flex shrink-0 items-center gap-0.5 rounded-md bg-zinc-100 px-1 py-0.5">
+                      <div className="mr-7 flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-1.5 py-0.5">
                         <button
                           type="button"
                           className={`flex items-center gap-0.5 rounded p-0.5 transition-opacity hover:opacity-80 ${(commentLikedByMe[root.id] ?? root.liked ?? false) ? 'text-red-500/90 dark:text-red-500/85' : 'text-zinc-500 dark:text-zinc-500'}`}
@@ -768,10 +788,10 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                             });
                           }}
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5 shrink-0">
                             <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
                           </svg>
-                          <span className="text-[11px]">{commentLikeOverrides[root.id] ?? root.likeCount}</span>
+                          <span className="ml-1 text-[11px]">{commentLikeOverrides[root.id] ?? root.likeCount}</span>
                         </button>
                         <span className="h-3.5 w-px shrink-0 bg-zinc-300 dark:bg-zinc-600" aria-hidden />
                         <button
@@ -810,7 +830,8 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                         </div>
                       </div>
                     </div>
-                    <p className="mt-2.5 text-sm font-normal text-zinc-600 dark:text-zinc-400">{root.content}</p>
+                    <p className="mt-2.5 mr-7 text-sm font-normal text-zinc-600 dark:text-zinc-400 break-words">{root.content}</p>
+                    <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">{formatCommentWrittenAt(root.createdAt)}</p>
                   </div>
                 </div>
                 {/* 답글들: 왼쪽 화살표로 답글 표시 */}
@@ -844,10 +865,9 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
                               <span>{reply.authorName}</span>
-                              <span className="text-zinc-400 dark:text-zinc-500">· {root.authorName}님에게 답글</span>
                               <span>{formatCommentTime(reply.createdAt)}</span>
                             </div>
-                            <div className="flex shrink-0 items-center gap-0.5 rounded-md bg-zinc-100 px-1 py-0.5">
+                            <div className="flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-1.5 py-0.5">
                               <button
                                 type="button"
                                 className={`flex items-center gap-0.5 rounded p-0.5 transition-opacity hover:opacity-80 ${liked ? 'text-red-500/90 dark:text-red-500/85' : 'text-zinc-500 dark:text-zinc-500'}`}
@@ -865,10 +885,10 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                                   });
                                 }}
                               >
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5 shrink-0">
                                   <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
                                 </svg>
-                                <span className="text-[11px]">{likeCount}</span>
+                                <span className="ml-1 text-[11px]">{likeCount}</span>
                               </button>
                               <span className="h-3.5 w-px shrink-0 bg-zinc-300 dark:bg-zinc-600" aria-hidden />
                               <div className="relative" ref={commentMenuOpenId === reply.id ? commentMenuRef : undefined}>
@@ -893,6 +913,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                             </div>
                           </div>
                           <p className="mt-2.5 text-sm font-normal text-zinc-600 dark:text-zinc-400">{reply.content}</p>
+                          <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">{formatCommentWrittenAt(reply.createdAt)}</p>
                         </div>
                       </div>
                     </div>

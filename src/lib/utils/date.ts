@@ -27,9 +27,13 @@ export function formatQnaDateTime(iso: string | null | undefined): string {
   const d = new Date(toParse);
   if (Number.isNaN(d.getTime())) return '-';
   const timeZone = hasOffset ? 'UTC' : 'Asia/Seoul';
+  const now = new Date();
+  const isCurrentYear =
+    (timeZone === 'UTC' ? d.getUTCFullYear() : d.getFullYear()) ===
+    (timeZone === 'UTC' ? now.getUTCFullYear() : now.getFullYear());
   const parts = new Intl.DateTimeFormat('en-CA', {
     timeZone,
-    year: '2-digit',
+    year: isCurrentYear ? undefined : '2-digit',
     month: '2-digit',
     day: '2-digit',
     hour: '2-digit',
@@ -38,5 +42,8 @@ export function formatQnaDateTime(iso: string | null | undefined): string {
   }).formatToParts(d);
   const get = (type: Intl.DateTimeFormatPartTypes) =>
     parts.find((p) => p.type === type)?.value ?? '';
-  return `${get('year')}.${get('month')}.${get('day')} ${get('hour')}:${get('minute')}`;
+  const datePart = isCurrentYear
+    ? `${get('month')}.${get('day')}`
+    : `${get('year')}.${get('month')}.${get('day')}`;
+  return `${datePart} ${get('hour')}:${get('minute')}`;
 }
