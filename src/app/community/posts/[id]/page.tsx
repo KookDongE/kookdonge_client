@@ -497,24 +497,22 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
       <article className="px-4 py-4">
         {/* 작성자: 프로필 사진 + 이름/시간 세로, 오른쪽 ... 메뉴(수정/삭제/신고) */}
         <div className="mb-4 flex items-center gap-2">
-          {post.clubId != null && (
-            <div
-              className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-zinc-200 text-sm font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
-              aria-hidden
-            >
-              {clubImageMap[post.clubId] ? (
-                <img
-                  src={clubImageMap[post.clubId]}
-                  alt=""
-                  className="size-full object-cover"
-                />
-              ) : (
-                <span className="flex size-full items-center justify-center">
-                  {post.authorName.slice(0, 1)}
-                </span>
-              )}
-            </div>
-          )}
+          <div
+            className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-zinc-200 text-sm font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
+            aria-hidden
+          >
+            {post.clubId != null && clubImageMap[post.clubId] ? (
+              <img
+                src={clubImageMap[post.clubId]}
+                alt=""
+                className="size-full object-cover"
+              />
+            ) : (
+              <span className="flex size-full items-center justify-center">
+                {post.authorName.slice(0, 1)}
+              </span>
+            )}
+          </div>
           <div className="flex min-w-0 shrink-0 flex-col gap-0.5 text-xs text-zinc-500 dark:text-zinc-400">
             <div className="flex items-center">
               {post.clubId != null ? (
@@ -846,8 +844,8 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                       </div>
                     </div>
                   </div>
-                  <div className="w-full -mt-3">
-                    <p className="mt-3 pl-0.5 pb-3 text-sm font-normal text-zinc-600 dark:text-zinc-400 whitespace-nowrap overflow-x-auto">{root.content}</p>
+                  <div className="min-w-0 w-full -mt-3 overflow-hidden">
+                    <p className="mt-3 pl-0.5 pb-3 text-sm font-normal text-zinc-600 dark:text-zinc-400 break-words overflow-hidden">{root.content}</p>
                   </div>
                 </div>
                 {/* 답글들: 왼쪽 화살표로 답글 표시 */}
@@ -933,8 +931,8 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                             </div>
                           </div>
                         </div>
-                        <div className="w-full -mt-3">
-                          <p className="mt-3 min-w-0 w-full pl-0.5 pb-3 pr-[5.75rem] text-sm font-normal text-zinc-600 dark:text-zinc-400 whitespace-nowrap overflow-x-auto">{reply.content}</p>
+                        <div className="min-w-0 w-full -mt-3 overflow-hidden">
+                          <p className="mt-3 min-w-0 w-full pl-0.5 pb-3 pr-[5.75rem] text-sm font-normal text-zinc-600 dark:text-zinc-400 break-words overflow-hidden">{reply.content}</p>
                         </div>
                       </div>
                     </div>

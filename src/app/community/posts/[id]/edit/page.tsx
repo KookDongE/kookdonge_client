@@ -232,11 +232,12 @@ export default function CommunityPostEditPage({ params }: PageProps) {
         });
         fileUuids.push(uuid);
       }
+      // API: fileUuids를 생략하면 기존 이미지 유지, 배열이면 해당 순서로 반영(빈 배열이면 전부 삭제)
       updatePostMutation.mutate(
         {
           title: trimmedTitle,
           content: trimmedContent,
-          fileUuids: fileUuids.length > 0 ? fileUuids : undefined,
+          fileUuids,
         },
         {
           onSuccess: () => router.replace(`/community/posts/${id}`),
