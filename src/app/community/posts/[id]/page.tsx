@@ -516,32 +516,34 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
             </div>
           )}
           <div className="flex min-w-0 shrink-0 flex-col gap-0.5 text-xs text-zinc-500 dark:text-zinc-400">
-            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{post.authorName}</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{post.authorName}</span>
+              {post.clubId != null && (
+                <button
+                  type="button"
+                  onClick={() => router.push(`/clubs/${post.clubId}`)}
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                  aria-label="동아리 상세 보기"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    className="h-4 w-4 rotate-180"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15.75 19.5L8.25 12l7.5-7.5"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
             <span>{formatDate(post.createdAt)}</span>
           </div>
-          {post.clubId != null && (
-            <button
-              type="button"
-              onClick={() => router.push(`/clubs/${post.clubId}`)}
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
-              aria-label="동아리 상세 보기"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                className="h-4 w-4 rotate-180"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 19.5L8.25 12l7.5-7.5"
-                />
-              </svg>
-            </button>
-          )}
           <div className="relative ml-auto shrink-0" ref={menuRef}>
             <button
               type="button"
@@ -798,7 +800,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           </svg>
                         </button>
                         {(commentLikeOverrides[root.id] ?? root.likeCount) > 0 && (
-                          <span className="ml-0.5 text-xs text-zinc-500 dark:text-zinc-400" aria-label={`좋아요 ${commentLikeOverrides[root.id] ?? root.likeCount}개`}>
+                          <span className="text-xs text-zinc-500 dark:text-zinc-400" aria-label={`좋아요 ${commentLikeOverrides[root.id] ?? root.likeCount}개`}>
                             {commentLikeOverrides[root.id] ?? root.likeCount}
                           </span>
                         )}
@@ -841,7 +843,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                     </div>
                   </div>
                   <div className="w-full -mt-3">
-                    <p className="mt-3 pb-4 text-sm font-normal text-zinc-600 dark:text-zinc-400 break-words">{root.content}</p>
+                    <p className="mt-3 pl-0.5 pb-3 text-sm font-normal text-zinc-600 dark:text-zinc-400 break-words">{root.content}</p>
                   </div>
                 </div>
                 {/* 답글들: 왼쪽 화살표로 답글 표시 */}
@@ -877,7 +879,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                               <span className={`text-[13px] font-medium ${isMine ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}>{reply.authorName.replace(/([^\s])\(글쓴이\)/, '$1 (글쓴이)')}{isMine && !reply.authorName.includes('(글쓴이)') ? ' (글쓴이)' : ''}</span>
                               <span className="text-[11px] text-zinc-400 dark:text-zinc-500">{formatCommentWrittenAt(reply.createdAt)}</span>
                             </div>
-                            <div className="mr-3 flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-700">
+                            <div className="flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-700">
                               <button
                                 type="button"
                                 className={`flex items-center gap-0.5 rounded p-0.5 transition-opacity hover:opacity-80 ${liked ? 'text-red-500 dark:text-red-400' : 'text-zinc-500 dark:text-zinc-500'}`}
@@ -900,7 +902,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                                 </svg>
                               </button>
                               {likeCount > 0 && (
-                                <span className="ml-0.5 text-xs text-zinc-500 dark:text-zinc-400" aria-label={`좋아요 ${likeCount}개`}>
+                                <span className="text-xs text-zinc-500 dark:text-zinc-400" aria-label={`좋아요 ${likeCount}개`}>
                                   {likeCount}
                                 </span>
                               )}
@@ -927,8 +929,8 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                             </div>
                           </div>
                         </div>
-                        <div className="w-full -mt-3 pr-[5.75rem]">
-                          <p className="mt-3 min-w-0 w-full pb-4 text-sm font-normal text-zinc-600 dark:text-zinc-400 break-words">{reply.content}</p>
+                        <div className="w-full -mt-3">
+                          <p className="mt-3 min-w-0 w-full pl-0.5 pb-3 pr-[5.75rem] text-sm font-normal text-zinc-600 dark:text-zinc-400 break-words">{reply.content}</p>
                         </div>
                       </div>
                     </div>

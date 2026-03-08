@@ -43,7 +43,7 @@ export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
         <h3 className="line-clamp-2 text-sm leading-snug font-medium text-zinc-700 dark:text-zinc-300">
           {post.title}
         </h3>
-        <p className="mt-1 line-clamp-1 text-xs leading-snug font-normal text-zinc-500 dark:text-zinc-500">
+        <p className="mt-2 line-clamp-1 text-xs leading-snug font-normal text-zinc-500 dark:text-zinc-500">
           {contentPreview}
         </p>
         <div className="mt-2 flex items-center gap-3 text-[12px] text-zinc-500 dark:text-zinc-500">
