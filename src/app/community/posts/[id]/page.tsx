@@ -679,7 +679,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
         ) : (
           <ul className="space-y-4">
             {comments.flatMap((c) => [
-              { comment: c, isReply: false as const },
+              { comment: c, isReply: false as const, parentAuthor: undefined },
               ...(c.replies ?? []).map((r) => ({
                 comment: r,
                 isReply: true as const,
