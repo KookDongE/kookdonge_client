@@ -744,7 +744,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                         <span>{root.authorName}</span>
                         <span>{formatCommentTime(root.createdAt)}</span>
                       </div>
-                      <div className="flex shrink-0 items-center gap-0.5 rounded-md bg-zinc-100 px-1 py-0.5 pr-7">
+                      <div className="mr-7 flex shrink-0 items-center gap-0.5 rounded-md bg-zinc-100 px-1 py-0.5">
                         <button
                           type="button"
                           className={`flex items-center gap-0.5 rounded p-0.5 transition-opacity hover:opacity-80 ${(commentLikedByMe[root.id] ?? root.liked ?? false) ? 'text-red-500/90 dark:text-red-500/85' : 'text-zinc-500 dark:text-zinc-500'}`}
@@ -773,6 +773,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           </svg>
                           <span className="text-[11px]">{commentLikeOverrides[root.id] ?? root.likeCount}</span>
                         </button>
+                        <span className="h-3.5 w-px shrink-0 bg-zinc-300 dark:bg-zinc-600" aria-hidden />
                         <button
                           type="button"
                           className="rounded p-0.5 text-zinc-500 transition-colors hover:opacity-80 dark:text-zinc-500"
@@ -787,6 +788,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                             <path d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
                           </svg>
                         </button>
+                        <span className="h-3.5 w-px shrink-0 bg-zinc-300 dark:bg-zinc-600" aria-hidden />
                         <div className="relative" ref={commentMenuOpenId === root.id ? commentMenuRef : undefined}>
                           <button
                             type="button"
@@ -868,6 +870,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                                 </svg>
                                 <span className="text-[11px]">{likeCount}</span>
                               </button>
+                              <span className="h-3.5 w-px shrink-0 bg-zinc-300 dark:bg-zinc-600" aria-hidden />
                               <div className="relative" ref={commentMenuOpenId === reply.id ? commentMenuRef : undefined}>
                                 <button
                                   type="button"
