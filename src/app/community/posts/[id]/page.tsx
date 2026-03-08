@@ -481,7 +481,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
         <div className="mb-4 flex items-center gap-4">
           {post.clubId != null && (
             <div
-              className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-zinc-200 text-sm font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
+              className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-zinc-200 text-sm font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
               aria-hidden
             >
               {clubImageMap[post.clubId] ? (
@@ -621,7 +621,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
         )}
 
         {/* 액션 바: 공감 | 댓글 N | 스크랩 (가로 3등분, 사이 세로 구분선) */}
-        <div className="-mx-4 mt-6 flex items-center rounded-xl bg-zinc-100 px-4 py-4 dark:bg-zinc-800/50">
+        <div className="mt-6 flex items-center rounded-xl bg-zinc-50 px-4 py-4 dark:bg-zinc-800/30">
           <button
             type="button"
             onClick={handleLike}
@@ -677,6 +677,9 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
         </div>
       </article>
 
+      {/* 액션 바 ~ 댓글 사이 가로 꽉찬 배너 (1546:423 비율, 이미지 추후 적용) */}
+      <div className="mt-6 w-full aspect-[1546/423] shrink-0 bg-zinc-100 dark:bg-zinc-800/50" aria-hidden />
+
       {/* 첨부 사진 확대 보기 오버레이 (가로 스와이프·좌우 버튼으로 이전/다음) */}
       {post.imageUrls && expandedImageIndex !== null && (
         <ImageLightbox
@@ -688,7 +691,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
       )}
 
       {/* 댓글 목록 (개수는 상단 액션 바 '댓글 N'에 표시) */}
-      <section className="mt-4 border-t border-zinc-200 px-4 py-4 dark:border-zinc-700">
+      <section className="mt-4 px-4 py-4">
         {comments.length === 0 ? (
           <p className="py-6 text-center text-sm text-zinc-400 dark:text-zinc-500">
             댓글이 없습니다.
@@ -700,13 +703,13 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                 key={root.id}
                 className={`relative ${rootIndex > 0 ? 'border-t border-zinc-100 pt-4 dark:border-zinc-800' : ''}`}
               >
-                {/* 원댓글 */}
+                {/* 원댓글: 답글과 버튼 가로 정렬 맞추기 위해 동일 좌측 여백 */}
                 <div
-                  className="relative flex gap-3"
+                  className="relative flex gap-3 pl-8 sm:pl-10"
                   data-comment-id={root.id}
                 >
                   <div
-                    className="relative z-[1] h-8 w-8 shrink-0 overflow-hidden rounded-full bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
+                    className="relative z-[1] h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
                     aria-hidden
                   >
                     {root.clubId != null && clubImageMap[root.clubId] ? (
@@ -794,13 +797,9 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                     <p className="mt-2.5 text-sm font-normal text-zinc-600 dark:text-zinc-400">{root.content}</p>
                   </div>
                 </div>
-                {/* 답글들: 세로선은 답글 영역 안에서만 그려서 마지막 답글 아래로 선이 내려가지 않음 */}
+                {/* 답글들: 왼쪽 화살표로 답글 표시 */}
                 {(root.replies?.length ?? 0) > 0 && (
                   <div className="relative">
-                    <div
-                      className="absolute left-4 top-0 bottom-0 z-[0] w-px bg-zinc-200 dark:bg-zinc-600/80"
-                      aria-hidden
-                    />
                     {(root.replies ?? []).map((reply) => {
                   const likeCount = commentLikeOverrides[reply.id] ?? reply.likeCount;
                   const liked = commentLikedByMe[reply.id] ?? (reply.liked ?? false);
@@ -808,11 +807,17 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                   return (
                     <div
                       key={reply.id}
-                      className="relative flex gap-3 pl-8 pt-3 sm:pl-10 after:absolute after:left-4 after:top-9 after:z-[0] after:block after:h-px after:w-3 after:bg-zinc-200 after:content-[''] sm:after:w-4 dark:after:bg-zinc-600/80"
+                      className="relative flex gap-3 pl-8 pt-3 sm:pl-10"
                       data-comment-id={reply.id}
                     >
+                      <span className="absolute left-0 top-6 z-[1] flex h-5 w-5 shrink-0 items-center justify-center text-zinc-400 dark:text-zinc-500" aria-hidden>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="stroke-current">
+                          <path d="M16 19L21 14L16 9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          <path d="M21 14H13C7.477 14 3 9.523 3 4V3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </span>
                       <div className="relative z-[1] flex min-w-0 flex-1 gap-3 rounded-lg bg-zinc-50 py-2 px-3 dark:bg-zinc-800/50">
-                        <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300" aria-hidden>
+                        <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300" aria-hidden>
                           {reply.clubId != null && clubImageMap[reply.clubId] ? (
                             <img src={clubImageMap[reply.clubId]} alt="" className="size-full object-cover" />
                           ) : (
