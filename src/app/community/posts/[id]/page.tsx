@@ -515,7 +515,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
               />
             ) : (
               <span className="flex size-full items-center justify-center">
-                <PersonFillIcon className="size-full" />
+                <PersonFillIcon className="h-[1.75rem] w-[1.75rem] shrink-0 text-zinc-500 dark:text-zinc-500" />
               </span>
             )}
           </div>
@@ -766,8 +766,8 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                         className="size-full object-cover"
                       />
                     ) : (
-                      <span className="flex size-full items-end justify-center">
-                        <PersonFillIcon className="h-5 w-5 shrink-0 text-zinc-500 dark:text-zinc-500" />
+                      <span className="flex size-full items-center justify-center">
+                        <PersonFillIcon className="h-[1.375rem] w-[1.375rem] shrink-0 text-zinc-500 dark:text-zinc-500" />
                       </span>
                     )}
                   </div>
@@ -851,7 +851,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                     </div>
                   </div>
                   <div className="min-w-0 w-full -mt-3">
-                    <p className="mt-3 pl-0.5 pb-3 pr-[5.75rem] break-words text-sm font-normal text-zinc-600 dark:text-zinc-400">{preventBreakAfterQuestion(root.content)}</p>
+                    <p className="mt-3 pl-0.5 pb-1.5 pr-[5.75rem] break-all break-words text-sm font-normal text-zinc-600 dark:text-zinc-400">{preventBreakAfterQuestion(root.content)}</p>
                   </div>
                 </div>
                 {/* 답글들: 왼쪽 화살표로 답글 표시 */}
@@ -878,8 +878,8 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           {reply.clubId != null && clubImageMap[reply.clubId] ? (
                             <img src={clubImageMap[reply.clubId]} alt="" className="size-full object-cover" />
                           ) : (
-                            <span className="flex size-full items-end justify-center">
-                              <PersonFillIcon className="h-5 w-5 shrink-0 text-zinc-500 dark:text-zinc-500" />
+                            <span className="flex size-full items-center justify-center">
+                              <PersonFillIcon className="h-[1.375rem] w-[1.375rem] shrink-0 text-zinc-500 dark:text-zinc-500" />
                             </span>
                           )}
                         </div>
@@ -942,7 +942,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           </div>
                         </div>
                         <div className="min-w-0 w-full -mt-3">
-                          <p className="mt-3 min-w-0 w-full pl-0.5 pb-3 pr-[5.75rem] break-words text-sm font-normal text-zinc-600 dark:text-zinc-400">{preventBreakAfterQuestion(reply.content)}</p>
+                          <p className="mt-3 min-w-0 w-full pl-0.5 pb-1.5 pr-[5.75rem] break-all break-words text-sm font-normal text-zinc-600 dark:text-zinc-400">{preventBreakAfterQuestion(reply.content)}</p>
                         </div>
                       </div>
                     </div>
