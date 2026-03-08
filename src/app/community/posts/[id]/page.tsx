@@ -620,13 +620,13 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
           )
         )}
 
-        {/* 액션 바: 공감 | 댓글 N | 스크랩 (가로 3등분) */}
-        <div className="mt-6 grid grid-cols-3 items-center border-t border-zinc-200 pt-4 dark:border-zinc-700">
+        {/* 액션 바: 공감 | 댓글 N | 스크랩 (가로 3등분, 사이 세로 구분선) */}
+        <div className="-mx-4 mt-6 flex items-center rounded-xl bg-zinc-100 px-4 py-4 dark:bg-zinc-800/50">
           <button
             type="button"
             onClick={handleLike}
             disabled={likePostMutation.isPending}
-            className={`flex w-full items-center justify-center gap-1.5 text-sm transition-none hover:opacity-80 disabled:opacity-50 ${liked ? 'text-red-500/90 dark:text-red-500/85' : 'text-zinc-500 dark:text-zinc-500'}`}
+            className={`flex flex-1 items-center justify-center gap-1.5 text-sm transition-none hover:opacity-80 disabled:opacity-50 ${liked ? 'text-red-500/90 dark:text-red-500/85' : 'text-zinc-500 dark:text-zinc-500'}`}
             aria-label={liked ? '공감 취소' : '공감'}
           >
             <svg
@@ -640,8 +640,9 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
             <span>공감</span>
             <span>{post.likeCount}</span>
           </button>
+          <div className="h-4 w-px shrink-0 bg-zinc-300 dark:bg-zinc-600" aria-hidden />
           <span
-            className="flex items-center justify-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-500"
+            className="flex flex-1 items-center justify-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-500"
             aria-label="댓글"
           >
             <svg
@@ -654,11 +655,12 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
             </svg>
             <span>댓글 {post.commentCount}</span>
           </span>
+          <div className="h-4 w-px shrink-0 bg-zinc-300 dark:bg-zinc-600" aria-hidden />
           <button
             type="button"
             onClick={handleSave}
             disabled={savePostMutation.isPending || unsavePostMutation.isPending}
-            className={`flex w-full items-center justify-center gap-1.5 text-sm transition-none hover:opacity-80 disabled:opacity-50 ${saved ? 'text-amber-500/90 dark:text-amber-500/85' : 'text-zinc-500 dark:text-zinc-500'}`}
+            className={`flex flex-1 items-center justify-center gap-1.5 text-sm transition-none hover:opacity-80 disabled:opacity-50 ${saved ? 'text-amber-500/90 dark:text-amber-500/85' : 'text-zinc-500 dark:text-zinc-500'}`}
             aria-label={saved ? '저장 취소' : '스크랩'}
           >
             <svg
@@ -698,13 +700,6 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                 key={root.id}
                 className={`relative ${rootIndex > 0 ? 'border-t border-zinc-100 pt-4 dark:border-zinc-800' : ''}`}
               >
-                {/* 답글이 있을 때만: 원댓글 프로필 아래 ~ 마지막 답글까지 세로선 (유동 높이) */}
-                {(root.replies?.length ?? 0) > 0 && (
-                  <div
-                    className="absolute left-4 top-8 bottom-0 z-[0] w-px bg-zinc-200 dark:bg-zinc-600/80"
-                    aria-hidden
-                  />
-                )}
                 {/* 원댓글 */}
                 <div
                   className="relative flex gap-3"
@@ -732,7 +727,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                         <span>{root.authorName}</span>
                         <span>{formatCommentTime(root.createdAt)}</span>
                       </div>
-                      <div className="flex shrink-0 items-center gap-0.5 rounded-md bg-zinc-50 px-1 py-0.5 dark:bg-zinc-800/50">
+                      <div className="flex shrink-0 items-center gap-0.5 rounded-md bg-zinc-100 px-1 py-0.5">
                         <button
                           type="button"
                           className={`flex items-center gap-0.5 rounded p-0.5 transition-opacity hover:opacity-80 ${(commentLikedByMe[root.id] ?? root.liked ?? false) ? 'text-red-500/90 dark:text-red-500/85' : 'text-zinc-500 dark:text-zinc-500'}`}
@@ -799,18 +794,24 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                     <p className="mt-2.5 text-sm font-normal text-zinc-600 dark:text-zinc-400">{root.content}</p>
                   </div>
                 </div>
-                {/* 답글들: 각 답글에 가로 연결선(after)만 적용, 세로선은 위에서 한 번에 그림 */}
-                {(root.replies ?? []).map((reply) => {
+                {/* 답글들: 세로선은 답글 영역 안에서만 그려서 마지막 답글 아래로 선이 내려가지 않음 */}
+                {(root.replies?.length ?? 0) > 0 && (
+                  <div className="relative">
+                    <div
+                      className="absolute left-4 top-0 bottom-0 z-[0] w-px bg-zinc-200 dark:bg-zinc-600/80"
+                      aria-hidden
+                    />
+                    {(root.replies ?? []).map((reply) => {
                   const likeCount = commentLikeOverrides[reply.id] ?? reply.likeCount;
                   const liked = commentLikedByMe[reply.id] ?? (reply.liked ?? false);
                   const isMine = reply.mine ?? false;
                   return (
                     <div
                       key={reply.id}
-                      className="relative flex gap-3 pl-8 pt-2 sm:pl-10 after:absolute after:left-4 after:top-4 after:z-[0] after:block after:h-px after:w-3 after:bg-zinc-200 after:content-[''] sm:after:w-4 dark:after:bg-zinc-600/80"
+                      className="relative flex gap-3 pl-8 pt-3 sm:pl-10 after:absolute after:left-4 after:top-9 after:z-[0] after:block after:h-px after:w-3 after:bg-zinc-200 after:content-[''] sm:after:w-4 dark:after:bg-zinc-600/80"
                       data-comment-id={reply.id}
                     >
-                      <div className="relative z-[1] inline-flex max-w-full gap-3 rounded-lg bg-zinc-50 py-2 px-3 dark:bg-zinc-800/50">
+                      <div className="relative z-[1] flex min-w-0 flex-1 gap-3 rounded-lg bg-zinc-50 py-2 px-3 dark:bg-zinc-800/50">
                         <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300" aria-hidden>
                           {reply.clubId != null && clubImageMap[reply.clubId] ? (
                             <img src={clubImageMap[reply.clubId]} alt="" className="size-full object-cover" />
@@ -818,14 +819,14 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                             <span className="flex size-full items-center justify-center">{reply.authorName.slice(0, 1)}</span>
                           )}
                         </div>
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
                               <span>{reply.authorName}</span>
                               <span className="text-zinc-400 dark:text-zinc-500">· {root.authorName}님에게 답글</span>
                               <span>{formatCommentTime(reply.createdAt)}</span>
                             </div>
-                            <div className="flex shrink-0 items-center gap-0.5 rounded-md bg-zinc-50 px-1 py-0.5 dark:bg-zinc-800/50">
+                            <div className="flex shrink-0 items-center gap-0.5 rounded-md bg-zinc-100 px-1 py-0.5">
                               <button
                                 type="button"
                                 className={`flex items-center gap-0.5 rounded p-0.5 transition-opacity hover:opacity-80 ${liked ? 'text-red-500/90 dark:text-red-500/85' : 'text-zinc-500 dark:text-zinc-500'}`}
@@ -875,6 +876,8 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                     </div>
                   );
                 })}
+                  </div>
+                )}
               </li>
             ))}
           </ul>
