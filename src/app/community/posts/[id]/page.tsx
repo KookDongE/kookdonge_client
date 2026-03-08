@@ -864,7 +864,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                   return (
                     <div
                       key={reply.id}
-                      className="relative flex gap-2 pl-6 pt-3 sm:pl-8"
+                      className="relative flex gap-2 pl-5 pt-3 sm:pl-7"
                       data-comment-id={reply.id}
                     >
                       <span className="absolute left-2 top-4 z-[1] flex h-5 w-5 shrink-0 items-center justify-center text-zinc-400 dark:text-zinc-500" aria-hidden>
