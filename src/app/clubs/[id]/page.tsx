@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { Button, Dropdown, Input, Tabs, TextArea } from '@heroui/react';
-import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { parseAsString, useQueryState } from 'nuqs';
 import { createPortal } from 'react-dom';
 
@@ -1026,41 +1026,13 @@ function ClubQnaTab({
   );
 }
 
-/** 정보 탭에서만 노출. fixed 우측 하단 + 스크롤 시 스프링 애니메이션. 앱 뷰(max-w-md) 열 안에만 오도록 포탈 래퍼 사용 */
+/** 정보 탭에서만 노출. fixed 우측 하단 (풀리프레시/스크롤과 무관하게 고정). 앱 뷰(max-w-md) 열 안에만 오도록 포탈 래퍼 사용 */
 function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: string }) {
   const { data: club } = useClubDetail(clubId);
   const applicationLink = club?.applicationLink || club?.recruitmentUrl;
   const shouldShow = !!club && !!applicationLink && currentTab === 'info';
 
-  // 스크롤 시에만 움직이고, 항상 기본 위치(최저·최대 높이의 중간)로 복귀하려는 스프링
-  const scrollY = useMotionValue(0);
-  const smoothScrollY = useSpring(scrollY, {
-    stiffness: 45,
-    damping: 22,
-    mass: 1,
-  });
-  const FOLLOW_MAX_PX = 20;
-  const FOLLOW_MIN_HEIGHT_PX = 12; // 최저 높이를 조금 더 높게 (스크롤 시 버튼이 내려가는 한계를 줄임)
-  const targetOffsetY = useTransform(smoothScrollY, (value) =>
-    Math.min(value * 0.08, FOLLOW_MAX_PX - FOLLOW_MIN_HEIGHT_PX)
-  );
   // 목표 오프셋을 한 번 더 스프링으로 따라가서 “기본 위치로 돌아가려는” 느낌
-  const displayY = useSpring(targetOffsetY, {
-    stiffness: 180,
-    damping: 26,
-    mass: 0.6,
-  });
-
-  useEffect(() => {
-    if (!shouldShow) return;
-    const el = document.querySelector('[data-scroll-container]');
-    if (!el) return;
-    const onScroll = () => scrollY.set(el.scrollTop);
-    onScroll(); // 초기값
-    el.addEventListener('scroll', onScroll, { passive: true });
-    return () => el.removeEventListener('scroll', onScroll);
-  }, [shouldShow, scrollY]);
-
   if (!club || !applicationLink) return null;
 
   const handleApplyClick = () => {
@@ -1079,12 +1051,9 @@ function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: str
       aria-hidden
     >
       <div className="pointer-events-none relative mx-auto h-full w-full max-w-md">
-        <motion.div
+        <div
           className="pointer-events-auto absolute right-4"
-          style={{
-            bottom: buttonBottom,
-            y: displayY,
-          }}
+          style={{ bottom: buttonBottom }}
         >
           <AnimatePresence mode="wait">
             {shouldShow && (
@@ -1107,7 +1076,7 @@ function ClubCTABottom({ clubId, currentTab }: { clubId: number; currentTab: str
               </motion.div>
             )}
           </AnimatePresence>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
