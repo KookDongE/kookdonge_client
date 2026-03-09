@@ -7,6 +7,7 @@ import { Toaster } from 'sonner';
 import { QueryProvider } from '@/lib/query/provider';
 import { ThemeProvider } from '@/lib/theme/provider';
 import { AuthProvider } from '@/features/auth';
+import { AppBadgeSync } from '@/features/notifications/app-badge-sync';
 import { FcmForegroundHandler } from '@/features/notifications/fcm-foreground-handler';
 import { AppShell } from '@/components/common/app-shell';
 import { FullscreenBodyLock } from '@/components/common/fullscreen-body-lock';
@@ -132,6 +133,7 @@ export default function RootLayout({
                 <FullscreenBodyLock />
                 <PortraitLock />
                 <FcmForegroundHandler />
+                <AppBadgeSync />
                 <div className="app-container mx-auto min-h-dvh max-w-md overflow-x-hidden">
                   <AppShell>{children}</AppShell>
                   <Toaster position="top-center" richColors />

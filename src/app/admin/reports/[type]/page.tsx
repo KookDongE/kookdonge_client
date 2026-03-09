@@ -1,30 +1,25 @@
 'use client';
 
-import Link from 'next/link';
-import { useRouter, useParams } from 'next/navigation';
-
 import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
 
 import { Chip, Tabs } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
 
-import { PageCenteredSkeleton } from '@/components/common/skeletons';
-import { ListCardSkeleton } from '@/components/common/skeletons';
-
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
 import { useAdminDeletionRequests } from '@/features/club/hooks';
-import {
-  useAdminFeedbacks,
-  useCompleteFeedback,
-} from '@/features/feedback/hooks';
-import {
-  useAdminReports,
-  useCompleteReport,
-} from '@/features/report/hooks';
+import { useAdminFeedbacks, useCompleteFeedback } from '@/features/feedback/hooks';
+import { useAdminReports, useCompleteReport } from '@/features/report/hooks';
+import { ListCardSkeleton, PageCenteredSkeleton } from '@/components/common/skeletons';
 
 const REPORT_TYPE_MAP = {
-  'system-error': { label: '시스템오류(버그신고)', api: 'feedback' as const, feedbackType: 'BUG_REPORT' as const },
+  'system-error': {
+    label: '시스템오류(버그신고)',
+    api: 'feedback' as const,
+    feedbackType: 'BUG_REPORT' as const,
+  },
   suggestion: { label: '건의사항', api: 'feedback' as const, feedbackType: 'SUGGESTION' as const },
   'user-report': { label: '동아리 및 유저 신고', api: 'report' as const },
   'delete-request': { label: '삭제 신청', api: 'deletion' as const },
@@ -69,15 +64,123 @@ function formatDate(s: string | undefined) {
   return new Date(s).toLocaleString('ko-KR');
 }
 
+/** 신고 종류 라벨 (카드·상세 공통) */
+function getReportTypeLabel(reportType: string): string {
+  const map: Record<string, string> = {
+    COMMUNITY_COMMENT: '커뮤니티 댓글',
+    COMMUNITY_POST: '커뮤니티 게시글',
+    QNA: 'Q&A',
+    CLUB: '동아리',
+    BUG_REPORT: '시스템오류(버그신고)',
+    SUGGESTION: '건의사항',
+  };
+  return map[reportType] ?? reportType;
+}
+
+/** 카드: 신고 종류, 시간, 대기상태만 표시 → 클릭 시 상세 페이지로 */
+function ReportCard({
+  typeSlug,
+  reportId,
+  reportType,
+  createdAt,
+  status,
+}: {
+  typeSlug: string;
+  reportId: number;
+  reportType: string;
+  createdAt: string | undefined;
+  status: 'PENDING' | 'COMPLETED';
+}) {
+  return (
+    <Link
+      href={`/admin/reports/${typeSlug}/${reportId}`}
+      className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
+    >
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-sm font-medium text-zinc-800 dark:text-zinc-100">
+          {getReportTypeLabel(reportType)}
+        </span>
+        <Chip
+          size="sm"
+          color={status === 'COMPLETED' ? 'success' : 'warning'}
+          variant="soft"
+          className="shrink-0"
+        >
+          {status === 'COMPLETED' ? '처리완료' : '대기'}
+        </Chip>
+      </div>
+      <div className="text-xs text-zinc-500 dark:text-zinc-400">{formatDate(createdAt)}</div>
+      <div className="flex justify-end">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          className="h-5 w-5 text-zinc-400 dark:text-zinc-500"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+      </div>
+    </Link>
+  );
+}
+
+/** 피드백(시스템오류/건의) 카드: 신고 종류, 시간, 대기상태만 → 클릭 시 상세 */
+function FeedbackCard({
+  typeSlug,
+  feedbackId,
+  feedbackType,
+  createdAt,
+  status,
+}: {
+  typeSlug: string;
+  feedbackId: number;
+  feedbackType: string;
+  createdAt: string | undefined;
+  status: 'PENDING' | 'COMPLETED';
+}) {
+  return (
+    <Link
+      href={`/admin/reports/${typeSlug}/${feedbackId}`}
+      className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
+    >
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-sm font-medium text-zinc-800 dark:text-zinc-100">
+          {getReportTypeLabel(feedbackType)}
+        </span>
+        <Chip
+          size="sm"
+          color={status === 'COMPLETED' ? 'success' : 'warning'}
+          variant="soft"
+          className="shrink-0"
+        >
+          {status === 'COMPLETED' ? '처리완료' : '대기'}
+        </Chip>
+      </div>
+      <div className="text-xs text-zinc-500 dark:text-zinc-400">{formatDate(createdAt)}</div>
+      <div className="flex justify-end">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          className="h-5 w-5 text-zinc-400 dark:text-zinc-500"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+      </div>
+    </Link>
+  );
+}
+
 export default function AdminReportTypePage() {
   const router = useRouter();
   const params = useParams();
   const typeSlug = params?.type as string | undefined;
   const { data: profile, isLoading: profileLoading } = useMyProfile();
-  const [statusTab, setStatusTab] = useQueryState(
-    'status',
-    parseAsString.withDefault('pending')
-  );
+  const [statusTab, setStatusTab] = useQueryState('status', parseAsString.withDefault('pending'));
   const [stickyVisible, setStickyVisible] = useState(true);
   const lastScrollY = useRef(0);
 
@@ -185,9 +288,9 @@ export default function AdminReportTypePage() {
     (reportType.api === 'feedback' && feedbacksLoading) ||
     (reportType.api === 'deletion' && deletionLoading);
 
-  const reports = reportType.api === 'report' ? reportsData?.content ?? [] : [];
-  const feedbacks = reportType.api === 'feedback' ? feedbacksData?.content ?? [] : [];
-  const deletions = reportType.api === 'deletion' ? deletionData?.content ?? [] : [];
+  const reports = reportType.api === 'report' ? (reportsData?.content ?? []) : [];
+  const feedbacks = reportType.api === 'feedback' ? (feedbacksData?.content ?? []) : [];
+  const deletions = reportType.api === 'deletion' ? (deletionData?.content ?? []) : [];
 
   const showEmpty =
     (reportType.api === 'report' && reports.length === 0) ||
@@ -204,10 +307,7 @@ export default function AdminReportTypePage() {
         <Tabs.ListContainer
           className={`sticky top-0 z-30 bg-[var(--card)] px-4 pt-3 transition-transform duration-300 ${stickyVisible ? 'translate-y-0' : '-translate-y-full opacity-0'}`}
         >
-          <Tabs.List
-            aria-label="처리 상태"
-            className="flex w-full min-w-0"
-          >
+          <Tabs.List aria-label="처리 상태" className="flex w-full min-w-0">
             {statusTabs.map((opt) => (
               <Tabs.Tab
                 key={opt.value}
@@ -233,71 +333,27 @@ export default function AdminReportTypePage() {
           ) : reportType.api === 'report' ? (
             <div className="space-y-3">
               {reports.map((r) => (
-                <div
+                <ReportCard
                   key={r.reportId}
-                  className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                      [{r.reportType}] {r.reporterName ?? '-'}
-                      {r.reporterEmail != null && r.reporterEmail !== '' && (
-                        <span className="ml-1 text-zinc-500 dark:text-zinc-400">· {r.reporterEmail}</span>
-                      )}
-                    </p>
-                    {(r.reasonDetail ?? r.contentSnapshot) && (
-                      <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300 line-clamp-3 whitespace-pre-wrap">
-                        {r.reasonDetail ?? r.contentSnapshot}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex items-end justify-between gap-2">
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      {formatDate(r.createdAt)}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => completeReport.mutate(r.reportId)}
-                      disabled={completeReport.isPending}
-                      className="inline-flex h-8 shrink-0 items-center justify-center rounded-md bg-blue-400 px-3 text-xs font-medium text-white shadow transition-colors hover:bg-blue-500 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
-                    >
-                      {completeReport.isPending ? '처리 중...' : '처리완료'}
-                    </button>
-                  </div>
-                </div>
+                  typeSlug={typeSlug ?? 'user-report'}
+                  reportId={r.reportId}
+                  reportType={r.reportType}
+                  createdAt={r.createdAt}
+                  status={r.status}
+                />
               ))}
             </div>
           ) : reportType.api === 'feedback' ? (
             <div className="space-y-3">
               {feedbacks.map((f) => (
-                <div
+                <FeedbackCard
                   key={f.feedbackId}
-                  className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                      [{f.feedbackType}] {f.userName ?? '-'}
-                      {f.userEmail != null && f.userEmail !== '' && (
-                        <span className="ml-1 text-zinc-500 dark:text-zinc-400">· {f.userEmail}</span>
-                      )}
-                    </p>
-                    <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300 line-clamp-4 whitespace-pre-wrap">
-                      {f.content}
-                    </p>
-                  </div>
-                  <div className="flex items-end justify-between gap-2">
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      {formatDate(f.createdAt)}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => completeFeedback.mutate(f.feedbackId)}
-                      disabled={completeFeedback.isPending}
-                      className="inline-flex h-8 shrink-0 items-center justify-center rounded-md bg-blue-400 px-3 text-xs font-medium text-white shadow transition-colors hover:bg-blue-500 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
-                    >
-                      {completeFeedback.isPending ? '처리 중...' : '처리완료'}
-                    </button>
-                  </div>
-                </div>
+                  typeSlug={typeSlug ?? 'system-error'}
+                  feedbackId={f.feedbackId}
+                  feedbackType={f.feedbackType}
+                  createdAt={f.createdAt}
+                  status={f.status}
+                />
               ))}
             </div>
           ) : (
@@ -316,12 +372,7 @@ export default function AdminReportTypePage() {
                       신청일: {formatDate(d.createdAt)}
                     </div>
                   </div>
-                  <Chip
-                    size="sm"
-                    color="warning"
-                    variant="soft"
-                    className="shrink-0"
-                  >
+                  <Chip size="sm" color="warning" variant="soft" className="shrink-0">
                     대기
                   </Chip>
                   <svg
@@ -352,61 +403,27 @@ export default function AdminReportTypePage() {
           ) : reportType.api === 'report' ? (
             <div className="space-y-3">
               {reports.map((r) => (
-                <div
+                <ReportCard
                   key={r.reportId}
-                  className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                      [{r.reportType}] {r.reporterName ?? '-'}
-                      {r.reporterEmail != null && r.reporterEmail !== '' && (
-                        <span className="ml-1 text-zinc-500 dark:text-zinc-400">· {r.reporterEmail}</span>
-                      )}
-                    </p>
-                    {(r.reasonDetail ?? r.contentSnapshot) && (
-                      <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300 line-clamp-3 whitespace-pre-wrap">
-                        {r.reasonDetail ?? r.contentSnapshot}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex items-end justify-between gap-2">
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      {formatDate(r.createdAt)}
-                    </p>
-                    <Chip size="sm" color="success" variant="soft">
-                      완료
-                    </Chip>
-                  </div>
-                </div>
+                  typeSlug={typeSlug ?? 'user-report'}
+                  reportId={r.reportId}
+                  reportType={r.reportType}
+                  createdAt={r.createdAt}
+                  status={r.status}
+                />
               ))}
             </div>
           ) : reportType.api === 'feedback' ? (
             <div className="space-y-3">
               {feedbacks.map((f) => (
-                <div
+                <FeedbackCard
                   key={f.feedbackId}
-                  className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                      [{f.feedbackType}] {f.userName ?? '-'}
-                      {f.userEmail != null && f.userEmail !== '' && (
-                        <span className="ml-1 text-zinc-500 dark:text-zinc-400">· {f.userEmail}</span>
-                      )}
-                    </p>
-                    <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300 line-clamp-4 whitespace-pre-wrap">
-                      {f.content}
-                    </p>
-                  </div>
-                  <div className="flex items-end justify-between gap-2">
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      {formatDate(f.createdAt)}
-                    </p>
-                    <Chip size="sm" color="success" variant="soft">
-                      완료
-                    </Chip>
-                  </div>
-                </div>
+                  typeSlug={typeSlug ?? 'system-error'}
+                  feedbackId={f.feedbackId}
+                  feedbackType={f.feedbackType}
+                  createdAt={f.createdAt}
+                  status={f.status}
+                />
               ))}
             </div>
           ) : (
@@ -457,39 +474,38 @@ export default function AdminReportTypePage() {
             ) : (
               <div className="space-y-3">
                 {deletions.map((d) => (
-                <Link
-                  key={d.requestId}
-                  href={`/admin/deletion-requests/${d.requestId}`}
-                  className="flex items-center justify-between gap-2 rounded-xl border border-zinc-100 bg-white px-3 py-2.5 transition-all hover:border-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700"
-                >
-                  <div className="min-w-0 flex-1">
-                    <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
-                      {d.clubName}
-                    </h4>
-                    <div className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
-                      거절: {formatDate(d.updatedAt)}
-                    </div>
-                  </div>
-                  <Chip size="sm" color="danger" variant="soft" className="shrink-0">
-                    거절
-                  </Chip>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
+                  <Link
+                    key={d.requestId}
+                    href={`/admin/deletion-requests/${d.requestId}`}
+                    className="flex items-center justify-between gap-2 rounded-xl border border-zinc-100 bg-white px-3 py-2.5 transition-all hover:border-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                  </svg>
-                </Link>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="truncate font-semibold text-zinc-800 dark:text-zinc-100">
+                        {d.clubName}
+                      </h4>
+                      <div className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
+                        거절: {formatDate(d.updatedAt)}
+                      </div>
+                    </div>
+                    <Chip size="sm" color="danger" variant="soft" className="shrink-0">
+                      거절
+                    </Chip>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
                 ))}
               </div>
             )}
           </Tabs.Panel>
         )}
-
 
         <Tabs.Panel id="all" className="p-4 pt-0">
           {isLoading ? (
@@ -503,61 +519,27 @@ export default function AdminReportTypePage() {
           ) : reportType.api === 'report' ? (
             <div className="space-y-3">
               {reports.map((r) => (
-                <div
+                <ReportCard
                   key={r.reportId}
-                  className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                      [{r.reportType}] {r.reporterName ?? '-'}
-                      {r.reporterEmail != null && r.reporterEmail !== '' && (
-                        <span className="ml-1 text-zinc-500 dark:text-zinc-400">· {r.reporterEmail}</span>
-                      )}
-                    </p>
-                    {(r.reasonDetail ?? r.contentSnapshot) && (
-                      <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300 line-clamp-3 whitespace-pre-wrap">
-                        {r.reasonDetail ?? r.contentSnapshot}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex items-end justify-between gap-2">
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      {formatDate(r.createdAt)}
-                    </p>
-                    <Chip size="sm" color={r.status === 'COMPLETED' ? 'success' : 'warning'} variant="soft">
-                      {r.status === 'COMPLETED' ? '완료' : '대기'}
-                    </Chip>
-                  </div>
-                </div>
+                  typeSlug={typeSlug ?? 'user-report'}
+                  reportId={r.reportId}
+                  reportType={r.reportType}
+                  createdAt={r.createdAt}
+                  status={r.status}
+                />
               ))}
             </div>
           ) : reportType.api === 'feedback' ? (
             <div className="space-y-3">
               {feedbacks.map((f) => (
-                <div
+                <FeedbackCard
                   key={f.feedbackId}
-                  className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                      [{f.feedbackType}] {f.userName ?? '-'}
-                      {f.userEmail != null && f.userEmail !== '' && (
-                        <span className="ml-1 text-zinc-500 dark:text-zinc-400">· {f.userEmail}</span>
-                      )}
-                    </p>
-                    <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300 line-clamp-4 whitespace-pre-wrap">
-                      {f.content}
-                    </p>
-                  </div>
-                  <div className="flex items-end justify-between gap-2">
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      {formatDate(f.createdAt)}
-                    </p>
-                    <Chip size="sm" color={f.status === 'COMPLETED' ? 'success' : 'warning'} variant="soft">
-                      {f.status === 'COMPLETED' ? '완료' : '대기'}
-                    </Chip>
-                  </div>
-                </div>
+                  typeSlug={typeSlug ?? 'system-error'}
+                  feedbackId={f.feedbackId}
+                  feedbackType={f.feedbackType}
+                  createdAt={f.createdAt}
+                  status={f.status}
+                />
               ))}
             </div>
           ) : (
@@ -579,7 +561,11 @@ export default function AdminReportTypePage() {
                   <Chip
                     size="sm"
                     color={
-                      d.status === 'APPROVED' ? 'success' : d.status === 'REJECTED' ? 'danger' : 'warning'
+                      d.status === 'APPROVED'
+                        ? 'success'
+                        : d.status === 'REJECTED'
+                          ? 'danger'
+                          : 'warning'
                     }
                     variant="soft"
                     className="shrink-0"
