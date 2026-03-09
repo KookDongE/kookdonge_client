@@ -7,14 +7,14 @@ export default function CommunityRulesPage() {
   return (
     <div className="min-h-full px-4 pt-4 pb-12">
       <div className="mb-6">
-        <h1 className="text-lg font-semibold text-zinc-600 dark:text-zinc-400">
+        <h1 className="text-lg font-semibold text-zinc-700 dark:text-zinc-400">
           커뮤니티 이용규칙
         </h1>
       </div>
 
-      <article className="prose prose-zinc dark:prose-invert prose-sm max-w-none space-y-6 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
-        <p className="text-zinc-500 dark:text-zinc-400">
-          <strong className="font-medium text-zinc-500 dark:text-zinc-400">
+      <article className="prose prose-zinc dark:prose-invert prose-sm max-w-none space-y-6 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
+        <p className="text-zinc-600 dark:text-zinc-400">
+          <strong className="font-medium text-zinc-600 dark:text-zinc-400">
             시행일자: 2026년 3월 9일
           </strong>
         </p>
@@ -25,7 +25,7 @@ export default function CommunityRulesPage() {
         </p>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
             제1조 (목적 및 적용)
           </h2>
           <ol className="list-decimal space-y-2 pl-5">
@@ -41,7 +41,7 @@ export default function CommunityRulesPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
             제2조 (커뮤니티 구성)
           </h2>
           <ol className="list-decimal space-y-2 pl-5">
@@ -61,7 +61,7 @@ export default function CommunityRulesPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
             제3조 (허용되는 이용)
           </h2>
           <p>다음과 같은 이용은 원칙적으로 허용됩니다.</p>
@@ -74,7 +74,7 @@ export default function CommunityRulesPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
             제4조 (금지되는 행위 및 콘텐츠)
           </h2>
           <p>
@@ -122,7 +122,7 @@ export default function CommunityRulesPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
             제5조 (글·댓글 작성 시 유의사항)
           </h2>
           <ol className="list-decimal space-y-2 pl-5">
@@ -146,7 +146,7 @@ export default function CommunityRulesPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
             제6조 (신고 및 운영 조치)
           </h2>
           <ol className="list-decimal space-y-2 pl-5">
@@ -171,7 +171,7 @@ export default function CommunityRulesPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
             제7조 (콘텐츠에 대한 책임)
           </h2>
           <ol className="list-decimal space-y-2 pl-5">
@@ -188,7 +188,7 @@ export default function CommunityRulesPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
             제8조 (규칙의 변경)
           </h2>
           <ol className="list-decimal space-y-2 pl-5">
@@ -202,7 +202,7 @@ export default function CommunityRulesPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
             제9조 (문의)
           </h2>
           <p>
@@ -212,7 +212,7 @@ export default function CommunityRulesPage() {
           </p>
         </section>
 
-        <p className="mt-8 text-zinc-500 dark:text-zinc-400">
+        <p className="mt-8 text-zinc-600 dark:text-zinc-400">
           본 커뮤니티 이용규칙은 2026년 3월 9일부터 시행됩니다.
         </p>
       </article>
