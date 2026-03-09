@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 
 import { Button } from '@heroui/react';
 
+import type { ReportType } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
 import { useAdminFeedbackDetail, useCompleteFeedback } from '@/features/feedback/hooks';
@@ -15,6 +16,13 @@ import {
   useReportedContent,
 } from '@/features/report/hooks';
 import { FormPageSkeleton, PageCenteredSkeleton } from '@/components/common/skeletons';
+
+const REPORT_TYPES: ReportType[] = ['QNA', 'CLUB', 'COMMUNITY_POST', 'COMMUNITY_COMMENT'];
+function asReportType(value: unknown): ReportType | undefined {
+  return typeof value === 'string' && REPORT_TYPES.includes(value as ReportType)
+    ? (value as ReportType)
+    : undefined;
+}
 
 const REPORT_TYPE_MAP = {
   'system-error': { label: '시스템오류(버그신고)', api: 'feedback' as const },
@@ -62,16 +70,11 @@ export default function AdminReportDetailPage({ params }: PageProps) {
   );
   const needFetchContent =
     isReport && report && (!report.contentSnapshot || report.contentSnapshot.trim() === '');
+  const rawContentId = report?.contentId ?? (report as Record<string, unknown>)?.content_id;
   const reportContentId =
-    report?.contentId ??
-    (typeof (report as Record<string, unknown>)?.content_id === 'number'
-      ? (report as Record<string, unknown>).content_id
-      : undefined);
+    typeof rawContentId === 'number' && Number.isFinite(rawContentId) ? rawContentId : undefined;
   const reportTypeValue =
-    report?.reportType ??
-    (typeof (report as Record<string, unknown>)?.report_type === 'string'
-      ? (report as Record<string, unknown>).report_type
-      : undefined);
+    report?.reportType ?? asReportType((report as Record<string, unknown>)?.report_type);
   const {
     content: fetchedContent,
     isLoading: contentLoading,
