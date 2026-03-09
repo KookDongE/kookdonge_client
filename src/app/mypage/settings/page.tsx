@@ -1,5 +1,6 @@
 'use client';
 
+import { useLayoutEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -15,6 +16,20 @@ export default function SettingsPage() {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const clearAuth = useAuthStore((state) => state.clearAuth);
+
+  // 하위 페이지(내 정보 수정 등)에서 뒤로 올 때 스크롤이 맨 밑으로 남는 문제 방지.
+  // 설정·하위가 같은 data-scroll-container를 쓰므로, 하위에서 스크롤한 위치가 그대로 유지됨.
+  useLayoutEffect(() => {
+    const el = document.querySelector('[data-scroll-container]') as HTMLElement | null;
+    if (el) el.scrollTo(0, 0);
+    window.scrollTo(0, 0);
+    const id = requestAnimationFrame(() => {
+      const el2 = document.querySelector('[data-scroll-container]') as HTMLElement | null;
+      if (el2) el2.scrollTo(0, 0);
+      window.scrollTo(0, 0);
+    });
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   const handleLogout = async () => {
     if (!confirm('로그아웃 하시겠습니까?')) return;

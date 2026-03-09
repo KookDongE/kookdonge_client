@@ -25,10 +25,16 @@ type CommunityPostCardProps = {
   post: CommunityPost;
   /** 게시판 목록 페이지 경로 (상세 없을 때 클릭 시 이동) */
   boardHref?: string;
+  /** 자유/홍보 단일 게시판 페이지에서 false 시 태그 숨김 (기본 true) */
+  showCategoryTag?: boolean;
 };
 
 /** 제목 → 본문 한 줄 → 아이콘 + 숫자 + 시간 + 작성자 */
-export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
+export function CommunityPostCard({
+  post,
+  boardHref,
+  showCategoryTag = true,
+}: CommunityPostCardProps) {
   const pathname = usePathname();
   const bodyText = post.content?.trim() ?? '';
   const contentPreview = bodyText.slice(0, 80) + (bodyText.length > 80 ? '...' : '');
@@ -43,13 +49,21 @@ export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
     <>
       {/* 왼쪽: 제목·본문·메타 */}
       <div className="min-w-0 flex-1">
-        <span
-          className="inline-block rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-500 dark:bg-zinc-700/80 dark:text-zinc-400"
-          aria-label={`게시판: ${categoryLabel}`}
+        {showCategoryTag && (
+          <span
+            className="inline-block rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-500 dark:bg-zinc-700/80 dark:text-zinc-400"
+            aria-label={`게시판: ${categoryLabel}`}
+          >
+            {categoryLabel}
+          </span>
+        )}
+        <h3
+          className={
+            showCategoryTag
+              ? 'mt-1 line-clamp-2 text-sm leading-snug font-medium text-zinc-700 dark:text-zinc-300'
+              : 'line-clamp-2 text-sm leading-snug font-medium text-zinc-700 dark:text-zinc-300'
+          }
         >
-          {categoryLabel}
-        </span>
-        <h3 className="mt-1 line-clamp-2 text-sm leading-snug font-medium text-zinc-700 dark:text-zinc-300">
           {post.title}
         </h3>
         <p className="mt-2 line-clamp-1 text-xs leading-snug font-normal text-zinc-500 dark:text-zinc-500">

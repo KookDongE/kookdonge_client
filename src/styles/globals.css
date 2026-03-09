@@ -456,6 +456,20 @@ html:not(.dark) .policy-page-force-light tbody td {
 html:not(.dark) .policy-page-force-light a[href] {
   color: #2563eb !important;
 }
+/* 앱뷰 라이트: prefers-color-scheme이 light일 때 정책 페이지 표 th 배경·테두리 강제 라이트 (Tailwind dark: 우선순위 덮어씀) */
+@media (prefers-color-scheme: light) {
+  .policy-page-force-light th,
+  .policy-page-force-light thead th {
+    background-color: #fafafa !important;
+    border-color: #e4e4e7 !important;
+    color: #52525b !important;
+  }
+  .policy-page-force-light tbody td {
+    background-color: #ffffff !important;
+    border-color: #e4e4e7 !important;
+    color: #52525b !important;
+  }
+}
 /* PWA standalone + 라이트: html에 .dark가 잘못 붙어도 정책 페이지만 밝게 */
 @media (display-mode: standalone) and (prefers-color-scheme: light) {
   .policy-page-force-light,

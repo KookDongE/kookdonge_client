@@ -11,6 +11,7 @@ import {
   CommunitySearchFilter,
   type CommunitySort,
 } from '@/components/community/community-search-filter';
+
 export default function CommunityFreePage() {
   const router = useRouter();
   const { data: profile, isLoading: profileLoading } = useMyProfile();
@@ -55,6 +56,7 @@ export default function CommunityFreePage() {
               key={post.id}
               post={post}
               boardHref={`/community/posts/${post.id}`}
+              showCategoryTag={false}
             />
           ))
         )}
