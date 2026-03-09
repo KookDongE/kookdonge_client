@@ -513,6 +513,38 @@ html:not(.dark) .policy-page-force-light a[href] {
   }
 }
 
+/* 다크모드: 정책 페이지 표 배경·테두리·글자색 (라이트로 보이던 표 수정) */
+html.dark .policy-page-force-light table,
+html.dark .policy-page-force-light th,
+html.dark .policy-page-force-light td {
+  border-color: #3f3f46 !important;
+  color: #a1a1aa !important;
+}
+html.dark .policy-page-force-light thead th {
+  background-color: #27272a !important;
+  color: #d4d4d8 !important;
+}
+html.dark .policy-page-force-light tbody td {
+  background-color: #18181b !important;
+  color: #a1a1aa !important;
+}
+@media (prefers-color-scheme: dark) {
+  .policy-page-force-light table,
+  .policy-page-force-light th,
+  .policy-page-force-light td {
+    border-color: #3f3f46 !important;
+    color: #a1a1aa !important;
+  }
+  .policy-page-force-light thead th {
+    background-color: #27272a !important;
+    color: #d4d4d8 !important;
+  }
+  .policy-page-force-light tbody td {
+    background-color: #18181b !important;
+    color: #a1a1aa !important;
+  }
+}
+
 /* Smooth image loading */
 .img-loading {
   opacity: 0;
