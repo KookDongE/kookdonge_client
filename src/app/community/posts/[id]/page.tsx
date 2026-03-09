@@ -84,14 +84,14 @@ function PostDetailBanner() {
   );
   return (
     <div
-      className="relative -mt-4 aspect-[1855/380] w-full shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800/50"
+      className="relative -mt-4 aspect-[1855/380] w-full shrink-0 overflow-hidden border-0 bg-zinc-100 outline-none dark:bg-zinc-800/50"
       aria-hidden
     >
       <Image
         src={src}
         alt=""
         fill
-        className="object-cover"
+        className="object-cover outline-none"
         sizes="(max-width: 448px) 100vw, 448px"
       />
     </div>
