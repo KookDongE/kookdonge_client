@@ -5,7 +5,7 @@ export const metadata = {
 
 export default function YouthProtectionPage() {
   return (
-    <div className="min-h-full px-4 pt-4 pb-12">
+    <div className="policy-page-force-light min-h-full px-4 pt-4 pb-12">
       <div className="mb-6">
         <h1 className="text-lg font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
           청소년보호정책

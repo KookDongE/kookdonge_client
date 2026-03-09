@@ -424,6 +424,75 @@ html:not(.dark) .community-detail-header.glass {
   background: rgba(255, 255, 255, 0.9) !important;
 }
 
+/* 정책 4페이지: 라이트 모드(html에 .dark 없음)일 때 텍스트·표 항상 밝게 */
+html:not(.dark) .policy-page-force-light {
+  color-scheme: light;
+  background-color: #ffffff !important;
+  color: #52525b !important;
+}
+html:not(.dark) .policy-page-force-light h1,
+html:not(.dark) .policy-page-force-light h2 {
+  color: #3f3f46 !important;
+}
+html:not(.dark) .policy-page-force-light p,
+html:not(.dark) .policy-page-force-light li,
+html:not(.dark) .policy-page-force-light strong {
+  color: #52525b !important;
+}
+html:not(.dark) .policy-page-force-light table,
+html:not(.dark) .policy-page-force-light th,
+html:not(.dark) .policy-page-force-light td {
+  border-color: #e4e4e7 !important;
+  color: #52525b !important;
+}
+html:not(.dark) .policy-page-force-light thead th {
+  background-color: #fafafa !important;
+  color: #52525b !important;
+}
+html:not(.dark) .policy-page-force-light tbody td {
+  background-color: #ffffff !important;
+  color: #52525b !important;
+}
+html:not(.dark) .policy-page-force-light a[href] {
+  color: #2563eb !important;
+}
+/* PWA standalone + 라이트: html에 .dark가 잘못 붙어도 정책 페이지만 밝게 */
+@media (display-mode: standalone) and (prefers-color-scheme: light) {
+  .policy-page-force-light,
+  .policy-page-force-light * {
+    color-scheme: light !important;
+  }
+  .policy-page-force-light {
+    background-color: #ffffff !important;
+    color: #52525b !important;
+  }
+  .policy-page-force-light h1,
+  .policy-page-force-light h2 {
+    color: #3f3f46 !important;
+  }
+  .policy-page-force-light p,
+  .policy-page-force-light li,
+  .policy-page-force-light strong,
+  .policy-page-force-light td,
+  .policy-page-force-light th {
+    color: #52525b !important;
+  }
+  .policy-page-force-light table,
+  .policy-page-force-light th,
+  .policy-page-force-light td {
+    border-color: #e4e4e7 !important;
+  }
+  .policy-page-force-light thead th {
+    background-color: #fafafa !important;
+  }
+  .policy-page-force-light tbody td {
+    background-color: #ffffff !important;
+  }
+  .policy-page-force-light a[href] {
+    color: #2563eb !important;
+  }
+}
+
 /* Smooth image loading */
 .img-loading {
   opacity: 0;

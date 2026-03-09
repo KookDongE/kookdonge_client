@@ -36,11 +36,20 @@ export function CommunityPostCard({ post, boardHref }: CommunityPostCardProps) {
     if (pathname) saveCommunityListScroll(pathname);
   };
 
+  const categoryLabel =
+    post.boardType === 'promo' ? '홍보' : post.boardType === 'popular' ? '인기' : '자유';
+
   const linkContent = (
     <>
       {/* 왼쪽: 제목·본문·메타 */}
       <div className="min-w-0 flex-1">
-        <h3 className="line-clamp-2 text-sm leading-snug font-medium text-zinc-700 dark:text-zinc-300">
+        <span
+          className="inline-block rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-500 dark:bg-zinc-700/80 dark:text-zinc-400"
+          aria-label={`게시판: ${categoryLabel}`}
+        >
+          {categoryLabel}
+        </span>
+        <h3 className="mt-1 line-clamp-2 text-sm leading-snug font-medium text-zinc-700 dark:text-zinc-300">
           {post.title}
         </h3>
         <p className="mt-2 line-clamp-1 text-xs leading-snug font-normal text-zinc-500 dark:text-zinc-500">
