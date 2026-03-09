@@ -36,7 +36,7 @@ export default function BugReportPage() {
         content: content.trim(),
       });
       alert('전송이 완료되었습니다.');
-      router.back();
+      router.push('/mypage/settings');
     } catch {
       alert('전송에 실패했습니다. 다시 시도해 주세요.');
     } finally {
@@ -51,7 +51,7 @@ export default function BugReportPage() {
         <div className="flex h-16 items-center justify-between px-4">
           <button
             type="button"
-            onClick={() => router.back()}
+            onClick={() => router.push('/mypage/settings')}
             className="text-base font-medium text-[var(--foreground)] opacity-90 hover:opacity-100"
           >
             취소
@@ -103,7 +103,11 @@ export default function BugReportPage() {
         <TextArea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder={reportType === 'bug' ? '발견한 버그나 불편한 점을 알려주세요.' : '건의하실 내용을 알려주세요.'}
+          placeholder={
+            reportType === 'bug'
+              ? '발견한 버그나 불편한 점을 알려주세요.'
+              : '건의하실 내용을 알려주세요.'
+          }
           className="min-h-[24rem] w-full resize-none border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
           aria-label="버그 신고 및 건의사항 내용"
         />
