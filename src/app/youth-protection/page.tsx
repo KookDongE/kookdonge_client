@@ -7,12 +7,14 @@ export default function YouthProtectionPage() {
   return (
     <div className="min-h-full px-4 pt-4 pb-12">
       <div className="mb-6">
-        <h1 className="text-lg font-semibold text-zinc-700 dark:text-zinc-400">청소년보호정책</h1>
+        <h1 className="text-lg font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
+          청소년보호정책
+        </h1>
       </div>
 
-      <article className="prose prose-zinc dark:prose-invert prose-sm max-w-none space-y-6 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
-        <p className="text-zinc-600 dark:text-zinc-400">
-          <strong className="font-medium text-zinc-600 dark:text-zinc-400">
+      <article className="prose prose-zinc [@media(prefers-color-scheme:dark)]:prose-invert prose-sm max-w-none space-y-6 text-xs leading-relaxed text-zinc-600 [@media(prefers-color-scheme:dark)]:text-zinc-400">
+        <p className="text-zinc-600 [@media(prefers-color-scheme:dark)]:text-zinc-400">
+          <strong className="font-medium text-zinc-600 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             시행일자: 2026년 3월 9일
           </strong>
         </p>
@@ -24,7 +26,7 @@ export default function YouthProtectionPage() {
         </p>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             제1조 (목적)
           </h2>
           <p>
@@ -35,7 +37,7 @@ export default function YouthProtectionPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             제2조 (청소년의 정의)
           </h2>
           <p>
@@ -45,7 +47,7 @@ export default function YouthProtectionPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             제3조 (유해정보의 차단)
           </h2>
           <ol className="list-decimal space-y-2 pl-5">
@@ -74,7 +76,7 @@ export default function YouthProtectionPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             제4조 (신고 및 처리)
           </h2>
           <ol className="list-decimal space-y-2 pl-5">
@@ -95,7 +97,7 @@ export default function YouthProtectionPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             제5조 (법정대리인의 권리)
           </h2>
           <ol className="list-decimal space-y-2 pl-5">
@@ -112,7 +114,7 @@ export default function YouthProtectionPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             제6조 (청소년보호책임자)
           </h2>
           <ol className="list-decimal space-y-2 pl-5">
@@ -123,34 +125,34 @@ export default function YouthProtectionPage() {
             <li>청소년 보호와 관련한 문의·신고·건의는 아래 연락처로 하실 수 있습니다.</li>
           </ol>
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse border border-zinc-200 text-left text-xs dark:border-zinc-700 [&_td]:border-zinc-200 [&_td]:dark:border-zinc-700 [&_th]:border-zinc-200 [&_th]:dark:border-zinc-700">
-              <tbody className="text-zinc-600 dark:text-zinc-400">
+            <table className="w-full border-collapse border border-zinc-200 text-left text-xs [&_td]:border-zinc-200 [&_th]:border-zinc-200 [@media(prefers-color-scheme:dark)]:border-zinc-700 [&_td]:[@media(prefers-color-scheme:dark)]:border-zinc-700 [&_th]:[@media(prefers-color-scheme:dark)]:border-zinc-700">
+              <tbody className="text-zinc-600 [@media(prefers-color-scheme:dark)]:text-zinc-400">
                 <tr>
-                  <th className="w-28 border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-800">
+                  <th className="w-28 border border-zinc-200 bg-zinc-50 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700 [@media(prefers-color-scheme:dark)]:bg-zinc-800">
                     운영 주체
                   </th>
-                  <td className="border border-zinc-200 px-3 py-2 dark:border-zinc-700">
+                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
                     WINK (국민대학교 관련 단체)
                   </td>
                 </tr>
                 <tr>
-                  <th className="border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-800">
+                  <th className="border border-zinc-200 bg-zinc-50 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700 [@media(prefers-color-scheme:dark)]:bg-zinc-800">
                     주소
                   </th>
-                  <td className="border border-zinc-200 px-3 py-2 dark:border-zinc-700">
+                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
                     서울특별시 성북구 정릉로 77 (국민대학교 미래관 605-1)
                   </td>
                 </tr>
                 <tr>
-                  <th className="border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-800">
+                  <th className="border border-zinc-200 bg-zinc-50 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700 [@media(prefers-color-scheme:dark)]:bg-zinc-800">
                     웹사이트
                   </th>
-                  <td className="border border-zinc-200 px-3 py-2 dark:border-zinc-700">
+                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
                     <a
                       href="https://wink.kookmin.ac.kr/about-us/wink"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 underline dark:text-blue-400"
+                      className="text-blue-600 underline [@media(prefers-color-scheme:dark)]:text-blue-400"
                     >
                       https://wink.kookmin.ac.kr/about-us/wink
                     </a>
@@ -165,7 +167,7 @@ export default function YouthProtectionPage() {
               href="https://www.youth.go.kr"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 underline dark:text-blue-400"
+              className="text-blue-600 underline [@media(prefers-color-scheme:dark)]:text-blue-400"
             >
               청소년보호위원회(www.youth.go.kr)
             </a>{' '}
@@ -174,7 +176,7 @@ export default function YouthProtectionPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             제7조 (교육 및 자율규제)
           </h2>
           <ol className="list-decimal space-y-2 pl-5">
@@ -190,7 +192,7 @@ export default function YouthProtectionPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             제8조 (정책의 변경)
           </h2>
           <ol className="list-decimal space-y-2 pl-5">
@@ -203,7 +205,7 @@ export default function YouthProtectionPage() {
           </ol>
         </section>
 
-        <p className="mt-8 text-zinc-600 dark:text-zinc-400">
+        <p className="mt-8 text-zinc-600 [@media(prefers-color-scheme:dark)]:text-zinc-400">
           본 청소년보호정책은 2026년 3월 9일부터 시행됩니다.
         </p>
       </article>

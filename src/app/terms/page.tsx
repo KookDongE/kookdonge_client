@@ -7,12 +7,14 @@ export default function TermsPage() {
   return (
     <div className="min-h-full px-4 pt-4 pb-12">
       <div className="mb-6">
-        <h1 className="text-lg font-semibold text-zinc-700 dark:text-zinc-400">서비스 이용약관</h1>
+        <h1 className="text-lg font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
+          서비스 이용약관
+        </h1>
       </div>
 
-      <article className="prose prose-zinc dark:prose-invert prose-sm max-w-none space-y-6 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
-        <p className="text-zinc-600 dark:text-zinc-400">
-          <strong className="font-medium text-zinc-600 dark:text-zinc-400">
+      <article className="prose prose-zinc [@media(prefers-color-scheme:dark)]:prose-invert prose-sm max-w-none space-y-6 text-xs leading-relaxed text-zinc-600 [@media(prefers-color-scheme:dark)]:text-zinc-400">
+        <p className="text-zinc-600 [@media(prefers-color-scheme:dark)]:text-zinc-400">
+          <strong className="font-medium text-zinc-600 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             시행일자: 2026년 3월 9일
           </strong>
         </p>
@@ -22,7 +24,7 @@ export default function TermsPage() {
         </p>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             제1조 (목적)
           </h2>
           <p>
@@ -33,7 +35,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             제2조 (정의)
           </h2>
           <ol className="list-decimal space-y-2 pl-5">
@@ -61,7 +63,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             제3조 (약관의 효력 및 변경)
           </h2>
           <ol className="list-decimal space-y-2 pl-5">
@@ -83,7 +85,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             제4조 (서비스의 내용)
           </h2>
           <p>운영자는 다음 각 호와 같은 서비스를 제공합니다. 세부 내용은 서비스 화면에 따릅니다.</p>
@@ -104,7 +106,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             제5조 (회원 가입 및 계정)
           </h2>
           <ol className="list-decimal space-y-2 pl-5">
@@ -121,7 +123,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             제6조 (이용자의 의무 및 금지 행위)
           </h2>
           <p>이용자는 다음 각 호의 행위를 하여서는 안 됩니다.</p>
@@ -145,7 +147,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             제7조 (콘텐츠의 책임 및 관리)
           </h2>
           <ol className="list-decimal space-y-2 pl-5">
@@ -165,7 +167,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             제8조 (운영자의 의무)
           </h2>
           <ol className="list-decimal space-y-2 pl-5">
@@ -184,7 +186,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             제9조 (서비스의 변경·중단)
           </h2>
           <ol className="list-decimal space-y-2 pl-5">
@@ -203,7 +205,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             제10조 (면책)
           </h2>
           <ol className="list-decimal space-y-2 pl-5">
@@ -223,7 +225,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             제11조 (저작권 및 이용 허락)
           </h2>
           <ol className="list-decimal space-y-2 pl-5">
@@ -241,7 +243,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             제12조 (회원 탈퇴 및 이용 제한)
           </h2>
           <ol className="list-decimal space-y-2 pl-5">
@@ -257,7 +259,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             제13조 (준거법 및 관할)
           </h2>
           <ol className="list-decimal space-y-2 pl-5">
@@ -270,7 +272,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-sm font-semibold text-zinc-700 dark:text-zinc-400">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
             제14조 (운영자 정보 및 문의)
           </h2>
           <p>
@@ -280,7 +282,7 @@ export default function TermsPage() {
               href="https://wink.kookmin.ac.kr/about-us/wink"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 underline dark:text-blue-400"
+              className="text-blue-600 underline [@media(prefers-color-scheme:dark)]:text-blue-400"
             >
               https://wink.kookmin.ac.kr/about-us/wink
             </a>
@@ -290,7 +292,7 @@ export default function TermsPage() {
           </p>
         </section>
 
-        <p className="mt-8 text-zinc-600 dark:text-zinc-400">
+        <p className="mt-8 text-zinc-600 [@media(prefers-color-scheme:dark)]:text-zinc-400">
           본 약관은 2026년 3월 9일부터 시행됩니다.
         </p>
       </article>
