@@ -12,23 +12,34 @@ import { useAuthStore } from '@/features/auth/store';
 import { deviceApi } from '@/features/device/api';
 import { getOrCreateDeviceId } from '@/features/device/device-id';
 
+const SETTINGS_SCROLL_KEY = 'mypage-settings-scroll';
+
+function saveSettingsScroll(): void {
+  if (typeof window === 'undefined') return;
+  const el = document.querySelector('[data-scroll-container]') as HTMLElement | null;
+  if (!el) return;
+  sessionStorage.setItem(SETTINGS_SCROLL_KEY, String(el.scrollTop));
+}
+
 export default function SettingsPage() {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const clearAuth = useAuthStore((state) => state.clearAuth);
 
-  // 하위 페이지(내 정보 수정 등)에서 뒤로 올 때 스크롤이 맨 밑으로 남는 문제 방지.
-  // 설정·하위가 같은 data-scroll-container를 쓰므로, 하위에서 스크롤한 위치가 그대로 유지됨.
+  // 하위 페이지에서 돌아왔을 때 이전 스크롤 위치 복원
   useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    const saved = sessionStorage.getItem(SETTINGS_SCROLL_KEY);
+    sessionStorage.removeItem(SETTINGS_SCROLL_KEY);
+    if (saved === null) return;
+    const scrollTop = parseInt(saved, 10);
+    if (!Number.isFinite(scrollTop) || scrollTop <= 0) return;
     const el = document.querySelector('[data-scroll-container]') as HTMLElement | null;
-    if (el) el.scrollTo(0, 0);
-    window.scrollTo(0, 0);
-    const id = requestAnimationFrame(() => {
-      const el2 = document.querySelector('[data-scroll-container]') as HTMLElement | null;
-      if (el2) el2.scrollTo(0, 0);
-      window.scrollTo(0, 0);
+    if (!el) return;
+    const rafId = requestAnimationFrame(() => {
+      el.scrollTop = scrollTop;
     });
-    return () => cancelAnimationFrame(id);
+    return () => cancelAnimationFrame(rafId);
   }, []);
 
   const handleLogout = async () => {
@@ -106,42 +117,49 @@ export default function SettingsPage() {
         </div>
         <Link
           href="/mypage/settings/name"
+          onClick={saveSettingsScroll}
           className="flex min-h-[56px] w-full items-center gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 text-left text-base font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700/80"
         >
           내 정보 수정
         </Link>
         <Link
           href="/mypage/notification-settings"
+          onClick={saveSettingsScroll}
           className="flex min-h-[56px] w-full items-center gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 text-left text-base font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700/80"
         >
           알림 설정
         </Link>
         <Link
           href="/mypage/settings/bug-report"
+          onClick={saveSettingsScroll}
           className="flex min-h-[56px] w-full items-center gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 text-left text-base font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700/80"
         >
           버그 신고 및 건의사항
         </Link>
         <Link
           href="/privacy"
+          onClick={saveSettingsScroll}
           className="flex min-h-[56px] w-full items-center gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 text-left text-base font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700/80"
         >
           개인정보처리방침
         </Link>
         <Link
           href="/terms"
+          onClick={saveSettingsScroll}
           className="flex min-h-[56px] w-full items-center gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 text-left text-base font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700/80"
         >
           서비스 이용약관
         </Link>
         <Link
           href="/youth-protection"
+          onClick={saveSettingsScroll}
           className="flex min-h-[56px] w-full items-center gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 text-left text-base font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700/80"
         >
           청소년보호정책
         </Link>
         <Link
           href="/community-rules"
+          onClick={saveSettingsScroll}
           className="flex min-h-[56px] w-full items-center gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 text-left text-base font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700/80"
         >
           커뮤니티 이용규칙

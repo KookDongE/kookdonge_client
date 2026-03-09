@@ -353,8 +353,18 @@ export function useBoardPosts(
   const postsQuery = usePosts({ category: category ?? 'FREE', page: 0, size: 100, sort });
 
   const raw = isPopular ? (popularQuery.data?.content ?? []) : (postsQuery.data?.content ?? []);
-  const board: BoardType = isPopular ? 'popular' : boardType === 'promo' ? 'promo' : 'free';
-  return raw.map((r) => mapPostResToPost(r, board));
+  return raw.map((r) =>
+    mapPostResToPost(
+      r,
+      isPopular
+        ? r.postCategory === 'PROMOTION'
+          ? 'promo'
+          : 'free'
+        : boardType === 'promo'
+          ? 'promo'
+          : 'free'
+    )
+  );
 }
 
 /** 메인 커뮤니티 페이지: 인기/홍보/자유 각 섹션별 최대 5개 (API 연동) */
@@ -364,7 +374,9 @@ export function useCommunitySections(query: string, sort: 'latest' | 'popular') 
   const promo = usePosts({ category: 'PROMOTION', page: 0, size: 5, sort });
 
   return {
-    popular: (popular.data?.content ?? []).map((r) => mapPostResToPost(r, 'popular')),
+    popular: (popular.data?.content ?? []).map((r) =>
+      mapPostResToPost(r, r.postCategory === 'PROMOTION' ? 'promo' : 'free')
+    ),
     free: (free.data?.content ?? []).map((r) => mapPostResToPost(r, 'free')),
     promo: (promo.data?.content ?? []).map((r) => mapPostResToPost(r, 'promo')),
   };

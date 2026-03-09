@@ -125,29 +125,21 @@ export default function YouthProtectionPage() {
             <li>청소년 보호와 관련한 문의·신고·건의는 아래 연락처로 하실 수 있습니다.</li>
           </ol>
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse border border-zinc-200 text-left text-xs [&_td]:border-zinc-200 [&_th]:border-zinc-200 [@media(prefers-color-scheme:dark)]:border-zinc-700 [&_td]:[@media(prefers-color-scheme:dark)]:border-zinc-700 [&_th]:[@media(prefers-color-scheme:dark)]:border-zinc-700">
-              <tbody className="text-zinc-600 [@media(prefers-color-scheme:dark)]:text-zinc-400">
+            <table className="w-full border-collapse border border-zinc-200 text-left text-xs [&_td]:border-zinc-200 [&_th]:border-zinc-200">
+              <tbody className="text-zinc-600">
                 <tr>
-                  <th className="w-28 border border-zinc-200 bg-zinc-50 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700 [@media(prefers-color-scheme:dark)]:bg-zinc-800">
-                    운영 주체
-                  </th>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
-                    WINK (국민대학교 관련 단체)
-                  </td>
+                  <th className="w-28 border border-zinc-200 bg-zinc-50 px-3 py-2">운영 주체</th>
+                  <td className="border border-zinc-200 px-3 py-2">WINK (국민대학교 관련 단체)</td>
                 </tr>
                 <tr>
-                  <th className="border border-zinc-200 bg-zinc-50 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700 [@media(prefers-color-scheme:dark)]:bg-zinc-800">
-                    주소
-                  </th>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
+                  <th className="border border-zinc-200 bg-zinc-50 px-3 py-2">주소</th>
+                  <td className="border border-zinc-200 px-3 py-2">
                     서울특별시 성북구 정릉로 77 (국민대학교 미래관 605-1)
                   </td>
                 </tr>
                 <tr>
-                  <th className="border border-zinc-200 bg-zinc-50 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700 [@media(prefers-color-scheme:dark)]:bg-zinc-800">
-                    웹사이트
-                  </th>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
+                  <th className="border border-zinc-200 bg-zinc-50 px-3 py-2">웹사이트</th>
+                  <td className="border border-zinc-200 px-3 py-2">
                     <a
                       href="https://wink.kookmin.ac.kr/about-us/wink"
                       target="_blank"

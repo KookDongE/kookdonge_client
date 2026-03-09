@@ -30,121 +30,79 @@ export default function PrivacyPage() {
           </h2>
           <p>서비스는 다음의 목적으로 필요한 범위에서 최소한의 개인정보를 수집·이용합니다.</p>
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse border border-zinc-200 text-left text-xs [&_td]:border-zinc-200 [&_th]:border-zinc-200 [@media(prefers-color-scheme:dark)]:border-zinc-700 [&_td]:[@media(prefers-color-scheme:dark)]:border-zinc-700 [&_th]:[@media(prefers-color-scheme:dark)]:border-zinc-700">
+            <table className="w-full border-collapse border border-zinc-200 text-left text-xs [&_td]:border-zinc-200 [&_th]:border-zinc-200">
               <thead>
-                <tr className="bg-zinc-50 [@media(prefers-color-scheme:dark)]:bg-zinc-800">
-                  <th className="border border-zinc-200 px-3 py-2 text-zinc-600 [@media(prefers-color-scheme:dark)]:border-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
-                    수집·이용 목적
-                  </th>
-                  <th className="border border-zinc-200 px-3 py-2 text-zinc-600 [@media(prefers-color-scheme:dark)]:border-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
-                    수집 항목
-                  </th>
-                  <th className="border border-zinc-200 px-3 py-2 text-zinc-600 [@media(prefers-color-scheme:dark)]:border-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
-                    수집 시점
-                  </th>
-                  <th className="border border-zinc-200 px-3 py-2 text-zinc-600 [@media(prefers-color-scheme:dark)]:border-zinc-700 [@media(prefers-color-scheme:dark)]:text-zinc-400">
-                    보유·이용 기간
-                  </th>
+                <tr className="bg-zinc-50">
+                  <th className="border border-zinc-200 px-3 py-2 text-zinc-600">수집·이용 목적</th>
+                  <th className="border border-zinc-200 px-3 py-2 text-zinc-600">수집 항목</th>
+                  <th className="border border-zinc-200 px-3 py-2 text-zinc-600">수집 시점</th>
+                  <th className="border border-zinc-200 px-3 py-2 text-zinc-600">보유·이용 기간</th>
                 </tr>
               </thead>
-              <tbody className="text-zinc-600 [@media(prefers-color-scheme:dark)]:text-zinc-400">
+              <tbody className="text-zinc-600">
                 <tr>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
-                    회원 가입·로그인·본인 확인
-                  </td>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
+                  <td className="border border-zinc-200 px-3 py-2">회원 가입·로그인·본인 확인</td>
+                  <td className="border border-zinc-200 px-3 py-2">
                     이메일 주소, 이름, (Google 프로필 정보)
                   </td>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
-                    Google 로그인 시
-                  </td>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
-                    회원 탈퇴 시까지
-                  </td>
+                  <td className="border border-zinc-200 px-3 py-2">Google 로그인 시</td>
+                  <td className="border border-zinc-200 px-3 py-2">회원 탈퇴 시까지</td>
                 </tr>
                 <tr>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
-                    회원 프로필 관리
-                  </td>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
+                  <td className="border border-zinc-200 px-3 py-2">회원 프로필 관리</td>
+                  <td className="border border-zinc-200 px-3 py-2">
                     이름, 이메일, 학번, 연락처, 소속(학과/단과대)
                   </td>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
-                    회원가입·프로필 조회·수정 시
-                  </td>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
-                    회원 탈퇴 시까지
-                  </td>
+                  <td className="border border-zinc-200 px-3 py-2">회원가입·프로필 조회·수정 시</td>
+                  <td className="border border-zinc-200 px-3 py-2">회원 탈퇴 시까지</td>
                 </tr>
                 <tr>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
-                    동아리 생성·운영 신청 심사
-                  </td>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
+                  <td className="border border-zinc-200 px-3 py-2">동아리 생성·운영 신청 심사</td>
+                  <td className="border border-zinc-200 px-3 py-2">
                     동아리명, 동아리 유형·분류, 신청 사유, 소속 단과대(선택)
                   </td>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
-                    동아리 생성 신청 시
-                  </td>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
+                  <td className="border border-zinc-200 px-3 py-2">동아리 생성 신청 시</td>
+                  <td className="border border-zinc-200 px-3 py-2">
                     심사 완료 및 법령에 따른 보존 기간
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
-                    Q&A·커뮤니티 서비스
-                  </td>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
+                  <td className="border border-zinc-200 px-3 py-2">Q&A·커뮤니티 서비스</td>
+                  <td className="border border-zinc-200 px-3 py-2">
                     게시글·댓글·질문 내용, 작성자 식별 정보
                   </td>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
-                    글·댓글·질문 작성 시
-                  </td>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
-                    서비스 제공 기간
-                  </td>
+                  <td className="border border-zinc-200 px-3 py-2">글·댓글·질문 작성 시</td>
+                  <td className="border border-zinc-200 px-3 py-2">서비스 제공 기간</td>
                 </tr>
                 <tr>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
-                    신고·버그 신고·건의 처리
-                  </td>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
+                  <td className="border border-zinc-200 px-3 py-2">신고·버그 신고·건의 처리</td>
+                  <td className="border border-zinc-200 px-3 py-2">
                     신고 유형, 대상 정보, 사유 및 상세 내용
                   </td>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
-                    신고·건의 제출 시
-                  </td>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
+                  <td className="border border-zinc-200 px-3 py-2">신고·건의 제출 시</td>
+                  <td className="border border-zinc-200 px-3 py-2">
                     처리 완료 후 법령·내부 규정에 따른 기간
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
-                    푸시 알림 발송
-                  </td>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
+                  <td className="border border-zinc-200 px-3 py-2">푸시 알림 발송</td>
+                  <td className="border border-zinc-200 px-3 py-2">
                     디바이스 식별자, FCM 토큰, 플랫폼(웹/Android/iOS)
                   </td>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
+                  <td className="border border-zinc-200 px-3 py-2">
                     로그인 후 알림·디바이스 등록 시
                   </td>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
+                  <td className="border border-zinc-200 px-3 py-2">
                     회원 탈퇴·디바이스 삭제 시까지
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
-                    관리자 권한 부여·관리
-                  </td>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
-                    이메일 주소
-                  </td>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
+                  <td className="border border-zinc-200 px-3 py-2">관리자 권한 부여·관리</td>
+                  <td className="border border-zinc-200 px-3 py-2">이메일 주소</td>
+                  <td className="border border-zinc-200 px-3 py-2">
                     시스템 관리자에 의한 권한 부여 시
                   </td>
-                  <td className="border border-zinc-200 px-3 py-2 [@media(prefers-color-scheme:dark)]:border-zinc-700">
-                    관리 목적 달성 시까지
-                  </td>
+                  <td className="border border-zinc-200 px-3 py-2">관리 목적 달성 시까지</td>
                 </tr>
               </tbody>
             </table>
