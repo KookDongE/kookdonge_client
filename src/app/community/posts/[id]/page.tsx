@@ -795,7 +795,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex min-w-0 flex-1 flex-col gap-0 text-xs text-zinc-500 dark:text-zinc-400">
                         <span
-                          className={`text-[13px] font-medium ${root.mine ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}
+                          className={`text-[13px] font-medium ${(root.isPostAuthor ?? (isAuthor && root.mine)) ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}
                         >
                           {root.authorName.replace(/([^\s])\(글쓴이\)/, '$1 (글쓴이)')}
                           {/* (글쓴이): API isPostAuthor 있으면 모두에게 표시, 없으면 글쓴이 본인만(isAuthor&&mine) */}
@@ -1017,7 +1017,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                               <div className="flex h-7 items-center justify-between gap-2">
                                 <div className="flex min-w-0 flex-1 flex-col justify-center gap-0 text-xs text-zinc-500 dark:text-zinc-400">
                                   <span
-                                    className={`text-[13px] leading-tight font-medium ${isMine ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}
+                                    className={`text-[13px] leading-tight font-medium ${(reply.isPostAuthor ?? (isAuthor && isMine)) ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}
                                   >
                                     {reply.authorName.replace(/([^\s])\(글쓴이\)/, '$1 (글쓴이)')}
                                     {(reply.isPostAuthor ?? (isAuthor && isMine)) &&

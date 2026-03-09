@@ -216,7 +216,7 @@ export default function AdminReportDetailPage({ params }: PageProps) {
               <div>
                 <label className={labelClass}>원글 내용</label>
                 <div
-                  className={`max-h-[320px] min-h-[120px] overflow-y-auto rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-3 text-sm text-zinc-800 dark:border-zinc-600 dark:bg-zinc-800/50 dark:text-zinc-200 ${valueBoxClass} break-words whitespace-pre-wrap`}
+                  className={`${valueBoxClass} max-h-[320px] min-h-[120px] overflow-y-auto break-words whitespace-pre-wrap`}
                   role="article"
                 >
                   {serverContent

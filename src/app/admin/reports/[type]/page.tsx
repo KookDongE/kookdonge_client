@@ -115,11 +115,11 @@ function ReportCard({
     >
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="shrink-0 rounded-full border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:border-zinc-600 dark:bg-zinc-700/50 dark:text-zinc-300">
+          <span className="shrink-0 rounded-full border border-zinc-200 bg-zinc-50 px-1.5 py-px text-[10px] font-medium text-zinc-600 dark:border-zinc-600 dark:bg-zinc-700/50 dark:text-zinc-300">
             {getReportTypeLabel(reportType)}
           </span>
         </div>
-        <p className="mt-1 truncate text-xs text-zinc-600 dark:text-zinc-400">{reasonLine}</p>
+        <p className="mt-1 truncate text-sm text-zinc-600 dark:text-zinc-400">{reasonLine}</p>
         <div className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
           {formatDate(createdAt)}
         </div>
