@@ -1,7 +1,5 @@
 import type { MetadataRoute } from 'next';
 
-import { getPwaVersion } from '@/lib/pwa-version';
-
 /** 폰에서 '홈에 추가' 시 아이콘이 나오도록 manifest 아이콘은 절대 URL 권장. NEXT_PUBLIC_APP_URL 설정 시 사용 */
 function getBaseUrl(): string {
   const url = process.env.NEXT_PUBLIC_APP_URL;
@@ -16,11 +14,7 @@ type ManifestIconWithMedia = NonNullable<MetadataRoute.Manifest['icons']>[number
 
 export default function manifest(): MetadataRoute.Manifest {
   const base = getBaseUrl();
-  const version = getPwaVersion();
-  const icon = (path: string) => {
-    const url = base ? `${base}${path}` : path;
-    return `${url}${url.includes('?') ? '&' : '?'}v=${encodeURIComponent(version)}`;
-  };
+  const icon = (path: string) => (base ? `${base}${path}` : path);
 
   const icons: ManifestIconWithMedia[] = [
     {
@@ -81,10 +75,7 @@ export default function manifest(): MetadataRoute.Manifest {
     },
   ];
 
-  const manifestPath = '/manifest.webmanifest';
-  const manifestUrl = base
-    ? `${base}${manifestPath}?v=${encodeURIComponent(version)}`
-    : `${manifestPath}?v=${encodeURIComponent(version)}`;
+  const manifestUrl = base ? `${base}/manifest.webmanifest` : '/manifest.webmanifest';
 
   return {
     id: '/',
@@ -97,6 +88,6 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: '#3B82F6',
     orientation: 'portrait',
     icons: icons as MetadataRoute.Manifest['icons'],
-    related_applications: [{ platform: 'webapp', url: manifestUrl }], // 버전 쿼리로 캐시 무효화
+    related_applications: [{ platform: 'webapp', url: manifestUrl }],
   } as MetadataRoute.Manifest;
 }

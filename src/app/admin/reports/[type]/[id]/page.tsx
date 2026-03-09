@@ -9,7 +9,11 @@ import { Button } from '@heroui/react';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
 import { useAdminFeedbackDetail, useCompleteFeedback } from '@/features/feedback/hooks';
-import { useAdminReportDetail, useCompleteReport } from '@/features/report/hooks';
+import {
+  useAdminReportDetail,
+  useCompleteReport,
+  useReportedContent,
+} from '@/features/report/hooks';
 import { FormPageSkeleton, PageCenteredSkeleton } from '@/components/common/skeletons';
 
 const REPORT_TYPE_MAP = {
@@ -56,6 +60,13 @@ export default function AdminReportDetailPage({ params }: PageProps) {
     id,
     isReport && !Number.isNaN(id)
   );
+  const needFetchContent =
+    isReport && report && (!report.contentSnapshot || report.contentSnapshot.trim() === '');
+  const {
+    content: fetchedContent,
+    isLoading: contentLoading,
+    isError: contentError,
+  } = useReportedContent(report?.reportType, report?.contentId, !!needFetchContent);
   const { data: feedback, isLoading: feedbackLoading } = useAdminFeedbackDetail(
     id,
     !isReport && !Number.isNaN(id)
@@ -122,24 +133,21 @@ export default function AdminReportDetailPage({ params }: PageProps) {
 
     return (
       <div className="flex h-full min-h-0 flex-col overflow-hidden bg-[var(--card)]">
-        <div className="shrink-0 bg-[var(--card)]">
-          <div className="flex h-16 items-center justify-end px-4">
-            <span
-              className={`rounded-full px-2 py-0.5 text-xs font-medium ${report.status === 'COMPLETED' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'}`}
-            >
-              {report.status === 'COMPLETED' ? '처리완료' : '대기'}
-            </span>
-          </div>
-        </div>
-
         <div className="min-h-0 flex-1 overflow-y-auto">
           <div className="space-y-6 p-4 pb-24">
             <div>
-              <div className="mb-2 flex items-center justify-between">
+              <div className="mb-2 flex items-center justify-between gap-2">
                 <label className={labelClass}>신고 종류</label>
-                <span className="text-xs text-[var(--muted-foreground)]">
-                  {formatDate(report.createdAt)}
-                </span>
+                <div className="flex shrink-0 items-center gap-2">
+                  <span className="text-xs text-[var(--muted-foreground)]">
+                    {formatDate(report.createdAt)}
+                  </span>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${report.status === 'COMPLETED' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'}`}
+                  >
+                    {report.status === 'COMPLETED' ? '처리완료' : '대기'}
+                  </span>
+                </div>
               </div>
               <div className={valueBoxClass}>{getReportTypeLabel(report.reportType)}</div>
             </div>
@@ -154,13 +162,19 @@ export default function AdminReportDetailPage({ params }: PageProps) {
               </div>
             )}
 
-            {/* 원글 내용 (신고당한 글) - 항상 표시 */}
+            {/* 원글 내용 (신고당한 글) - contentSnapshot 우선, 없으면 contentId로 조회 */}
             <div>
               <label className={labelClass}>원글 내용</label>
               <div className={`${valueBoxClass} min-h-[120px] whitespace-pre-wrap`}>
                 {report.contentSnapshot && report.contentSnapshot.trim() !== ''
                   ? report.contentSnapshot
-                  : '(원글 내용 없음)'}
+                  : contentLoading
+                    ? '원글 조회 중...'
+                    : contentError
+                      ? '원글 조회에 실패했습니다.'
+                      : fetchedContent && fetchedContent.trim() !== ''
+                        ? fetchedContent
+                        : '(원글 내용 없음)'}
               </div>
             </div>
 
@@ -222,24 +236,21 @@ export default function AdminReportDetailPage({ params }: PageProps) {
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-[var(--card)]">
-      <div className="shrink-0 bg-[var(--card)]">
-        <div className="flex h-16 items-center justify-end px-4">
-          <span
-            className={`rounded-full px-2 py-0.5 text-xs font-medium ${feedback.status === 'COMPLETED' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'}`}
-          >
-            {feedback.status === 'COMPLETED' ? '처리완료' : '대기'}
-          </span>
-        </div>
-      </div>
-
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="space-y-6 p-4 pb-24">
           <div>
-            <div className="mb-2 flex items-center justify-between">
+            <div className="mb-2 flex items-center justify-between gap-2">
               <label className={labelClass}>신고 종류</label>
-              <span className="text-xs text-[var(--muted-foreground)]">
-                {formatDate(feedback.createdAt)}
-              </span>
+              <div className="flex shrink-0 items-center gap-2">
+                <span className="text-xs text-[var(--muted-foreground)]">
+                  {formatDate(feedback.createdAt)}
+                </span>
+                <span
+                  className={`rounded-full px-2 py-0.5 text-xs font-medium ${feedback.status === 'COMPLETED' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'}`}
+                >
+                  {feedback.status === 'COMPLETED' ? '처리완료' : '대기'}
+                </span>
+              </div>
             </div>
             <div className={valueBoxClass}>{getReportTypeLabel(feedback.feedbackType)}</div>
           </div>
