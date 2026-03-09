@@ -1,6 +1,6 @@
 'use client';
 
-import { useLayoutEffect } from 'react';
+import { useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -26,20 +26,28 @@ export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const clearAuth = useAuthStore((state) => state.clearAuth);
 
-  // 하위 페이지에서 돌아왔을 때 이전 스크롤 위치 복원
-  useLayoutEffect(() => {
+  // 하위 페이지에서 돌아왔을 때 이전 스크롤 위치 복원 (페이스트·다른 효과 이후에 적용)
+  useEffect(() => {
     if (typeof window === 'undefined') return;
     const saved = sessionStorage.getItem(SETTINGS_SCROLL_KEY);
-    sessionStorage.removeItem(SETTINGS_SCROLL_KEY);
     if (saved === null) return;
     const scrollTop = parseInt(saved, 10);
-    if (!Number.isFinite(scrollTop) || scrollTop <= 0) return;
+    if (!Number.isFinite(scrollTop) || scrollTop < 0) {
+      sessionStorage.removeItem(SETTINGS_SCROLL_KEY);
+      return;
+    }
     const el = document.querySelector('[data-scroll-container]') as HTMLElement | null;
     if (!el) return;
-    const rafId = requestAnimationFrame(() => {
+    sessionStorage.removeItem(SETTINGS_SCROLL_KEY);
+    const apply = () => {
       el.scrollTop = scrollTop;
+    };
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        apply();
+        setTimeout(apply, 50);
+      });
     });
-    return () => cancelAnimationFrame(rafId);
   }, []);
 
   const handleLogout = async () => {
