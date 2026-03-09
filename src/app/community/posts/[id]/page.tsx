@@ -798,7 +798,9 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           className={`text-[13px] font-medium ${root.mine ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}
                         >
                           {root.authorName.replace(/([^\s])\(글쓴이\)/, '$1 (글쓴이)')}
-                          {root.mine && !root.authorName.includes('(글쓴이)') ? ' (글쓴이)' : ''}
+                          {isAuthor && root.mine && !root.authorName.includes('(글쓴이)')
+                            ? ' (글쓴이)'
+                            : ''}
                         </span>
                         <span className="text-[11px] text-zinc-400 dark:text-zinc-500">
                           {formatCommentWrittenAt(root.createdAt)}
@@ -1016,7 +1018,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                                     className={`text-[13px] leading-tight font-medium ${isMine ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}
                                   >
                                     {reply.authorName.replace(/([^\s])\(글쓴이\)/, '$1 (글쓴이)')}
-                                    {isMine && !reply.authorName.includes('(글쓴이)')
+                                    {isAuthor && isMine && !reply.authorName.includes('(글쓴이)')
                                       ? ' (글쓴이)'
                                       : ''}
                                   </span>
