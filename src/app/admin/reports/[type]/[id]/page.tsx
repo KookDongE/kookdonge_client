@@ -62,11 +62,21 @@ export default function AdminReportDetailPage({ params }: PageProps) {
   );
   const needFetchContent =
     isReport && report && (!report.contentSnapshot || report.contentSnapshot.trim() === '');
+  const reportContentId =
+    report?.contentId ??
+    (typeof (report as Record<string, unknown>)?.content_id === 'number'
+      ? (report as Record<string, unknown>).content_id
+      : undefined);
+  const reportTypeValue =
+    report?.reportType ??
+    (typeof (report as Record<string, unknown>)?.report_type === 'string'
+      ? (report as Record<string, unknown>).report_type
+      : undefined);
   const {
     content: fetchedContent,
     isLoading: contentLoading,
     isError: contentError,
-  } = useReportedContent(report?.reportType, report?.contentId, !!needFetchContent);
+  } = useReportedContent(reportTypeValue, reportContentId, !!needFetchContent);
   const { data: feedback, isLoading: feedbackLoading } = useAdminFeedbackDetail(
     id,
     !isReport && !Number.isNaN(id)
@@ -171,10 +181,12 @@ export default function AdminReportDetailPage({ params }: PageProps) {
                   : contentLoading
                     ? '원글 조회 중...'
                     : contentError
-                      ? '원글 조회에 실패했습니다.'
+                      ? '원글 조회에 실패했습니다. (삭제된 글이거나 권한이 없을 수 있습니다.)'
                       : fetchedContent && fetchedContent.trim() !== ''
                         ? fetchedContent
-                        : '(원글 내용 없음)'}
+                        : reportTypeValue === 'COMMUNITY_COMMENT'
+                          ? '댓글 신고는 댓글 단건 조회 API가 없어 서버에서 저장한 스냅샷만 표시됩니다. 스냅샷이 없으면 여기에 표시되지 않습니다.'
+                          : '(원글 내용 없음)'}
               </div>
             </div>
 

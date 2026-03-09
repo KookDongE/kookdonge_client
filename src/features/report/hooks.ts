@@ -85,34 +85,37 @@ export function useReportedContent(
   });
 
   if (reportType === 'COMMUNITY_POST' && postQuery.isSuccess && postQuery.data) {
-    const d = postQuery.data;
-    const title = d.title ?? '';
-    const content = d.content ?? '';
-    return {
-      content: [title, content].filter(Boolean).join('\n\n'),
-      isLoading: false,
-      isError: false,
-    };
+    const d = postQuery.data as Record<string, unknown>;
+    const inner = (d?.data as Record<string, unknown> | undefined) ?? d;
+    const title = String(inner?.title ?? d?.title ?? '');
+    const content = String(inner?.content ?? d?.content ?? '');
+    const text = [title, content].filter(Boolean).join('\n\n');
+    if (text) {
+      return { content: text, isLoading: false, isError: false };
+    }
   }
   if (reportType === 'CLUB' && clubQuery.isSuccess && clubQuery.data) {
-    const d = clubQuery.data;
-    const parts = [`[동아리] ${d.name}`, d.description, d.content].filter(Boolean);
-    return {
-      content: parts.join('\n\n'),
-      isLoading: false,
-      isError: false,
-    };
+    const d = clubQuery.data as Record<string, unknown>;
+    const inner = (d?.data as Record<string, unknown> | undefined) ?? d;
+    const name = String(inner?.name ?? d?.name ?? '');
+    const description = String(inner?.description ?? d?.description ?? '');
+    const content = String(inner?.content ?? d?.content ?? '');
+    const parts = [name ? `[동아리] ${name}` : '', description, content].filter(Boolean);
+    if (parts.join('').trim()) {
+      return { content: parts.join('\n\n'), isLoading: false, isError: false };
+    }
   }
   if (reportType === 'QNA' && questionQuery.isSuccess && questionQuery.data) {
-    const d = questionQuery.data;
-    const parts = [`[질문] ${d.question ?? ''}`, d.answer ? `[답변] ${d.answer}` : ''].filter(
+    const d = questionQuery.data as Record<string, unknown>;
+    const inner = (d?.data as Record<string, unknown> | undefined) ?? d;
+    const question = String(inner?.question ?? d?.question ?? '');
+    const answer = String(inner?.answer ?? d?.answer ?? '');
+    const parts = [question ? `[질문] ${question}` : '', answer ? `[답변] ${answer}` : ''].filter(
       Boolean
     );
-    return {
-      content: parts.join('\n\n'),
-      isLoading: false,
-      isError: false,
-    };
+    if (parts.join('').trim()) {
+      return { content: parts.join('\n\n'), isLoading: false, isError: false };
+    }
   }
   if (reportType === 'COMMUNITY_COMMENT') {
     return { content: null, isLoading: false, isError: false };
