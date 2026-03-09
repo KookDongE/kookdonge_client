@@ -30,16 +30,24 @@ export default function PrivacyPage() {
           </h2>
           <p>서비스는 다음의 목적으로 필요한 범위에서 최소한의 개인정보를 수집·이용합니다.</p>
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse border border-zinc-200 text-left text-xs [&_td]:border-zinc-200 [&_th]:border-zinc-200">
+            <table className="w-full border-collapse border border-zinc-200 text-left text-xs dark:border-zinc-600 [&_td]:border-zinc-200 [&_td]:dark:border-zinc-600 [&_th]:border-zinc-200 [&_th]:dark:border-zinc-600">
               <thead>
-                <tr className="bg-zinc-50">
-                  <th className="border border-zinc-200 px-3 py-2 text-zinc-600">수집·이용 목적</th>
-                  <th className="border border-zinc-200 px-3 py-2 text-zinc-600">수집 항목</th>
-                  <th className="border border-zinc-200 px-3 py-2 text-zinc-600">수집 시점</th>
-                  <th className="border border-zinc-200 px-3 py-2 text-zinc-600">보유·이용 기간</th>
+                <tr className="bg-zinc-50 dark:bg-zinc-800">
+                  <th className="border border-zinc-200 px-3 py-2 text-zinc-600 dark:border-zinc-600 dark:text-zinc-200">
+                    수집·이용 목적
+                  </th>
+                  <th className="border border-zinc-200 px-3 py-2 text-zinc-600 dark:border-zinc-600 dark:text-zinc-200">
+                    수집 항목
+                  </th>
+                  <th className="border border-zinc-200 px-3 py-2 text-zinc-600 dark:border-zinc-600 dark:text-zinc-200">
+                    수집 시점
+                  </th>
+                  <th className="border border-zinc-200 px-3 py-2 text-zinc-600 dark:border-zinc-600 dark:text-zinc-200">
+                    보유·이용 기간
+                  </th>
                 </tr>
               </thead>
-              <tbody className="text-zinc-600">
+              <tbody className="text-zinc-600 [&_td]:dark:border-zinc-600 [&_td]:dark:bg-zinc-900/50 [&_td]:dark:text-zinc-300">
                 <tr>
                   <td className="border border-zinc-200 px-3 py-2">회원 가입·로그인·본인 확인</td>
                   <td className="border border-zinc-200 px-3 py-2">
