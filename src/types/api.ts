@@ -599,7 +599,10 @@ export type CommunityCommentRes = {
   createdAt: string;
   replies?: CommunityCommentRes[];
   liked?: boolean;
+  /** 현재 로그인 유저가 쓴 댓글인지 (userId 기준, 작성자 유형 무관) */
   mine?: boolean;
+  /** 이 댓글 작성자가 게시글 작성자와 동일 유저인지 (모든 조회자에게 글쓴이 뱃지 표시용) */
+  isPostAuthor?: boolean;
 };
 
 export type CommunityPostCreateReq = {

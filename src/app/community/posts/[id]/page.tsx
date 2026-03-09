@@ -798,7 +798,9 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           className={`text-[13px] font-medium ${root.mine ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}
                         >
                           {root.authorName.replace(/([^\s])\(글쓴이\)/, '$1 (글쓴이)')}
-                          {isAuthor && root.mine && !root.authorName.includes('(글쓴이)')
+                          {/* (글쓴이): API isPostAuthor 있으면 모두에게 표시, 없으면 글쓴이 본인만(isAuthor&&mine) */}
+                          {(root.isPostAuthor ?? (isAuthor && root.mine)) &&
+                          !root.authorName.includes('(글쓴이)')
                             ? ' (글쓴이)'
                             : ''}
                         </span>
@@ -1018,7 +1020,8 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                                     className={`text-[13px] leading-tight font-medium ${isMine ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}
                                   >
                                     {reply.authorName.replace(/([^\s])\(글쓴이\)/, '$1 (글쓴이)')}
-                                    {isAuthor && isMine && !reply.authorName.includes('(글쓴이)')
+                                    {(reply.isPostAuthor ?? (isAuthor && isMine)) &&
+                                    !reply.authorName.includes('(글쓴이)')
                                       ? ' (글쓴이)'
                                       : ''}
                                   </span>
