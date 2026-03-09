@@ -67,10 +67,16 @@ html:not(.dark) textarea,
 html:not(.dark) select,
 html:not(.dark) [data-slot='input'],
 html:not(.dark) [data-slot='textarea'],
-html:not(.dark) button[role='combobox'] {
+html:not(.dark) button[role='combobox'],
+html:not(.dark) .comment-send-btn {
   color-scheme: light;
   background-color: #ffffff !important;
   color: #09090b;
+}
+
+/* 라이트 모드 댓글 전송 버튼 아이콘 색상 (zinc-600) */
+html:not(.dark) .comment-send-btn svg {
+  color: #52525b;
 }
 
 html:not(.dark) input::placeholder,

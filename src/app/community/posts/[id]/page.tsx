@@ -278,7 +278,7 @@ function CommentBarPortal({
             type="button"
             onClick={onSubmitComment}
             disabled={!commentText.trim() || isCommentSubmitting}
-            className="shrink-0 rounded-full bg-white p-2 text-zinc-500 transition-opacity hover:opacity-80 disabled:opacity-50 dark:bg-zinc-800 dark:text-zinc-400"
+            className="comment-send-btn shrink-0 rounded-full !bg-white p-2 text-zinc-600 transition-opacity hover:opacity-80 disabled:opacity-50 dark:!bg-zinc-800 dark:text-zinc-400"
             aria-label="댓글 등록"
           >
             <svg
@@ -289,7 +289,7 @@ function CommentBarPortal({
               strokeWidth={2}
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="h-5 w-5"
+              className="h-5 w-5 text-zinc-600 dark:text-zinc-400"
             >
               <path d="m22 2-7 20-4-9-9-4Z" />
               <path d="M22 2 11 13" />

@@ -45,10 +45,7 @@ function buildClubListParams(
   if (p.isLeaveOfAbsenceActive != null) params.isLeaveOfAbsenceActive = p.isLeaveOfAbsenceActive;
   if (p.query) params.query = p.query;
   // API 정렬: latest, popularity, viewCount, deadline 지원. default/기본순 → latest 후 클라이언트에서 무작위, name,asc → 클라이언트에서 이름순
-  const apiSort =
-    p.sort && p.sort !== 'name,asc' && p.sort !== 'default'
-      ? p.sort
-      : 'latest';
+  const apiSort = p.sort && p.sort !== 'name,asc' && p.sort !== 'default' ? p.sort : 'latest';
   params.sort = apiSort;
   return params;
 }
@@ -107,32 +104,44 @@ export const clubApi = {
     return Array.isArray(data) ? data : [];
   },
 
+  /**
+   * 관리자: 전체 동아리 생성 신청 목록. GET /api/admin/clubs/creation-requests
+   * (일반 사용자 내 목록은 getMyRequests → GET /api/clubs/requests/my)
+   */
   getAllRequests: async (params?: {
     status?: 'PENDING' | 'APPROVED' | 'REJECTED';
     page?: number;
     size?: number;
+    sort?: string;
   }): Promise<PageResponse<ClubCreationRequestRes>> => {
     const query: Record<string, string | number | undefined> = {
       page: params?.page ?? 0,
       size: params?.size ?? 20,
+      sort: params?.sort ?? 'createdAt,DESC',
     };
     if (params?.status) query.status = params.status;
-    return apiClient<PageResponse<ClubCreationRequestRes>>('/api/clubs/requests', {
+    return apiClient<PageResponse<ClubCreationRequestRes>>('/api/admin/clubs/creation-requests', {
       params: query as Record<string, string | number | boolean | undefined>,
     });
   },
 
+  /** 관리자: 동아리 생성 신청 승인. POST /api/admin/clubs/creation-requests/{requestId}/approve */
   approveRequest: async (requestId: number): Promise<ClubCreationRequestRes> => {
-    return apiClient<ClubCreationRequestRes>(`/api/clubs/requests/${requestId}/approve`, {
-      method: 'POST',
-    });
+    return apiClient<ClubCreationRequestRes>(
+      `/api/admin/clubs/creation-requests/${requestId}/approve`,
+      { method: 'POST' }
+    );
   },
 
+  /** 관리자: 동아리 생성 신청 거절. POST /api/admin/clubs/creation-requests/{requestId}/reject */
   rejectRequest: async (requestId: number, reason: string): Promise<ClubCreationRequestRes> => {
-    return apiClient<ClubCreationRequestRes>(`/api/clubs/requests/${requestId}/reject`, {
-      method: 'POST',
-      body: { reason },
-    });
+    return apiClient<ClubCreationRequestRes>(
+      `/api/admin/clubs/creation-requests/${requestId}/reject`,
+      {
+        method: 'POST',
+        body: { reason },
+      }
+    );
   },
 
   // ---------- 하위 호환용 (기존 코드에서 likeClub/unlikeClub 사용 시 toggleLike로 대체 권장) ----------
@@ -231,9 +240,7 @@ export const clubApi = {
 
   // ---------- 동아리 삭제 신청 (Leader) ----------
   /** 동아리 리더가 삭제 신청. POST /api/clubs/deletion-requests */
-  createDeletionRequest: async (
-    data: ClubDeletionReq
-  ): Promise<ClubDeletionRequestRes> => {
+  createDeletionRequest: async (data: ClubDeletionReq): Promise<ClubDeletionRequestRes> => {
     return apiClient<ClubDeletionRequestRes>('/api/clubs/deletion-requests', {
       method: 'POST',
       body: {
@@ -251,14 +258,31 @@ export const clubApi = {
   }): Promise<PageResponse<ClubDeletionRequestRes>> => {
     const page = params?.page ?? 0;
     const size = params?.size ?? 20;
-    const query: Record<string, string | number | undefined> = { page, size, sort: 'createdAt,DESC' };
+    const query: Record<string, string | number | undefined> = {
+      page,
+      size,
+      sort: 'createdAt,DESC',
+    };
     if (params?.status) query.status = params.status;
-    type RawPage = PageResponse<ClubDeletionRequestRes> | { data?: { content?: ClubDeletionRequestRes[] }; content?: ClubDeletionRequestRes[]; totalPages?: number; totalElements?: number; size?: number; number?: number; first?: boolean; last?: boolean };
+    type RawPage =
+      | PageResponse<ClubDeletionRequestRes>
+      | {
+          data?: { content?: ClubDeletionRequestRes[] };
+          content?: ClubDeletionRequestRes[];
+          totalPages?: number;
+          totalElements?: number;
+          size?: number;
+          number?: number;
+          first?: boolean;
+          last?: boolean;
+        };
     const raw = await apiClient<RawPage>('/api/admin/clubs/deletion-requests', {
       params: query as Record<string, string | number | boolean | undefined>,
     });
     // 백엔드가 content를 한 단계 더 감싼 경우 대비 (data.content 등)
-    const content: ClubDeletionRequestRes[] = Array.isArray((raw as { content?: ClubDeletionRequestRes[] }).content)
+    const content: ClubDeletionRequestRes[] = Array.isArray(
+      (raw as { content?: ClubDeletionRequestRes[] }).content
+    )
       ? (raw as { content: ClubDeletionRequestRes[] }).content
       : Array.isArray((raw as { data?: { content?: ClubDeletionRequestRes[] } })?.data?.content)
         ? (raw as { data: { content: ClubDeletionRequestRes[] } }).data.content
@@ -274,9 +298,7 @@ export const clubApi = {
     };
   },
 
-  approveDeletionRequest: async (
-    requestId: number
-  ): Promise<ClubDeletionRequestRes> => {
+  approveDeletionRequest: async (requestId: number): Promise<ClubDeletionRequestRes> => {
     return apiClient<ClubDeletionRequestRes>(
       `/api/admin/clubs/deletion-requests/${requestId}/approve`,
       { method: 'POST' }
