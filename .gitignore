@@ -13,6 +13,9 @@ node_modules/
 # testing
 coverage/
 
+# PWA 빌드 시 자동 생성 (캐시 무효화용, 매 빌드마다 갱신)
+.pwa-version.json
+
 # next.js
 .next/
 out/

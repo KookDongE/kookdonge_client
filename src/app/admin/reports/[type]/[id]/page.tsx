@@ -123,32 +123,24 @@ export default function AdminReportDetailPage({ params }: PageProps) {
     return (
       <div className="flex h-full min-h-0 flex-col overflow-hidden bg-[var(--card)]">
         <div className="shrink-0 bg-[var(--card)]">
-          <div className="flex h-16 items-center justify-between px-4">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="flex items-center gap-1 text-base font-medium text-[var(--foreground)]"
+          <div className="flex h-16 items-center justify-end px-4">
+            <span
+              className={`rounded-full px-2 py-0.5 text-xs font-medium ${report.status === 'COMPLETED' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'}`}
             >
-              <span className="inline-block">←</span>
-              <span>뒤로가기</span>
-            </button>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-[var(--muted-foreground)]">
-                {formatDate(report.createdAt)}
-              </span>
-              <span
-                className={`rounded-full px-2 py-0.5 text-xs font-medium ${report.status === 'COMPLETED' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'}`}
-              >
-                {report.status === 'COMPLETED' ? '처리완료' : '대기'}
-              </span>
-            </div>
+              {report.status === 'COMPLETED' ? '처리완료' : '대기'}
+            </span>
           </div>
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto">
           <div className="space-y-6 p-4 pb-24">
             <div>
-              <label className={labelClass}>신고 종류</label>
+              <div className="mb-2 flex items-center justify-between">
+                <label className={labelClass}>신고 종류</label>
+                <span className="text-xs text-[var(--muted-foreground)]">
+                  {formatDate(report.createdAt)}
+                </span>
+              </div>
               <div className={valueBoxClass}>{getReportTypeLabel(report.reportType)}</div>
             </div>
 
@@ -162,15 +154,15 @@ export default function AdminReportDetailPage({ params }: PageProps) {
               </div>
             )}
 
-            {/* 원글 내용 (신고당한 글) */}
-            {report.contentSnapshot != null && report.contentSnapshot !== '' && (
-              <div>
-                <label className={labelClass}>원글 내용</label>
-                <div className={`${valueBoxClass} min-h-[120px] whitespace-pre-wrap`}>
-                  {report.contentSnapshot}
-                </div>
+            {/* 원글 내용 (신고당한 글) - 항상 표시 */}
+            <div>
+              <label className={labelClass}>원글 내용</label>
+              <div className={`${valueBoxClass} min-h-[120px] whitespace-pre-wrap`}>
+                {report.contentSnapshot && report.contentSnapshot.trim() !== ''
+                  ? report.contentSnapshot
+                  : '(원글 내용 없음)'}
               </div>
-            )}
+            </div>
 
             {/* 신고 사유/내용 */}
             {report.reasonDetail != null && report.reasonDetail !== '' && (
@@ -231,32 +223,24 @@ export default function AdminReportDetailPage({ params }: PageProps) {
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-[var(--card)]">
       <div className="shrink-0 bg-[var(--card)]">
-        <div className="flex h-16 items-center justify-between px-4">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="flex items-center gap-1 text-base font-medium text-[var(--foreground)]"
+        <div className="flex h-16 items-center justify-end px-4">
+          <span
+            className={`rounded-full px-2 py-0.5 text-xs font-medium ${feedback.status === 'COMPLETED' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'}`}
           >
-            <span className="inline-block">←</span>
-            <span>뒤로가기</span>
-          </button>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-[var(--muted-foreground)]">
-              {formatDate(feedback.createdAt)}
-            </span>
-            <span
-              className={`rounded-full px-2 py-0.5 text-xs font-medium ${feedback.status === 'COMPLETED' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'}`}
-            >
-              {feedback.status === 'COMPLETED' ? '처리완료' : '대기'}
-            </span>
-          </div>
+            {feedback.status === 'COMPLETED' ? '처리완료' : '대기'}
+          </span>
         </div>
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="space-y-6 p-4 pb-24">
           <div>
-            <label className={labelClass}>신고 종류</label>
+            <div className="mb-2 flex items-center justify-between">
+              <label className={labelClass}>신고 종류</label>
+              <span className="text-xs text-[var(--muted-foreground)]">
+                {formatDate(feedback.createdAt)}
+              </span>
+            </div>
             <div className={valueBoxClass}>{getReportTypeLabel(feedback.feedbackType)}</div>
           </div>
 

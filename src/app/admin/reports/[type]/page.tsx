@@ -77,7 +77,7 @@ function getReportTypeLabel(reportType: string): string {
   return map[reportType] ?? reportType;
 }
 
-/** 카드: 신고 종류, 시간, 대기상태만 표시 → 클릭 시 상세 페이지로 */
+/** 카드: 왼쪽 제목·날짜, 오른쪽 상태 칩 + > 아이콘 (삭제 신청 카드와 동일한 나열) */
 function ReportCard({
   typeSlug,
   reportId,
@@ -94,39 +94,39 @@ function ReportCard({
   return (
     <Link
       href={`/admin/reports/${typeSlug}/${reportId}`}
-      className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
+      className="flex items-center justify-between gap-2 rounded-xl border border-zinc-100 bg-white px-3 py-2.5 transition-all hover:border-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700"
     >
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-sm font-medium text-zinc-800 dark:text-zinc-100">
+      <div className="min-w-0 flex-1">
+        <h4 className="truncate text-sm font-semibold text-zinc-800 dark:text-zinc-100">
           {getReportTypeLabel(reportType)}
-        </span>
-        <Chip
-          size="sm"
-          color={status === 'COMPLETED' ? 'success' : 'warning'}
-          variant="soft"
-          className="shrink-0"
-        >
-          {status === 'COMPLETED' ? '처리완료' : '대기'}
-        </Chip>
+        </h4>
+        <div className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
+          {formatDate(createdAt)}
+        </div>
       </div>
-      <div className="text-xs text-zinc-500 dark:text-zinc-400">{formatDate(createdAt)}</div>
-      <div className="flex justify-end">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2}
-          className="h-5 w-5 text-zinc-400 dark:text-zinc-500"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-        </svg>
-      </div>
+      <Chip
+        size="sm"
+        color={status === 'COMPLETED' ? 'success' : 'warning'}
+        variant="soft"
+        className="shrink-0"
+      >
+        {status === 'COMPLETED' ? '처리완료' : '대기'}
+      </Chip>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+        className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+      </svg>
     </Link>
   );
 }
 
-/** 피드백(시스템오류/건의) 카드: 신고 종류, 시간, 대기상태만 → 클릭 시 상세 */
+/** 피드백(시스템오류/건의) 카드: 왼쪽 제목·날짜, 오른쪽 상태 칩 + > 아이콘 (삭제 신청 카드와 동일한 나열) */
 function FeedbackCard({
   typeSlug,
   feedbackId,
@@ -143,34 +143,34 @@ function FeedbackCard({
   return (
     <Link
       href={`/admin/reports/${typeSlug}/${feedbackId}`}
-      className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
+      className="flex items-center justify-between gap-2 rounded-xl border border-zinc-100 bg-white px-3 py-2.5 transition-all hover:border-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700"
     >
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-sm font-medium text-zinc-800 dark:text-zinc-100">
+      <div className="min-w-0 flex-1">
+        <h4 className="truncate text-sm font-semibold text-zinc-800 dark:text-zinc-100">
           {getReportTypeLabel(feedbackType)}
-        </span>
-        <Chip
-          size="sm"
-          color={status === 'COMPLETED' ? 'success' : 'warning'}
-          variant="soft"
-          className="shrink-0"
-        >
-          {status === 'COMPLETED' ? '처리완료' : '대기'}
-        </Chip>
+        </h4>
+        <div className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
+          {formatDate(createdAt)}
+        </div>
       </div>
-      <div className="text-xs text-zinc-500 dark:text-zinc-400">{formatDate(createdAt)}</div>
-      <div className="flex justify-end">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2}
-          className="h-5 w-5 text-zinc-400 dark:text-zinc-500"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-        </svg>
-      </div>
+      <Chip
+        size="sm"
+        color={status === 'COMPLETED' ? 'success' : 'warning'}
+        variant="soft"
+        className="shrink-0"
+      >
+        {status === 'COMPLETED' ? '처리완료' : '대기'}
+      </Chip>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+        className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+      </svg>
     </Link>
   );
 }
@@ -231,8 +231,8 @@ export default function AdminReportTypePage() {
     { enabled: reportType?.api === 'deletion' }
   );
 
-  const completeReport = useCompleteReport();
-  const completeFeedback = useCompleteFeedback();
+  const _completeReport = useCompleteReport();
+  const _completeFeedback = useCompleteFeedback();
 
   useEffect(() => {
     if (profileLoading) return;

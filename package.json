@@ -6,7 +6,7 @@
     "dev": "next dev",
     "dev:webpack": "next dev --webpack",
     "inject-sw": "node scripts/inject-firebase-sw.js",
-    "prebuild": "npm run inject-sw",
+    "prebuild": "npm run inject-sw && node scripts/set-pwa-version.js",
     "build": "next build",
     "postbuild": "node scripts/inject-firebase-sw.js --restore",
     "start": "next start",
