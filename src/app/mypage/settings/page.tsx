@@ -145,28 +145,28 @@ export default function SettingsPage() {
           버그 신고 및 건의사항
         </Link>
         <Link
-          href="/privacy"
+          href="/mypage/settings/privacy"
           onClick={saveSettingsScroll}
           className="flex min-h-[56px] w-full items-center gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 text-left text-base font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700/80"
         >
           개인정보처리방침
         </Link>
         <Link
-          href="/terms"
+          href="/mypage/settings/terms"
           onClick={saveSettingsScroll}
           className="flex min-h-[56px] w-full items-center gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 text-left text-base font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700/80"
         >
           서비스 이용약관
         </Link>
         <Link
-          href="/youth-protection"
+          href="/mypage/settings/youth-protection"
           onClick={saveSettingsScroll}
           className="flex min-h-[56px] w-full items-center gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 text-left text-base font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700/80"
         >
           청소년보호정책
         </Link>
         <Link
-          href="/community-rules"
+          href="/mypage/settings/community-rules"
           onClick={saveSettingsScroll}
           className="flex min-h-[56px] w-full items-center gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 text-left text-base font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700/80"
         >
