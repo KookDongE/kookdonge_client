@@ -107,6 +107,12 @@ export default function SettingsPage() {
         >
           버그 신고 및 건의사항
         </Link>
+        <Link
+          href="/privacy"
+          className="flex min-h-[56px] w-full items-center gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 text-left text-base font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700/80"
+        >
+          개인정보처리방침
+        </Link>
         <button
           type="button"
           onClick={handleLogout}
@@ -125,28 +131,28 @@ export default function SettingsPage() {
 
       {/* 남는 공간 중앙에 푸터 배치 (살짝 위로) */}
       <div className="mt-6 flex flex-1 flex-col items-center justify-center">
-        <footer className="-translate-y-4 flex flex-col items-center justify-center px-4 pt-6 pb-8 text-center">
-        <a
-          href="https://wink.kookmin.ac.kr/about-us/wink"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex flex-col items-center justify-center rounded-lg text-center outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
-        >
-          <div className="relative mb-4 h-8 w-24">
-            <Image
-              src="/images/Group 1999.svg"
-              alt="WINK"
-              fill
-              className="object-contain object-center"
-            />
-          </div>
-          <p className="text-xs leading-relaxed text-zinc-500 dark:text-zinc-500">
-            서울특별시 성북구 정릉로 77 (국민대학교 미래관 605-1)
-          </p>
-          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
-            © WINK 2026. All rights reserved.
-          </p>
-        </a>
+        <footer className="flex -translate-y-4 flex-col items-center justify-center px-4 pt-6 pb-8 text-center">
+          <a
+            href="https://wink.kookmin.ac.kr/about-us/wink"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col items-center justify-center rounded-lg text-center outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
+          >
+            <div className="relative mb-4 h-8 w-24">
+              <Image
+                src="/images/Group 1999.svg"
+                alt="WINK"
+                fill
+                className="object-contain object-center"
+              />
+            </div>
+            <p className="text-xs leading-relaxed text-zinc-500 dark:text-zinc-500">
+              서울특별시 성북구 정릉로 77 (국민대학교 미래관 605-1)
+            </p>
+            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
+              © WINK 2026. All rights reserved.
+            </p>
+          </a>
         </footer>
       </div>
     </div>
