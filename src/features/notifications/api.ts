@@ -33,8 +33,10 @@ function normalizeItem(item: Record<string, unknown>): NotificationRes {
     type: String(item.type ?? ''),
     title: String(item.title ?? ''),
     message: String(item.message ?? ''),
+    content: item.content != null && item.content !== '' ? String(item.content) : undefined,
     redirectUrl: item.redirectUrl != null ? String(item.redirectUrl) : undefined,
     clubId: item.clubId != null ? Number(item.clubId) : undefined,
+    questionId: item.questionId != null ? Number(item.questionId) : undefined,
     isRead: Boolean(item.isRead ?? item.read ?? false),
     createdAt: String(item.createdAt ?? ''),
   };

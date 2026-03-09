@@ -157,6 +157,13 @@ export function SwipeableNotificationItem({
               </span>
             </div>
             <p className="mt-0.5 text-sm text-zinc-600 dark:text-zinc-400">{item.message}</p>
+            {(item.type === 'COMMUNITY_COMMENT' || item.type === 'COMMUNITY_REPLY') &&
+              item.content != null &&
+              item.content.trim() !== '' && (
+                <p className="mt-1.5 line-clamp-2 rounded bg-zinc-100/80 px-2 py-1.5 text-xs text-zinc-700 dark:bg-zinc-700/50 dark:text-zinc-300">
+                  {item.content.trim()}
+                </p>
+              )}
           </div>
         </motion.div>
       </div>
