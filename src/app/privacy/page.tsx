@@ -1,5 +1,3 @@
-import Link from 'next/link';
-
 export const metadata = {
   title: '개인정보처리방침',
   description: 'KookDongE(국동이) 개인정보처리방침',
@@ -8,31 +6,15 @@ export const metadata = {
 export default function PrivacyPage() {
   return (
     <div className="min-h-full px-4 pt-4 pb-12">
-      <div className="mb-6 flex items-center gap-2">
-        <Link
-          href="/mypage/settings"
-          className="rounded-lg p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
-          aria-label="설정으로 돌아가기"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="h-6 w-6"
-          >
-            <path
-              fillRule="evenodd"
-              d="M7.72 12.53a.75.75 0 010-1.06l7.5-7.5a.75.75 0 111.06 1.06L9.31 12l6.97 6.97a.75.75 0 11-1.06 1.06l-7.5-7.5z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </Link>
-        <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">개인정보처리방침</h1>
+      <div className="mb-6">
+        <h1 className="text-lg font-semibold text-zinc-600 dark:text-zinc-400">개인정보처리방침</h1>
       </div>
 
-      <article className="prose prose-zinc dark:prose-invert max-w-none space-y-6 text-sm leading-relaxed">
-        <p className="text-zinc-600 dark:text-zinc-400">
-          <strong>시행일자: 2026년 3월 9일</strong>
+      <article className="prose prose-zinc dark:prose-invert prose-sm max-w-none space-y-6 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
+        <p className="text-zinc-500 dark:text-zinc-400">
+          <strong className="font-medium text-zinc-500 dark:text-zinc-400">
+            시행일자: 2026년 3월 9일
+          </strong>
         </p>
         <p>
           국민대학교 동아리 정보 플랫폼 「KookDongE」(이하 「서비스」)는 이용자의 개인정보를 소중히
@@ -41,29 +23,29 @@ export default function PrivacyPage() {
         </p>
 
         <section>
-          <h2 className="mt-8 text-base font-bold text-zinc-900 dark:text-zinc-100">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
             제1조 (개인정보의 수집·이용 목적 및 항목)
           </h2>
           <p>서비스는 다음의 목적으로 필요한 범위에서 최소한의 개인정보를 수집·이용합니다.</p>
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse border border-zinc-200 text-left dark:border-zinc-700">
+            <table className="w-full border-collapse border border-zinc-200 text-left text-xs dark:border-zinc-700">
               <thead>
                 <tr className="bg-zinc-50 dark:bg-zinc-800">
-                  <th className="border border-zinc-200 px-3 py-2 dark:border-zinc-700">
+                  <th className="border border-zinc-200 px-3 py-2 text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
                     수집·이용 목적
                   </th>
-                  <th className="border border-zinc-200 px-3 py-2 dark:border-zinc-700">
+                  <th className="border border-zinc-200 px-3 py-2 text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
                     수집 항목
                   </th>
-                  <th className="border border-zinc-200 px-3 py-2 dark:border-zinc-700">
+                  <th className="border border-zinc-200 px-3 py-2 text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
                     수집 시점
                   </th>
-                  <th className="border border-zinc-200 px-3 py-2 dark:border-zinc-700">
+                  <th className="border border-zinc-200 px-3 py-2 text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
                     보유·이용 기간
                   </th>
                 </tr>
               </thead>
-              <tbody className="text-zinc-700 dark:text-zinc-300">
+              <tbody className="text-zinc-500 dark:text-zinc-400">
                 <tr>
                   <td className="border border-zinc-200 px-3 py-2 dark:border-zinc-700">
                     회원 가입·로그인·본인 확인
@@ -173,7 +155,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-base font-bold text-zinc-900 dark:text-zinc-100">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
             제2조 (개인정보의 자동 수집 항목·쿠키 등)
           </h2>
           <p>
@@ -188,7 +170,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-base font-bold text-zinc-900 dark:text-zinc-100">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
             제3조 (개인정보의 제3자 제공)
           </h2>
           <p>
@@ -198,7 +180,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-base font-bold text-zinc-900 dark:text-zinc-100">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
             제4조 (개인정보 처리 위탁)
           </h2>
           <p>서비스는 아래와 같이 개인정보 처리 업무를 위탁할 수 있습니다.</p>
@@ -213,7 +195,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-base font-bold text-zinc-900 dark:text-zinc-100">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
             제5조 (개인정보의 보유·이용 기간 및 파기)
           </h2>
           <p>
@@ -225,7 +207,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-base font-bold text-zinc-900 dark:text-zinc-100">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
             제6조 (이용자 및 법정대리인의 권리)
           </h2>
           <p>
@@ -237,7 +219,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-base font-bold text-zinc-900 dark:text-zinc-100">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
             제7조 (개인정보의 안전성 확보)
           </h2>
           <p>
@@ -247,7 +229,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-base font-bold text-zinc-900 dark:text-zinc-100">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
             제8조 (개인정보 보호책임자 및 문의)
           </h2>
           <p>
@@ -267,7 +249,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="mt-8 text-base font-bold text-zinc-900 dark:text-zinc-100">
+          <h2 className="mt-8 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
             제9조 (개인정보처리방침의 변경)
           </h2>
           <p>
@@ -276,7 +258,7 @@ export default function PrivacyPage() {
           </p>
         </section>
 
-        <p className="mt-8 text-zinc-600 dark:text-zinc-400">
+        <p className="mt-8 text-zinc-500 dark:text-zinc-400">
           본 개인정보처리방침은 2026년 3월 9일부터 적용됩니다.
         </p>
       </article>
