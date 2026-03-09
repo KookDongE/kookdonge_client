@@ -11,6 +11,7 @@ import { ClubCategory, ClubDetailRes, ClubType, College, RecruitmentStatus } fro
 import { IMAGE_ACCEPT_ATTR, validateImageFile } from '@/lib/image-upload-validation';
 import { formatQnaDateTime, parseApiIsoToDate } from '@/lib/utils';
 import { useMyProfile } from '@/features/auth/hooks';
+import { isClubManager } from '@/features/auth/permissions';
 import { clubApi } from '@/features/club/api';
 import {
   useAddClubAdmin,
@@ -2215,11 +2216,7 @@ function ClubQnaTab({
                                 className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
                                 onClick={() => {
                                   setOpenMenuAllAnswerId(null);
-                                  if (
-                                    profile?.id != null &&
-                                    qna.userId != null &&
-                                    profile.id === qna.userId
-                                  ) {
+                                  if (profile != null && isClubManager(profile, clubId)) {
                                     alert('본인은 신고할 수 없습니다.');
                                     return;
                                   }

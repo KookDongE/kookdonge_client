@@ -97,6 +97,6 @@ export function mapCommentResToComment(res: CommunityCommentRes): CommunityComme
     replies: res.replies?.map(mapCommentResToComment),
     liked: res.liked,
     mine: res.mine,
-    isPostAuthor: res.isPostAuthor,
+    isPostAuthor: res.postAuthor,
   };
 }

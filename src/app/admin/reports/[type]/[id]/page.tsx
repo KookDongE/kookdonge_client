@@ -77,11 +77,15 @@ export default function AdminReportDetailPage({ params }: PageProps) {
     id,
     isReport && !Number.isNaN(id)
   );
-  const needFetchContent =
-    isReport &&
-    report &&
-    (!report.contentSnapshot || report.contentSnapshot.trim() === '') &&
-    report?.reportType !== 'CLUB';
+  const raw = report as Record<string, unknown> | undefined;
+  const serverContent =
+    (typeof raw?.originalContent === 'string' && raw.originalContent.trim()) ||
+    (typeof raw?.original_content === 'string' && raw.original_content.trim()) ||
+    (typeof report?.originalContent === 'string' && report.originalContent.trim()) ||
+    (typeof raw?.content_snapshot === 'string' && raw.content_snapshot.trim()) ||
+    (report?.contentSnapshot?.trim() && report.contentSnapshot.trim()) ||
+    '';
+  const needFetchContent = isReport && report && !serverContent && report?.reportType !== 'CLUB';
   const rawContentId = report?.contentId ?? (report as Record<string, unknown>)?.content_id;
   const reportContentId =
     typeof rawContentId === 'number' && Number.isFinite(rawContentId) ? rawContentId : undefined;
@@ -190,7 +194,7 @@ export default function AdminReportDetailPage({ params }: PageProps) {
               </div>
             )}
 
-            {/* 원글 내용 (신고당한 글) - 동아리 신고는 카드 표시, 그 외는 contentSnapshot/조회 텍스트 */}
+            {/* 원글 내용 (신고당한 글) - 스웨거: originalContent(원본 내용) 우선, 동아리는 카드 */}
             {reportTypeValue === 'CLUB' ? (
               <div>
                 <label className={labelClass}>신고된 동아리</label>
@@ -211,9 +215,12 @@ export default function AdminReportDetailPage({ params }: PageProps) {
             ) : (
               <div>
                 <label className={labelClass}>원글 내용</label>
-                <div className={`${valueBoxClass} min-h-[120px] whitespace-pre-wrap`}>
-                  {report.contentSnapshot && report.contentSnapshot.trim() !== ''
-                    ? report.contentSnapshot
+                <div
+                  className={`max-h-[320px] min-h-[120px] overflow-y-auto rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-3 text-sm text-zinc-800 dark:border-zinc-600 dark:bg-zinc-800/50 dark:text-zinc-200 ${valueBoxClass} break-words whitespace-pre-wrap`}
+                  role="article"
+                >
+                  {serverContent
+                    ? serverContent
                     : contentLoading
                       ? '원글 조회 중...'
                       : contentError
@@ -221,7 +228,7 @@ export default function AdminReportDetailPage({ params }: PageProps) {
                         : fetchedContent && fetchedContent.trim() !== ''
                           ? fetchedContent
                           : reportTypeValue === 'COMMUNITY_COMMENT'
-                            ? '댓글 신고는 댓글 단건 조회 API가 없어 서버에서 저장한 스냅샷만 표시됩니다. 스냅샷이 없으면 여기에 표시되지 않습니다.'
+                            ? '댓글 신고는 서버에서 저장한 원본 내용(originalContent)만 표시됩니다. 없으면 여기 비어 있습니다.'
                             : '(원글 내용 없음)'}
                 </div>
               </div>

@@ -513,8 +513,10 @@ export type ReportRes = {
   status: 'PENDING' | 'COMPLETED';
   createdAt: string;
   processedAt?: string;
-  /** 신고당한 글 본문 등 (상세 조회 시) */
+  /** 신고당한 글 본문 등 (상세 조회 시) - 서버에서 저장한 원본 내용 */
   contentSnapshot?: string;
+  /** 신고 대상 원본 내용 (API 상세 조회 시 반환) */
+  originalContent?: string;
 };
 
 // ---------- 버그 신고/건의사항 (Feedback) ----------
@@ -599,10 +601,10 @@ export type CommunityCommentRes = {
   createdAt: string;
   replies?: CommunityCommentRes[];
   liked?: boolean;
-  /** 현재 로그인 유저가 쓴 댓글인지 (userId 기준, 작성자 유형 무관) */
+  /** 현재 로그인 유저가 쓴 댓글인지 (userId 기준, 작성자 유형 무관). 스웨거 mine */
   mine?: boolean;
-  /** 이 댓글 작성자가 게시글 작성자와 동일 유저인지 (모든 조회자에게 글쓴이 뱃지 표시용) */
-  isPostAuthor?: boolean;
+  /** 이 댓글 작성자가 게시글 작성자와 동일한지 (모든 조회자에게 글쓴이 뱃지 표시용). 스웨거 postAuthor */
+  postAuthor?: boolean;
 };
 
 export type CommunityPostCreateReq = {

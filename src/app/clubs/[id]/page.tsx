@@ -1013,11 +1013,7 @@ function ClubQnaTab({
                             role="menuitem"
                             onClick={() => {
                               setAnswerMenuOpenId(null);
-                              if (
-                                profile?.id != null &&
-                                qna.userId != null &&
-                                profile.id === qna.userId
-                              ) {
+                              if (profile != null && isClubManager(profile, clubId)) {
                                 alert('본인은 신고할 수 없습니다.');
                                 return;
                               }
