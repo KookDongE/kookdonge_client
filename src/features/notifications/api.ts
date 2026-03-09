@@ -27,13 +27,32 @@ function extractNotificationList(raw: NotificationsRaw | null | undefined): Noti
   return [];
 }
 
+/** 댓글/답글 본문이 올 수 있는 API 필드명 후보 (camel + snake) */
+const CONTENT_KEYS = [
+  'content',
+  'commentContent',
+  'comment_content',
+  'body',
+  'text',
+  'originalContent',
+  'original_content',
+] as const;
+
+function pickContent(item: Record<string, unknown>): string | undefined {
+  for (const key of CONTENT_KEYS) {
+    const val = item[key];
+    if (val != null && String(val).trim() !== '') return String(val).trim();
+  }
+  return undefined;
+}
+
 function normalizeItem(item: Record<string, unknown>): NotificationRes {
   return {
     id: Number(item.id),
     type: String(item.type ?? ''),
     title: String(item.title ?? ''),
     message: String(item.message ?? ''),
-    content: item.content != null && item.content !== '' ? String(item.content) : undefined,
+    content: pickContent(item),
     redirectUrl: item.redirectUrl != null ? String(item.redirectUrl) : undefined,
     clubId: item.clubId != null ? Number(item.clubId) : undefined,
     questionId: item.questionId != null ? Number(item.questionId) : undefined,

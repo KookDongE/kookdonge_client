@@ -278,7 +278,7 @@ function CommentBarPortal({
             type="button"
             onClick={onSubmitComment}
             disabled={!commentText.trim() || isCommentSubmitting}
-            className="shrink-0 rounded-full bg-transparent p-2 text-zinc-500 transition-opacity hover:opacity-80 disabled:opacity-50 dark:bg-zinc-800 dark:text-zinc-400"
+            className="shrink-0 rounded-full bg-white p-2 text-zinc-500 transition-opacity hover:opacity-80 disabled:opacity-50 dark:bg-zinc-800 dark:text-zinc-400"
             aria-label="댓글 등록"
           >
             <svg
