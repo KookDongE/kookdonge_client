@@ -11,7 +11,16 @@ import { PullToRefresh } from '@/components/common/pull-to-refresh';
 const FULL_SCREEN_PATHS = ['/', '/login'];
 
 /** 앱 헤더를 숨기는 경로 (Header 컴포넌트와 동일). 헤더 숨길 때 main 상단 패딩 제거 */
-const HEADER_HIDDEN_PATHS = ['/', '/login', '/welcome', '/mypage/clubs/apply', '/community/write', '/mypage/settings/bug-report', '/mypage/settings/report', '/mypage/settings/name'];
+const HEADER_HIDDEN_PATHS = [
+  '/',
+  '/login',
+  '/welcome',
+  '/mypage/clubs/apply',
+  '/community/write',
+  '/mypage/settings/bug-report',
+  '/mypage/settings/report',
+  '/mypage/settings/name',
+];
 function isHeaderHidden(pathname: string): boolean {
   if (!pathname) return false;
   if (HEADER_HIDDEN_PATHS.includes(pathname)) return true;
@@ -35,12 +44,11 @@ const PULL_TO_REFRESH_DISABLED_PATHS = [
   /^\/community\/posts\/[^/]+\/edit$/, // 커뮤니티 글 수정
 ];
 
-/** 메인 스크롤 비활성화 경로 (동아리 신청, 피드 추가/수정, 설정 메인만, 알림설정, 관리자 메인만, 커뮤니티 메인·글쓰기·글수정 — 하위 페이지는 스크롤 가능) */
+/** 메인 스크롤 비활성화 경로 (동아리 신청, 피드 추가/수정, 알림설정, 관리자 메인만, 커뮤니티 메인·글쓰기·글수정 — 하위 페이지는 스크롤 가능) */
 const SCROLL_DISABLED_PATHS = [
   /^\/mypage\/clubs\/apply$/,
   /^\/mypage\/clubs\/[^/]+\/manage\/feed\/new$/, // 피드 추가
   /^\/mypage\/clubs\/[^/]+\/manage\/feed\/[^/]+\/edit$/, // 피드 수정
-  /^\/mypage\/settings\/?$/, // 설정 메인만 (/mypage/settings, /mypage/settings/) — 하위(이름변경, 버그신고 등) 제외
   /^\/mypage\/notification-settings(\/|$)/,
   /^\/admin\/?$/, // 관리자 메인만 (trailing slash 포함)
   /^\/community\/?$/, // 커뮤니티 메인만, 하위(/community/popular 등)는 스크롤 가능. trailing slash 포함.
@@ -65,7 +73,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (typeof document === 'undefined') return;
     if (scrollDisabled) {
-      const scrollContainer = document.querySelector('[data-scroll-container]') as HTMLElement | null;
+      const scrollContainer = document.querySelector(
+        '[data-scroll-container]'
+      ) as HTMLElement | null;
       // 스크롤 잠금 적용 전에 스크롤 위치를 0으로 맞춤 (이전 탭의 스크롤이 그대로 보이는 오류 방지)
       if (scrollContainer) scrollContainer.scrollTo(0, 0);
       window.scrollTo(0, 0);
@@ -118,7 +128,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <main
         className={`flex flex-col overflow-hidden ${fullScreen ? 'h-dvh min-h-0' : 'h-[calc(100dvh-4rem)]'} ${!fullScreen && !headerHidden ? 'pt-[4.25rem]' : ''}`}
       >
-        <div className="flex-1 min-h-0 overflow-hidden">
+        <div className="min-h-0 flex-1 overflow-hidden">
           <PullToRefresh
             fullScreen={fullScreen}
             disabled={pullToRefreshDisabled}
