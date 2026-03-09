@@ -15,7 +15,7 @@ export const reportApi = {
 export const adminReportApi = {
   getList: async (params?: {
     status?: 'PENDING' | 'COMPLETED';
-    reportType?: 'QNA' | 'CLUB' | 'COMMUNITY_POST' | 'COMMUNITY_COMMENT';
+    reportType?: 'QNA' | 'QNA_ANSWER' | 'CLUB' | 'COMMUNITY_POST' | 'COMMUNITY_COMMENT';
     page?: number;
     size?: number;
     sort?: string[];

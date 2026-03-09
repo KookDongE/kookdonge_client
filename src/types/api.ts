@@ -488,7 +488,7 @@ export type ClubCreationRequestRes = {
 };
 
 // ---------- 신고 (Report) ----------
-export type ReportType = 'QNA' | 'CLUB' | 'COMMUNITY_POST' | 'COMMUNITY_COMMENT';
+export type ReportType = 'QNA' | 'QNA_ANSWER' | 'CLUB' | 'COMMUNITY_POST' | 'COMMUNITY_COMMENT';
 export type ReportReason = 'ABUSE' | 'SPAM' | 'ILLEGAL' | 'OTHER';
 
 export type ReportCreateReq = {

@@ -22,7 +22,7 @@ export const adminReportKeys = {
 
 export function useAdminReports(params?: {
   status?: 'PENDING' | 'COMPLETED';
-  reportType?: 'QNA' | 'CLUB' | 'COMMUNITY_POST' | 'COMMUNITY_COMMENT';
+  reportType?: 'QNA' | 'QNA_ANSWER' | 'CLUB' | 'COMMUNITY_POST' | 'COMMUNITY_COMMENT';
   page?: number;
   size?: number;
   enabled?: boolean;
@@ -81,7 +81,7 @@ export function useReportedContent(
   const questionQuery = useQuery({
     queryKey: reportedContentKeys.question(contentId ?? 0),
     queryFn: () => questionApi.getQuestion(contentId!),
-    enabled: enabled && reportType === 'QNA' && !!contentId,
+    enabled: enabled && (reportType === 'QNA' || reportType === 'QNA_ANSWER') && !!contentId,
   });
 
   if (reportType === 'COMMUNITY_POST' && postQuery.isSuccess && postQuery.data) {
@@ -105,7 +105,11 @@ export function useReportedContent(
       return { content: parts.join('\n\n'), isLoading: false, isError: false };
     }
   }
-  if (reportType === 'QNA' && questionQuery.isSuccess && questionQuery.data) {
+  if (
+    (reportType === 'QNA' || reportType === 'QNA_ANSWER') &&
+    questionQuery.isSuccess &&
+    questionQuery.data
+  ) {
     const d = questionQuery.data as Record<string, unknown>;
     const inner = (d?.data as Record<string, unknown> | undefined) ?? d;
     const question = String(inner?.question ?? d?.question ?? '');
@@ -124,11 +128,11 @@ export function useReportedContent(
   const isLoading =
     (reportType === 'COMMUNITY_POST' && postQuery.isLoading) ||
     (reportType === 'CLUB' && clubQuery.isLoading) ||
-    (reportType === 'QNA' && questionQuery.isLoading);
+    ((reportType === 'QNA' || reportType === 'QNA_ANSWER') && questionQuery.isLoading);
   const isError =
     (reportType === 'COMMUNITY_POST' && postQuery.isError) ||
     (reportType === 'CLUB' && clubQuery.isError) ||
-    (reportType === 'QNA' && questionQuery.isError);
+    ((reportType === 'QNA' || reportType === 'QNA_ANSWER') && questionQuery.isError);
 
   return {
     content: null,

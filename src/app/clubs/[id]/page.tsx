@@ -1021,7 +1021,7 @@ function ClubQnaTab({
                                 alert('본인은 신고할 수 없습니다.');
                                 return;
                               }
-                              router.push(`/mypage/settings/report?type=qna&id=${qna.id}`);
+                              router.push(`/mypage/settings/report?type=qna-answer&id=${qna.id}`);
                             }}
                           >
                             신고

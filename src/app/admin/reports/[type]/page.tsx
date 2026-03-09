@@ -70,6 +70,7 @@ function getReportTypeLabel(reportType: string): string {
     COMMUNITY_COMMENT: '커뮤니티 댓글',
     COMMUNITY_POST: '커뮤니티 게시글',
     QNA: 'Q&A',
+    QNA_ANSWER: 'Q&A 답변',
     CLUB: '동아리',
     BUG_REPORT: '시스템오류(버그신고)',
     SUGGESTION: '건의사항',

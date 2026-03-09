@@ -8,8 +8,10 @@ import { Button, Chip, ListBox, Select, Spinner, Tabs, TextArea } from '@heroui/
 import { parseAsString, useQueryState } from 'nuqs';
 
 import { ClubCategory, ClubDetailRes, ClubType, College, RecruitmentStatus } from '@/types/api';
+import { IMAGE_ACCEPT_ATTR, validateImageFile } from '@/lib/image-upload-validation';
 import { formatQnaDateTime, parseApiIsoToDate } from '@/lib/utils';
 import { useMyProfile } from '@/features/auth/hooks';
+import { clubApi } from '@/features/club/api';
 import {
   useAddClubAdmin,
   useClubDetail,
@@ -18,8 +20,6 @@ import {
   useUpdateClubDetail,
   useUpdateRecruitmentInfo,
 } from '@/features/club/hooks';
-import { clubApi } from '@/features/club/api';
-import { IMAGE_ACCEPT_ATTR, validateImageFile } from '@/lib/image-upload-validation';
 import { useClubFeeds, useUploadFeedFiles } from '@/features/feed/hooks';
 import { useAddInterest, useMyInterests, useRemoveInterest } from '@/features/interest/hooks';
 import {
@@ -342,7 +342,9 @@ function ClubManageContent({ clubId }: { clubId: number }) {
     setTargetGraduate(club.targetGraduate || '');
     setLeaderName(club.leaderName || '');
     setLocation(club.location || '');
-    const w = club.weeklyActivity ?? (club.weeklyActiveFrequency != null ? String(club.weeklyActiveFrequency) : '');
+    const w =
+      club.weeklyActivity ??
+      (club.weeklyActiveFrequency != null ? String(club.weeklyActiveFrequency) : '');
     const trimmed = String(w).trim();
     if (trimmed && /^[1-7]$/.test(trimmed)) {
       setWeeklyActiveFrequency(Number(trimmed));
@@ -896,21 +898,13 @@ function AdminManageSection({
 }
 
 /** 동아리 상세 페이지(/clubs/[id]) 정보 탭과 동일한 보기 전용 UI */
-function ManageInfoView({
-  club,
-  onEdit,
-}: {
-  club: ClubDetailRes;
-  onEdit: () => void;
-}) {
+function ManageInfoView({ club, onEdit }: { club: ClubDetailRes; onEdit: () => void }) {
   const infoItems = [
     { label: '모집 시작', value: formatDateTimeReadMode(club.recruitmentStartDate) },
     { label: '모집 마감', value: formatDateTimeReadMode(club.recruitmentEndDate) },
     { label: '대상', value: club.targetGraduate ?? '-' },
     { label: '동아리장', value: club.leaderName ?? '-' },
-    ...(club.location?.trim()
-      ? [{ label: '활동 장소' as const, value: club.location }]
-      : []),
+    ...(club.location?.trim() ? [{ label: '활동 장소' as const, value: club.location }] : []),
     {
       label: '주간활동 횟수',
       value:
@@ -921,8 +915,7 @@ function ManageInfoView({
   ];
 
   const contentImageUrl = club.contentImageUrl ?? club.descriptionImages?.[0];
-  const hasIntroduction =
-    (club.content != null && club.content.trim() !== '') || !!contentImageUrl;
+  const hasIntroduction = (club.content != null && club.content.trim() !== '') || !!contentImageUrl;
   const links = parseExternalLinks(club.externalLink);
 
   return (
@@ -949,7 +942,7 @@ function ManageInfoView({
           )}
           {club.content != null && club.content.trim() !== '' && (
             <div className="p-4">
-              <p className="whitespace-pre-wrap text-sm font-light leading-relaxed text-zinc-700 dark:text-zinc-300">
+              <p className="text-sm leading-relaxed font-light whitespace-pre-wrap text-zinc-700 dark:text-zinc-300">
                 {club.content}
               </p>
             </div>
@@ -1883,7 +1876,6 @@ function ClubInfoTab({
         <h3 className="mb-3 font-semibold text-zinc-900 dark:text-zinc-100">관리자</h3>
         <AdminManageSection clubId={clubId} onClose={() => {}} />
       </div>
-
     </div>
   );
 }
@@ -2049,7 +2041,7 @@ function ClubQnaTab({
                   <span className="relative shrink-0">
                     {!qna.answer && (
                       <span
-                        className="absolute -left-0.5 -top-0.5 h-2 w-2 rounded-full bg-red-500"
+                        className="absolute -top-0.5 -left-0.5 h-2 w-2 rounded-full bg-red-500"
                         aria-hidden
                       />
                     )}
@@ -2073,9 +2065,7 @@ function ClubQnaTab({
                       size="sm"
                       variant="ghost"
                       onPress={() =>
-                        setExpandedAnswerQuestionId((prev) =>
-                          prev === qna.id ? null : qna.id
-                        )
+                        setExpandedAnswerQuestionId((prev) => (prev === qna.id ? null : qna.id))
                       }
                       className="shrink-0 text-xs font-normal text-zinc-500 dark:text-zinc-400"
                     >
@@ -2122,7 +2112,11 @@ function ClubQnaTab({
                           className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
                           onClick={() => {
                             setOpenMenuAllQuestionId(null);
-                            if (profile?.id != null && qna.userId != null && profile.id === qna.userId) {
+                            if (
+                              profile?.id != null &&
+                              qna.userId != null &&
+                              profile.id === qna.userId
+                            ) {
                               alert('본인은 신고할 수 없습니다.');
                               return;
                             }
@@ -2189,9 +2183,7 @@ function ClubQnaTab({
                             size="sm"
                             variant="ghost"
                             onPress={() =>
-                              setOpenMenuAllAnswerId((prev) =>
-                                prev === qna.id ? null : qna.id
-                              )
+                              setOpenMenuAllAnswerId((prev) => (prev === qna.id ? null : qna.id))
                             }
                             isDisabled={deleteQuestion.isPending}
                             className="min-w-0 px-2"
@@ -2223,11 +2215,17 @@ function ClubQnaTab({
                                 className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
                                 onClick={() => {
                                   setOpenMenuAllAnswerId(null);
-                                  if (profile?.id != null && qna.userId != null && profile.id === qna.userId) {
+                                  if (
+                                    profile?.id != null &&
+                                    qna.userId != null &&
+                                    profile.id === qna.userId
+                                  ) {
                                     alert('본인은 신고할 수 없습니다.');
                                     return;
                                   }
-                                  router.push(`/mypage/settings/report?type=qna&id=${qna.id}`);
+                                  router.push(
+                                    `/mypage/settings/report?type=qna-answer&id=${qna.id}`
+                                  );
                                 }}
                               >
                                 신고
@@ -2250,7 +2248,6 @@ function ClubQnaTab({
           <p>아직 질문이 없습니다.</p>
         </div>
       )}
-
     </div>
   );
 }

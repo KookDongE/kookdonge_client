@@ -24,18 +24,20 @@ const REPORT_REASON_TO_API: Record<ReportReason, ApiReportReason> = {
   etc: 'OTHER',
 };
 
-type ReportTargetType = 'qna' | 'post' | 'comment' | 'club';
+type ReportTargetType = 'qna' | 'qna-answer' | 'post' | 'comment' | 'club';
 
 const REPORT_TARGET_TO_API: Record<ReportTargetType, ReportType> = {
   qna: 'QNA',
+  'qna-answer': 'QNA_ANSWER',
   post: 'COMMUNITY_POST',
   comment: 'COMMUNITY_COMMENT',
   club: 'CLUB',
 };
 
-/** 수정 불가 드롭다운용 구분 라벨 (Q&A / 게시글 / 댓글 / 동아리) */
+/** 수정 불가 드롭다운용 구분 라벨 (Q&A / Q&A 답변 / 게시글 / 댓글 / 동아리) */
 const REPORT_TARGET_LABEL: Record<ReportTargetType, string> = {
   qna: 'Q&A',
+  'qna-answer': 'Q&A 답변',
   post: '게시글',
   comment: '댓글',
   club: '동아리',
