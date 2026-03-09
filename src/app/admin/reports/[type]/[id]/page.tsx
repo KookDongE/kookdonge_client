@@ -230,7 +230,7 @@ export default function AdminReportDetailPage({ params }: PageProps) {
             {/* 신고 사유/내용 */}
             {report.reasonDetail != null && report.reasonDetail !== '' && (
               <div>
-                <label className={labelClass}>신고 사유·내용</label>
+                <label className={labelClass}>신고 사유</label>
                 <div className={`${valueBoxClass} min-h-[80px] whitespace-pre-wrap`}>
                   {report.reasonDetail}
                 </div>

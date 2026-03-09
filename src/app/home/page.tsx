@@ -134,11 +134,10 @@ function RankingSection({ returnTo }: { returnTo?: string }) {
         <div className="mb-4 flex items-center justify-between px-4">
           <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100">이번 주 인기</span>
         </div>
-        <div className="mx-4 flex h-36 flex-col items-center justify-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">인기 동아리를 불러오지 못했습니다</p>
-          <Button size="sm" variant="primary" onPress={() => refetchRanking()}>
-            다시 시도
-          </Button>
+        <div className="mx-4 flex h-36 flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            인기 동아리를 불러오지 못했습니다
+          </p>
         </div>
       </section>
     );
@@ -197,7 +196,9 @@ function RankingSection({ returnTo }: { returnTo?: string }) {
       {isEmpty ? (
         <div className="mx-4 flex h-36 flex-col items-center justify-center gap-1 rounded-xl border border-zinc-200 bg-zinc-50 text-center text-sm text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
           <span>이번 주 인기 동아리가 없습니다</span>
-          <span className="text-xs text-zinc-400 dark:text-zinc-600">매주 월요일 00:00에 갱신됩니다</span>
+          <span className="text-xs text-zinc-400 dark:text-zinc-600">
+            매주 월요일 00:00에 갱신됩니다
+          </span>
         </div>
       ) : (
         <AnimatePresence mode="wait">
@@ -507,7 +508,7 @@ function ClubListSection({
                     placeholder="동아리 이름 입력"
                     value={deleteConfirmName}
                     onChange={(e) => setDeleteConfirmName(e.target.value)}
-                    className="mt-6 mb-6 w-full min-w-0 rounded-lg border border-zinc-300 bg-transparent px-3 py-2 text-sm outline-none transition-colors placeholder:text-zinc-400 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-600 dark:focus:border-zinc-500 dark:focus:ring-zinc-700"
+                    className="mt-6 mb-6 w-full min-w-0 rounded-lg border border-zinc-300 bg-transparent px-3 py-2 text-sm transition-colors outline-none placeholder:text-zinc-400 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-600 dark:focus:border-zinc-500 dark:focus:ring-zinc-700"
                     autoComplete="off"
                     aria-label="동아리 이름 확인"
                   />

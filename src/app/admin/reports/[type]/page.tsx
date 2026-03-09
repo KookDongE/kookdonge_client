@@ -78,29 +78,48 @@ function getReportTypeLabel(reportType: string): string {
   return map[reportType] ?? reportType;
 }
 
-/** 카드: 왼쪽 제목·날짜, 오른쪽 상태 칩 + > 아이콘 (삭제 신청 카드와 동일한 나열) */
+/** 신고 사유 라벨 */
+function getReportReasonLabel(reportReason: string): string {
+  const map: Record<string, string> = {
+    ABUSE: '욕설·비방',
+    SPAM: '스팸',
+    ILLEGAL: '불법·부적절한 내용',
+    OTHER: '기타',
+  };
+  return map[reportReason] ?? reportReason;
+}
+
+/** 카드: 태그(신고 종류) + 신고 사유 한 줄, 오른쪽 상태 칩 + > 아이콘 */
 function ReportCard({
   typeSlug,
   reportId,
   reportType,
+  reportReason,
+  reasonDetail,
   createdAt,
   status,
 }: {
   typeSlug: string;
   reportId: number;
   reportType: string;
+  reportReason: string;
+  reasonDetail: string | undefined;
   createdAt: string | undefined;
   status: 'PENDING' | 'COMPLETED';
 }) {
+  const reasonLine = reasonDetail?.trim() || getReportReasonLabel(reportReason);
   return (
     <Link
       href={`/admin/reports/${typeSlug}/${reportId}`}
       className="flex items-center justify-between gap-2 rounded-xl border border-zinc-100 bg-white px-3 py-2.5 transition-all hover:border-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700"
     >
       <div className="min-w-0 flex-1">
-        <h4 className="truncate text-sm font-semibold text-zinc-800 dark:text-zinc-100">
-          {getReportTypeLabel(reportType)}
-        </h4>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="shrink-0 rounded-full border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:border-zinc-600 dark:bg-zinc-700/50 dark:text-zinc-300">
+            {getReportTypeLabel(reportType)}
+          </span>
+        </div>
+        <p className="mt-1 truncate text-xs text-zinc-600 dark:text-zinc-400">{reasonLine}</p>
         <div className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
           {formatDate(createdAt)}
         </div>
@@ -339,6 +358,8 @@ export default function AdminReportTypePage() {
                   typeSlug={typeSlug ?? 'user-report'}
                   reportId={r.reportId}
                   reportType={r.reportType}
+                  reportReason={r.reportReason}
+                  reasonDetail={r.reasonDetail}
                   createdAt={r.createdAt}
                   status={r.status}
                 />
@@ -409,6 +430,8 @@ export default function AdminReportTypePage() {
                   typeSlug={typeSlug ?? 'user-report'}
                   reportId={r.reportId}
                   reportType={r.reportType}
+                  reportReason={r.reportReason}
+                  reasonDetail={r.reasonDetail}
                   createdAt={r.createdAt}
                   status={r.status}
                 />
@@ -525,6 +548,8 @@ export default function AdminReportTypePage() {
                   typeSlug={typeSlug ?? 'user-report'}
                   reportId={r.reportId}
                   reportType={r.reportType}
+                  reportReason={r.reportReason}
+                  reasonDetail={r.reasonDetail}
                   createdAt={r.createdAt}
                   status={r.status}
                 />
