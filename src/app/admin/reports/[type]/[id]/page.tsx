@@ -9,12 +9,14 @@ import { Button } from '@heroui/react';
 import type { ReportType } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
+import { useClubDetail } from '@/features/club/hooks';
 import { useAdminFeedbackDetail, useCompleteFeedback } from '@/features/feedback/hooks';
 import {
   useAdminReportDetail,
   useCompleteReport,
   useReportedContent,
 } from '@/features/report/hooks';
+import { InterestedClubCard } from '@/components/club/interested-club-card';
 import { FormPageSkeleton, PageCenteredSkeleton } from '@/components/common/skeletons';
 
 const REPORT_TYPES: ReportType[] = ['QNA', 'CLUB', 'COMMUNITY_POST', 'COMMUNITY_COMMENT'];
@@ -69,7 +71,10 @@ export default function AdminReportDetailPage({ params }: PageProps) {
     isReport && !Number.isNaN(id)
   );
   const needFetchContent =
-    isReport && report && (!report.contentSnapshot || report.contentSnapshot.trim() === '');
+    isReport &&
+    report &&
+    (!report.contentSnapshot || report.contentSnapshot.trim() === '') &&
+    report?.reportType !== 'CLUB';
   const rawContentId = report?.contentId ?? (report as Record<string, unknown>)?.content_id;
   const reportContentId =
     typeof rawContentId === 'number' && Number.isFinite(rawContentId) ? rawContentId : undefined;
@@ -80,6 +85,9 @@ export default function AdminReportDetailPage({ params }: PageProps) {
     isLoading: contentLoading,
     isError: contentError,
   } = useReportedContent(reportTypeValue, reportContentId, !!needFetchContent);
+  const clubIdForCard =
+    isReport && reportTypeValue === 'CLUB' && reportContentId ? reportContentId : 0;
+  const { data: reportedClub } = useClubDetail(clubIdForCard);
   const { data: feedback, isLoading: feedbackLoading } = useAdminFeedbackDetail(
     id,
     !isReport && !Number.isNaN(id)
@@ -175,23 +183,42 @@ export default function AdminReportDetailPage({ params }: PageProps) {
               </div>
             )}
 
-            {/* 원글 내용 (신고당한 글) - contentSnapshot 우선, 없으면 contentId로 조회 */}
-            <div>
-              <label className={labelClass}>원글 내용</label>
-              <div className={`${valueBoxClass} min-h-[120px] whitespace-pre-wrap`}>
-                {report.contentSnapshot && report.contentSnapshot.trim() !== ''
-                  ? report.contentSnapshot
-                  : contentLoading
-                    ? '원글 조회 중...'
-                    : contentError
-                      ? '원글 조회에 실패했습니다. (삭제된 글이거나 권한이 없을 수 있습니다.)'
-                      : fetchedContent && fetchedContent.trim() !== ''
-                        ? fetchedContent
-                        : reportTypeValue === 'COMMUNITY_COMMENT'
-                          ? '댓글 신고는 댓글 단건 조회 API가 없어 서버에서 저장한 스냅샷만 표시됩니다. 스냅샷이 없으면 여기에 표시되지 않습니다.'
-                          : '(원글 내용 없음)'}
+            {/* 원글 내용 (신고당한 글) - 동아리 신고는 카드 표시, 그 외는 contentSnapshot/조회 텍스트 */}
+            {reportTypeValue === 'CLUB' ? (
+              <div>
+                <label className={labelClass}>신고된 동아리</label>
+                {reportContentId ? (
+                  <InterestedClubCard
+                    subscription={{
+                      clubId: reportContentId,
+                      clubName: reportedClub?.name ?? '',
+                      clubProfileImageUrl: reportedClub?.image ?? '',
+                      clubType: reportedClub?.type ?? 'CENTRAL',
+                    }}
+                    className="mypage-club-card"
+                  />
+                ) : (
+                  <div className={valueBoxClass}>(동아리 정보 없음)</div>
+                )}
               </div>
-            </div>
+            ) : (
+              <div>
+                <label className={labelClass}>원글 내용</label>
+                <div className={`${valueBoxClass} min-h-[120px] whitespace-pre-wrap`}>
+                  {report.contentSnapshot && report.contentSnapshot.trim() !== ''
+                    ? report.contentSnapshot
+                    : contentLoading
+                      ? '원글 조회 중...'
+                      : contentError
+                        ? '원글 조회에 실패했습니다. (삭제된 글이거나 권한이 없을 수 있습니다.)'
+                        : fetchedContent && fetchedContent.trim() !== ''
+                          ? fetchedContent
+                          : reportTypeValue === 'COMMUNITY_COMMENT'
+                            ? '댓글 신고는 댓글 단건 조회 API가 없어 서버에서 저장한 스냅샷만 표시됩니다. 스냅샷이 없으면 여기에 표시되지 않습니다.'
+                            : '(원글 내용 없음)'}
+                </div>
+              </div>
+            )}
 
             {/* 신고 사유/내용 */}
             {report.reasonDetail != null && report.reasonDetail !== '' && (

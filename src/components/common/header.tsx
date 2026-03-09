@@ -12,13 +12,10 @@ export function Header() {
   const { data: unreadCount = 0 } = useUnreadCount();
   const isNotificationsPage = pathname === '/notifications';
   // 홈/커뮤니티/마이페이지 최상위에서는 뒤로가기 숨김, 하위 페이지는 그대로 표시
-  // 관리자 신고·피드백 상세(/admin/reports/:type/:id)에서는 페이지 자체 네비만 사용하므로 헤더 뒤로가기 숨김
-  const isAdminReportDetail = /^\/admin\/reports\/[^/]+\/\d+$/.test(pathname ?? '');
+  // 관리자 하위 페이지 전체에서는 헤더 뒤로가기 숨김 (각 페이지 내부 네비 사용)
+  const isAdminSubpage = (pathname ?? '').startsWith('/admin/');
   const showBackButton =
-    pathname !== '/home' &&
-    pathname !== '/community' &&
-    pathname !== '/mypage' &&
-    !isAdminReportDetail;
+    pathname !== '/home' && pathname !== '/community' && pathname !== '/mypage' && !isAdminSubpage;
 
   const isHidden =
     pathname === '/' ||
