@@ -27,7 +27,7 @@ const linkClass =
 const buttonClass =
   'flex min-h-[48px] w-full items-center justify-between gap-3 px-1 py-3 text-left text-base text-zinc-900 transition-colors hover:opacity-80 dark:text-zinc-100';
 const sectionTitleClass = 'px-1 pt-4 pb-2 text-sm font-bold text-zinc-700 dark:text-zinc-300';
-const dividerClass = 'border-t border-zinc-200 dark:border-zinc-700';
+const dividerClass = 'my-4 border-t border-zinc-200 dark:border-zinc-700';
 
 function getThemeLabel(theme: string | undefined): string {
   if (theme === 'dark') return '다크';
@@ -111,22 +111,6 @@ export default function SettingsPage() {
         <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">설정</h1>
       </div>
       <div className="px-4">
-        {/* 커뮤니티 */}
-        <section>
-          <h2 className={sectionTitleClass}>커뮤니티</h2>
-          <div className="flex flex-col">
-            <Link
-              href="/mypage/settings/community-rules"
-              onClick={saveSettingsScroll}
-              className={linkClass}
-            >
-              커뮤니티 이용규칙
-            </Link>
-          </div>
-        </section>
-
-        <div className={dividerClass} />
-
         {/* 앱 설정 */}
         <section>
           <h2 className={sectionTitleClass}>앱 설정</h2>
@@ -157,7 +141,7 @@ export default function SettingsPage() {
               onClick={saveSettingsScroll}
               className={linkClass}
             >
-              문의하기
+              버그 신고 및 건의사항
             </Link>
           </div>
         </section>
@@ -188,6 +172,13 @@ export default function SettingsPage() {
               className={linkClass}
             >
               청소년 보호정책
+            </Link>
+            <Link
+              href="/mypage/settings/community-rules"
+              onClick={saveSettingsScroll}
+              className={linkClass}
+            >
+              커뮤니티 이용규칙
             </Link>
           </div>
         </section>
