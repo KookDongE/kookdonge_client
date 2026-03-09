@@ -1,14 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
-import { useEffectivePathname } from '@/hooks/use-effective-pathname';
 import { useUnreadCount } from '@/features/notifications/hooks';
 import { BellIcon } from '@/components/icons/notification-icon';
 
 export function Header() {
-  const pathname = useEffectivePathname();
+  const pathname = usePathname();
   const router = useRouter();
   const { data: unreadCount = 0 } = useUnreadCount();
   const isNotificationsPage = pathname === '/notifications';

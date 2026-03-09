@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
-import { useEffectivePathname } from '@/hooks/use-effective-pathname';
 import { BottomNav } from '@/components/common/bottom-nav';
 import { FloatingButtonsLayer } from '@/components/common/floating-buttons-layer';
 import { Header } from '@/components/common/header';
@@ -61,7 +61,7 @@ function isFullScreenPath(pathname: string): boolean {
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const pathname = useEffectivePathname();
+  const pathname = usePathname();
   const fullScreen = isFullScreenPath(pathname ?? '');
   const headerHidden = isHeaderHidden(pathname ?? '');
   const pullToRefreshDisabled =
