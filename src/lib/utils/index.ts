@@ -1,2 +1,3 @@
+export { shuffleArray } from './array';
 export { cn } from './cn';
-export { formatQnaDateTime, parseApiIsoToDate } from './date';
+export { formatQnaDateTime, formatTimeAgo, parseApiIsoToDate } from './date';

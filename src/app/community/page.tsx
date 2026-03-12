@@ -116,7 +116,7 @@ function MenuIcon({ type }: { type: string }) {
 export default function AdminCommunityPage() {
   const router = useRouter();
   const [searchInput, setSearchInput] = useState('');
-  const { data: profile, isLoading: profileLoading } = useMyProfile();
+  const { data: _profile, isLoading: profileLoading } = useMyProfile();
 
   const handleSearchSubmit = () => {
     const q = searchInput.trim();
@@ -143,10 +143,7 @@ export default function AdminCommunityPage() {
 
       {/* 광고 배너: 가로2 세로1 비율 캐러셀, 3초 자동 전환, 인디케이터 점 */}
       <div className="mb-4 px-4 pt-4">
-        <div
-          className="w-full overflow-hidden"
-          style={{ aspectRatio: '2/1' }}
-        >
+        <div className="w-full overflow-hidden" style={{ aspectRatio: '2/1' }}>
           <CommunityBannerCarousel />
         </div>
       </div>

@@ -11,13 +11,13 @@ import { feedApi, validateImageFile } from './api';
 export const feedKeys = {
   all: ['feeds'] as const,
   lists: () => [...feedKeys.all, 'list'] as const,
-  list: (clubId: number) => [...feedKeys.lists(), clubId] as const,
+  list: (clubId: number, page = 0, size = 10) => [...feedKeys.lists(), clubId, page, size] as const,
   detail: (clubId: number, feedId: number) => [...feedKeys.all, clubId, feedId] as const,
 };
 
 export function useClubFeeds(clubId: number, page = 0, size = 10) {
   return useQuery({
-    queryKey: feedKeys.list(clubId),
+    queryKey: feedKeys.list(clubId, page, size),
     queryFn: () => feedApi.getClubFeeds(clubId, page, size),
     enabled: !!clubId,
   });
@@ -57,9 +57,8 @@ export function useImageUpload(clubId: number) {
   });
 
   const uploadImages = useCallback(
-    async (files: File[]): Promise<Array<{ uuid: string; fileUrl: string }>> => {
-      return mutation.mutateAsync(files);
-    },
+    (files: File[]): Promise<Array<{ uuid: string; fileUrl: string }>> =>
+      mutation.mutateAsync(files),
     [mutation]
   );
 

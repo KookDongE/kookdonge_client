@@ -11,6 +11,7 @@ import { parseAsString, useQueryState } from 'nuqs';
 import { createPortal } from 'react-dom';
 
 import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api';
+import { shuffleArray } from '@/lib/utils';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
 import {
@@ -91,7 +92,7 @@ function RankingSection({ returnTo }: { returnTo?: string }) {
 
   const isLoading = activeTab === 'view' ? viewLoading : likeLoading;
   const isError = activeTab === 'view' ? viewError : likeError;
-  const refetchRanking = activeTab === 'view' ? refetchView : refetchLike;
+  const _refetchRanking = activeTab === 'view' ? refetchView : refetchLike;
   const rawRankings = activeTab === 'view' ? viewRankings : likeRankings;
 
   // API 응답이 배열 또는 { content: [...] } 형태일 수 있음
@@ -294,16 +295,6 @@ const VALID_SORT_VALUES = ['default', 'name,asc', 'popularity', 'viewCount'] as 
 function normalizeSort(sort: string | null): string {
   if (!sort) return 'default';
   return VALID_SORT_VALUES.includes(sort as (typeof VALID_SORT_VALUES)[number]) ? sort : 'default';
-}
-
-/** Fisher-Yates 셔플. 기본순일 때 무작위 표시용 */
-function shuffleArray<T>(arr: T[]): T[] {
-  const out = [...arr];
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
-  }
-  return out;
 }
 
 function ClubListSection({

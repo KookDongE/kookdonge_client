@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
+import { isHeaderHidden, shouldShowBackButton } from '@/lib/constants/routes';
 import { useUnreadCount } from '@/features/notifications/hooks';
 import { BellIcon } from '@/components/icons/notification-icon';
 
@@ -10,30 +11,10 @@ export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { data: unreadCount = 0 } = useUnreadCount();
+  const path = pathname ?? '';
   const isNotificationsPage = pathname === '/notifications';
-  // 홈/커뮤니티/마이페이지/관리자 메인(/admin) 최상위에서는 뒤로가기 숨김, 하위 페이지는 그대로 표시
-  // 관리자 메인(/admin)만 뒤로가기 숨김, /admin 하위 경로는 헤더에 뒤로가기 표시
-  const showBackButton =
-    pathname !== '/home' &&
-    pathname !== '/community' &&
-    pathname !== '/mypage' &&
-    pathname !== '/admin';
-
-  const isHidden =
-    pathname === '/' ||
-    pathname === '/login' ||
-    pathname.startsWith('/login/') ||
-    pathname === '/welcome' ||
-    pathname.startsWith('/welcome/') ||
-    pathname.includes('/feed') ||
-    pathname === '/mypage/clubs/apply' ||
-    /^\/mypage\/clubs\/[^/]+\/delete-request$/.test(pathname ?? '') || // 동아리 삭제 신청
-    pathname === '/community/write' ||
-    /^\/community\/posts\/[^/]+\/edit$/.test(pathname ?? '') ||
-    pathname === '/mypage/settings/bug-report' ||
-    pathname === '/mypage/settings/report' ||
-    pathname === '/mypage/settings/name'; // 특정 페이지만 헤더 숨김
-  if (isHidden) return null;
+  const showBackButton = shouldShowBackButton(path);
+  if (isHeaderHidden(path)) return null;
 
   return (
     <header

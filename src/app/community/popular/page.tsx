@@ -11,9 +11,10 @@ import {
   CommunitySearchFilter,
   type CommunitySort,
 } from '@/components/community/community-search-filter';
+
 export default function CommunityPopularPage() {
   const router = useRouter();
-  const { data: profile, isLoading: profileLoading } = useMyProfile();
+  const { data: _profile, isLoading: profileLoading } = useMyProfile();
   const [sort, setSort] = useState<CommunitySort>('latest');
   useRestoreCommunityListScroll();
 

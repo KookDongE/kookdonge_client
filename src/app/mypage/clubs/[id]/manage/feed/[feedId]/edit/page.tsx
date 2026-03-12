@@ -8,10 +8,10 @@ import { Spinner } from '@heroui/react';
 import { Reorder, useDragControls } from 'framer-motion';
 
 import type { ClubFeedRes } from '@/types/api';
-import { FormPageSkeleton } from '@/components/common/skeletons';
-import { useClubDetail } from '@/features/club/hooks';
 import { IMAGE_ACCEPT_ATTR, validateImageFile } from '@/lib/image-upload-validation';
+import { useClubDetail } from '@/features/club/hooks';
 import { useFeed, useImageUpload, useUpdateFeed } from '@/features/feed/hooks';
+import { FormPageSkeleton } from '@/components/common/skeletons';
 
 type PageProps = {
   params: Promise<{ id: string; feedId: string }>;
@@ -222,7 +222,7 @@ function EditFeedForm({
               {isUploading ? (
                 <Spinner size="sm" />
               ) : (
-                <img src="/icons/stash_image-open-light.svg" alt="" className="h-12 w-12" />
+                <Image src="/icons/stash_image-open-light.svg" alt="" width={48} height={48} />
               )}
             </span>
           </label>
@@ -249,7 +249,7 @@ function EditFeedForm({
                   {isUploading ? (
                     <Spinner size="sm" />
                   ) : (
-                    <img src="/icons/stash_image-open-light.svg" alt="" className="h-12 w-12" />
+                    <Image src="/icons/stash_image-open-light.svg" alt="" width={48} height={48} />
                   )}
                 </span>
               </label>

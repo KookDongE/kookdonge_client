@@ -14,7 +14,7 @@ import {
 
 export default function CommunityFreePage() {
   const router = useRouter();
-  const { data: profile, isLoading: profileLoading } = useMyProfile();
+  const { data: _profile, isLoading: profileLoading } = useMyProfile();
   const [sort, setSort] = useState<CommunitySort>('latest');
   useRestoreCommunityListScroll();
 

@@ -12,7 +12,6 @@ import { IMAGE_ACCEPT_ATTR, validateImageFile } from '@/lib/image-upload-validat
 import { formatQnaDateTime, parseApiIsoToDate } from '@/lib/utils';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isClubManager } from '@/features/auth/permissions';
-import { clubApi } from '@/features/club/api';
 import {
   useAddClubAdmin,
   useClubDetail,
@@ -41,6 +40,7 @@ import {
   ListCardSkeleton,
 } from '@/components/common/skeletons';
 import { FeedCoverImage } from '@/components/feed/feed-cover-image';
+import { StarIcon } from '@/components/icons/club-icons';
 import { BellIcon } from '@/components/icons/notification-icon';
 
 const CATEGORY_LABEL: Record<ClubCategory, string> = {
@@ -213,24 +213,6 @@ function getLinkDisplayNameForView(item: { name: string; url: string }): string 
   } catch {
     return item.url;
   }
-}
-
-function StarIcon({ filled, className }: { filled: boolean; className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill={filled ? 'currentColor' : 'none'}
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
-  );
 }
 
 type PageProps = {
@@ -899,7 +881,7 @@ function AdminManageSection({
 }
 
 /** 동아리 상세 페이지(/clubs/[id]) 정보 탭과 동일한 보기 전용 UI */
-function ManageInfoView({ club, onEdit }: { club: ClubDetailRes; onEdit: () => void }) {
+function _ManageInfoView({ club, onEdit }: { club: ClubDetailRes; onEdit: () => void }) {
   const infoItems = [
     { label: '모집 시작', value: formatDateTimeReadMode(club.recruitmentStartDate) },
     { label: '모집 마감', value: formatDateTimeReadMode(club.recruitmentEndDate) },

@@ -5,6 +5,14 @@ import { useAuthStore } from '@/features/auth/store';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.kookdonge.co.kr';
 
+/** JSON 파싱 후 ResponseDTO 반환. 파싱 실패 시 예외 발생 */
+function parseJsonResponse<T>(text: string): ResponseDTO<T> {
+  const parsed = JSON.parse(text || '{}');
+  return typeof parsed === 'object' && parsed !== null
+    ? (parsed as ResponseDTO<T>)
+    : ({} as ResponseDTO<T>);
+}
+
 const PUBLIC_PATHS = ['/', '/login', '/welcome', '/callback'];
 
 function isPublicPath(pathname: string): boolean {
@@ -37,13 +45,7 @@ async function tryReissue(): Promise<boolean> {
       body: JSON.stringify(body),
     });
     const text = await res.text();
-    let json: ResponseDTO<{ accessToken: string; refreshToken: string }>;
-    try {
-      const parsed = JSON.parse(text || '{}');
-      json = typeof parsed === 'object' && parsed !== null ? parsed : ({} as ResponseDTO<{ accessToken: string; refreshToken: string }>);
-    } catch {
-      return false;
-    }
+    const json = parseJsonResponse<{ accessToken: string; refreshToken: string }>(text);
     if (json?.status === 200 && json?.data?.accessToken && json?.data?.refreshToken) {
       useAuthStore.getState().setTokens(json.data.accessToken, json.data.refreshToken);
       return true;
@@ -128,8 +130,7 @@ export async function apiClient<T>(
   const text = await response.text();
   let json: ResponseDTO<T>;
   try {
-    const parsed = JSON.parse(text || '{}');
-    json = typeof parsed === 'object' && parsed !== null ? parsed : ({} as ResponseDTO<T>);
+    json = parseJsonResponse<T>(text);
   } catch {
     const message =
       response.status >= 500

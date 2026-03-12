@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { memo, useEffect } from 'react';
 
 import { FeedItemSkeleton } from '@/components/common/skeletons';
 
@@ -32,7 +32,7 @@ type FeedListProps = {
   isDeleting?: boolean;
 };
 
-export function FeedList({
+export const FeedList = memo(function FeedList({
   feeds,
   isLoading,
   clubId,
@@ -85,4 +85,4 @@ export function FeedList({
       ))}
     </div>
   );
-}
+});

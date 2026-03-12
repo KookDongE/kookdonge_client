@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import type { ReportRes, ReportType } from '@/types/api';
+import type { ReportType } from '@/types/api';
 import { clubApi } from '@/features/club/api';
 import * as communityApi from '@/features/community/api';
 import { questionApi } from '@/features/question/api';

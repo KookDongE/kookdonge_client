@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { Button, Dropdown, Input, Tabs, TextArea } from '@heroui/react';
-import { AnimatePresence, motion } from 'framer-motion';
 import { parseAsString, useQueryState } from 'nuqs';
 import { createPortal } from 'react-dom';
 
@@ -30,6 +29,7 @@ import {
 } from '@/components/common/notification-permission-inline-modal';
 import { ClubDetailHeaderSkeleton, FeedItemSkeleton } from '@/components/common/skeletons';
 import { FeedCoverImage } from '@/components/feed/feed-cover-image';
+import { EyeIcon, HeartIcon, StarIcon } from '@/components/icons/club-icons';
 import { BellIcon } from '@/components/icons/notification-icon';
 
 const CATEGORY_LABEL: Record<ClubCategory, string> = {
@@ -82,61 +82,6 @@ const STATUS_CONFIG: Record<RecruitmentStatus, { label: string; className: strin
     className: 'bg-zinc-200 text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400',
   },
 };
-
-function HeartIcon({ filled, className }: { filled: boolean; className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill={filled ? 'currentColor' : 'none'}
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-    </svg>
-  );
-}
-
-function StarIcon({ filled, className }: { filled: boolean; className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill={filled ? 'currentColor' : 'none'}
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
-  );
-}
-
-function EyeIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  );
-}
 
 /** 모집기간 등 날짜+시간 표시 (한국 시간) */
 function formatDateTime(dateString: string | null | undefined): string {

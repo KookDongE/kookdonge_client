@@ -55,8 +55,9 @@ export function usePosts(params: {
   page?: number;
   size?: number;
   sort?: 'latest' | 'popular';
+  enabled?: boolean;
 }) {
-  const { category, page = 0, size = 20, sort = 'latest' } = params;
+  const { category, page = 0, size = 20, sort = 'latest', enabled = true } = params;
   return useQuery({
     queryKey: communityKeys.posts({ category, page, size, sort: sortParam(sort) }),
     queryFn: () =>
@@ -66,6 +67,7 @@ export function usePosts(params: {
         size,
         sort: sortParam(sort),
       }),
+    enabled,
   });
 }
 
@@ -103,11 +105,13 @@ export function usePopularPosts(params?: {
   page?: number;
   size?: number;
   sort?: 'latest' | 'popular';
+  enabled?: boolean;
 }) {
-  const { page = 0, size = 20, sort = 'latest' } = params ?? {};
+  const { page = 0, size = 20, sort = 'latest', enabled = true } = params ?? {};
   return useQuery({
     queryKey: communityKeys.popular({ page, size, sort: sortParam(sort) }),
     queryFn: () => communityApi.getPopularPosts({ page, size, sort: sortParam(sort) }),
+    enabled,
   });
 }
 
@@ -339,7 +343,7 @@ export function useDeleteCommentMutation(postId: number) {
 }
 
 // ---------- Legacy hook compat: 게시판별 목록을 CommunityPost[]로 반환 ----------
-/** 자유/홍보/인기 게시판별 목록 (페이지에서 사용). sort 적용 후 UI 타입으로 반환 */
+/** 자유/홍보/인기 게시판별 목록 (페이지에서 사용). sort 적용 후 UI 타입으로 반환. 필요한 쿼리만 실행 */
 export function useBoardPosts(
   boardType: BoardType,
   _query: string,
@@ -349,8 +353,19 @@ export function useBoardPosts(
   const category: CommunityPostCategory | undefined =
     boardType === 'free' ? 'FREE' : boardType === 'promo' ? 'PROMOTION' : undefined;
 
-  const popularQuery = usePopularPosts({ page: 0, size: 100, sort });
-  const postsQuery = usePosts({ category: category ?? 'FREE', page: 0, size: 100, sort });
+  const popularQuery = usePopularPosts({
+    page: 0,
+    size: 100,
+    sort,
+    enabled: isPopular,
+  });
+  const postsQuery = usePosts({
+    category: category ?? 'FREE',
+    page: 0,
+    size: 100,
+    sort,
+    enabled: !isPopular,
+  });
 
   const raw = isPopular ? (popularQuery.data?.content ?? []) : (postsQuery.data?.content ?? []);
   return raw.map((r) =>

@@ -107,7 +107,7 @@ export default function AdminApplicationsPage() {
     statusTab === 'ALL'
       ? statusTab
       : 'PENDING';
-  const statusParam: 'PENDING' | 'APPROVED' | 'REJECTED' | undefined =
+  const _statusParam: 'PENDING' | 'APPROVED' | 'REJECTED' | undefined =
     statusTab === 'ALL' ? undefined : (statusTab as 'PENDING' | 'APPROVED' | 'REJECTED');
 
   useEffect(() => {
