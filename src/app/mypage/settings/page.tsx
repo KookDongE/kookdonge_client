@@ -241,7 +241,7 @@ export default function SettingsPage() {
               <div className="flex gap-3">
                 <Button
                   variant="ghost"
-                  className="flex-1"
+                  className="flex-1 !rounded-lg"
                   onPress={() => setConfirmModal(null)}
                   isDisabled={logoutPending}
                 >
@@ -249,7 +249,7 @@ export default function SettingsPage() {
                 </Button>
                 <Button
                   variant="primary"
-                  className="flex-1"
+                  className="flex-1 !rounded-lg"
                   onPress={handleLogout}
                   isPending={logoutPending}
                 >
@@ -284,7 +284,7 @@ export default function SettingsPage() {
               <div className="flex gap-3">
                 <Button
                   variant="ghost"
-                  className="flex-1"
+                  className="flex-1 !rounded-lg"
                   onPress={() => setConfirmModal(null)}
                   isDisabled={withdrawPending}
                 >
@@ -292,7 +292,7 @@ export default function SettingsPage() {
                 </Button>
                 <Button
                   variant="primary"
-                  className="flex-1 bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
+                  className="flex-1 !rounded-lg bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
                   onPress={handleWithdraw}
                   isPending={withdrawPending}
                 >

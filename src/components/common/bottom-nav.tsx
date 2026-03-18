@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { motion } from 'framer-motion';
 
@@ -105,13 +105,20 @@ const ADMIN_ITEM: NavItem = {
   icon: (active) => <AdminIcon active={active} />,
 };
 
-export function BottomNav() {
+const backSlotTransition = { type: 'tween' as const, duration: 0.25, ease: 'easeOut' as const };
+
+export function BottomNav({ showBackButton = false }: { showBackButton?: boolean }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const linkRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const [indicatorLeft, setIndicatorLeft] = useState(0);
   useAuthStore((state) => state.accessToken);
   const { data: profile } = useMyProfile();
   const isAdmin = isSystemAdmin(profile);
+
+  /** 동아리 상세에서 from=/home 으로 들어온 경우 홈 탭 활성 표시 */
+  const isFromHome = !!pathname?.match(/^\/clubs\/\d+$/) && searchParams.get('from') === '/home';
 
   const isHidden =
     pathname === '/' ||
@@ -128,12 +135,12 @@ export function BottomNav() {
 
   const isActive = useCallback(
     (href: string) => {
-      if (href === '/home') return pathname === '/home';
-      if (href === '/admin') return pathname === '/admin'; // 관리자 메인만, /community 제외
+      if (href === '/home') return pathname === '/home' || isFromHome;
+      if (href === '/admin') return pathname?.startsWith('/admin'); // 관리자 메인·하위 페이지 모두 탭 활성
       if (href.includes('?')) return false;
       return pathname.startsWith(href);
     },
-    [pathname]
+    [pathname, isFromHome]
   );
 
   // 순서: 홈 → 커뮤니티 → 마이 → 관리자(관리자만)
@@ -162,11 +169,9 @@ export function BottomNav() {
 
   if (isHidden) return null;
 
-  // 피드 페이지에서는 더 선명한 네비게이션 바 / 항상 화면 하단에 고정
-  const isFeedPage = pathname.includes('/feed');
-  const navClassName = isFeedPage
-    ? 'fixed bottom-0 left-1/2 z-50 w-full max-w-md -translate-x-1/2 rounded-t-2xl border-t-0 pb-[env(safe-area-inset-bottom)] bg-white/95 backdrop-blur-xl dark:bg-zinc-900/95'
-    : 'glass fixed bottom-0 left-1/2 z-50 w-full max-w-md -translate-x-1/2 rounded-t-2xl border-t-0 pb-[env(safe-area-inset-bottom)]';
+  // 배경과 동일한 불투명 배경으로 하단 네비 고정
+  const navClassName =
+    'fixed bottom-0 left-1/2 z-50 w-full max-w-md -translate-x-1/2 rounded-t-2xl border-t-0 pb-[env(safe-area-inset-bottom)] bg-[var(--card)]';
 
   const activeIndex = allNavItems.findIndex((item) => isActive(item.href));
 
@@ -177,47 +182,84 @@ export function BottomNav() {
 
   return (
     <nav className={navClassName}>
-      <div className="relative flex items-center justify-around py-2">
-        {allNavItems.map((item, index) => {
-          const active = isActive(item.href);
-          const href = item.href;
-          const isHomeLink = href === '/home';
-
-          return (
-            <Link
-              key={item.href}
-              ref={(el) => {
-                linkRefs.current[index] = el;
-              }}
-              href={href}
-              onClick={
-                isHomeLink && pathname === '/home'
-                  ? (e) => {
-                      e.preventDefault();
-                      scrollHomeToTop();
-                    }
-                  : undefined
-              }
-              className="relative flex min-w-[64px] flex-col items-center gap-0.5 py-2 outline-none"
+      <div
+        className={`relative flex items-center py-2 ${showBackButton ? 'justify-start gap-0 px-2' : 'justify-around'}`}
+      >
+        {/* 뒤로가기 슬롯: width 0 ↔ 슬롯 확장, layout으로 탭들과 함께 전환 */}
+        <motion.div
+          className="flex min-w-0 shrink-0 flex-col items-center justify-center overflow-hidden"
+          layout
+          animate={{
+            width: showBackButton ? 56 : 0,
+            flex: showBackButton ? 0 : 0,
+            opacity: showBackButton ? 1 : 0,
+          }}
+          transition={backSlotTransition}
+          style={{ minWidth: 0 }}
+        >
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+            aria-label="뒤로 가기"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-6 w-6"
+              aria-hidden
             >
-              <motion.div
-                whileTap={{ scale: 0.9 }}
-                className={`transition-colors ${
-                  active ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-400 dark:text-zinc-500'
-                }`}
+              <path d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+          </button>
+        </motion.div>
+        <div className="flex flex-1 items-center justify-around py-2">
+          {allNavItems.map((item, index) => {
+            const active = isActive(item.href);
+            const href = item.href;
+            const isHomeLink = href === '/home';
+
+            return (
+              <Link
+                key={item.href}
+                ref={(el) => {
+                  linkRefs.current[index] = el;
+                }}
+                href={href}
+                onClick={
+                  isHomeLink && pathname === '/home'
+                    ? (e) => {
+                        e.preventDefault();
+                        scrollHomeToTop();
+                      }
+                    : undefined
+                }
+                className="relative flex min-w-[64px] flex-col items-center gap-0.5 py-2 outline-none"
               >
-                {item.icon(active)}
-              </motion.div>
-              <span
-                className={`text-[10px] font-medium transition-colors ${
-                  active ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-400 dark:text-zinc-500'
-                }`}
-              >
-                {item.label}
-              </span>
-            </Link>
-          );
-        })}
+                <motion.div
+                  whileTap={{ scale: 0.9 }}
+                  className={`transition-colors ${
+                    active ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-400 dark:text-zinc-500'
+                  }`}
+                >
+                  {item.icon(active)}
+                </motion.div>
+                <span
+                  className={`text-[10px] font-medium transition-colors ${
+                    active ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-400 dark:text-zinc-500'
+                  }`}
+                >
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
         {activeIndex !== -1 && (
           <motion.div
             className="absolute -top-1 h-1 w-6 rounded-full bg-blue-500 dark:bg-lime-400"

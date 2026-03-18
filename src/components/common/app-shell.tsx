@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 import {
+  isAnyTabSubRoute,
   isFullScreenPath,
   isHeaderHidden,
   isPullToRefreshDisabled,
@@ -16,11 +17,13 @@ import { PullToRefresh } from '@/components/common/pull-to-refresh';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const path = pathname ?? '';
   const fullScreen = isFullScreenPath(path);
   const headerHidden = isHeaderHidden(path);
   const pullToRefreshDisabled = isPullToRefreshDisabled(path);
   const scrollDisabled = isScrollDisabled(path);
+  const showBackButton = isAnyTabSubRoute(path, searchParams.get('from'));
 
   // 스크롤 비활성 페이지: html/body + 스크롤 컨테이너 완전 잠금 (position fixed로 본문 스크롤 차단)
   // 다른 탭(홈/마이/관리자)에서 스크롤한 상태로 진입해도 상단부터 보이도록, 잠금 시점에 스크롤을 0으로 초기화함
@@ -92,7 +95,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
         <FloatingButtonsLayer />
       </main>
-      <BottomNav />
+      <BottomNav showBackButton={showBackButton} />
     </div>
   );
 }

@@ -67,12 +67,32 @@ export function isScrollDisabled(pathname: string): boolean {
   return SCROLL_DISABLED_PATHS.some((re) => re.test(pathname));
 }
 
-/** 홈/커뮤니티/마이페이지/관리자 메인에서만 뒤로가기 숨김 */
+/** 커뮤니티 게시글 상세(/community/posts/[id])에서만 뒤로가기 표시, 그 외는 기본 헤더 */
 export function shouldShowBackButton(pathname: string): boolean {
-  return (
-    pathname !== '/home' &&
-    pathname !== '/community' &&
-    pathname !== '/mypage' &&
-    pathname !== '/admin'
-  );
+  return /^\/community\/posts\/[^/]+$/.test(pathname ?? '');
+}
+
+const TAB_BASES = ['/home', '/community', '/mypage', '/admin'] as const;
+const FROM_QUERY_VALUES = [
+  'home',
+  '/home',
+  'community',
+  '/community',
+  'mypage',
+  '/mypage',
+  'admin',
+  '/admin',
+];
+
+/**
+ * 메인 탭(홈/커뮤니티/마이/관리자)에서 파생된 하위 경로인지: 네비 뒤로가기 버튼 표시
+ * - 탭 루트가 아닌 하위 경로일 때 true
+ * - 동아리 상세(/clubs/[id])에서 from 쿼리가 탭일 때도 true
+ */
+export function isAnyTabSubRoute(pathname: string, fromQuery: string | null): boolean {
+  if (!pathname) return false;
+  if (TAB_BASES.some((base) => pathname.startsWith(base) && pathname !== base)) return true;
+  if (/^\/clubs\/\d+$/.test(pathname) && fromQuery && FROM_QUERY_VALUES.includes(fromQuery))
+    return true;
+  return false;
 }
