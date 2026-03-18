@@ -85,7 +85,7 @@ export function InterestedClubCard({ subscription, className = '' }: InterestedC
 
   return (
     <Link
-      href={`/clubs/${subscription.clubId}`}
+      href={`/clubs/${subscription.clubId}?from=/mypage`}
       className={`flex items-center gap-2 rounded-xl border border-zinc-100 bg-white p-3 transition-all hover:border-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:border-zinc-700 ${className}`}
     >
       <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
