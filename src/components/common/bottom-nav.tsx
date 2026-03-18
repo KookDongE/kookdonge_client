@@ -112,7 +112,7 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
   const searchParams = useSearchParams();
   const router = useRouter();
   const linkRefs = useRef<(HTMLAnchorElement | null)[]>([]);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const tabsWrapperRef = useRef<HTMLDivElement>(null); // 탭 링크들만 감싼 영역 (인디케이터 기준)
   const [indicatorLeft, setIndicatorLeft] = useState(0);
   useAuthStore((state) => state.accessToken);
   const { data: profile } = useMyProfile();
@@ -138,6 +138,10 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
     (href: string) => {
       if (href === '/home') return pathname === '/home' || isFromHome;
       if (href === '/admin') return pathname?.startsWith('/admin'); // 관리자 메인·하위 페이지 모두 탭 활성
+      if (href === '/mypage')
+        return (
+          pathname === '/mypage' || pathname?.startsWith('/mypage/') || pathname?.startsWith('/my/')
+        ); // 마이 하위·신청한 동아리(/my/*) 포함
       if (href.includes('?')) return false;
       return pathname.startsWith(href);
     },
@@ -150,19 +154,19 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
     [isAdmin]
   );
 
-  // 활성 링크의 위치 계산: 인디케이터가 있는 relative 컨테이너 기준으로 left 계산 (레이아웃 적용 후 측정)
+  // 활성 링크의 위치 계산: 인디케이터를 탭 래퍼(링크들과 같은 컨테이너) 기준으로 left 계산
   useEffect(() => {
     if (isHidden) return;
     const raf = requestAnimationFrame(() => {
-      const container = containerRef.current;
-      if (!container) return;
+      const tabsWrapper = tabsWrapperRef.current;
+      if (!tabsWrapper) return;
       const activeIndex = allNavItems.findIndex((item) => isActive(item.href));
       if (activeIndex !== -1 && linkRefs.current[activeIndex]) {
         const linkElement = linkRefs.current[activeIndex];
         if (linkElement) {
-          const containerRect = container.getBoundingClientRect();
+          const wrapperRect = tabsWrapper.getBoundingClientRect();
           const linkRect = linkElement.getBoundingClientRect();
-          const left = linkRect.left - containerRect.left + linkRect.width / 2 - 12; // 12 = 인디케이터 w-6/2
+          const left = linkRect.left - wrapperRect.left + linkRect.width / 2 - 12; // 12 = 인디케이터 w-6/2
           setIndicatorLeft(left);
         }
       }
@@ -186,8 +190,7 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
   return (
     <nav className={navClassName}>
       <div
-        ref={containerRef}
-        className={`relative flex items-center py-2 ${showBackButton ? 'justify-start gap-0 px-2' : 'justify-around'}`}
+        className={`relative flex items-center py-2 ${showBackButton ? 'justify-start gap-0 px-5' : 'justify-around'}`}
       >
         {/* 뒤로가기 슬롯: width 0 ↔ 슬롯 확장, layout으로 탭들과 함께 전환 */}
         <motion.div
@@ -204,7 +207,7 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
           <button
             type="button"
             onClick={() => router.back()}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-400 transition-colors hover:bg-zinc-200 hover:text-zinc-600 dark:bg-zinc-800 dark:text-zinc-500 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-400 transition-colors hover:bg-zinc-200 hover:text-zinc-600 dark:bg-zinc-800 dark:text-zinc-500 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
             aria-label="뒤로 가기"
           >
             <svg
@@ -215,14 +218,15 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
               strokeWidth={1.5}
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="h-6 w-6"
+              className="h-5 w-5"
               aria-hidden
             >
               <path d="M15.75 19.5L8.25 12l7.5-7.5" />
             </svg>
           </button>
         </motion.div>
-        <div className="flex flex-1 items-center justify-around py-2">
+        {/* 탭 링크 + 인디케이터: 같은 relative 컨테이너 안에 두어 활성 탭 위에 선이 오도록 */}
+        <div ref={tabsWrapperRef} className="relative flex flex-1 items-center justify-around py-2">
           {allNavItems.map((item, index) => {
             const active = isActive(item.href);
             const href = item.href;
@@ -263,14 +267,14 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
               </Link>
             );
           })}
+          {activeIndex !== -1 && (
+            <motion.div
+              className="absolute -top-1 h-1 w-6 rounded-full bg-blue-500 dark:bg-lime-400"
+              animate={{ left: indicatorLeft }}
+              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+            />
+          )}
         </div>
-        {activeIndex !== -1 && (
-          <motion.div
-            className="absolute -top-1 h-1 w-6 rounded-full bg-blue-500 dark:bg-lime-400"
-            animate={{ left: indicatorLeft }}
-            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-          />
-        )}
       </div>
     </nav>
   );

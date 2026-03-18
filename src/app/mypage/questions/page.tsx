@@ -82,7 +82,7 @@ function QuestionsTabContent() {
         </div>
       ) : list.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-16 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
-          <p>등록된 질문이 없습니다.</p>
+          <p className="text-sm">등록된 질문이 없습니다.</p>
         </div>
       ) : (
         <div className="space-y-3">
