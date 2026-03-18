@@ -88,9 +88,11 @@ const FROM_QUERY_VALUES = [
  * 메인 탭(홈/커뮤니티/마이/관리자/신청목록)에서 파생된 하위 경로인지: 네비 뒤로가기 버튼 표시
  * - 탭 루트가 아닌, base/ 아래 경로일 때 true (예: /mypage/interested, /mypage/questions, /my/club-requests)
  * - 동아리 상세(/clubs/[id])에서 from 쿼리가 탭일 때도 true
+ * - 알림 페이지(/notifications)에서도 뒤로가기 표시 (진입 전 탭으로 복귀)
  */
 export function isAnyTabSubRoute(pathname: string, fromQuery: string | null): boolean {
   if (!pathname) return false;
+  if (pathname === '/notifications') return true;
   if (TAB_BASES.some((base) => pathname.startsWith(base + '/'))) return true;
   if (/^\/clubs\/\d+$/.test(pathname) && fromQuery && FROM_QUERY_VALUES.includes(fromQuery))
     return true;

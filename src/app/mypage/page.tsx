@@ -333,7 +333,9 @@ function QnAListSection() {
   const { data: questionsData, isLoading } = useMyQuestions({ page: 0, size: 20 });
   const list = questionsData?.content ?? [];
   const getItemHref = (qna: (typeof list)[0]) =>
-    qna.clubId ? `/clubs/${qna.clubId}?tab=qna&questionId=${qna.id}` : '/mypage/questions';
+    qna.clubId
+      ? `/clubs/${qna.clubId}?tab=qna&questionId=${qna.id}&from=/mypage`
+      : '/mypage/questions';
 
   return (
     <div className="px-4 py-5">

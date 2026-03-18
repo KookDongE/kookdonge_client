@@ -252,8 +252,8 @@ function ClubApplyContent() {
               className="min-h-[200px] w-full resize-none rounded-lg border border-gray-200 bg-white p-4 text-sm font-normal text-gray-900 placeholder-gray-400 focus:border-gray-200 focus:ring-0 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500 dark:focus:border-zinc-600"
             />
             <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-              중앙동아리, 학회, 단과대동아리는 각 단과대의 공식인 경우에만 신청해 주세요. 소모임은
-              자유롭게 신청 가능합니다.
+              중앙동아리·학회·단과대동아리는 해당 단과대 공식 동아리일 때만 신청해 주세요. 소모임은
+              자유롭게 신청할 수 있습니다.
             </p>
           </div>
         </div>

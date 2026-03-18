@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
@@ -111,15 +111,31 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const linkRefs = useRef<(HTMLAnchorElement | null)[]>([]);
-  const tabsWrapperRef = useRef<HTMLDivElement>(null); // 탭 링크들만 감싼 영역 (인디케이터 기준)
-  const [indicatorLeft, setIndicatorLeft] = useState(0);
   useAuthStore((state) => state.accessToken);
   const { data: profile } = useMyProfile();
   const isAdmin = isSystemAdmin(profile);
 
   /** 동아리 상세에서 from=/home 으로 들어온 경우 홈 탭 활성 표시 */
   const isFromHome = !!pathname?.match(/^\/clubs\/\d+$/) && searchParams.get('from') === '/home';
+  /** 동아리 상세에서 from=/mypage 로 들어온 경우(마이 Q&A 등) MY 탭 활성 표시 */
+  const isFromMypage =
+    !!pathname?.match(/^\/clubs\/\d+$/) &&
+    (searchParams.get('from') === '/mypage' || searchParams.get('from') === 'mypage');
+
+  /** 알림 페이지에서 from 쿼리로 진입 시, 해당 탭 활성 표시 */
+  const fromQuery = searchParams.get('from');
+  const notificationsFromHref =
+    pathname === '/notifications' && fromQuery
+      ? fromQuery === 'home' || fromQuery === '/home'
+        ? '/home'
+        : fromQuery === 'community' || fromQuery === '/community'
+          ? '/community'
+          : fromQuery === 'mypage' || fromQuery === '/mypage'
+            ? '/mypage'
+            : fromQuery === 'admin' || fromQuery === '/admin'
+              ? '/admin'
+              : null
+      : null;
 
   const isHidden =
     pathname === '/' ||
@@ -136,16 +152,21 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
 
   const isActive = useCallback(
     (href: string) => {
+      if (pathname === '/notifications' && notificationsFromHref)
+        return href === notificationsFromHref;
       if (href === '/home') return pathname === '/home' || isFromHome;
       if (href === '/admin') return pathname?.startsWith('/admin'); // 관리자 메인·하위 페이지 모두 탭 활성
       if (href === '/mypage')
         return (
-          pathname === '/mypage' || pathname?.startsWith('/mypage/') || pathname?.startsWith('/my/')
-        ); // 마이 하위·신청한 동아리(/my/*) 포함
+          isFromMypage ||
+          pathname === '/mypage' ||
+          !!pathname?.startsWith('/mypage/') ||
+          !!pathname?.startsWith('/my/')
+        ); // 마이 하위·신청한 동아리(/my/*)·동아리 상세(from=mypage) 포함
       if (href.includes('?')) return false;
       return pathname.startsWith(href);
     },
-    [pathname, isFromHome]
+    [pathname, isFromHome, isFromMypage, notificationsFromHref]
   );
 
   // 순서: 홈 → 커뮤니티 → 마이 → 관리자(관리자만)
@@ -154,33 +175,11 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
     [isAdmin]
   );
 
-  // 활성 링크의 위치 계산: 인디케이터를 탭 래퍼(링크들과 같은 컨테이너) 기준으로 left 계산
-  useEffect(() => {
-    if (isHidden) return;
-    const raf = requestAnimationFrame(() => {
-      const tabsWrapper = tabsWrapperRef.current;
-      if (!tabsWrapper) return;
-      const activeIndex = allNavItems.findIndex((item) => isActive(item.href));
-      if (activeIndex !== -1 && linkRefs.current[activeIndex]) {
-        const linkElement = linkRefs.current[activeIndex];
-        if (linkElement) {
-          const wrapperRect = tabsWrapper.getBoundingClientRect();
-          const linkRect = linkElement.getBoundingClientRect();
-          const left = linkRect.left - wrapperRect.left + linkRect.width / 2 - 12; // 12 = 인디케이터 w-6/2
-          setIndicatorLeft(left);
-        }
-      }
-    });
-    return () => cancelAnimationFrame(raf);
-  }, [pathname, isAdmin, isHidden, allNavItems, isActive, showBackButton]);
-
   if (isHidden) return null;
 
   // 배경과 동일한 불투명 배경으로 하단 네비 고정
   const navClassName =
-    'fixed bottom-0 left-1/2 z-50 w-full max-w-md -translate-x-1/2 rounded-t-2xl border-t-0 pb-[env(safe-area-inset-bottom)] bg-[var(--card)]';
-
-  const activeIndex = allNavItems.findIndex((item) => isActive(item.href));
+    'fixed bottom-0 left-1/2 z-50 w-full max-w-md -translate-x-1/2 rounded-t-2xl border-t-0 pb-[env(safe-area-inset-bottom)] bg-white/90 backdrop-blur-sm dark:bg-zinc-900/90';
 
   const scrollHomeToTop = () => {
     const el = document.querySelector('[data-scroll-container]') as HTMLElement | null;
@@ -225,9 +224,9 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
             </svg>
           </button>
         </motion.div>
-        {/* 탭 링크 + 인디케이터: 같은 relative 컨테이너 안에 두어 활성 탭 위에 선이 오도록 */}
-        <div ref={tabsWrapperRef} className="relative flex flex-1 items-center justify-around py-2">
-          {allNavItems.map((item, index) => {
+        {/* 탭: 각 링크 안에 인디케이터를 두어 활성 탭 위에만 선이 오도록 */}
+        <div className="flex flex-1 items-center justify-around py-2">
+          {allNavItems.map((item) => {
             const active = isActive(item.href);
             const href = item.href;
             const isHomeLink = href === '/home';
@@ -235,9 +234,6 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
             return (
               <Link
                 key={item.href}
-                ref={(el) => {
-                  linkRefs.current[index] = el;
-                }}
                 href={href}
                 onClick={
                   isHomeLink && pathname === '/home'
@@ -249,6 +245,14 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
                 }
                 className="relative flex min-w-[64px] flex-col items-center gap-0.5 py-2 outline-none"
               >
+                {active && (
+                  <motion.span
+                    layoutId="bottom-nav-indicator"
+                    className="absolute -top-1 left-1/2 h-1 w-6 -translate-x-1/2 rounded-full bg-blue-500 dark:bg-lime-400"
+                    aria-hidden
+                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  />
+                )}
                 <motion.div
                   whileTap={{ scale: 0.9 }}
                   className={`transition-colors ${
@@ -267,13 +271,6 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
               </Link>
             );
           })}
-          {activeIndex !== -1 && (
-            <motion.div
-              className="absolute -top-1 h-1 w-6 rounded-full bg-blue-500 dark:bg-lime-400"
-              animate={{ left: indicatorLeft }}
-              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-            />
-          )}
         </div>
       </div>
     </nav>

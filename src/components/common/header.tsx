@@ -7,6 +7,18 @@ import { isHeaderHidden, shouldShowBackButton } from '@/lib/constants/routes';
 import { useUnreadCount } from '@/features/notifications/hooks';
 import { BellIcon } from '@/components/icons/notification-icon';
 
+/** 현재 경로가 어느 탭에 속하는지 반환 (알림 페이지로 갈 때 from 쿼리용) */
+function getTabFromPathname(pathname: string): string | null {
+  if (!pathname) return null;
+  if (pathname === '/home' || pathname.startsWith('/home/') || pathname.match(/^\/clubs\/\d+$/))
+    return '/home';
+  if (pathname === '/community' || pathname.startsWith('/community/')) return '/community';
+  if (pathname === '/mypage' || pathname.startsWith('/mypage/') || pathname.startsWith('/my/'))
+    return '/mypage';
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) return '/admin';
+  return null;
+}
+
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
@@ -68,7 +80,10 @@ export function Header() {
           </button>
         ) : (
           <Link
-            href="/notifications"
+            href={(() => {
+              const from = getTabFromPathname(path ?? '');
+              return from ? `/notifications?from=${encodeURIComponent(from)}` : '/notifications';
+            })()}
             className="relative flex h-10 w-10 items-center justify-center rounded-full text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
             aria-label="알림"
           >
