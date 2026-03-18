@@ -7,7 +7,6 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.kookdonge.c
 const STATIC_ROUTES = [
   { path: '/', priority: 1.0, changeFrequency: 'daily' as const },
   { path: '/home', priority: 0.9, changeFrequency: 'daily' as const },
-  { path: '/login', priority: 0.5, changeFrequency: 'monthly' as const },
   { path: '/community', priority: 0.8, changeFrequency: 'daily' as const },
   { path: '/community/popular', priority: 0.7, changeFrequency: 'daily' as const },
   { path: '/community/free', priority: 0.7, changeFrequency: 'daily' as const },
@@ -42,17 +41,16 @@ async function fetchClubIds(): Promise<number[]> {
     let totalPages = 1;
 
     while (page < totalPages) {
-      const res = await fetch(
-        `${API_BASE_URL}/api/clubs?page=${page}&size=100&sort=latest`,
-        { next: { revalidate: 3600 } }
-      );
+      const res = await fetch(`${API_BASE_URL}/api/clubs?page=${page}&size=100&sort=latest`, {
+        next: { revalidate: 3600 },
+      });
       if (!res.ok) break;
 
       const json = (await res.json()) as ClubListApiRes;
       const data = json?.data;
       if (!data?.content) break;
 
-      ids.push(...data.content.map((c) => c.clubId));
+      ids.push(...data.content.map((c) => c.clubId).filter((id): id is number => id != null));
       totalPages = data.totalPages ?? 1;
       page++;
     }
