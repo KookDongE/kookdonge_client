@@ -72,7 +72,7 @@ export function shouldShowBackButton(pathname: string): boolean {
   return /^\/community\/posts\/[^/]+$/.test(pathname ?? '');
 }
 
-const TAB_BASES = ['/home', '/community', '/mypage', '/admin'] as const;
+const TAB_BASES = ['/home', '/community', '/mypage', '/admin', '/my'] as const;
 const FROM_QUERY_VALUES = [
   'home',
   '/home',
@@ -85,13 +85,13 @@ const FROM_QUERY_VALUES = [
 ];
 
 /**
- * 메인 탭(홈/커뮤니티/마이/관리자)에서 파생된 하위 경로인지: 네비 뒤로가기 버튼 표시
- * - 탭 루트가 아닌 하위 경로일 때 true
+ * 메인 탭(홈/커뮤니티/마이/관리자/신청목록)에서 파생된 하위 경로인지: 네비 뒤로가기 버튼 표시
+ * - 탭 루트가 아닌, base/ 아래 경로일 때 true (예: /mypage/interested, /mypage/questions, /my/club-requests)
  * - 동아리 상세(/clubs/[id])에서 from 쿼리가 탭일 때도 true
  */
 export function isAnyTabSubRoute(pathname: string, fromQuery: string | null): boolean {
   if (!pathname) return false;
-  if (TAB_BASES.some((base) => pathname.startsWith(base) && pathname !== base)) return true;
+  if (TAB_BASES.some((base) => pathname.startsWith(base + '/'))) return true;
   if (/^\/clubs\/\d+$/.test(pathname) && fromQuery && FROM_QUERY_VALUES.includes(fromQuery))
     return true;
   return false;

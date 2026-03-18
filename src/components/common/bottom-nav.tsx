@@ -112,6 +112,7 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
   const searchParams = useSearchParams();
   const router = useRouter();
   const linkRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [indicatorLeft, setIndicatorLeft] = useState(0);
   useAuthStore((state) => state.accessToken);
   const { data: profile } = useMyProfile();
@@ -149,23 +150,25 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
     [isAdmin]
   );
 
-  // 활성 링크의 위치 계산 (훅은 조건부 return 이전에 항상 호출)
+  // 활성 링크의 위치 계산: 인디케이터가 있는 relative 컨테이너 기준으로 left 계산 (레이아웃 적용 후 측정)
   useEffect(() => {
     if (isHidden) return;
-    const activeIndex = allNavItems.findIndex((item) => isActive(item.href));
-    if (activeIndex !== -1 && linkRefs.current[activeIndex]) {
-      const linkElement = linkRefs.current[activeIndex];
-      if (linkElement) {
-        const navElement = linkElement.closest('nav');
-        if (navElement) {
-          const navRect = navElement.getBoundingClientRect();
+    const raf = requestAnimationFrame(() => {
+      const container = containerRef.current;
+      if (!container) return;
+      const activeIndex = allNavItems.findIndex((item) => isActive(item.href));
+      if (activeIndex !== -1 && linkRefs.current[activeIndex]) {
+        const linkElement = linkRefs.current[activeIndex];
+        if (linkElement) {
+          const containerRect = container.getBoundingClientRect();
           const linkRect = linkElement.getBoundingClientRect();
-          const left = linkRect.left - navRect.left + linkRect.width / 2 - 12; // 12 = w-6 / 2
+          const left = linkRect.left - containerRect.left + linkRect.width / 2 - 12; // 12 = 인디케이터 w-6/2
           setIndicatorLeft(left);
         }
       }
-    }
-  }, [pathname, isAdmin, isHidden, allNavItems, isActive]);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [pathname, isAdmin, isHidden, allNavItems, isActive, showBackButton]);
 
   if (isHidden) return null;
 
@@ -183,6 +186,7 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
   return (
     <nav className={navClassName}>
       <div
+        ref={containerRef}
         className={`relative flex items-center py-2 ${showBackButton ? 'justify-start gap-0 px-2' : 'justify-around'}`}
       >
         {/* 뒤로가기 슬롯: width 0 ↔ 슬롯 확장, layout으로 탭들과 함께 전환 */}
@@ -200,7 +204,7 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
           <button
             type="button"
             onClick={() => router.back()}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-400 transition-colors hover:bg-zinc-200 hover:text-zinc-600 dark:bg-zinc-800 dark:text-zinc-500 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
             aria-label="뒤로 가기"
           >
             <svg
