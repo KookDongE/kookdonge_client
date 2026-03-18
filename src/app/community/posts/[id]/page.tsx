@@ -975,7 +975,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                                 role="menuitem"
                                 onClick={() => {
                                   setCommentMenuOpenId(null);
-                                  if (root.mine) {
+                                  if (root.mine || isAdmin) {
                                     deleteCommentMutation.mutate(root.id, {
                                       onSuccess: () => refetchComments(),
                                     });
@@ -1182,7 +1182,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                                           role="menuitem"
                                           onClick={() => {
                                             setCommentMenuOpenId(null);
-                                            if (isMine) {
+                                            if (isMine || isAdmin) {
                                               deleteCommentMutation.mutate(reply.id, {
                                                 onSuccess: () => refetchComments(),
                                               });
