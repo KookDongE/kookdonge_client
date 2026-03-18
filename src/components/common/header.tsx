@@ -34,14 +34,12 @@ export function Header() {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth={2}
-                className="h-5 w-5"
+                strokeWidth={1.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-6 w-6"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 19.5L8.25 12l7.5-7.5"
-                />
+                <path d="M15.75 19.5L8.25 12l7.5-7.5" />
               </svg>
             </button>
           )}

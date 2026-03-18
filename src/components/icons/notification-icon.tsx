@@ -1,6 +1,6 @@
 'use client';
 
-/** 헤더/공용 벨 아이콘 (알림) - currentColor 상속 */
+/** 헤더/공용 벨 아이콘 (알림) - 하단 네비와 동일 스타일: stroke 1.5, round */
 export function BellIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -8,7 +8,7 @@ export function BellIcon({ className }: { className?: string }) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={2}
+      strokeWidth={1.5}
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
