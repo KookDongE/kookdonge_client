@@ -55,7 +55,7 @@ export function CommunitySearchInputRow({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
-        className="w-full border border-zinc-300 bg-zinc-50 pl-4 pr-11 text-zinc-900 placeholder:text-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-400"
+        className="w-full border border-zinc-300 bg-zinc-50 pr-11 pl-4 text-zinc-900 placeholder:text-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-400"
         aria-label={placeholder}
       />
       <button
@@ -161,7 +161,7 @@ export function CommunitySearchFilter({
               onClick={() => onSortChange('latest')}
               className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                 sort === 'latest'
-                  ? 'bg-white text-zinc-900 shadow dark:bg-zinc-700 dark:text-zinc-100'
+                  ? 'bg-white text-zinc-900 dark:bg-zinc-700 dark:text-zinc-100'
                   : 'text-zinc-500 dark:text-zinc-400'
               }`}
             >
@@ -172,7 +172,7 @@ export function CommunitySearchFilter({
               onClick={() => onSortChange('popular')}
               className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                 sort === 'popular'
-                  ? 'bg-white text-zinc-900 shadow dark:bg-zinc-700 dark:text-zinc-100'
+                  ? 'bg-white text-zinc-900 dark:bg-zinc-700 dark:text-zinc-100'
                   : 'text-zinc-500 dark:text-zinc-400'
               }`}
             >

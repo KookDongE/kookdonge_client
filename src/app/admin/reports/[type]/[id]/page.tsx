@@ -264,7 +264,7 @@ export default function AdminReportDetailPage({ params }: PageProps) {
                     })
                   }
                   disabled={completeReport.isPending}
-                  className="w-full rounded-lg bg-blue-400 py-3 text-sm font-medium text-white shadow transition-colors hover:bg-blue-500 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+                  className="w-full rounded-lg bg-blue-400 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-500 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
                 >
                   {completeReport.isPending ? '처리 중...' : '처리완료'}
                 </button>
@@ -339,7 +339,7 @@ export default function AdminReportDetailPage({ params }: PageProps) {
                   })
                 }
                 disabled={completeFeedback.isPending}
-                className="w-full rounded-lg bg-blue-400 py-3 text-sm font-medium text-white shadow transition-colors hover:bg-blue-500 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+                className="w-full rounded-lg bg-blue-400 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-500 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
               >
                 {completeFeedback.isPending ? '처리 중...' : '처리완료'}
               </button>

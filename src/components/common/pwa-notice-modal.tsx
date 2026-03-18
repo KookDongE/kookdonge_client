@@ -137,7 +137,7 @@ export function PwaNoticeModal() {
         role="dialog"
         aria-modal="true"
         aria-labelledby="pwa-notice-title"
-        className="relative z-10 max-h-[85dvh] w-full overflow-y-auto rounded-t-2xl bg-white pt-4 pb-[env(safe-area-inset-bottom)] shadow-xl dark:bg-zinc-800"
+        className="relative z-10 max-h-[85dvh] w-full overflow-y-auto rounded-t-2xl bg-white pt-4 pb-[env(safe-area-inset-bottom)] dark:bg-zinc-800"
       >
         <div className="mx-auto mb-5 h-1 w-12 shrink-0 rounded-full bg-zinc-300 dark:bg-zinc-600" />
         <div className="px-6 pt-1 pb-6">

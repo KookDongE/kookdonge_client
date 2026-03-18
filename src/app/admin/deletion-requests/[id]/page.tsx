@@ -70,7 +70,11 @@ export default function AdminDeletionRequestDetailPage({ params }: PageProps) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--card)] p-4">
         <p className="text-[var(--muted-foreground)]">잘못된 경로입니다.</p>
-        <Button className="mt-4" variant="ghost" onPress={() => router.push('/admin/reports/delete-request')}>
+        <Button
+          className="mt-4"
+          variant="ghost"
+          onPress={() => router.push('/admin/reports/delete-request')}
+        >
           목록으로
         </Button>
       </div>
@@ -81,7 +85,11 @@ export default function AdminDeletionRequestDetailPage({ params }: PageProps) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--card)] p-4">
         <p className="text-[var(--muted-foreground)]">신청을 찾을 수 없습니다.</p>
-        <Button className="mt-4" variant="ghost" onPress={() => router.push('/admin/reports/delete-request')}>
+        <Button
+          className="mt-4"
+          variant="ghost"
+          onPress={() => router.push('/admin/reports/delete-request')}
+        >
           목록으로
         </Button>
       </div>
@@ -186,7 +194,7 @@ export default function AdminDeletionRequestDetailPage({ params }: PageProps) {
                         setShowRejectInput(false);
                         setRejectReason('');
                       }}
-                      className="inline-flex h-10 flex-1 items-center justify-center rounded-md border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-900 shadow-sm transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
+                      className="inline-flex h-10 flex-1 items-center justify-center rounded-md border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
                     >
                       취소
                     </button>
@@ -194,7 +202,7 @@ export default function AdminDeletionRequestDetailPage({ params }: PageProps) {
                       type="button"
                       onClick={handleRejectSubmit}
                       disabled={rejectDeletion.isPending}
-                      className="inline-flex h-10 flex-1 items-center justify-center rounded-md border border-red-200 bg-white px-4 text-sm font-medium text-red-600 shadow-sm transition-colors hover:bg-red-50 disabled:opacity-50 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-950/30"
+                      className="inline-flex h-10 flex-1 items-center justify-center rounded-md border border-red-200 bg-white px-4 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-950/30"
                     >
                       {rejectDeletion.isPending ? '처리 중...' : '반려하기'}
                     </button>
@@ -205,7 +213,7 @@ export default function AdminDeletionRequestDetailPage({ params }: PageProps) {
                   <button
                     type="button"
                     onClick={() => setShowRejectInput(true)}
-                    className="inline-flex h-10 flex-1 items-center justify-center rounded-md border border-red-200 bg-white px-4 text-sm font-medium text-red-600 shadow-sm transition-colors hover:bg-red-50 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-950/30"
+                    className="inline-flex h-10 flex-1 items-center justify-center rounded-md border border-red-200 bg-white px-4 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-950/30"
                   >
                     반려
                   </button>
@@ -213,7 +221,7 @@ export default function AdminDeletionRequestDetailPage({ params }: PageProps) {
                     type="button"
                     onClick={handleApprove}
                     disabled={approveDeletion.isPending}
-                    className="inline-flex h-10 flex-1 items-center justify-center rounded-md bg-blue-400 px-4 text-sm font-medium text-white shadow transition-colors hover:bg-blue-500 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+                    className="inline-flex h-10 flex-1 items-center justify-center rounded-md bg-blue-400 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-500 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
                   >
                     {approveDeletion.isPending ? '처리 중...' : '수락'}
                   </button>

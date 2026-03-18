@@ -5,9 +5,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api';
-import { ListCardSkeleton } from '@/components/common/skeletons';
 import { useManagedClubs } from '@/features/club/hooks';
 import { DefaultClubImage } from '@/components/common/default-club-image';
+import { ListCardSkeleton } from '@/components/common/skeletons';
 
 const TYPE_LABEL: Record<ClubType, string> = {
   CENTRAL: '중앙동아리',
@@ -95,7 +95,7 @@ function ManagedClubsListContent() {
               <Link
                 key={club.id}
                 href={`/mypage/clubs/${club.id}/manage`}
-                className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
+                className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 transition-all hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
               >
                 <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-700">
                   {club.logoImage ? (

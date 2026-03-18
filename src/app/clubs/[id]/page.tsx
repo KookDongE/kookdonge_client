@@ -276,7 +276,7 @@ function ClubHeader({
   return (
     <div className="bg-white px-4 py-6 dark:bg-zinc-900">
       <div className="flex gap-4">
-        <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-zinc-100 shadow-sm dark:bg-zinc-800">
+        <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-800">
           {club.image ? (
             <>
               <div className="absolute inset-0 bg-white dark:bg-white" aria-hidden />
@@ -496,7 +496,7 @@ function ClubHeader({
         typeof document !== 'undefined' &&
         createPortal(
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-800">
+            <div className="w-full max-w-sm rounded-2xl bg-white p-6 dark:bg-zinc-800">
               <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-zinc-100">
                 동아리 삭제
               </h3>
@@ -578,7 +578,7 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
   return (
     <div className="min-w-0 space-y-4 p-4">
       {hasIntroduction && (
-        <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+        <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
           <h3 className="mb-3 px-4 pt-4 text-sm font-medium text-zinc-700 dark:text-zinc-300">
             동아리 소개
           </h3>
@@ -602,7 +602,7 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
           )}
         </div>
       )}
-      <div className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+      <div className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
         <h3 className="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">기본 정보</h3>
         <div className="min-w-0 space-y-3">
           {infoItems.map((item) => {
@@ -631,7 +631,7 @@ function ClubInfoTab({ clubId }: { clubId: number }) {
         const links = parseExternalLinks(club.externalLink);
         if (links.length === 0) return null;
         return (
-          <div className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+          <div className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
             <h3 className="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">외부 링크</h3>
             <ul className="space-y-2">
               {links.map((item, i) => (
@@ -808,7 +808,7 @@ function ClubQnaTab({
           <div
             key={qna.id}
             id={`question-${qna.id}`}
-            className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800"
+            className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
           >
             <div className="flex items-start gap-3">
               <span
@@ -857,7 +857,7 @@ function ClubQnaTab({
                     </button>
                     {questionMenuOpenId === qna.id && (
                       <div
-                        className="action-menu-dropdown absolute top-full right-0 z-10 mt-0.5 min-w-[100px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+                        className="action-menu-dropdown absolute top-full right-0 z-10 mt-0.5 min-w-[100px] rounded-lg border border-zinc-200 bg-white py-1 dark:border-zinc-700 dark:bg-zinc-800"
                         role="menu"
                       >
                         <button
@@ -949,7 +949,7 @@ function ClubQnaTab({
                       </button>
                       {answerMenuOpenId === qna.id && (
                         <div
-                          className="action-menu-dropdown absolute top-full right-0 z-10 mt-0.5 min-w-[100px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+                          className="action-menu-dropdown absolute top-full right-0 z-10 mt-0.5 min-w-[100px] rounded-lg border border-zinc-200 bg-white py-1 dark:border-zinc-700 dark:bg-zinc-800"
                           role="menu"
                         >
                           <button

@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 
 import { Chip } from '@heroui/react';
 
-import { ListCardSkeleton } from '@/components/common/skeletons';
 import { useMyWaitingList } from '@/features/waiting-list/hooks';
+import { ListCardSkeleton } from '@/components/common/skeletons';
 
 function WaitingListContent() {
   const router = useRouter();
@@ -34,7 +34,7 @@ function WaitingListContent() {
                 type="button"
                 key={club.clubId}
                 onClick={() => router.push(`/clubs/${club.clubId}`)}
-                className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700/80"
+                className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-left transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700/80"
               >
                 <div className="flex items-start gap-3">
                   <Chip size="sm" color="accent" variant="primary" className="shrink-0">

@@ -143,7 +143,7 @@ export const FeedItem = memo(function FeedItem({
                     aria-hidden
                     onClick={() => setMenuOpen(false)}
                   />
-                  <div className="action-menu-dropdown absolute top-full right-0 z-50 mt-1 min-w-[100px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
+                  <div className="action-menu-dropdown absolute top-full right-0 z-50 mt-1 min-w-[100px] rounded-lg border border-zinc-200 bg-white py-1 dark:border-zinc-700 dark:bg-zinc-800">
                     {onEdit && (
                       <button
                         type="button"

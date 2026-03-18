@@ -477,7 +477,7 @@ function ClubListSection({
         typeof document !== 'undefined' &&
         createPortal(
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-800">
+            <div className="w-full max-w-sm rounded-2xl bg-white p-6 dark:bg-zinc-800">
               <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-zinc-100">
                 동아리 삭제
               </h3>

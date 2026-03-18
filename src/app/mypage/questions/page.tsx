@@ -4,31 +4,21 @@ import { Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { Tabs } from '@heroui/react';
-
-import { ListCardSkeleton } from '@/components/common/skeletons';
 import { parseAsString, useQueryState } from 'nuqs';
 
-import { formatQnaDateTime } from '@/lib/utils';
 import type { QuestionAnswerRes } from '@/types/api';
-import {
-  useMyQuestions,
-  useQuestionsForMeAsManager,
-} from '@/features/question/hooks';
+import { formatQnaDateTime } from '@/lib/utils';
+import { useMyQuestions, useQuestionsForMeAsManager } from '@/features/question/hooks';
+import { ListCardSkeleton } from '@/components/common/skeletons';
 
-function QnaCard({
-  qna,
-  onClick,
-}: {
-  qna: QuestionAnswerRes;
-  onClick: () => void;
-}) {
+function QnaCard({ qna, onClick }: { qna: QuestionAnswerRes; onClick: () => void }) {
   const hasAnswer = qna.answer != null && qna.answer !== '';
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700/80"
+      className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-left transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700/80"
     >
       {/* Q 섹션: Q 아이콘 + 질문 내용 + 날짜/상태/동아리 + 화살표 */}
       <div className="flex items-start gap-3">
@@ -39,7 +29,7 @@ function QnaCard({
           Q
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium leading-snug text-zinc-900 dark:text-zinc-100">
+          <p className="text-sm leading-snug font-medium text-zinc-900 dark:text-zinc-100">
             {qna.question}
           </p>
           <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
@@ -55,12 +45,7 @@ function QnaCard({
           stroke="currentColor"
           aria-hidden
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 5l7 7-7 7"
-          />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
       </div>
 
@@ -167,8 +152,7 @@ const TAB_LABELS: Record<(typeof TAB_IDS)[number], string> = {
 
 function QuestionsPageContent() {
   const [tab, setTab] = useQueryState('tab', parseAsString.withDefault('questions'));
-  const selectedKey =
-    tab && (TAB_IDS as readonly string[]).includes(tab) ? tab : 'questions';
+  const selectedKey = tab && (TAB_IDS as readonly string[]).includes(tab) ? tab : 'questions';
 
   return (
     <div className="pb-6">

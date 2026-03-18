@@ -523,7 +523,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
         {/* 헤더 - 동아리 상세페이지와 동일: 태그=사진 상단, 이름=태그 아래, 아이콘=사진 하단 우측 1열 */}
         <div className="bg-white px-4 py-6 dark:bg-zinc-900">
           <div className="flex gap-4">
-            <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-zinc-100 shadow-sm dark:bg-zinc-800">
+            <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-800">
               {club.image ? (
                 <Image
                   src={club.image}
@@ -909,7 +909,7 @@ function _ManageInfoView({ club, onEdit }: { club: ClubDetailRes; onEdit: () => 
         </Button>
       </div>
       {hasIntroduction && (
-        <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+        <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
           <h3 className="mb-3 px-4 pt-4 text-sm font-medium text-zinc-700 dark:text-zinc-300">
             동아리 소개
           </h3>
@@ -932,7 +932,7 @@ function _ManageInfoView({ club, onEdit }: { club: ClubDetailRes; onEdit: () => 
           )}
         </div>
       )}
-      <div className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+      <div className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
         <h3 className="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">기본 정보</h3>
         <div className="min-w-0 space-y-3">
           {infoItems.map((item) => {
@@ -958,7 +958,7 @@ function _ManageInfoView({ club, onEdit }: { club: ClubDetailRes; onEdit: () => 
         </div>
       </div>
       {links.length > 0 && (
-        <div className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+        <div className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
           <h3 className="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">외부 링크</h3>
           <ul className="space-y-2">
             {links.map((item, i) => (
@@ -1172,7 +1172,7 @@ function ClubInfoTab({
   };
 
   const cardClass =
-    'club-manage-card rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800';
+    'club-manage-card rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800';
 
   return (
     <div className="w-full min-w-0 space-y-4 overflow-x-hidden p-4">
@@ -2074,7 +2074,7 @@ function ClubQnaTab({
                     </Button>
                     {openMenuAllQuestionId === qna.id && (
                       <div
-                        className="action-menu-dropdown absolute top-full right-0 z-10 mt-1 min-w-[7rem] rounded-lg border bg-[var(--card)] py-1 shadow-lg"
+                        className="action-menu-dropdown absolute top-full right-0 z-10 mt-1 min-w-[7rem] rounded-lg border bg-[var(--card)] py-1"
                         style={{ borderColor: 'var(--border)' }}
                         role="menu"
                       >
@@ -2177,7 +2177,7 @@ function ClubQnaTab({
                           </Button>
                           {openMenuAllAnswerId === qna.id && (
                             <div
-                              className="action-menu-dropdown absolute top-full right-0 z-10 mt-1 min-w-[7rem] rounded-lg border bg-[var(--card)] py-1 shadow-lg"
+                              className="action-menu-dropdown absolute top-full right-0 z-10 mt-1 min-w-[7rem] rounded-lg border bg-[var(--card)] py-1"
                               style={{ borderColor: 'var(--border)' }}
                               role="menu"
                             >

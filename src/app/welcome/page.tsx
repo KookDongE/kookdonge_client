@@ -52,7 +52,7 @@ export default function WelcomePage() {
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={handleConfirm}
-          className="touch-btn w-full rounded-2xl bg-blue-500 px-6 py-4 font-semibold text-white shadow-sm dark:bg-lime-400 dark:text-zinc-900"
+          className="touch-btn w-full rounded-2xl bg-blue-500 px-6 py-4 font-semibold text-white dark:bg-lime-400 dark:text-zinc-900"
         >
           확인
         </motion.button>

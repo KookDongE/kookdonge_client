@@ -4,6 +4,7 @@ import { use, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 
+import { Spinner } from '@heroui/react';
 import { useQueries, useQueryClient } from '@tanstack/react-query';
 import { createPortal } from 'react-dom';
 
@@ -98,7 +99,7 @@ function PostDetailBanner() {
   );
 }
 
-/** 이미지 확대 라이트박스: 가로 스와이프·좌우 버튼으로 이전/다음 이미지 */
+/** 이미지 확대 라이트박스: 첫 열 때 로딩 후 표시, 넘길 땐 프리로드로 로딩 없음, 로딩 중 스피너 */
 function ImageLightbox({
   imageUrls,
   currentIndex,
@@ -111,6 +112,8 @@ function ImageLightbox({
   onClose: () => void;
 }) {
   const touchStartX = useRef<number | null>(null);
+  /** 로드 완료된 이미지 인덱스 (첫 열기 시 스피너, 넘길 때 이미 로드됐으면 스피너 없음) */
+  const [loadedIndices, setLoadedIndices] = useState<Set<number>>(() => new Set());
 
   const goPrev = () => {
     if (currentIndex > 0) onIndexChange(currentIndex - 1);
@@ -130,6 +133,14 @@ function ImageLightbox({
     if (delta > SWIPE_THRESHOLD) goNext();
     else if (delta < -SWIPE_THRESHOLD) goPrev();
   };
+
+  const markLoaded = (index: number) => {
+    setLoadedIndices((prev) => (prev.has(index) ? prev : new Set(prev).add(index)));
+  };
+
+  const currentLoaded = loadedIndices.has(currentIndex);
+  const prevIndex = currentIndex - 1;
+  const nextIndex = currentIndex + 1;
 
   return (
     <div
@@ -170,13 +181,44 @@ function ImageLightbox({
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
+        {/* 인접 이미지 프리로드 (넘길 때 로딩 없이 바로 표시) */}
+        {prevIndex >= 0 && (
+          // eslint-disable-next-line @next/next/no-img-element -- 프리로드용
+          <img
+            src={imageUrls[prevIndex]}
+            alt=""
+            className="hidden"
+            loading="eager"
+            onLoad={() => markLoaded(prevIndex)}
+          />
+        )}
+        {nextIndex < imageUrls.length && (
+          // eslint-disable-next-line @next/next/no-img-element -- 프리로드용
+          <img
+            src={imageUrls[nextIndex]}
+            alt=""
+            className="hidden"
+            loading="eager"
+            onLoad={() => markLoaded(nextIndex)}
+          />
+        )}
+
+        {/* 현재 이미지: 로드 전엔 스피너, 로드 후 표시 */}
+        {!currentLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center text-white" aria-hidden>
+            <Spinner size="lg" color="current" />
+          </div>
+        )}
         {/* eslint-disable-next-line @next/next/no-img-element -- 라이트박스 동적 URL, 클릭/터치 제스처 */}
         <img
+          key={currentIndex}
           src={imageUrls[currentIndex]}
           alt=""
           className="max-h-full max-w-full object-contain select-none"
+          style={{ visibility: currentLoaded ? 'visible' : 'hidden' }}
           onClick={(e) => e.stopPropagation()}
           draggable={false}
+          onLoad={() => markLoaded(currentIndex)}
         />
       </div>
     </div>
@@ -595,7 +637,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
             </button>
             {menuOpen && (
               <div
-                className="absolute top-full right-0 z-10 mt-1 min-w-[120px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+                className="absolute top-full right-0 z-10 mt-1 min-w-[120px] rounded-lg border border-zinc-200 bg-white py-1 dark:border-zinc-700 dark:bg-zinc-800"
                 role="menu"
               >
                 {canEdit && (
@@ -909,7 +951,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           </button>
                           {commentMenuOpenId === root.id && (
                             <div
-                              className="action-menu-dropdown absolute top-full right-0 z-10 mt-0.5 min-w-[100px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+                              className="action-menu-dropdown absolute top-full right-0 z-10 mt-0.5 min-w-[100px] rounded-lg border border-zinc-200 bg-white py-1 dark:border-zinc-700 dark:bg-zinc-800"
                               role="menu"
                             >
                               <button
@@ -1114,7 +1156,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                                     </button>
                                     {commentMenuOpenId === reply.id && (
                                       <div
-                                        className="action-menu-dropdown absolute top-full right-0 z-10 mt-0.5 min-w-[100px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+                                        className="action-menu-dropdown absolute top-full right-0 z-10 mt-0.5 min-w-[100px] rounded-lg border border-zinc-200 bg-white py-1 dark:border-zinc-700 dark:bg-zinc-800"
                                         role="menu"
                                       >
                                         <button
@@ -1177,7 +1219,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
       {/* 삭제 불가 토스트: 본인 댓글이 아닐 때 */}
       {deleteDeniedToast && (
         <div
-          className="fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-zinc-800 px-4 py-2.5 text-sm text-white shadow-lg dark:bg-zinc-700"
+          className="fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-zinc-800 px-4 py-2.5 text-sm text-white dark:bg-zinc-700"
           role="alert"
         >
           본인이 작성한 게 아니라면 삭제할 수 없습니다.

@@ -52,7 +52,8 @@ export default function NotificationSettingsPage() {
   // 권한이 이미 허용된 상태에서 진입 시, 짧은 지연 후 토큰 재등록을 한 번 시도한다.
   const hasRefreshedTokenRef = useRef(false);
   useEffect(() => {
-    if (!deviceId || !isSupported || permission !== 'granted' || hasRefreshedTokenRef.current) return;
+    if (!deviceId || !isSupported || permission !== 'granted' || hasRefreshedTokenRef.current)
+      return;
     hasRefreshedTokenRef.current = true;
     const timeoutId = setTimeout(() => {
       requestPermissionAndRegister().catch(() => {});
@@ -87,7 +88,7 @@ export default function NotificationSettingsPage() {
           <>
             <div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
               <div className="flex items-center justify-between gap-4">
-                <div className="min-w-0 flex-1 flex items-center gap-3">
+                <div className="flex min-w-0 flex-1 items-center gap-3">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-400">
                     <BellIcon className="h-5 w-5" />
                   </span>
@@ -114,7 +115,7 @@ export default function NotificationSettingsPage() {
                   }`}
                 >
                   <span
-                    className={`pointer-events-none inline-block h-6 w-6 translate-y-0 rounded-full bg-white shadow ring-0 transition-transform ${
+                    className={`pointer-events-none inline-block h-6 w-6 translate-y-0 rounded-full bg-white ring-0 transition-transform ${
                       notificationEnabled ? 'translate-x-5' : 'translate-x-0.5'
                     }`}
                   />
@@ -160,8 +161,8 @@ export default function NotificationSettingsPage() {
                     <strong>iOS (Safari / 홈 화면에 추가한 앱)</strong>
                     <br />
                     설정 → 알림 → KookDongE(또는 Safari) → 알림 허용을 켜주세요. 이미 차단한 경우
-                    브라우저 주소창 왼쪽의 자물쇠/정보 버튼 → 웹사이트 설정 → 알림을 허용으로
-                    변경할 수 있습니다.
+                    브라우저 주소창 왼쪽의 자물쇠/정보 버튼 → 웹사이트 설정 → 알림을 허용으로 변경할
+                    수 있습니다.
                   </>
                 )}
                 {guideOs === 'android' && (

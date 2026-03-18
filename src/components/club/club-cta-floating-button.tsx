@@ -33,10 +33,7 @@ export function ClubCTAFloatingButton({
       aria-hidden
     >
       <div className="pointer-events-none relative mx-auto h-full w-full max-w-md">
-        <div
-          className="pointer-events-auto absolute right-4"
-          style={{ bottom: buttonBottom }}
-        >
+        <div className="pointer-events-auto absolute right-4" style={{ bottom: buttonBottom }}>
           <AnimatePresence mode="wait">
             {shouldShow && (
               <motion.div
@@ -45,7 +42,7 @@ export function ClubCTAFloatingButton({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="rounded-full bg-white/95 shadow-lg backdrop-blur-sm dark:bg-zinc-900/95"
+                className="rounded-full bg-white/95 backdrop-blur-sm dark:bg-zinc-900/95"
               >
                 <Button
                   size="sm"
