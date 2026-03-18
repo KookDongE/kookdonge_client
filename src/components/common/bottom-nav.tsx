@@ -205,7 +205,7 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
           <button
             type="button"
             onClick={() => router.back()}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-400 transition-colors hover:bg-zinc-200 hover:text-zinc-600 dark:bg-zinc-800 dark:text-zinc-500 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-50 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 dark:bg-zinc-800/70 dark:text-zinc-500 dark:hover:bg-zinc-700/80 dark:hover:text-zinc-300"
             aria-label="뒤로 가기"
           >
             <svg
@@ -213,13 +213,13 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth={1.5}
+              strokeWidth={2}
               strokeLinecap="round"
               strokeLinejoin="round"
               className="h-5 w-5"
               aria-hidden
             >
-              <path d="M15.75 19.5L8.25 12l7.5-7.5" />
+              <path d="M19 12H5m0 0l7 7m-7-7l7-7" />
             </svg>
           </button>
         </motion.div>
