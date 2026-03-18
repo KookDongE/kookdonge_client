@@ -374,35 +374,38 @@ function ClubHeader({
                 </Dropdown.Popover>
               </Dropdown>
             ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  if (showManageButton) {
-                    alert('본인은 신고할 수 없습니다.');
-                    return;
-                  }
-                  router.push(`/mypage/settings/report?type=club&id=${clubId}`);
-                }}
-                className="shrink-0 rounded-full p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
-                title="신고"
-                aria-label="동아리 신고"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-5 w-5"
-                  aria-hidden
-                >
-                  <path d="M12 9v4" />
-                  <path d="M12 17h.01" />
-                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                </svg>
-              </button>
+              <Dropdown>
+                <Dropdown.Trigger>
+                  <button
+                    type="button"
+                    className="shrink-0 rounded-full p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+                    title="더보기"
+                    aria-label="동아리 메뉴"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="h-5 w-5"
+                      aria-hidden
+                    >
+                      <circle cx="12" cy="6" r="1.5" />
+                      <circle cx="12" cy="12" r="1.5" />
+                      <circle cx="12" cy="18" r="1.5" />
+                    </svg>
+                  </button>
+                </Dropdown.Trigger>
+                <Dropdown.Popover>
+                  <Dropdown.Menu>
+                    <Dropdown.Item
+                      onPress={() => router.push(`/mypage/settings/report?type=club&id=${clubId}`)}
+                      textValue="신고하기"
+                    >
+                      신고하기
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown.Popover>
+              </Dropdown>
             )}
           </div>
           <p className="mt-1 line-clamp-1 max-h-[1.5rem] min-h-[1.5rem] overflow-hidden text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">

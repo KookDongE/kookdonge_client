@@ -119,7 +119,12 @@ export function BottomNav() {
     pathname.startsWith('/login/') ||
     pathname === '/welcome' ||
     pathname.startsWith('/welcome/') ||
-    pathname?.startsWith('/community/posts/');
+    pathname?.startsWith('/community/posts/') ||
+    pathname === '/community/write' ||
+    pathname === '/mypage/clubs/apply' ||
+    pathname?.includes('/manage/feed/new') ||
+    pathname === '/mypage/settings/bug-report' ||
+    pathname === '/mypage/settings/name';
 
   const isActive = useCallback(
     (href: string) => {
@@ -133,12 +138,7 @@ export function BottomNav() {
 
   // 순서: 홈 → 커뮤니티 → 마이 → 관리자(관리자만)
   const allNavItems = useMemo<NavItem[]>(
-    () => [
-      HOME_ITEM,
-      COMMUNITY_ITEM,
-      MYPAGE_ITEM,
-      ...(isAdmin ? [ADMIN_ITEM] : []),
-    ],
+    () => [HOME_ITEM, COMMUNITY_ITEM, MYPAGE_ITEM, ...(isAdmin ? [ADMIN_ITEM] : [])],
     [isAdmin]
   );
 

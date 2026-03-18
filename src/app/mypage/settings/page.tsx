@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+import { Button } from '@heroui/react';
 import { useTheme } from 'next-themes';
+import { createPortal } from 'react-dom';
 
 import { authApi } from '@/features/auth/api';
 import { useAuthStore } from '@/features/auth/store';
@@ -35,10 +37,15 @@ function getThemeLabel(theme: string | undefined): string {
   return '시스템 기본값';
 }
 
+type ConfirmModal = 'logout' | 'withdraw' | null;
+
 export default function SettingsPage() {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const clearAuth = useAuthStore((state) => state.clearAuth);
+  const [confirmModal, setConfirmModal] = useState<ConfirmModal>(null);
+  const [withdrawPending, setWithdrawPending] = useState(false);
+  const [logoutPending, setLogoutPending] = useState(false);
 
   // 하위 페이지에서 돌아왔을 때 이전 스크롤 위치 복원 (페이스트·다른 효과 이후에 적용)
   useEffect(() => {
@@ -65,7 +72,8 @@ export default function SettingsPage() {
   }, []);
 
   const handleLogout = async () => {
-    if (!confirm('로그아웃 하시겠습니까?')) return;
+    setConfirmModal(null);
+    setLogoutPending(true);
     const refreshToken = useAuthStore.getState().refreshToken;
     const deviceId = typeof window !== 'undefined' ? getOrCreateDeviceId() : '';
     try {
@@ -80,22 +88,23 @@ export default function SettingsPage() {
         // 삭제 실패해도 로그아웃은 진행
       }
     }
+    setLogoutPending(false);
     clearAuth();
     router.replace('/login');
   };
 
   const handleWithdraw = async () => {
-    if (
-      !confirm('정말 회원탈퇴를 하시겠습니까?\n탈퇴 후 모든 데이터가 삭제되며 복구할 수 없습니다.')
-    )
-      return;
+    setConfirmModal(null);
+    setWithdrawPending(true);
     try {
       await authApi.withdraw();
       clearAuth();
+      if (typeof window !== 'undefined') alert('회원탈퇴가 완료되었습니다.');
       router.replace('/login');
-      alert('회원탈퇴가 완료되었습니다.');
     } catch {
       // apiClient에서 toast.error로 서버 메시지 표시
+    } finally {
+      setWithdrawPending(false);
     }
   };
 
@@ -189,19 +198,111 @@ export default function SettingsPage() {
         <section>
           <h2 className={sectionTitleClass}>계정</h2>
           <div className="flex flex-col">
-            <button type="button" onClick={handleLogout} className={buttonClass}>
+            <button
+              type="button"
+              onClick={() => setConfirmModal('logout')}
+              className={buttonClass}
+              aria-label="로그아웃"
+            >
               로그아웃
             </button>
             <button
               type="button"
-              onClick={handleWithdraw}
+              onClick={() => setConfirmModal('withdraw')}
               className={`${buttonClass} text-red-600 dark:text-red-400`}
+              aria-label="회원탈퇴"
             >
               회원탈퇴
             </button>
           </div>
         </section>
       </div>
+
+      {/* 로그아웃 확인 모달 */}
+      {confirmModal === 'logout' &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="logout-modal-title"
+          >
+            <div className="w-full max-w-sm rounded-2xl bg-white p-6 dark:bg-zinc-800">
+              <h3
+                id="logout-modal-title"
+                className="mb-2 text-lg font-semibold text-zinc-900 dark:text-zinc-100"
+              >
+                로그아웃
+              </h3>
+              <p className="mb-6 text-sm text-zinc-600 dark:text-zinc-400">
+                로그아웃 하시겠습니까?
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  variant="ghost"
+                  className="flex-1"
+                  onPress={() => setConfirmModal(null)}
+                  isDisabled={logoutPending}
+                >
+                  취소
+                </Button>
+                <Button
+                  variant="primary"
+                  className="flex-1"
+                  onPress={handleLogout}
+                  isPending={logoutPending}
+                >
+                  로그아웃
+                </Button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+      {/* 회원탈퇴 확인 모달 */}
+      {confirmModal === 'withdraw' &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="withdraw-modal-title"
+          >
+            <div className="w-full max-w-sm rounded-2xl bg-white p-6 dark:bg-zinc-800">
+              <h3
+                id="withdraw-modal-title"
+                className="mb-2 text-lg font-semibold text-zinc-900 dark:text-zinc-100"
+              >
+                회원탈퇴
+              </h3>
+              <p className="mb-6 text-sm text-zinc-600 dark:text-zinc-400">
+                정말 회원탈퇴를 하시겠습니까? 탈퇴 후 모든 데이터가 삭제되며 복구할 수 없습니다.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  variant="ghost"
+                  className="flex-1"
+                  onPress={() => setConfirmModal(null)}
+                  isDisabled={withdrawPending}
+                >
+                  취소
+                </Button>
+                <Button
+                  variant="primary"
+                  className="flex-1 bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
+                  onPress={handleWithdraw}
+                  isPending={withdrawPending}
+                >
+                  회원탈퇴
+                </Button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
 
       {/* 남는 공간 중앙에 푸터 배치 (살짝 위로) */}
       <div className="mt-6 flex flex-1 flex-col items-center justify-center">
