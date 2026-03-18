@@ -159,10 +159,9 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
       if (href === '/mypage')
         return (
           isFromMypage ||
-          pathname === '/mypage' ||
-          !!pathname?.startsWith('/mypage/') ||
-          !!pathname?.startsWith('/my/')
-        ); // 마이 하위·신청한 동아리(/my/*)·동아리 상세(from=mypage) 포함
+          (typeof pathname === 'string' && pathname.startsWith('/mypage')) ||
+          (typeof pathname === 'string' && pathname.startsWith('/my/'))
+        ); // 마이·관심동아리·질문 등 하위·신청한 동아리(/my/*)·동아리 상세(from=mypage) 포함
       if (href.includes('?')) return false;
       return pathname.startsWith(href);
     },
@@ -248,7 +247,7 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
                 {active && (
                   <motion.span
                     layoutId="bottom-nav-indicator"
-                    className="absolute -top-1 left-1/2 h-1 w-6 -translate-x-1/2 rounded-full bg-blue-500 dark:bg-lime-400"
+                    className="absolute -top-1.5 left-1/2 h-1 w-6 -translate-x-1/2 rounded-full bg-blue-500 dark:bg-lime-400"
                     aria-hidden
                     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   />
