@@ -3,9 +3,9 @@
 import { useEffect, useState, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
+import type { CommunityPostCategory } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
 import { useRestoreCommunityListScroll, useSearchPosts } from '@/features/community/hooks';
-import type { CommunityPostCategory } from '@/types/api';
 import { CommunityListPageSkeleton } from '@/components/common/skeletons';
 import { CommunityPostCard } from '@/components/community/community-post-card';
 import {
@@ -30,7 +30,7 @@ export default function CommunitySearchPage() {
   useRestoreCommunityListScroll();
 
   const posts = useSearchPosts(query, sort, category);
-  const { data: profile, isLoading: profileLoading } = useMyProfile();
+  const { data: _profile, isLoading: profileLoading } = useMyProfile();
 
   useEffect(() => {
     const next = searchParams.get('q') ?? '';

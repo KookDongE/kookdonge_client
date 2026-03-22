@@ -80,7 +80,9 @@ export default function SplashPage() {
         <h1 className="text-2xl font-black tracking-tight text-blue-500 dark:text-lime-400">
           KookDongE
         </h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">국민대 동아리 정보 모음이</p>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          국민대의 모든 동아리 정보, 국동이
+        </p>
       </motion.div>
       <motion.div
         className="absolute bottom-20 left-1/2 h-1 w-16 -translate-x-1/2 rounded-full bg-zinc-200 dark:bg-zinc-700"

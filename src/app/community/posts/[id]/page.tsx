@@ -4,39 +4,40 @@ import { use, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 
+import { Spinner } from '@heroui/react';
 import { useQueries, useQueryClient } from '@tanstack/react-query';
 import { createPortal } from 'react-dom';
 
+import type { CommunityAuthorType } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isClubManager, isSystemAdmin } from '@/features/auth/permissions';
+import { clubApi, clubKeys } from '@/features/club';
 import {
   communityKeys,
   useCommentsAsList,
+  useCreateComment,
   useDeleteCommentMutation,
   useDeletePost,
   useLikeCommentMutation,
   useLikePost,
+  useManagedClubsForPost,
   usePostDetailAsPost,
   useSavePost,
   useUnsavePost,
-  useCreateComment,
-  useManagedClubsForPost,
 } from '@/features/community/hooks';
-import type { CommunityComment } from '@/features/community/types';
 import { CommunityPostDetailSkeleton } from '@/components/common/skeletons';
 import { PersonFillIcon } from '@/components/icons/person-fill-icon';
-import type { CommunityAuthorType } from '@/types/api';
-import { clubApi, clubKeys } from '@/features/club';
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
   const isCurrentYear = d.getFullYear() === new Date().getFullYear();
-  return d.toLocaleDateString('ko-KR', {
+  return d.toLocaleString('ko-KR', {
     year: isCurrentYear ? undefined : '2-digit',
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    hour12: false,
   });
 }
 
@@ -79,18 +80,26 @@ const DETAIL_VIEW_BANNERS = [
 
 /** 액션 바 ~ 댓글 사이 배너 (상세조회 전용, 풀에서 랜덤 1장) */
 function PostDetailBanner() {
-  const src = useMemo(
-    () => DETAIL_VIEW_BANNERS[Math.floor(Math.random() * DETAIL_VIEW_BANNERS.length)],
-    []
+  const [src] = useState(
+    () => DETAIL_VIEW_BANNERS[Math.floor(Math.random() * DETAIL_VIEW_BANNERS.length)]
   );
   return (
-    <div className="-mt-4 relative w-full aspect-[1855/380] shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800/50" aria-hidden>
-      <Image src={src} alt="" fill className="object-cover" sizes="(max-width: 448px) 100vw, 448px" />
+    <div
+      className="relative -mt-4 aspect-[1855/380] w-full shrink-0 overflow-hidden border-0 bg-zinc-100 outline-none dark:bg-zinc-800/50"
+      aria-hidden
+    >
+      <Image
+        src={src}
+        alt=""
+        fill
+        className="object-cover outline-none"
+        sizes="(max-width: 448px) 100vw, 448px"
+      />
     </div>
   );
 }
 
-/** 이미지 확대 라이트박스: 가로 스와이프·좌우 버튼으로 이전/다음 이미지 */
+/** 이미지 확대 라이트박스: 첫 열 때 로딩 후 표시, 넘길 땐 프리로드로 로딩 없음, 로딩 중 스피너 */
 function ImageLightbox({
   imageUrls,
   currentIndex,
@@ -103,6 +112,8 @@ function ImageLightbox({
   onClose: () => void;
 }) {
   const touchStartX = useRef<number | null>(null);
+  /** 로드 완료된 이미지 인덱스 (첫 열기 시 스피너, 넘길 때 이미 로드됐으면 스피너 없음) */
+  const [loadedIndices, setLoadedIndices] = useState<Set<number>>(() => new Set());
 
   const goPrev = () => {
     if (currentIndex > 0) onIndexChange(currentIndex - 1);
@@ -122,6 +133,14 @@ function ImageLightbox({
     if (delta > SWIPE_THRESHOLD) goNext();
     else if (delta < -SWIPE_THRESHOLD) goPrev();
   };
+
+  const markLoaded = (index: number) => {
+    setLoadedIndices((prev) => (prev.has(index) ? prev : new Set(prev).add(index)));
+  };
+
+  const currentLoaded = loadedIndices.has(currentIndex);
+  const prevIndex = currentIndex - 1;
+  const nextIndex = currentIndex + 1;
 
   return (
     <div
@@ -162,12 +181,44 @@ function ImageLightbox({
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
+        {/* 인접 이미지 프리로드 (넘길 때 로딩 없이 바로 표시) */}
+        {prevIndex >= 0 && (
+          // eslint-disable-next-line @next/next/no-img-element -- 프리로드용
+          <img
+            src={imageUrls[prevIndex]}
+            alt=""
+            className="hidden"
+            loading="eager"
+            onLoad={() => markLoaded(prevIndex)}
+          />
+        )}
+        {nextIndex < imageUrls.length && (
+          // eslint-disable-next-line @next/next/no-img-element -- 프리로드용
+          <img
+            src={imageUrls[nextIndex]}
+            alt=""
+            className="hidden"
+            loading="eager"
+            onLoad={() => markLoaded(nextIndex)}
+          />
+        )}
+
+        {/* 현재 이미지: 로드 전엔 스피너, 로드 후 표시 */}
+        {!currentLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center text-white" aria-hidden>
+            <Spinner size="lg" color="current" />
+          </div>
+        )}
+        {/* eslint-disable-next-line @next/next/no-img-element -- 라이트박스 동적 URL, 클릭/터치 제스처 */}
         <img
+          key={currentIndex}
           src={imageUrls[currentIndex]}
           alt=""
-          className="max-h-full max-w-full select-none object-contain"
+          className="max-h-full max-w-full object-contain select-none"
+          style={{ visibility: currentLoaded ? 'visible' : 'hidden' }}
           onClick={(e) => e.stopPropagation()}
           draggable={false}
+          onLoad={() => markLoaded(currentIndex)}
         />
       </div>
     </div>
@@ -223,7 +274,14 @@ function CommentBarPortal({
             className="rounded p-0.5 hover:bg-zinc-200 hover:text-zinc-800 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
             aria-label="답글 취소"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              className="h-4 w-4"
+            >
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -248,7 +306,9 @@ function CommentBarPortal({
           )}
           <textarea
             ref={commentTextareaRef}
-            placeholder={replyingTo ? `${replyingTo.authorName}에게 답글을 입력하세요` : '댓글을 입력하세요'}
+            placeholder={
+              replyingTo ? `${replyingTo.authorName}에게 답글을 입력하세요` : '댓글을 입력하세요'
+            }
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
             rows={1}
@@ -260,7 +320,7 @@ function CommentBarPortal({
             type="button"
             onClick={onSubmitComment}
             disabled={!commentText.trim() || isCommentSubmitting}
-            className="shrink-0 rounded-full bg-transparent p-2 text-zinc-500 transition-opacity hover:opacity-80 dark:bg-zinc-800 dark:text-zinc-400 disabled:opacity-50"
+            className="comment-send-btn shrink-0 rounded-full !bg-white p-2 text-zinc-600 transition-opacity hover:opacity-80 disabled:opacity-50 dark:!bg-zinc-800 dark:text-zinc-400"
             aria-label="댓글 등록"
           >
             <svg
@@ -271,7 +331,7 @@ function CommentBarPortal({
               strokeWidth={2}
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="h-5 w-5"
+              className="h-5 w-5 text-zinc-600 dark:text-zinc-400"
             >
               <path d="m22 2-7 20-4-9-9-4Z" />
               <path d="M22 2 11 13" />
@@ -296,7 +356,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
   const id = Number(idParam);
   const { data: post, isLoading: postLoading, refetch: refetchPost } = usePostDetailAsPost(id);
   const { data: comments, refetch: refetchComments } = useCommentsAsList(id);
-  const scrollToCommentId = searchParams.get('commentId');
+  const _scrollToCommentId = searchParams.get('commentId');
   const hasScrolledToComment = useRef(false);
 
   const commentAccountOptions: CommentAccountOption[] = [
@@ -328,10 +388,11 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
   /** 첨부 사진 확대 보기 (인덱스 또는 null) */
   /** 답글 작성 중인 댓글 (commentId, authorName) */
   const [replyingToCommentId, setReplyingToCommentId] = useState<number | null>(null);
-  const [replyRowIsAppView, setReplyRowIsAppView] = useState(false);
-  useEffect(() => {
-    setReplyRowIsAppView(isAppView());
-  }, []);
+  const replyRowIsAppView = useSyncExternalStore(
+    emptySubscribe,
+    () => isAppView(),
+    () => false
+  );
   const replyingTo =
     replyingToCommentId != null
       ? (() => {
@@ -341,8 +402,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
       : null;
   const isAdmin = profile ? isSystemAdmin(profile) : false;
   const isAuthor = post?.mine ?? false;
-  const isLeader =
-    profile && post?.clubId != null ? isClubManager(profile, post.clubId) : false;
+  const isLeader = profile && post?.clubId != null ? isClubManager(profile, post.clubId) : false;
   const canDelete = isAdmin || isAuthor || isLeader;
   const canEdit = isAdmin;
 
@@ -365,7 +425,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
       });
     });
     return Array.from(ids);
-  }, [post?.clubId, comments]);
+  }, [post, comments]);
 
   const clubDetailQueries = useQueries({
     queries: uniqueClubIds.map((clubId) => ({
@@ -445,7 +505,6 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
     el.style.height = `${Math.min(el.scrollHeight, maxH)}px`;
   }, [commentText]);
 
-
   if (profileLoading || postLoading || (id > 0 && !post)) {
     return <CommunityPostDetailSkeleton />;
   }
@@ -464,8 +523,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
   const handleSave = () => {
     setSavedOverride((prev) => (prev !== null ? !prev : !(post.saved ?? false)));
     (post.saved ? unsavePostMutation : savePostMutation).mutate(undefined, {
-      onError: () =>
-        setSavedOverride((prev) => (prev !== null ? !prev : !(post.saved ?? false))),
+      onError: () => setSavedOverride((prev) => (prev !== null ? !prev : !(post.saved ?? false))),
     });
   };
   const handleDeletePost = () => {
@@ -529,11 +587,8 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
             aria-hidden
           >
             {post.clubId != null && clubImageMap[post.clubId] ? (
-              <img
-                src={clubImageMap[post.clubId]}
-                alt=""
-                className="size-full object-cover"
-              />
+              /* eslint-disable-next-line @next/next/no-img-element -- 동아리 로고 외부 URL */
+              <img src={clubImageMap[post.clubId]} alt="" className="size-full object-cover" />
             ) : (
               <span className="flex size-full items-center justify-center">
                 <PersonFillIcon className="h-[1.75rem] w-[1.75rem] shrink-0 text-zinc-500 dark:text-zinc-500" />
@@ -550,23 +605,11 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                   aria-label="동아리 상세 보기"
                 >
                   <span className="min-w-0 truncate">{post.authorName}</span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    className="h-3.5 w-3.5 shrink-0 rotate-180 text-zinc-500 dark:text-zinc-400"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15.75 19.5L8.25 12l7.5-7.5"
-                    />
-                  </svg>
                 </button>
               ) : (
-                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{post.authorName}</span>
+                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  {post.authorName}
+                </span>
               )}
             </div>
             <span>{formatDate(post.createdAt)}</span>
@@ -594,7 +637,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
             </button>
             {menuOpen && (
               <div
-                className="absolute top-full right-0 z-10 mt-1 min-w-[120px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+                className="absolute top-full right-0 z-10 mt-1 min-w-[120px] rounded-lg border border-zinc-200 bg-white py-1 dark:border-zinc-700 dark:bg-zinc-800"
                 role="menu"
               >
                 {canEdit && (
@@ -620,9 +663,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                       alert('본인은 신고할 수 없습니다.');
                       return;
                     }
-                    router.push(
-                      `/mypage/settings/report?type=post&id=${post.id}`
-                    );
+                    router.push(`/mypage/settings/report?type=post&id=${post.id}`);
                   }}
                 >
                   신고
@@ -648,23 +689,25 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
         </h1>
 
         {/* 본문 */}
-        <div className="mt-4 text-sm leading-relaxed break-words whitespace-pre-wrap font-normal text-zinc-600 dark:text-zinc-400">
+        <div className="mt-4 text-sm leading-relaxed font-normal break-words whitespace-pre-wrap text-zinc-600 dark:text-zinc-400">
           {post.content}
         </div>
 
         {/* 첨부 사진: 단일이면 원본 비율, 여러 장이면 가로 슬라이드 1:1. 클릭 시 확대 미리보기 */}
-        {post.imageUrls && post.imageUrls.length > 0 && (
-          post.imageUrls.length === 1 ? (
+        {post.imageUrls &&
+          post.imageUrls.length > 0 &&
+          (post.imageUrls.length === 1 ? (
             <button
               type="button"
               onClick={() => setExpandedImageIndex(0)}
               className="mt-4 block w-full overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800"
               aria-label="사진 확대 보기"
             >
+              {/* eslint-disable-next-line @next/next/no-img-element -- 게시글 첨부 이미지 동적 URL */}
               <img
                 src={post.imageUrls[0]}
                 alt=""
-                className="w-full h-auto max-w-full object-contain"
+                className="h-auto w-full max-w-full object-contain"
               />
             </button>
           ) : (
@@ -678,17 +721,13 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                     className="relative aspect-square w-36 shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800"
                     aria-label={`사진 ${idx + 1} 확대 보기`}
                   >
-                    <img
-                      src={url}
-                      alt=""
-                      className="size-full object-cover"
-                    />
+                    {/* eslint-disable-next-line @next/next/no-img-element -- 게시글 첨부 이미지 동적 URL */}
+                    <img src={url} alt="" className="size-full object-cover" />
                   </button>
                 ))}
               </div>
             </div>
-          )
-        )}
+          ))}
 
         {/* 액션 바: 공감 | 댓글 N | 스크랩 (가로 3등분) */}
         <div className="-mx-4 mt-6 flex items-center border-t border-zinc-200 px-4 py-5 dark:border-zinc-700">
@@ -737,7 +776,11 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
               fill="currentColor"
               className="h-5 w-5"
             >
-              <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z" clipRule="evenodd" />
+              <path
+                fillRule="evenodd"
+                d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z"
+                clipRule="evenodd"
+              />
             </svg>
             <span>스크랩</span>
             <span>{post.saveCount}</span>
@@ -772,15 +815,13 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                 className={`relative ${rootIndex > 0 ? 'border-t border-zinc-100 pt-4 dark:border-zinc-800' : ''}`}
               >
                 {/* 원댓글: 왼쪽 끝부터 가로로 꽉 차게 */}
-                <div
-                  className="relative flex flex-wrap gap-2"
-                  data-comment-id={root.id}
-                >
+                <div className="relative flex flex-wrap gap-2" data-comment-id={root.id}>
                   <div
                     className="relative z-[1] h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
                     aria-hidden
                   >
                     {root.clubId != null && clubImageMap[root.clubId] ? (
+                      /* eslint-disable-next-line @next/next/no-img-element -- 동아리 로고 외부 URL */
                       <img
                         src={clubImageMap[root.clubId]}
                         alt=""
@@ -795,8 +836,19 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex min-w-0 flex-1 flex-col gap-0 text-xs text-zinc-500 dark:text-zinc-400">
-                        <span className={`text-[13px] font-medium ${root.mine ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}>{root.authorName.replace(/([^\s])\(글쓴이\)/, '$1 (글쓴이)')}{root.mine && !root.authorName.includes('(글쓴이)') ? ' (글쓴이)' : ''}</span>
-                        <span className="text-[11px] text-zinc-400 dark:text-zinc-500">{formatCommentWrittenAt(root.createdAt)}</span>
+                        <span
+                          className={`text-[13px] font-medium ${(root.isPostAuthor ?? (isAuthor && root.mine)) ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}
+                        >
+                          {root.authorName.replace(/([^\s])\(글쓴이\)/, '$1 (글쓴이)')}
+                          {/* (글쓴이): API isPostAuthor 있으면 모두에게 표시, 없으면 글쓴이 본인만(isAuthor&&mine) */}
+                          {(root.isPostAuthor ?? (isAuthor && root.mine)) &&
+                          !root.authorName.includes('(글쓴이)')
+                            ? ' (글쓴이)'
+                            : ''}
+                        </span>
+                        <span className="text-[11px] text-zinc-400 dark:text-zinc-500">
+                          {formatCommentWrittenAt(root.createdAt)}
+                        </span>
                       </div>
                       <div className="mr-3 flex shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-700">
                         <div className="flex items-center gap-0">
@@ -823,152 +875,339 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                               });
                             }}
                           >
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5 shrink-0">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              className="h-3.5 w-3.5 shrink-0"
+                            >
                               <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
                             </svg>
                           </button>
                           {(commentLikeOverrides[root.id] ?? root.likeCount) > 0 && (
-                            <span className="text-xs text-zinc-500 dark:text-zinc-400" aria-label={`좋아요 ${commentLikeOverrides[root.id] ?? root.likeCount}개`}>
+                            <span
+                              className="text-xs text-zinc-500 dark:text-zinc-400"
+                              aria-label={`좋아요 ${commentLikeOverrides[root.id] ?? root.likeCount}개`}
+                            >
                               {commentLikeOverrides[root.id] ?? root.likeCount}
                             </span>
                           )}
                         </div>
-                        <span className="h-2.5 w-px shrink-0 bg-zinc-300 dark:bg-zinc-600" aria-hidden />
+                        <span
+                          className="h-2.5 w-px shrink-0 bg-zinc-300 dark:bg-zinc-600"
+                          aria-hidden
+                        />
                         <button
                           type="button"
                           className="rounded p-0.5 text-zinc-500 transition-colors hover:opacity-80 dark:text-zinc-500"
                           aria-label="답글"
                           onClick={() => {
                             setReplyingToCommentId(root.id);
-                            commentTextareaRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
+                            commentTextareaRef.current?.scrollIntoView({
+                              behavior: 'auto',
+                              block: 'end',
+                            });
                             commentTextareaRef.current?.focus();
                           }}
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            className="h-3.5 w-3.5"
+                          >
                             <path d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
                           </svg>
                         </button>
-                        <span className="h-2.5 w-px shrink-0 bg-zinc-300 dark:bg-zinc-600" aria-hidden />
-                        <div className="relative" ref={commentMenuOpenId === root.id ? commentMenuRef : undefined}>
+                        <span
+                          className="h-2.5 w-px shrink-0 bg-zinc-300 dark:bg-zinc-600"
+                          aria-hidden
+                        />
+                        <div
+                          className="relative"
+                          ref={commentMenuOpenId === root.id ? commentMenuRef : undefined}
+                        >
                           <button
                             type="button"
-                            onClick={() => setCommentMenuOpenId((prev) => (prev === root.id ? null : root.id))}
+                            onClick={() =>
+                              setCommentMenuOpenId((prev) => (prev === root.id ? null : root.id))
+                            }
                             className="rounded p-0.5 text-zinc-500 transition-colors hover:bg-zinc-200 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
                             aria-label="더보기"
                             aria-expanded={commentMenuOpenId === root.id}
                           >
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
-                              <path fillRule="evenodd" d="M4.5 12a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm6 0a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm6 0a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z" clipRule="evenodd" />
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              className="h-3.5 w-3.5"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M4.5 12a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm6 0a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm6 0a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z"
+                                clipRule="evenodd"
+                              />
                             </svg>
                           </button>
                           {commentMenuOpenId === root.id && (
-                            <div className="action-menu-dropdown absolute right-0 top-full z-10 mt-0.5 min-w-[100px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800" role="menu">
-                              <button type="button" className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700" role="menuitem" onClick={() => { setCommentMenuOpenId(null); if (root.mine) { alert('본인은 신고할 수 없습니다.'); return; } router.push(`/mypage/settings/report?type=comment&id=${root.id}`); }}>신고</button>
-                              <button type="button" className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30" role="menuitem" onClick={() => { setCommentMenuOpenId(null); if (root.mine) { deleteCommentMutation.mutate(root.id, { onSuccess: () => refetchComments() }); } else { setDeleteDeniedToast(true); } }}>삭제</button>
+                            <div
+                              className="action-menu-dropdown absolute top-full right-0 z-10 mt-0.5 min-w-[100px] rounded-lg border border-zinc-200 bg-white py-1 dark:border-zinc-700 dark:bg-zinc-800"
+                              role="menu"
+                            >
+                              <button
+                                type="button"
+                                className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                                role="menuitem"
+                                onClick={() => {
+                                  setCommentMenuOpenId(null);
+                                  if (root.mine) {
+                                    alert('본인은 신고할 수 없습니다.');
+                                    return;
+                                  }
+                                  router.push(`/mypage/settings/report?type=comment&id=${root.id}`);
+                                }}
+                              >
+                                신고
+                              </button>
+                              <button
+                                type="button"
+                                className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
+                                role="menuitem"
+                                onClick={() => {
+                                  setCommentMenuOpenId(null);
+                                  if (root.mine || isAdmin) {
+                                    deleteCommentMutation.mutate(root.id, {
+                                      onSuccess: () => refetchComments(),
+                                    });
+                                  } else {
+                                    setDeleteDeniedToast(true);
+                                  }
+                                }}
+                              >
+                                삭제
+                              </button>
                             </div>
                           )}
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div className="min-w-0 w-full -mt-3">
-                    <p className="mt-3 min-w-0 w-full pl-0.5 pr-3 pb-1.5 break-all break-words text-sm font-normal text-zinc-600 dark:text-zinc-400">{preventBreakAfterQuestion(root.content)}</p>
+                  <div className="-mt-3 w-full min-w-0">
+                    <p className="mt-3 w-full min-w-0 pr-3 pb-1.5 pl-0.5 text-sm font-normal break-words break-all text-zinc-600 dark:text-zinc-400">
+                      {preventBreakAfterQuestion(root.content)}
+                    </p>
                   </div>
                 </div>
                 {/* 답글들: 왼쪽 화살표로 답글 표시 */}
                 {(root.replies?.length ?? 0) > 0 && (
                   <div className="relative">
                     {(root.replies ?? []).map((reply) => {
-                  const likeCount = commentLikeOverrides[reply.id] ?? reply.likeCount;
-                  const liked = commentLikedByMe[reply.id] ?? (reply.liked ?? false);
-                  const isMine = reply.mine ?? false;
-                  return (
-                    <div
-                      key={reply.id}
-                      className={`relative flex gap-2 pt-3 ${replyRowIsAppView ? 'pl-7 sm:pl-9' : 'pl-5 sm:pl-7'}`}
-                      data-comment-id={reply.id}
-                    >
-                      <span className="absolute left-0 top-4 z-[1] flex h-5 w-5 shrink-0 items-center justify-center text-zinc-400 dark:text-zinc-500" aria-hidden>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="stroke-current">
-                          <path d="M16 19L21 14L16 9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                          <path d="M21 14H13C7.477 14 3 9.523 3 4V3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </span>
-                      <div className="relative z-[1] flex min-w-0 flex-1 flex-wrap gap-2 rounded-lg bg-zinc-50 pt-2.5 pb-2 px-3 dark:bg-zinc-800/50">
-                        <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300" aria-hidden>
-                          {reply.clubId != null && clubImageMap[reply.clubId] ? (
-                            <img src={clubImageMap[reply.clubId]} alt="" className="size-full object-cover" />
-                          ) : (
-                            <span className="flex size-full items-center justify-center">
-                              <PersonFillIcon className="h-[1.375rem] w-[1.375rem] shrink-0 text-zinc-500 dark:text-zinc-500" />
-                            </span>
-                          )}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex h-7 items-center justify-between gap-2">
-                            <div className="flex min-w-0 flex-1 flex-col justify-center gap-0 text-xs text-zinc-500 dark:text-zinc-400">
-                              <span className={`leading-tight text-[13px] font-medium ${isMine ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}>{reply.authorName.replace(/([^\s])\(글쓴이\)/, '$1 (글쓴이)')}{isMine && !reply.authorName.includes('(글쓴이)') ? ' (글쓴이)' : ''}</span>
-                              <span className="leading-tight text-[11px] text-zinc-400 dark:text-zinc-500">{formatCommentWrittenAt(reply.createdAt)}</span>
+                      const likeCount = commentLikeOverrides[reply.id] ?? reply.likeCount;
+                      const liked = commentLikedByMe[reply.id] ?? reply.liked ?? false;
+                      const isMine = reply.mine ?? false;
+                      return (
+                        <div
+                          key={reply.id}
+                          className={`relative flex gap-2 pt-3 ${replyRowIsAppView ? 'pl-7 sm:pl-9' : 'pl-5 sm:pl-7'}`}
+                          data-comment-id={reply.id}
+                        >
+                          <span
+                            className="absolute top-4 left-0 z-[1] flex h-5 w-5 shrink-0 items-center justify-center text-zinc-400 dark:text-zinc-500"
+                            aria-hidden
+                          >
+                            <svg
+                              width="20"
+                              height="20"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="stroke-current"
+                            >
+                              <path
+                                d="M16 19L21 14L16 9"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              <path
+                                d="M21 14H13C7.477 14 3 9.523 3 4V3"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </span>
+                          <div className="relative z-[1] flex min-w-0 flex-1 flex-wrap gap-2 rounded-lg bg-zinc-50 px-3 pt-2.5 pb-2 dark:bg-zinc-800/50">
+                            <div
+                              className="relative h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-600 dark:text-zinc-300"
+                              aria-hidden
+                            >
+                              {reply.clubId != null && clubImageMap[reply.clubId] ? (
+                                /* eslint-disable-next-line @next/next/no-img-element -- 동아리 로고 외부 URL */
+                                <img
+                                  src={clubImageMap[reply.clubId]}
+                                  alt=""
+                                  className="size-full object-cover"
+                                />
+                              ) : (
+                                <span className="flex size-full items-center justify-center">
+                                  <PersonFillIcon className="h-[1.375rem] w-[1.375rem] shrink-0 text-zinc-500 dark:text-zinc-500" />
+                                </span>
+                              )}
                             </div>
-                            <div className="flex h-7 shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-1.5 py-0 dark:bg-zinc-700">
-                              <div className="flex items-center gap-0">
-                                <button
-                                  type="button"
-                                  className={`flex items-center gap-0.5 rounded p-0.5 transition-opacity hover:opacity-80 ${liked ? 'text-red-500 dark:text-red-400' : 'text-zinc-500 dark:text-zinc-500'}`}
-                                  aria-label={`좋아요 ${likeCount}개`}
-                                  onClick={() => {
-                                    if (liked) return;
-                                    if (!confirm('좋아요를 누르시겠습니까?')) return;
-                                    setCommentLikedByMe((prev) => ({ ...prev, [reply.id]: true }));
-                                    setCommentLikeOverrides((prev) => ({ ...prev, [reply.id]: (prev[reply.id] ?? reply.likeCount) + 1 }));
-                                    likeCommentMutation.mutate(reply.id, {
-                                      onError: () => {
-                                        setCommentLikedByMe((prev) => ({ ...prev, [reply.id]: false }));
-                                        setCommentLikeOverrides((prev) => ({ ...prev, [reply.id]: (prev[reply.id] ?? reply.likeCount) - 1 }));
-                                      },
-                                    });
-                                  }}
-                                >
-                                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5 shrink-0">
-                                    <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-                                  </svg>
-                                </button>
-                                {likeCount > 0 && (
-                                  <span className="text-xs text-zinc-500 dark:text-zinc-400" aria-label={`좋아요 ${likeCount}개`}>
-                                    {likeCount}
+                            <div className="min-w-0 flex-1">
+                              <div className="flex h-7 items-center justify-between gap-2">
+                                <div className="flex min-w-0 flex-1 flex-col justify-center gap-0 text-xs text-zinc-500 dark:text-zinc-400">
+                                  <span
+                                    className={`text-[13px] leading-tight font-medium ${(reply.isPostAuthor ?? (isAuthor && isMine)) ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-700 dark:text-zinc-300'}`}
+                                  >
+                                    {reply.authorName.replace(/([^\s])\(글쓴이\)/, '$1 (글쓴이)')}
+                                    {(reply.isPostAuthor ?? (isAuthor && isMine)) &&
+                                    !reply.authorName.includes('(글쓴이)')
+                                      ? ' (글쓴이)'
+                                      : ''}
                                   </span>
-                                )}
-                              </div>
-                              <span className="h-2.5 w-px shrink-0 bg-zinc-300 dark:bg-zinc-600" aria-hidden />
-                              <div className="relative" ref={commentMenuOpenId === reply.id ? commentMenuRef : undefined}>
-                                <button
-                                  type="button"
-                                  onClick={() => setCommentMenuOpenId((prev) => (prev === reply.id ? null : reply.id))}
-                                  className="rounded p-0.5 text-zinc-500 transition-colors hover:bg-zinc-200 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
-                                  aria-label="더보기"
-                                  aria-expanded={commentMenuOpenId === reply.id}
-                                >
-                                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
-                                    <path fillRule="evenodd" d="M4.5 12a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm6 0a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm6 0a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z" clipRule="evenodd" />
-                                  </svg>
-                                </button>
-                                {commentMenuOpenId === reply.id && (
-                                  <div className="action-menu-dropdown absolute right-0 top-full z-10 mt-0.5 min-w-[100px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800" role="menu">
-                                    <button type="button" className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700" role="menuitem" onClick={() => { setCommentMenuOpenId(null); if (isMine) { alert('본인은 신고할 수 없습니다.'); return; } router.push(`/mypage/settings/report?type=comment&id=${reply.id}`); }}>신고</button>
-                                    <button type="button" className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30" role="menuitem" onClick={() => { setCommentMenuOpenId(null); if (isMine) { deleteCommentMutation.mutate(reply.id, { onSuccess: () => refetchComments() }); } else { setDeleteDeniedToast(true); } }}>삭제</button>
+                                  <span className="text-[11px] leading-tight text-zinc-400 dark:text-zinc-500">
+                                    {formatCommentWrittenAt(reply.createdAt)}
+                                  </span>
+                                </div>
+                                <div className="flex h-7 shrink-0 items-center gap-1.5 rounded-md bg-zinc-100 px-1.5 py-0 dark:bg-zinc-700">
+                                  <div className="flex items-center gap-0">
+                                    <button
+                                      type="button"
+                                      className={`flex items-center gap-0.5 rounded p-0.5 transition-opacity hover:opacity-80 ${liked ? 'text-red-500 dark:text-red-400' : 'text-zinc-500 dark:text-zinc-500'}`}
+                                      aria-label={`좋아요 ${likeCount}개`}
+                                      onClick={() => {
+                                        if (liked) return;
+                                        if (!confirm('좋아요를 누르시겠습니까?')) return;
+                                        setCommentLikedByMe((prev) => ({
+                                          ...prev,
+                                          [reply.id]: true,
+                                        }));
+                                        setCommentLikeOverrides((prev) => ({
+                                          ...prev,
+                                          [reply.id]: (prev[reply.id] ?? reply.likeCount) + 1,
+                                        }));
+                                        likeCommentMutation.mutate(reply.id, {
+                                          onError: () => {
+                                            setCommentLikedByMe((prev) => ({
+                                              ...prev,
+                                              [reply.id]: false,
+                                            }));
+                                            setCommentLikeOverrides((prev) => ({
+                                              ...prev,
+                                              [reply.id]: (prev[reply.id] ?? reply.likeCount) - 1,
+                                            }));
+                                          },
+                                        });
+                                      }}
+                                    >
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24"
+                                        fill="currentColor"
+                                        className="h-3.5 w-3.5 shrink-0"
+                                      >
+                                        <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                                      </svg>
+                                    </button>
+                                    {likeCount > 0 && (
+                                      <span
+                                        className="text-xs text-zinc-500 dark:text-zinc-400"
+                                        aria-label={`좋아요 ${likeCount}개`}
+                                      >
+                                        {likeCount}
+                                      </span>
+                                    )}
                                   </div>
-                                )}
+                                  <span
+                                    className="h-2.5 w-px shrink-0 bg-zinc-300 dark:bg-zinc-600"
+                                    aria-hidden
+                                  />
+                                  <div
+                                    className="relative"
+                                    ref={
+                                      commentMenuOpenId === reply.id ? commentMenuRef : undefined
+                                    }
+                                  >
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        setCommentMenuOpenId((prev) =>
+                                          prev === reply.id ? null : reply.id
+                                        )
+                                      }
+                                      className="rounded p-0.5 text-zinc-500 transition-colors hover:bg-zinc-200 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+                                      aria-label="더보기"
+                                      aria-expanded={commentMenuOpenId === reply.id}
+                                    >
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24"
+                                        fill="currentColor"
+                                        className="h-3.5 w-3.5"
+                                      >
+                                        <path
+                                          fillRule="evenodd"
+                                          d="M4.5 12a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm6 0a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm6 0a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z"
+                                          clipRule="evenodd"
+                                        />
+                                      </svg>
+                                    </button>
+                                    {commentMenuOpenId === reply.id && (
+                                      <div
+                                        className="action-menu-dropdown absolute top-full right-0 z-10 mt-0.5 min-w-[100px] rounded-lg border border-zinc-200 bg-white py-1 dark:border-zinc-700 dark:bg-zinc-800"
+                                        role="menu"
+                                      >
+                                        <button
+                                          type="button"
+                                          className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                                          role="menuitem"
+                                          onClick={() => {
+                                            setCommentMenuOpenId(null);
+                                            if (isMine) {
+                                              alert('본인은 신고할 수 없습니다.');
+                                              return;
+                                            }
+                                            router.push(
+                                              `/mypage/settings/report?type=comment&id=${reply.id}`
+                                            );
+                                          }}
+                                        >
+                                          신고
+                                        </button>
+                                        <button
+                                          type="button"
+                                          className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
+                                          role="menuitem"
+                                          onClick={() => {
+                                            setCommentMenuOpenId(null);
+                                            if (isMine || isAdmin) {
+                                              deleteCommentMutation.mutate(reply.id, {
+                                                onSuccess: () => refetchComments(),
+                                              });
+                                            } else {
+                                              setDeleteDeniedToast(true);
+                                            }
+                                          }}
+                                        >
+                                          삭제
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
                               </div>
+                            </div>
+                            <div className="-mt-3 w-full min-w-0">
+                              <p className="mt-3 w-full min-w-0 pr-3 pb-1.5 pl-0.5 text-sm font-normal break-words break-all text-zinc-600 dark:text-zinc-400">
+                                {preventBreakAfterQuestion(reply.content)}
+                              </p>
                             </div>
                           </div>
                         </div>
-                        <div className="min-w-0 w-full -mt-3">
-                          <p className="mt-3 min-w-0 w-full pl-0.5 pr-3 pb-1.5 break-all break-words text-sm font-normal text-zinc-600 dark:text-zinc-400">{preventBreakAfterQuestion(reply.content)}</p>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                      );
+                    })}
                   </div>
                 )}
               </li>
@@ -980,7 +1219,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
       {/* 삭제 불가 토스트: 본인 댓글이 아닐 때 */}
       {deleteDeniedToast && (
         <div
-          className="fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-zinc-800 px-4 py-2.5 text-sm text-white shadow-lg dark:bg-zinc-700"
+          className="fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-zinc-800 px-4 py-2.5 text-sm text-white dark:bg-zinc-700"
           role="alert"
         >
           본인이 작성한 게 아니라면 삭제할 수 없습니다.

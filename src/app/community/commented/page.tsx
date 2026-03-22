@@ -13,8 +13,8 @@ import {
 } from '@/components/community/community-search-filter';
 
 export default function CommunityCommentedPage() {
-  const router = useRouter();
-  const { data: profile, isLoading: profileLoading } = useMyProfile();
+  const _router = useRouter();
+  const { data: _profile, isLoading: profileLoading } = useMyProfile();
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<CommunitySort>('latest');
   useRestoreCommunityListScroll();

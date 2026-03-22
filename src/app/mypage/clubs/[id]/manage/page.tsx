@@ -8,8 +8,10 @@ import { Button, Chip, ListBox, Select, Spinner, Tabs, TextArea } from '@heroui/
 import { parseAsString, useQueryState } from 'nuqs';
 
 import { ClubCategory, ClubDetailRes, ClubType, College, RecruitmentStatus } from '@/types/api';
+import { IMAGE_ACCEPT_ATTR, validateImageFile } from '@/lib/image-upload-validation';
 import { formatQnaDateTime, parseApiIsoToDate } from '@/lib/utils';
 import { useMyProfile } from '@/features/auth/hooks';
+import { isClubManager } from '@/features/auth/permissions';
 import {
   useAddClubAdmin,
   useClubDetail,
@@ -18,8 +20,6 @@ import {
   useUpdateClubDetail,
   useUpdateRecruitmentInfo,
 } from '@/features/club/hooks';
-import { clubApi } from '@/features/club/api';
-import { IMAGE_ACCEPT_ATTR, validateImageFile } from '@/lib/image-upload-validation';
 import { useClubFeeds, useUploadFeedFiles } from '@/features/feed/hooks';
 import { useAddInterest, useMyInterests, useRemoveInterest } from '@/features/interest/hooks';
 import {
@@ -40,6 +40,7 @@ import {
   ListCardSkeleton,
 } from '@/components/common/skeletons';
 import { FeedCoverImage } from '@/components/feed/feed-cover-image';
+import { StarIcon } from '@/components/icons/club-icons';
 import { BellIcon } from '@/components/icons/notification-icon';
 
 const CATEGORY_LABEL: Record<ClubCategory, string> = {
@@ -214,24 +215,6 @@ function getLinkDisplayNameForView(item: { name: string; url: string }): string 
   }
 }
 
-function StarIcon({ filled, className }: { filled: boolean; className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill={filled ? 'currentColor' : 'none'}
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
-  );
-}
-
 type PageProps = {
   params: Promise<{ id: string }>;
 };
@@ -342,7 +325,9 @@ function ClubManageContent({ clubId }: { clubId: number }) {
     setTargetGraduate(club.targetGraduate || '');
     setLeaderName(club.leaderName || '');
     setLocation(club.location || '');
-    const w = club.weeklyActivity ?? (club.weeklyActiveFrequency != null ? String(club.weeklyActiveFrequency) : '');
+    const w =
+      club.weeklyActivity ??
+      (club.weeklyActiveFrequency != null ? String(club.weeklyActiveFrequency) : '');
     const trimmed = String(w).trim();
     if (trimmed && /^[1-7]$/.test(trimmed)) {
       setWeeklyActiveFrequency(Number(trimmed));
@@ -538,7 +523,7 @@ function ClubManageContent({ clubId }: { clubId: number }) {
         {/* 헤더 - 동아리 상세페이지와 동일: 태그=사진 상단, 이름=태그 아래, 아이콘=사진 하단 우측 1열 */}
         <div className="bg-white px-4 py-6 dark:bg-zinc-900">
           <div className="flex gap-4">
-            <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-zinc-100 shadow-sm dark:bg-zinc-800">
+            <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-800">
               {club.image ? (
                 <Image
                   src={club.image}
@@ -896,21 +881,13 @@ function AdminManageSection({
 }
 
 /** 동아리 상세 페이지(/clubs/[id]) 정보 탭과 동일한 보기 전용 UI */
-function ManageInfoView({
-  club,
-  onEdit,
-}: {
-  club: ClubDetailRes;
-  onEdit: () => void;
-}) {
+function _ManageInfoView({ club, onEdit }: { club: ClubDetailRes; onEdit: () => void }) {
   const infoItems = [
     { label: '모집 시작', value: formatDateTimeReadMode(club.recruitmentStartDate) },
     { label: '모집 마감', value: formatDateTimeReadMode(club.recruitmentEndDate) },
     { label: '대상', value: club.targetGraduate ?? '-' },
     { label: '동아리장', value: club.leaderName ?? '-' },
-    ...(club.location?.trim()
-      ? [{ label: '활동 장소' as const, value: club.location }]
-      : []),
+    ...(club.location?.trim() ? [{ label: '활동 장소' as const, value: club.location }] : []),
     {
       label: '주간활동 횟수',
       value:
@@ -921,8 +898,7 @@ function ManageInfoView({
   ];
 
   const contentImageUrl = club.contentImageUrl ?? club.descriptionImages?.[0];
-  const hasIntroduction =
-    (club.content != null && club.content.trim() !== '') || !!contentImageUrl;
+  const hasIntroduction = (club.content != null && club.content.trim() !== '') || !!contentImageUrl;
   const links = parseExternalLinks(club.externalLink);
 
   return (
@@ -933,7 +909,7 @@ function ManageInfoView({
         </Button>
       </div>
       {hasIntroduction && (
-        <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+        <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
           <h3 className="mb-3 px-4 pt-4 text-sm font-medium text-zinc-700 dark:text-zinc-300">
             동아리 소개
           </h3>
@@ -949,14 +925,14 @@ function ManageInfoView({
           )}
           {club.content != null && club.content.trim() !== '' && (
             <div className="p-4">
-              <p className="whitespace-pre-wrap text-sm font-light leading-relaxed text-zinc-700 dark:text-zinc-300">
+              <p className="text-sm leading-relaxed font-light whitespace-pre-wrap text-zinc-700 dark:text-zinc-300">
                 {club.content}
               </p>
             </div>
           )}
         </div>
       )}
-      <div className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+      <div className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
         <h3 className="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">기본 정보</h3>
         <div className="min-w-0 space-y-3">
           {infoItems.map((item) => {
@@ -982,7 +958,7 @@ function ManageInfoView({
         </div>
       </div>
       {links.length > 0 && (
-        <div className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+        <div className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
           <h3 className="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">외부 링크</h3>
           <ul className="space-y-2">
             {links.map((item, i) => (
@@ -1196,7 +1172,7 @@ function ClubInfoTab({
   };
 
   const cardClass =
-    'club-manage-card rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800';
+    'club-manage-card rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800';
 
   return (
     <div className="w-full min-w-0 space-y-4 overflow-x-hidden p-4">
@@ -1883,7 +1859,6 @@ function ClubInfoTab({
         <h3 className="mb-3 font-semibold text-zinc-900 dark:text-zinc-100">관리자</h3>
         <AdminManageSection clubId={clubId} onClose={() => {}} />
       </div>
-
     </div>
   );
 }
@@ -2049,7 +2024,7 @@ function ClubQnaTab({
                   <span className="relative shrink-0">
                     {!qna.answer && (
                       <span
-                        className="absolute -left-0.5 -top-0.5 h-2 w-2 rounded-full bg-red-500"
+                        className="absolute -top-0.5 -left-0.5 h-2 w-2 rounded-full bg-red-500"
                         aria-hidden
                       />
                     )}
@@ -2073,9 +2048,7 @@ function ClubQnaTab({
                       size="sm"
                       variant="ghost"
                       onPress={() =>
-                        setExpandedAnswerQuestionId((prev) =>
-                          prev === qna.id ? null : qna.id
-                        )
+                        setExpandedAnswerQuestionId((prev) => (prev === qna.id ? null : qna.id))
                       }
                       className="shrink-0 text-xs font-normal text-zinc-500 dark:text-zinc-400"
                     >
@@ -2101,7 +2074,7 @@ function ClubQnaTab({
                     </Button>
                     {openMenuAllQuestionId === qna.id && (
                       <div
-                        className="action-menu-dropdown absolute top-full right-0 z-10 mt-1 min-w-[7rem] rounded-lg border bg-[var(--card)] py-1 shadow-lg"
+                        className="action-menu-dropdown absolute top-full right-0 z-10 mt-1 min-w-[7rem] rounded-lg border bg-[var(--card)] py-1"
                         style={{ borderColor: 'var(--border)' }}
                         role="menu"
                       >
@@ -2122,7 +2095,11 @@ function ClubQnaTab({
                           className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
                           onClick={() => {
                             setOpenMenuAllQuestionId(null);
-                            if (profile?.id != null && qna.userId != null && profile.id === qna.userId) {
+                            if (
+                              profile?.id != null &&
+                              qna.userId != null &&
+                              profile.id === qna.userId
+                            ) {
                               alert('본인은 신고할 수 없습니다.');
                               return;
                             }
@@ -2189,9 +2166,7 @@ function ClubQnaTab({
                             size="sm"
                             variant="ghost"
                             onPress={() =>
-                              setOpenMenuAllAnswerId((prev) =>
-                                prev === qna.id ? null : qna.id
-                              )
+                              setOpenMenuAllAnswerId((prev) => (prev === qna.id ? null : qna.id))
                             }
                             isDisabled={deleteQuestion.isPending}
                             className="min-w-0 px-2"
@@ -2202,7 +2177,7 @@ function ClubQnaTab({
                           </Button>
                           {openMenuAllAnswerId === qna.id && (
                             <div
-                              className="action-menu-dropdown absolute top-full right-0 z-10 mt-1 min-w-[7rem] rounded-lg border bg-[var(--card)] py-1 shadow-lg"
+                              className="action-menu-dropdown absolute top-full right-0 z-10 mt-1 min-w-[7rem] rounded-lg border bg-[var(--card)] py-1"
                               style={{ borderColor: 'var(--border)' }}
                               role="menu"
                             >
@@ -2223,11 +2198,13 @@ function ClubQnaTab({
                                 className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
                                 onClick={() => {
                                   setOpenMenuAllAnswerId(null);
-                                  if (profile?.id != null && qna.userId != null && profile.id === qna.userId) {
+                                  if (profile != null && isClubManager(profile, clubId)) {
                                     alert('본인은 신고할 수 없습니다.');
                                     return;
                                   }
-                                  router.push(`/mypage/settings/report?type=qna&id=${qna.id}`);
+                                  router.push(
+                                    `/mypage/settings/report?type=qna-answer&id=${qna.id}`
+                                  );
                                 }}
                               >
                                 신고
@@ -2250,7 +2227,6 @@ function ClubQnaTab({
           <p>아직 질문이 없습니다.</p>
         </div>
       )}
-
     </div>
   );
 }

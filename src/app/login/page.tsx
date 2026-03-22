@@ -50,7 +50,7 @@ export default function LoginPage() {
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={handleGoogleLogin}
-          className="touch-btn flex w-full items-center justify-center gap-3 rounded-2xl border border-zinc-300 bg-white px-6 py-4 font-semibold text-zinc-800 shadow-sm transition-all hover:bg-zinc-50 disabled:opacity-70 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
+          className="touch-btn flex w-full items-center justify-center gap-3 rounded-2xl border border-zinc-300 bg-white px-6 py-4 font-semibold text-zinc-800 transition-all hover:bg-zinc-50 disabled:opacity-70 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24">
             <path

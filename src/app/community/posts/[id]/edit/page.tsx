@@ -1,91 +1,24 @@
 'use client';
 
 import { use, useEffect, useMemo, useState, type Key } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 import { Input, ListBox, Select, TextArea } from '@heroui/react';
-import { Reorder, useDragControls } from 'framer-motion';
+import { Reorder } from 'framer-motion';
 
 import { IMAGE_ACCEPT_ATTR, validateImageFile } from '@/lib/image-upload-validation';
 import { useMyProfile } from '@/features/auth/hooks';
-import { usePostDetail, useUpdatePost, useManagedClubsForPost } from '@/features/community/hooks';
-import { getPresignedUrl, registerFileUpload } from '@/features/community/api';
 import { isClubManager, isSystemAdmin } from '@/features/auth/permissions';
+import { getPresignedUrl, registerFileUpload } from '@/features/community/api';
+import { useManagedClubsForPost, usePostDetail, useUpdatePost } from '@/features/community/hooks';
 import { FormPageSkeleton } from '@/components/common/skeletons';
+import { PhotoReorderItem } from '@/components/community/photo-reorder-item';
 
 /** 사진 한 칸: id(Reorder용) + file(신규) 또는 fileUuid(기존) + preview URL */
 type PhotoItem =
   | { id: string; file: File; preview: string; fileUuid?: undefined }
   | { id: string; file?: undefined; fileUuid: string; preview: string };
-
-/** 1장 이상일 때: 세로4:가로3 고정, 드래그 순서 변경 (글쓰기와 동일) */
-function PhotoReorderItem({
-  item,
-  onRemove,
-  canReorder,
-}: {
-  item: PhotoItem;
-  onRemove: () => void;
-  canReorder: boolean;
-}) {
-  const controls = useDragControls();
-  return (
-    <Reorder.Item
-      value={item}
-      dragListener={false}
-      dragControls={controls}
-      whileDrag={{ scale: 1.02, zIndex: 50 }}
-      className="relative flex shrink-0 flex-col gap-1 rounded-xl"
-    >
-      <div className="relative aspect-square w-36 overflow-hidden rounded-xl bg-zinc-200 dark:bg-zinc-700">
-        <img
-          src={item.preview}
-          alt=""
-          className="pointer-events-none size-full select-none object-cover"
-          draggable={false}
-        />
-        <button
-          type="button"
-          data-no-drag
-          onClick={(e) => {
-            e.stopPropagation();
-            onRemove();
-          }}
-          onPointerDown={(e) => e.stopPropagation()}
-          className="absolute right-1 top-1 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
-          aria-label="사진 삭제"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2.5}
-            className="h-4 w-4"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-      {canReorder && (
-        <div
-          role="button"
-          tabIndex={0}
-          onPointerDown={(e) => {
-            if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
-            controls.start(e);
-          }}
-          className="flex touch-none cursor-grab items-center justify-center gap-0.5 rounded-b-xl py-1.5 text-zinc-400 active:cursor-grabbing dark:text-zinc-500"
-          aria-label="드래그하여 순서 변경"
-        >
-          <span className="inline-block h-1 w-1 rounded-full bg-current" />
-          <span className="inline-block h-1 w-1 rounded-full bg-current" />
-          <span className="inline-block h-1 w-1 rounded-full bg-current" />
-        </div>
-      )}
-    </Reorder.Item>
-  );
-}
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -173,8 +106,7 @@ export default function CommunityPostEditPage({ params }: PageProps) {
         });
       } catch (err) {
         if (!firstError)
-          firstError =
-            err instanceof Error ? err.message : '파일 형식 또는 용량을 확인해 주세요.';
+          firstError = err instanceof Error ? err.message : '파일 형식 또는 용량을 확인해 주세요.';
       }
     }
     if (added.length > 0) setPhotoItems((prev) => [...prev, ...added]);
@@ -212,7 +144,8 @@ export default function CommunityPostEditPage({ params }: PageProps) {
         }
         if (!item.file) continue;
         const file = item.file;
-        const ext = (file.name.split('.').pop()?.toLowerCase() ?? 'jpg').replace(/[^a-z]/g, '') || 'jpg';
+        const ext =
+          (file.name.split('.').pop()?.toLowerCase() ?? 'jpg').replace(/[^a-z]/g, '') || 'jpg';
         const contentType = file.type || 'image/jpeg';
         const res = await getPresignedUrl(file.name, contentType);
         const uuid = res.uuid;
@@ -366,7 +299,7 @@ export default function CommunityPostEditPage({ params }: PageProps) {
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg [&_textarea]:min-h-0 [&_textarea]:h-full">
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg [&_textarea]:h-full [&_textarea]:min-h-0">
             <TextArea
               value={content}
               onChange={(e) => setContent(e.target.value)}
@@ -377,7 +310,7 @@ export default function CommunityPostEditPage({ params }: PageProps) {
           </div>
         </div>
 
-        <div className="shrink-0 mb-0">
+        <div className="mb-0 shrink-0">
           <input
             type="file"
             accept={IMAGE_ACCEPT_ATTR}
@@ -389,7 +322,7 @@ export default function CommunityPostEditPage({ params }: PageProps) {
           {photoItems.length === 0 ? (
             <label htmlFor="community-edit-photo" className="block w-36 shrink-0 cursor-pointer">
               <span className="flex aspect-square w-36 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 text-zinc-600 transition-colors hover:border-zinc-400 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
-                <img src="/icons/stash_image-open-light.svg" alt="" className="h-12 w-12" />
+                <Image src="/icons/stash_image-open-light.svg" alt="" width={48} height={48} />
               </span>
             </label>
           ) : (
@@ -411,12 +344,14 @@ export default function CommunityPostEditPage({ params }: PageProps) {
                   ))}
                 </Reorder.Group>
                 {photoItems.length < 10 && (
-                  <label
-                    htmlFor="community-edit-photo"
-                    className="block shrink-0 cursor-pointer"
-                  >
+                  <label htmlFor="community-edit-photo" className="block shrink-0 cursor-pointer">
                     <span className="flex aspect-square w-36 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 text-zinc-400 transition-colors hover:border-zinc-500 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-zinc-500 dark:hover:bg-zinc-700/80">
-                      <img src="/icons/stash_image-open-light.svg" alt="" className="h-12 w-12" />
+                      <Image
+                        src="/icons/stash_image-open-light.svg"
+                        alt=""
+                        width={48}
+                        height={48}
+                      />
                     </span>
                   </label>
                 )}

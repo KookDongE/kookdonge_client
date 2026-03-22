@@ -1,8 +1,4 @@
-import type {
-  CommunityCommentRes,
-  CommunityPostDetailRes,
-  CommunityPostRes,
-} from '@/types/api';
+import type { CommunityCommentRes, CommunityPostDetailRes, CommunityPostRes } from '@/types/api';
 
 /** 게시판 구분: 인기글, 홍보글, 자유게시판 */
 export type BoardType = 'popular' | 'promo' | 'free';
@@ -83,7 +79,10 @@ export type CommunityComment = {
   clubId?: number | null;
   replies?: CommunityComment[];
   liked?: boolean;
+  /** 현재 로그인 유저가 쓴 댓글인지 (userId 기준) */
   mine?: boolean;
+  /** 이 댓글 작성자 = 게시글 작성자 (다른 유저에게도 글쓴이 뱃지 노출용) */
+  isPostAuthor?: boolean;
 };
 
 /** API 댓글 응답 → UI CommunityComment */
@@ -98,5 +97,6 @@ export function mapCommentResToComment(res: CommunityCommentRes): CommunityComme
     replies: res.replies?.map(mapCommentResToComment),
     liked: res.liked,
     mine: res.mine,
+    isPostAuthor: res.postAuthor,
   };
 }

@@ -1,14 +1,13 @@
 'use client';
 
-import { Suspense, useState } from 'react';
-import type { Key } from 'react';
+import { Suspense, useState, type Key } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { ListBox, Select } from '@heroui/react';
 
 import { ClubCategory, ClubType, College } from '@/types/api';
-import { FormPageSkeleton } from '@/components/common/skeletons';
 import { useApplyClub } from '@/features/club/hooks';
+import { FormPageSkeleton } from '@/components/common/skeletons';
 
 const TYPE_OPTIONS: { value: ClubType; label: string }[] = [
   { value: 'CENTRAL', label: '중앙동아리' },
@@ -68,7 +67,8 @@ function ClubApplyContent() {
       alert('동아리유형을 선택해주세요.');
       return;
     }
-    const needsCollege = clubType === 'DEPARTMENTAL' || clubType === 'ACADEMIC_SOCIETY' || clubType === 'CLUB';
+    const needsCollege =
+      clubType === 'DEPARTMENTAL' || clubType === 'ACADEMIC_SOCIETY' || clubType === 'CLUB';
     if (needsCollege && !college) {
       alert('과를 선택해주세요.');
       return;
@@ -110,7 +110,9 @@ function ClubApplyContent() {
           >
             취소
           </button>
-          <h1 className="text-lg font-semibold text-gray-900 dark:text-zinc-100">동아리 및 소모임 신청</h1>
+          <h1 className="text-lg font-semibold text-gray-900 dark:text-zinc-100">
+            동아리 및 소모임 신청
+          </h1>
           <button
             type="button"
             onClick={handleSubmit}
@@ -119,7 +121,10 @@ function ClubApplyContent() {
               !applicationReason.trim() ||
               !clubType ||
               !category ||
-              ((clubType === 'DEPARTMENTAL' || clubType === 'ACADEMIC_SOCIETY' || clubType === 'CLUB') && !college) ||
+              ((clubType === 'DEPARTMENTAL' ||
+                clubType === 'ACADEMIC_SOCIETY' ||
+                clubType === 'CLUB') &&
+                !college) ||
               applyClub.isPending
             }
             className="text-base font-semibold text-blue-500 disabled:opacity-50 dark:text-blue-400"
@@ -130,24 +135,25 @@ function ClubApplyContent() {
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
-      <div className="space-y-6 p-4 pb-32">
-        {/* 동아리유형 · 과 · 분야 (맨 위) */}
-        <div className="flex flex-wrap items-center gap-2">
-          <Select
-            placeholder="동아리유형 선택"
-            value={clubType || undefined}
-            onChange={(value: Key | null) => {
-              const next = (value as ClubType) || '';
-              setClubType(next);
-              const needsCollege = next === 'DEPARTMENTAL' || next === 'ACADEMIC_SOCIETY' || next === 'CLUB';
-              if (!needsCollege) setCollege('');
-            }}
-            className="shrink-0"
-          >
-            <Select.Trigger className="min-w-[120px] shrink-0 rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 ring-0 outline-none focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0 [&_.select__value]:whitespace-nowrap">
-              <Select.Value className="[color:rgb(82,82,91)] dark:[color:rgb(228,228,231)]" />
-              <Select.Indicator className="!text-zinc-500 dark:!text-zinc-400 shrink-0" />
-            </Select.Trigger>
+        <div className="space-y-6 p-4 pb-32">
+          {/* 동아리유형 · 과 · 분야 (맨 위) */}
+          <div className="flex flex-wrap items-center gap-2">
+            <Select
+              placeholder="동아리유형 선택"
+              value={clubType || undefined}
+              onChange={(value: Key | null) => {
+                const next = (value as ClubType) || '';
+                setClubType(next);
+                const needsCollege =
+                  next === 'DEPARTMENTAL' || next === 'ACADEMIC_SOCIETY' || next === 'CLUB';
+                if (!needsCollege) setCollege('');
+              }}
+              className="shrink-0"
+            >
+              <Select.Trigger className="min-w-[120px] shrink-0 rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 ring-0 outline-none focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&_.select__value]:whitespace-nowrap [&[data-focus]]:ring-0">
+                <Select.Value className="[color:rgb(82,82,91)] dark:[color:rgb(228,228,231)]" />
+                <Select.Indicator className="shrink-0 !text-zinc-500 dark:!text-zinc-400" />
+              </Select.Trigger>
               <Select.Popover>
                 <ListBox>
                   {TYPE_OPTIONS.map((opt) => (
@@ -163,19 +169,21 @@ function ClubApplyContent() {
                 </ListBox>
               </Select.Popover>
             </Select>
-          {(clubType === 'DEPARTMENTAL' || clubType === 'ACADEMIC_SOCIETY' || clubType === 'CLUB') && (
-            <Select
-              placeholder="과 선택"
-              value={college || undefined}
-              onChange={(value: Key | null) => {
-                setCollege((value as College) || '');
-              }}
-              className="shrink-0"
-            >
-              <Select.Trigger className="min-w-[72px] shrink-0 rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 ring-0 outline-none focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0 [&_.select__value]:whitespace-nowrap">
-                <Select.Value className="[color:rgb(82,82,91)] dark:[color:rgb(228,228,231)]" />
-                <Select.Indicator className="!text-zinc-500 dark:!text-zinc-400 shrink-0" />
-              </Select.Trigger>
+            {(clubType === 'DEPARTMENTAL' ||
+              clubType === 'ACADEMIC_SOCIETY' ||
+              clubType === 'CLUB') && (
+              <Select
+                placeholder="과 선택"
+                value={college || undefined}
+                onChange={(value: Key | null) => {
+                  setCollege((value as College) || '');
+                }}
+                className="shrink-0"
+              >
+                <Select.Trigger className="min-w-[72px] shrink-0 rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 ring-0 outline-none focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&_.select__value]:whitespace-nowrap [&[data-focus]]:ring-0">
+                  <Select.Value className="[color:rgb(82,82,91)] dark:[color:rgb(228,228,231)]" />
+                  <Select.Indicator className="shrink-0 !text-zinc-500 dark:!text-zinc-400" />
+                </Select.Trigger>
                 <Select.Popover>
                   <ListBox>
                     {COLLEGE_OPTIONS.map((opt) => (
@@ -190,20 +198,20 @@ function ClubApplyContent() {
                     ))}
                   </ListBox>
                 </Select.Popover>
-            </Select>
-          )}
-          <Select
-            placeholder="분야 선택"
-            value={category || undefined}
-            onChange={(value: Key | null) => {
-              setCategory((value as ClubCategory) || '');
-            }}
-            className="shrink-0"
-          >
-            <Select.Trigger className="min-w-[88px] shrink-0 rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 ring-0 outline-none focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&[data-focus]]:ring-0 [&_.select__value]:whitespace-nowrap">
-              <Select.Value className="[color:rgb(82,82,91)] dark:[color:rgb(228,228,231)]" />
-              <Select.Indicator className="!text-zinc-500 dark:!text-zinc-400 shrink-0" />
-            </Select.Trigger>
+              </Select>
+            )}
+            <Select
+              placeholder="분야 선택"
+              value={category || undefined}
+              onChange={(value: Key | null) => {
+                setCategory((value as ClubCategory) || '');
+              }}
+              className="shrink-0"
+            >
+              <Select.Trigger className="min-w-[88px] shrink-0 rounded-full border border-zinc-300 bg-zinc-50 text-xs !text-zinc-700 ring-0 outline-none focus:ring-0 focus-visible:ring-0 dark:border-zinc-600 dark:bg-zinc-800 dark:!text-zinc-200 [&_.select__value]:whitespace-nowrap [&[data-focus]]:ring-0">
+                <Select.Value className="[color:rgb(82,82,91)] dark:[color:rgb(228,228,231)]" />
+                <Select.Indicator className="shrink-0 !text-zinc-500 dark:!text-zinc-400" />
+              </Select.Trigger>
               <Select.Popover>
                 <ListBox>
                   {CATEGORY_OPTIONS.map((opt) => (
@@ -218,33 +226,38 @@ function ClubApplyContent() {
                   ))}
                 </ListBox>
               </Select.Popover>
-          </Select>
-        </div>
+            </Select>
+          </div>
 
-        {/* 동아리 이름 */}
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300" />
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="동아리 이름을 입력해주세요"
-            className="w-full rounded-lg border border-gray-200 bg-white p-4 text-sm font-normal text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-0 focus:border-gray-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500 dark:focus:border-zinc-600"
-          />
-        </div>
+          {/* 동아리 이름 */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300" />
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="동아리 이름을 입력해주세요"
+              className="w-full rounded-lg border border-gray-200 bg-white p-4 text-sm font-normal text-gray-900 placeholder-gray-400 focus:border-gray-200 focus:ring-0 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500 dark:focus:border-zinc-600"
+            />
+          </div>
 
-        {/* 신청 사유 */}
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300" />
-          <textarea
-            placeholder="신청 사유를 입력해주세요"
-            value={applicationReason}
-            onChange={(e) => setApplicationReason(e.target.value)}
-            rows={10}
-            className="w-full min-h-[200px] resize-none rounded-lg border border-gray-200 bg-white p-4 text-sm font-normal text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-0 focus:border-gray-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500 dark:focus:border-zinc-600"
-          />
+          {/* 신청 사유 */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-zinc-300" />
+            <textarea
+              placeholder="신청 사유를 입력해주세요"
+              value={applicationReason}
+              onChange={(e) => setApplicationReason(e.target.value)}
+              rows={10}
+              className="min-h-[200px] w-full resize-none rounded-lg border border-gray-200 bg-white p-4 text-sm font-normal text-gray-900 placeholder-gray-400 focus:border-gray-200 focus:ring-0 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500 dark:focus:border-zinc-600"
+            />
+            <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+              중앙동아리·학회·단과대동아리는 해당 단과대 공식 동아리일 때만 신청해 주세요.
+              <br />
+              소모임은 자유롭게 신청할 수 있습니다.
+            </p>
+          </div>
         </div>
-      </div>
       </div>
     </div>
   );

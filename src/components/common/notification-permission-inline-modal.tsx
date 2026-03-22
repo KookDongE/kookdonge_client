@@ -60,7 +60,7 @@ export function NotificationPermissionInlineModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="notification-inline-modal-title"
-        className="relative z-10 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-800"
+        className="relative z-10 w-full max-w-sm rounded-2xl bg-white p-6 dark:bg-zinc-800"
       >
         <h2
           id="notification-inline-modal-title"

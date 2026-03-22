@@ -8,6 +8,11 @@ declare global {
   interface WindowEventMap {
     beforeinstallprompt: BeforeInstallPromptEvent;
   }
+  /** PWA 앱 아이콘 배지 (Badging API) - Chrome/Edge, iPadOS 16.4+ Safari 등 */
+  interface Navigator {
+    setAppBadge?(count?: number): Promise<void>;
+    clearAppBadge?(): Promise<void>;
+  }
 }
 
 declare namespace NodeJS {

@@ -1,8 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { motion } from 'framer-motion';
 
@@ -105,13 +105,37 @@ const ADMIN_ITEM: NavItem = {
   icon: (active) => <AdminIcon active={active} />,
 };
 
-export function BottomNav() {
+const backSlotTransition = { type: 'tween' as const, duration: 0.25, ease: 'easeOut' as const };
+
+export function BottomNav({ showBackButton = false }: { showBackButton?: boolean }) {
   const pathname = usePathname();
-  const linkRefs = useRef<(HTMLAnchorElement | null)[]>([]);
-  const [indicatorLeft, setIndicatorLeft] = useState(0);
+  const searchParams = useSearchParams();
+  const router = useRouter();
   useAuthStore((state) => state.accessToken);
   const { data: profile } = useMyProfile();
   const isAdmin = isSystemAdmin(profile);
+
+  /** 동아리 상세에서 from=/home 으로 들어온 경우 홈 탭 활성 표시 */
+  const isFromHome = !!pathname?.match(/^\/clubs\/\d+$/) && searchParams.get('from') === '/home';
+  /** 동아리 상세에서 from=/mypage 로 들어온 경우(마이 Q&A 등) MY 탭 활성 표시 */
+  const isFromMypage =
+    !!pathname?.match(/^\/clubs\/\d+$/) &&
+    (searchParams.get('from') === '/mypage' || searchParams.get('from') === 'mypage');
+
+  /** 알림 페이지에서 from 쿼리로 진입 시, 해당 탭 활성 표시 */
+  const fromQuery = searchParams.get('from');
+  const notificationsFromHref =
+    pathname === '/notifications' && fromQuery
+      ? fromQuery === 'home' || fromQuery === '/home'
+        ? '/home'
+        : fromQuery === 'community' || fromQuery === '/community'
+          ? '/community'
+          : fromQuery === 'mypage' || fromQuery === '/mypage'
+            ? '/mypage'
+            : fromQuery === 'admin' || fromQuery === '/admin'
+              ? '/admin'
+              : null
+      : null;
 
   const isHidden =
     pathname === '/' ||
@@ -119,56 +143,42 @@ export function BottomNav() {
     pathname.startsWith('/login/') ||
     pathname === '/welcome' ||
     pathname.startsWith('/welcome/') ||
-    pathname?.startsWith('/community/posts/');
+    pathname?.startsWith('/community/posts/') ||
+    pathname === '/community/write' ||
+    pathname === '/mypage/clubs/apply' ||
+    pathname?.includes('/manage/feed/new') ||
+    pathname === '/mypage/settings/bug-report' ||
+    pathname === '/mypage/settings/name';
 
   const isActive = useCallback(
     (href: string) => {
-      if (href === '/home') return pathname === '/home';
-      if (href === '/admin') return pathname === '/admin'; // 관리자 메인만, /community 제외
+      if (pathname === '/notifications' && notificationsFromHref)
+        return href === notificationsFromHref;
+      if (href === '/home') return pathname === '/home' || isFromHome;
+      if (href === '/admin') return pathname?.startsWith('/admin'); // 관리자 메인·하위 페이지 모두 탭 활성
+      if (href === '/mypage')
+        return (
+          isFromMypage ||
+          (typeof pathname === 'string' && pathname.startsWith('/mypage')) ||
+          (typeof pathname === 'string' && pathname.startsWith('/my/'))
+        ); // 마이·관심동아리·질문 등 하위·신청한 동아리(/my/*)·동아리 상세(from=mypage) 포함
       if (href.includes('?')) return false;
       return pathname.startsWith(href);
     },
-    [pathname]
+    [pathname, isFromHome, isFromMypage, notificationsFromHref]
   );
 
   // 순서: 홈 → 커뮤니티 → 마이 → 관리자(관리자만)
   const allNavItems = useMemo<NavItem[]>(
-    () => [
-      HOME_ITEM,
-      COMMUNITY_ITEM,
-      MYPAGE_ITEM,
-      ...(isAdmin ? [ADMIN_ITEM] : []),
-    ],
+    () => [HOME_ITEM, COMMUNITY_ITEM, MYPAGE_ITEM, ...(isAdmin ? [ADMIN_ITEM] : [])],
     [isAdmin]
   );
 
-  // 활성 링크의 위치 계산 (훅은 조건부 return 이전에 항상 호출)
-  useEffect(() => {
-    if (isHidden) return;
-    const activeIndex = allNavItems.findIndex((item) => isActive(item.href));
-    if (activeIndex !== -1 && linkRefs.current[activeIndex]) {
-      const linkElement = linkRefs.current[activeIndex];
-      if (linkElement) {
-        const navElement = linkElement.closest('nav');
-        if (navElement) {
-          const navRect = navElement.getBoundingClientRect();
-          const linkRect = linkElement.getBoundingClientRect();
-          const left = linkRect.left - navRect.left + linkRect.width / 2 - 12; // 12 = w-6 / 2
-          setIndicatorLeft(left);
-        }
-      }
-    }
-  }, [pathname, isAdmin, isHidden, allNavItems, isActive]);
-
   if (isHidden) return null;
 
-  // 피드 페이지에서는 더 선명한 네비게이션 바 / 항상 화면 하단에 고정
-  const isFeedPage = pathname.includes('/feed');
-  const navClassName = isFeedPage
-    ? 'fixed bottom-0 left-1/2 z-50 w-full max-w-md -translate-x-1/2 rounded-t-2xl border-t-0 pb-[env(safe-area-inset-bottom)] bg-white/95 backdrop-blur-xl dark:bg-zinc-900/95'
-    : 'glass fixed bottom-0 left-1/2 z-50 w-full max-w-md -translate-x-1/2 rounded-t-2xl border-t-0 pb-[env(safe-area-inset-bottom)]';
-
-  const activeIndex = allNavItems.findIndex((item) => isActive(item.href));
+  // 배경과 동일한 불투명 배경으로 하단 네비 고정
+  const navClassName =
+    'fixed bottom-0 left-1/2 z-50 w-full max-w-md -translate-x-1/2 rounded-t-2xl border-t-0 pb-[env(safe-area-inset-bottom)] bg-white/90 backdrop-blur-sm dark:bg-zinc-900/90';
 
   const scrollHomeToTop = () => {
     const el = document.querySelector('[data-scroll-container]') as HTMLElement | null;
@@ -177,54 +187,90 @@ export function BottomNav() {
 
   return (
     <nav className={navClassName}>
-      <div className="relative flex items-center justify-around py-2">
-        {allNavItems.map((item, index) => {
-          const active = isActive(item.href);
-          const href = item.href;
-          const isHomeLink = href === '/home';
-
-          return (
-            <Link
-              key={item.href}
-              ref={(el) => {
-                linkRefs.current[index] = el;
-              }}
-              href={href}
-              onClick={
-                isHomeLink && pathname === '/home'
-                  ? (e) => {
-                      e.preventDefault();
-                      scrollHomeToTop();
-                    }
-                  : undefined
-              }
-              className="relative flex min-w-[64px] flex-col items-center gap-0.5 py-2 outline-none"
+      <div
+        className={`relative flex items-center py-2 ${showBackButton ? 'justify-start gap-0 px-5' : 'justify-around'}`}
+      >
+        {/* 뒤로가기 슬롯: width 0 ↔ 슬롯 확장, layout으로 탭들과 함께 전환 */}
+        <motion.div
+          className="flex min-w-0 shrink-0 flex-col items-center justify-center overflow-hidden"
+          layout
+          animate={{
+            width: showBackButton ? 56 : 0,
+            flex: showBackButton ? 0 : 0,
+            opacity: showBackButton ? 1 : 0,
+          }}
+          transition={backSlotTransition}
+          style={{ minWidth: 0 }}
+        >
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-50 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 dark:bg-zinc-800/70 dark:text-zinc-500 dark:hover:bg-zinc-700/80 dark:hover:text-zinc-300"
+            aria-label="뒤로 가기"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-5 w-5"
+              aria-hidden
             >
-              <motion.div
-                whileTap={{ scale: 0.9 }}
-                className={`transition-colors ${
-                  active ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-400 dark:text-zinc-500'
-                }`}
+              <path d="M19 12H5m0 0l7 7m-7-7l7-7" />
+            </svg>
+          </button>
+        </motion.div>
+        {/* 탭: 각 링크 안에 인디케이터를 두어 활성 탭 위에만 선이 오도록 */}
+        <div className="flex flex-1 items-center justify-around py-2">
+          {allNavItems.map((item) => {
+            const active = isActive(item.href);
+            const href = item.href;
+            const isHomeLink = href === '/home';
+
+            return (
+              <Link
+                key={item.href}
+                href={href}
+                onClick={
+                  isHomeLink && pathname === '/home'
+                    ? (e) => {
+                        e.preventDefault();
+                        scrollHomeToTop();
+                      }
+                    : undefined
+                }
+                className="relative flex min-w-[64px] flex-col items-center gap-0.5 py-2 outline-none"
               >
-                {item.icon(active)}
-              </motion.div>
-              <span
-                className={`text-[10px] font-medium transition-colors ${
-                  active ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-400 dark:text-zinc-500'
-                }`}
-              >
-                {item.label}
-              </span>
-            </Link>
-          );
-        })}
-        {activeIndex !== -1 && (
-          <motion.div
-            className="absolute -top-1 h-1 w-6 rounded-full bg-blue-500 dark:bg-lime-400"
-            animate={{ left: indicatorLeft }}
-            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-          />
-        )}
+                {active && (
+                  <motion.span
+                    layoutId="bottom-nav-indicator"
+                    className="absolute -top-1.5 left-1/2 h-1 w-6 -translate-x-1/2 rounded-full bg-blue-500 dark:bg-lime-400"
+                    aria-hidden
+                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  />
+                )}
+                <motion.div
+                  whileTap={{ scale: 0.9 }}
+                  className={`transition-colors ${
+                    active ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-400 dark:text-zinc-500'
+                  }`}
+                >
+                  {item.icon(active)}
+                </motion.div>
+                <span
+                  className={`text-[10px] font-medium transition-colors ${
+                    active ? 'text-blue-500 dark:text-lime-400' : 'text-zinc-400 dark:text-zinc-500'
+                  }`}
+                >
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </nav>
   );

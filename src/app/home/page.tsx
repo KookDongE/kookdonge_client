@@ -11,6 +11,7 @@ import { parseAsString, useQueryState } from 'nuqs';
 import { createPortal } from 'react-dom';
 
 import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api';
+import { shuffleArray } from '@/lib/utils';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
 import {
@@ -91,7 +92,7 @@ function RankingSection({ returnTo }: { returnTo?: string }) {
 
   const isLoading = activeTab === 'view' ? viewLoading : likeLoading;
   const isError = activeTab === 'view' ? viewError : likeError;
-  const refetchRanking = activeTab === 'view' ? refetchView : refetchLike;
+  const _refetchRanking = activeTab === 'view' ? refetchView : refetchLike;
   const rawRankings = activeTab === 'view' ? viewRankings : likeRankings;
 
   // API 응답이 배열 또는 { content: [...] } 형태일 수 있음
@@ -134,11 +135,10 @@ function RankingSection({ returnTo }: { returnTo?: string }) {
         <div className="mb-4 flex items-center justify-between px-4">
           <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100">이번 주 인기</span>
         </div>
-        <div className="mx-4 flex h-36 flex-col items-center justify-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">인기 동아리를 불러오지 못했습니다</p>
-          <Button size="sm" variant="primary" onPress={() => refetchRanking()}>
-            다시 시도
-          </Button>
+        <div className="mx-4 flex h-36 flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            인기 동아리를 불러오지 못했습니다
+          </p>
         </div>
       </section>
     );
@@ -197,7 +197,9 @@ function RankingSection({ returnTo }: { returnTo?: string }) {
       {isEmpty ? (
         <div className="mx-4 flex h-36 flex-col items-center justify-center gap-1 rounded-xl border border-zinc-200 bg-zinc-50 text-center text-sm text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
           <span>이번 주 인기 동아리가 없습니다</span>
-          <span className="text-xs text-zinc-400 dark:text-zinc-600">매주 월요일 00:00에 갱신됩니다</span>
+          <span className="text-xs text-zinc-400 dark:text-zinc-600">
+            매주 월요일 00:00에 갱신됩니다
+          </span>
         </div>
       ) : (
         <AnimatePresence mode="wait">
@@ -293,16 +295,6 @@ const VALID_SORT_VALUES = ['default', 'name,asc', 'popularity', 'viewCount'] as 
 function normalizeSort(sort: string | null): string {
   if (!sort) return 'default';
   return VALID_SORT_VALUES.includes(sort as (typeof VALID_SORT_VALUES)[number]) ? sort : 'default';
-}
-
-/** Fisher-Yates 셔플. 기본순일 때 무작위 표시용 */
-function shuffleArray<T>(arr: T[]): T[] {
-  const out = [...arr];
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
-  }
-  return out;
 }
 
 function ClubListSection({
@@ -485,7 +477,7 @@ function ClubListSection({
         typeof document !== 'undefined' &&
         createPortal(
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-800">
+            <div className="w-full max-w-sm rounded-2xl bg-white p-6 dark:bg-zinc-800">
               <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-zinc-100">
                 동아리 삭제
               </h3>
@@ -507,7 +499,7 @@ function ClubListSection({
                     placeholder="동아리 이름 입력"
                     value={deleteConfirmName}
                     onChange={(e) => setDeleteConfirmName(e.target.value)}
-                    className="mt-6 mb-6 w-full min-w-0 rounded-lg border border-zinc-300 bg-transparent px-3 py-2 text-sm outline-none transition-colors placeholder:text-zinc-400 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-600 dark:focus:border-zinc-500 dark:focus:ring-zinc-700"
+                    className="mt-6 mb-6 w-full min-w-0 rounded-lg border border-zinc-300 bg-transparent px-3 py-2 text-sm transition-colors outline-none placeholder:text-zinc-400 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-600 dark:focus:border-zinc-500 dark:focus:ring-zinc-700"
                     autoComplete="off"
                     aria-label="동아리 이름 확인"
                   />

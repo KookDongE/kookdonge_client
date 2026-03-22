@@ -41,17 +41,19 @@ function shouldSkipWrite(value: string): boolean {
   }
 }
 
+const NOOP_STORAGE: Storage = {
+  getItem: () => null,
+  setItem: () => {},
+  removeItem: () => {},
+  length: 0,
+  key: () => null,
+  clear: () => {},
+} as Storage;
+
 /** SSR 시 localStorage 없음 처리. 클라이언트에서는 재수화 전·null 덮어쓰기 모두 막음 */
 function getAuthStorage(): Storage {
   if (typeof window === 'undefined') {
-    return {
-      getItem: () => null,
-      setItem: () => {},
-      removeItem: () => {},
-      length: 0,
-      key: () => null,
-      clear: () => {},
-    } as Storage;
+    return NOOP_STORAGE;
   }
   return {
     getItem: (key: string) => localStorage.getItem(key),

@@ -412,6 +412,8 @@ export type NotificationRes = {
   type: string;
   title: string;
   message: string;
+  /** 댓글/답글 알림(COMMUNITY_COMMENT, COMMUNITY_REPLY) 시 댓글·답글 본문 (API에서 내려주는 경우) */
+  content?: string;
   redirectUrl?: string;
   clubId?: number;
   /** Q&A 알림 시 해당 질문 ID (스크롤 이동용, API에서 내려주는 경우 사용) */
@@ -488,7 +490,7 @@ export type ClubCreationRequestRes = {
 };
 
 // ---------- 신고 (Report) ----------
-export type ReportType = 'QNA' | 'CLUB' | 'COMMUNITY_POST' | 'COMMUNITY_COMMENT';
+export type ReportType = 'QNA' | 'QNA_ANSWER' | 'CLUB' | 'COMMUNITY_POST' | 'COMMUNITY_COMMENT';
 export type ReportReason = 'ABUSE' | 'SPAM' | 'ILLEGAL' | 'OTHER';
 
 export type ReportCreateReq = {
@@ -513,8 +515,10 @@ export type ReportRes = {
   status: 'PENDING' | 'COMPLETED';
   createdAt: string;
   processedAt?: string;
-  /** 신고당한 글 본문 등 (상세 조회 시) */
+  /** 신고당한 글 본문 등 (상세 조회 시) - 서버에서 저장한 원본 내용 */
   contentSnapshot?: string;
+  /** 신고 대상 원본 내용 (API 상세 조회 시 반환) */
+  originalContent?: string;
 };
 
 // ---------- 버그 신고/건의사항 (Feedback) ----------
@@ -599,7 +603,10 @@ export type CommunityCommentRes = {
   createdAt: string;
   replies?: CommunityCommentRes[];
   liked?: boolean;
+  /** 현재 로그인 유저가 쓴 댓글인지 (userId 기준, 작성자 유형 무관). 스웨거 mine */
   mine?: boolean;
+  /** 이 댓글 작성자가 게시글 작성자와 동일한지 (모든 조회자에게 글쓴이 뱃지 표시용). 스웨거 postAuthor */
+  postAuthor?: boolean;
 };
 
 export type CommunityPostCreateReq = {

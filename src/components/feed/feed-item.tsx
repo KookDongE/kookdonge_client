@@ -1,8 +1,9 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { memo, useCallback, useRef, useState } from 'react';
 import Image from 'next/image';
 
+import { formatTimeAgo } from '@/lib/utils';
 import { DefaultClubImage } from '@/components/common/default-club-image';
 
 type FeedItemProps = {
@@ -27,22 +28,7 @@ const SWIPE_THRESHOLD = 50;
 /** 이 길이를 넘으면 더보기/접기 노출 (인스타 스타일) */
 const CONTENT_MORE_THRESHOLD = 100;
 
-function formatTimeAgo(dateString: string): string {
-  const now = new Date();
-  const date = new Date(dateString);
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 1) return '방금 전';
-  if (diffMins < 60) return `${diffMins}분 전`;
-  if (diffHours < 24) return `${diffHours}시간 전`;
-  if (diffDays < 7) return `${diffDays}일 전`;
-  return date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
-}
-
-export function FeedItem({
+export const FeedItem = memo(function FeedItem({
   feedId,
   authorName,
   authorAvatar,
@@ -101,7 +87,7 @@ export function FeedItem({
   return (
     <article
       id={`feed-${feedId}`}
-      className="scroll-mt-16 mb-8 border-b border-zinc-200 bg-white pb-6 dark:border-zinc-800 dark:bg-zinc-900"
+      className="mb-8 scroll-mt-16 border-b border-zinc-200 bg-white pb-6 dark:border-zinc-800 dark:bg-zinc-900"
     >
       {/* 헤더 영역: 프로필 사진 + (이름 + 작성 시간 세로) + 더보기 메뉴 */}
       <div className="flex items-center justify-between gap-3 px-4 py-3">
@@ -157,7 +143,7 @@ export function FeedItem({
                     aria-hidden
                     onClick={() => setMenuOpen(false)}
                   />
-                  <div className="action-menu-dropdown absolute top-full right-0 z-50 mt-1 min-w-[100px] rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
+                  <div className="action-menu-dropdown absolute top-full right-0 z-50 mt-1 min-w-[100px] rounded-lg border border-zinc-200 bg-white py-1 dark:border-zinc-700 dark:bg-zinc-800">
                     {onEdit && (
                       <button
                         type="button"
@@ -272,7 +258,9 @@ export function FeedItem({
           }`}
         >
           <span className="font-semibold">{authorName}</span>{' '}
-          <span className="text-sm font-light leading-relaxed text-zinc-700 dark:text-zinc-300">{content}</span>
+          <span className="text-sm leading-relaxed font-light text-zinc-700 dark:text-zinc-300">
+            {content}
+          </span>
         </p>
         {showMoreToggle && (
           <button
@@ -287,4 +275,4 @@ export function FeedItem({
       </div>
     </article>
   );
-}
+});

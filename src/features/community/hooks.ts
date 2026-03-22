@@ -2,6 +2,7 @@
 
 import { useLayoutEffect } from 'react';
 import { usePathname } from 'next/navigation';
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import type { CommunityPostCategory } from '@/types/api';
@@ -54,8 +55,9 @@ export function usePosts(params: {
   page?: number;
   size?: number;
   sort?: 'latest' | 'popular';
+  enabled?: boolean;
 }) {
-  const { category, page = 0, size = 20, sort = 'latest' } = params;
+  const { category, page = 0, size = 20, sort = 'latest', enabled = true } = params;
   return useQuery({
     queryKey: communityKeys.posts({ category, page, size, sort: sortParam(sort) }),
     queryFn: () =>
@@ -65,6 +67,7 @@ export function usePosts(params: {
         size,
         sort: sortParam(sort),
       }),
+    enabled,
   });
 }
 
@@ -87,10 +90,7 @@ export function usePostDetailAsPost(postId: number): {
   const q = usePostDetail(postId);
   const data =
     q.data != null
-      ? mapPostDetailResToPost(
-          q.data,
-          q.data.postCategory === 'PROMOTION' ? 'promo' : 'free'
-        )
+      ? mapPostDetailResToPost(q.data, q.data.postCategory === 'PROMOTION' ? 'promo' : 'free')
       : null;
   return {
     data,
@@ -105,12 +105,13 @@ export function usePopularPosts(params?: {
   page?: number;
   size?: number;
   sort?: 'latest' | 'popular';
+  enabled?: boolean;
 }) {
-  const { page = 0, size = 20, sort = 'latest' } = params ?? {};
+  const { page = 0, size = 20, sort = 'latest', enabled = true } = params ?? {};
   return useQuery({
     queryKey: communityKeys.popular({ page, size, sort: sortParam(sort) }),
-    queryFn: () =>
-      communityApi.getPopularPosts({ page, size, sort: sortParam(sort) }),
+    queryFn: () => communityApi.getPopularPosts({ page, size, sort: sortParam(sort) }),
+    enabled,
   });
 }
 
@@ -139,8 +140,7 @@ export function useMyPosts(params?: { sort?: 'latest' | 'popular' }): CommunityP
   const { sort = 'latest' } = params ?? {};
   const q = useQuery({
     queryKey: communityKeys.myPosts({ page: 0, size: 100, sort: sortParam(sort) }),
-    queryFn: () =>
-      communityApi.getMyPosts({ page: 0, size: 100, sort: sortParam(sort) }),
+    queryFn: () => communityApi.getMyPosts({ page: 0, size: 100, sort: sortParam(sort) }),
   });
   const raw = q.data?.content ?? [];
   return raw.map((r) => mapPostResToPost(r, 'free'));
@@ -151,8 +151,7 @@ export function useSavedPosts(params?: { sort?: 'latest' | 'popular' }): Communi
   const { sort = 'latest' } = params ?? {};
   const q = useQuery({
     queryKey: communityKeys.mySaved({ page: 0, size: 100, sort: sortParam(sort) }),
-    queryFn: () =>
-      communityApi.getMySavedPosts({ page: 0, size: 100, sort: sortParam(sort) }),
+    queryFn: () => communityApi.getMySavedPosts({ page: 0, size: 100, sort: sortParam(sort) }),
   });
   const raw = q.data?.content ?? [];
   return raw.map((r) => mapPostResToPost(r, 'free'));
@@ -163,8 +162,7 @@ export function useLikedPosts(params?: { sort?: 'latest' | 'popular' }): Communi
   const { sort = 'latest' } = params ?? {};
   const q = useQuery({
     queryKey: communityKeys.myLiked({ page: 0, size: 100, sort: sortParam(sort) }),
-    queryFn: () =>
-      communityApi.getMyLikedPosts({ page: 0, size: 100, sort: sortParam(sort) }),
+    queryFn: () => communityApi.getMyLikedPosts({ page: 0, size: 100, sort: sortParam(sort) }),
   });
   const raw = q.data?.content ?? [];
   return raw.map((r) => mapPostResToPost(r, 'free'));
@@ -175,8 +173,7 @@ export function useCommentedPosts(params?: { sort?: 'latest' | 'popular' }): Com
   const { sort = 'latest' } = params ?? {};
   const q = useQuery({
     queryKey: communityKeys.myCommented({ page: 0, size: 100, sort: sortParam(sort) }),
-    queryFn: () =>
-      communityApi.getMyCommentedPosts({ page: 0, size: 100, sort: sortParam(sort) }),
+    queryFn: () => communityApi.getMyCommentedPosts({ page: 0, size: 100, sort: sortParam(sort) }),
   });
   const raw = q.data?.content ?? [];
   return raw.map((r) => mapPostResToPost(r, 'free'));
@@ -294,8 +291,7 @@ export function useCreateComment(postId: number) {
 export function useUpdateComment(commentId: number, postId: number) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (body: { content: string }) =>
-      communityApi.updateComment(commentId, body),
+    mutationFn: (body: { content: string }) => communityApi.updateComment(commentId, body),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: communityKeys.comments(postId) });
     },
@@ -347,7 +343,7 @@ export function useDeleteCommentMutation(postId: number) {
 }
 
 // ---------- Legacy hook compat: 게시판별 목록을 CommunityPost[]로 반환 ----------
-/** 자유/홍보/인기 게시판별 목록 (페이지에서 사용). sort 적용 후 UI 타입으로 반환 */
+/** 자유/홍보/인기 게시판별 목록 (페이지에서 사용). sort 적용 후 UI 타입으로 반환. 필요한 쿼리만 실행 */
 export function useBoardPosts(
   boardType: BoardType,
   _query: string,
@@ -357,13 +353,33 @@ export function useBoardPosts(
   const category: CommunityPostCategory | undefined =
     boardType === 'free' ? 'FREE' : boardType === 'promo' ? 'PROMOTION' : undefined;
 
-  const postsQuery = isPopular
-    ? usePopularPosts({ page: 0, size: 100, sort })
-    : usePosts({ category, page: 0, size: 100, sort });
+  const popularQuery = usePopularPosts({
+    page: 0,
+    size: 100,
+    sort,
+    enabled: isPopular,
+  });
+  const postsQuery = usePosts({
+    category: category ?? 'FREE',
+    page: 0,
+    size: 100,
+    sort,
+    enabled: !isPopular,
+  });
 
-  const raw = postsQuery.data?.content ?? [];
-  const board: BoardType = isPopular ? 'popular' : boardType === 'promo' ? 'promo' : 'free';
-  return raw.map((r) => mapPostResToPost(r, board));
+  const raw = isPopular ? (popularQuery.data?.content ?? []) : (postsQuery.data?.content ?? []);
+  return raw.map((r) =>
+    mapPostResToPost(
+      r,
+      isPopular
+        ? r.postCategory === 'PROMOTION'
+          ? 'promo'
+          : 'free'
+        : boardType === 'promo'
+          ? 'promo'
+          : 'free'
+    )
+  );
 }
 
 /** 메인 커뮤니티 페이지: 인기/홍보/자유 각 섹션별 최대 5개 (API 연동) */
@@ -373,7 +389,9 @@ export function useCommunitySections(query: string, sort: 'latest' | 'popular') 
   const promo = usePosts({ category: 'PROMOTION', page: 0, size: 5, sort });
 
   return {
-    popular: (popular.data?.content ?? []).map((r) => mapPostResToPost(r, 'popular')),
+    popular: (popular.data?.content ?? []).map((r) =>
+      mapPostResToPost(r, r.postCategory === 'PROMOTION' ? 'promo' : 'free')
+    ),
     free: (free.data?.content ?? []).map((r) => mapPostResToPost(r, 'free')),
     promo: (promo.data?.content ?? []).map((r) => mapPostResToPost(r, 'promo')),
   };

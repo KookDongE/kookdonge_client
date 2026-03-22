@@ -3,33 +3,30 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
+import { isHeaderHidden, shouldShowBackButton } from '@/lib/constants/routes';
 import { useUnreadCount } from '@/features/notifications/hooks';
 import { BellIcon } from '@/components/icons/notification-icon';
+
+/** 현재 경로가 어느 탭에 속하는지 반환 (알림 페이지로 갈 때 from 쿼리용) */
+function getTabFromPathname(pathname: string): string | null {
+  if (!pathname) return null;
+  if (pathname === '/home' || pathname.startsWith('/home/') || pathname.match(/^\/clubs\/\d+$/))
+    return '/home';
+  if (pathname === '/community' || pathname.startsWith('/community/')) return '/community';
+  if (pathname === '/mypage' || pathname.startsWith('/mypage/') || pathname.startsWith('/my/'))
+    return '/mypage';
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) return '/admin';
+  return null;
+}
 
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { data: unreadCount = 0 } = useUnreadCount();
+  const path = pathname ?? '';
   const isNotificationsPage = pathname === '/notifications';
-  // 홈/커뮤니티/마이페이지 최상위에서는 뒤로가기 숨김, 하위 페이지는 그대로 표시
-  const showBackButton =
-    pathname !== '/home' && pathname !== '/community' && pathname !== '/mypage';
-
-  const isHidden =
-    pathname === '/' ||
-    pathname === '/login' ||
-    pathname.startsWith('/login/') ||
-    pathname === '/welcome' ||
-    pathname.startsWith('/welcome/') ||
-    pathname.includes('/feed') ||
-    pathname === '/mypage/clubs/apply' ||
-    /^\/mypage\/clubs\/[^/]+\/delete-request$/.test(pathname ?? '') || // 동아리 삭제 신청
-    pathname === '/community/write' ||
-    /^\/community\/posts\/[^/]+\/edit$/.test(pathname ?? '') ||
-    pathname === '/mypage/settings/bug-report' ||
-    pathname === '/mypage/settings/report' ||
-    pathname === '/mypage/settings/name'; // 특정 페이지만 헤더 숨김
-  if (isHidden) return null;
+  const showBackButton = shouldShowBackButton(path);
+  if (isHeaderHidden(path)) return null;
 
   return (
     <header
@@ -49,14 +46,12 @@ export function Header() {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth={2}
-                className="h-5 w-5"
+                strokeWidth={1.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-6 w-6"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 19.5L8.25 12l7.5-7.5"
-                />
+                <path d="M15.75 19.5L8.25 12l7.5-7.5" />
               </svg>
             </button>
           )}
@@ -85,7 +80,10 @@ export function Header() {
           </button>
         ) : (
           <Link
-            href="/notifications"
+            href={(() => {
+              const from = getTabFromPathname(path ?? '');
+              return from ? `/notifications?from=${encodeURIComponent(from)}` : '/notifications';
+            })()}
             className="relative flex h-10 w-10 items-center justify-center rounded-full text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
             aria-label="알림"
           >

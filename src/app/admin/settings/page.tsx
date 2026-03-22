@@ -1,23 +1,23 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { useEffect, useState } from 'react';
-
+import { Button, Input } from '@heroui/react';
 import { createPortal } from 'react-dom';
 
-import { Button, Input } from '@heroui/react';
-
-import { TablePageSkeleton } from '@/components/common/skeletons';
 import { useGrantAdmin, useRevokeAdmin, useSystemAdmins } from '@/features/admin';
 import { useMyProfile } from '@/features/auth/hooks';
 import { isSystemAdmin } from '@/features/auth/permissions';
+import { TablePageSkeleton } from '@/components/common/skeletons';
 
 export default function AdminSettingsPage() {
   const router = useRouter();
   const [newAdminEmail, setNewAdminEmail] = useState('');
   const [addConfirmEmail, setAddConfirmEmail] = useState<string | null>(null);
-  const [removeConfirm, setRemoveConfirm] = useState<{ userId: number; email: string } | null>(null);
+  const [removeConfirm, setRemoveConfirm] = useState<{ userId: number; email: string } | null>(
+    null
+  );
   const { data: profile, isLoading: profileLoading } = useMyProfile();
   const { data: admins = [], isLoading } = useSystemAdmins();
   const grantAdmin = useGrantAdmin();
@@ -187,7 +187,7 @@ export default function AdminSettingsPage() {
         typeof document !== 'undefined' &&
         createPortal(
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-800">
+            <div className="w-full max-w-sm rounded-2xl bg-white p-6 dark:bg-zinc-800">
               <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-zinc-100">
                 시스템 관리자 추가
               </h3>
@@ -195,11 +195,7 @@ export default function AdminSettingsPage() {
                 &quot;{addConfirmEmail}&quot;을(를) 시스템 관리자로 추가하시겠습니까?
               </p>
               <div className="flex gap-3">
-                <Button
-                  variant="ghost"
-                  className="flex-1"
-                  onPress={() => setAddConfirmEmail(null)}
-                >
+                <Button variant="ghost" className="flex-1" onPress={() => setAddConfirmEmail(null)}>
                   취소
                 </Button>
                 <Button
@@ -219,7 +215,7 @@ export default function AdminSettingsPage() {
         typeof document !== 'undefined' &&
         createPortal(
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-800">
+            <div className="w-full max-w-sm rounded-2xl bg-white p-6 dark:bg-zinc-800">
               <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-zinc-100">
                 관리자 권한 제거
               </h3>
@@ -227,11 +223,7 @@ export default function AdminSettingsPage() {
                 정말 &quot;{removeConfirm.email}&quot; 시스템 관리자 권한을 제거하시겠습니까?
               </p>
               <div className="flex gap-3">
-                <Button
-                  variant="ghost"
-                  className="flex-1"
-                  onPress={() => setRemoveConfirm(null)}
-                >
+                <Button variant="ghost" className="flex-1" onPress={() => setRemoveConfirm(null)}>
                   취소
                 </Button>
                 <Button

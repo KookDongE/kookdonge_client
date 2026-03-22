@@ -46,6 +46,11 @@ export const questionApi = {
     });
   },
 
+  /** GET /api/clubs/questions/{questionId} - 특정 질문 조회 */
+  getQuestion: async (questionId: number): Promise<QuestionAnswerRes> => {
+    return apiClient<QuestionAnswerRes>(`/api/clubs/questions/${questionId}`);
+  },
+
   deleteQuestion: async (questionId: number): Promise<void> => {
     return apiClient<void>(`/api/clubs/questions/${questionId}`, {
       method: 'DELETE',
@@ -100,9 +105,8 @@ export const questionApi = {
       ...(sort ? { sort } : {}),
     };
     if (params.answered !== undefined) query.answered = params.answered;
-    return apiClient<PageResponse<QuestionAnswerRes>>(
-      `/api/clubs/${clubId}/questions/manage`,
-      { params: query }
-    );
+    return apiClient<PageResponse<QuestionAnswerRes>>(`/api/clubs/${clubId}/questions/manage`, {
+      params: query,
+    });
   },
 };

@@ -3,9 +3,9 @@
 import { Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { ListCardSkeleton } from '@/components/common/skeletons';
 import { formatQnaDateTime } from '@/lib/utils';
 import { useMyQuestions } from '@/features/question/hooks';
+import { ListCardSkeleton } from '@/components/common/skeletons';
 
 /** 답변 대기 중인 질문만 - GET /api/clubs/questions/me 후 필터 */
 function PendingListContent() {
@@ -40,7 +40,7 @@ function PendingListContent() {
                       : '/mypage/questions/pending'
                   )
                 }
-                className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700/80"
+                className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-left transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700/80"
               >
                 <div className="flex items-start gap-3">
                   <span

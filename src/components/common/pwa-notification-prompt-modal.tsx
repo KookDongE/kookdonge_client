@@ -9,8 +9,12 @@ const NOTIFICATION_PROMPT_SEEN_KEY = 'kookdonge-notification-prompt-seen';
 
 export function PwaNotificationPromptModal() {
   const accessToken = useAuthStore((s) => s.accessToken);
-  const { permission, isSupported, requestPermissionAndRegister, isLoading: isPermissionLoading } =
-    useNotification();
+  const {
+    permission,
+    isSupported,
+    requestPermissionAndRegister,
+    isLoading: isPermissionLoading,
+  } = useNotification();
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -52,7 +56,7 @@ export function PwaNotificationPromptModal() {
         role="dialog"
         aria-modal="true"
         aria-labelledby="pwa-notification-title"
-        className="relative z-10 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-800"
+        className="relative z-10 w-full max-w-sm rounded-2xl bg-white p-6 dark:bg-zinc-800"
       >
         <h2
           id="pwa-notification-title"

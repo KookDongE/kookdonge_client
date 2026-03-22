@@ -209,19 +209,6 @@ export default function NotificationsPage() {
   return (
     <div className="pb-6">
       <div className="flex flex-col gap-4 px-4 pt-2">
-        {/* 전체 읽기: 읽지 않은 알림이 있을 때만 표시 */}
-        {!isLoading && list.length > 0 && hasUnread && (
-          <div className="flex justify-end py-1">
-            <button
-              type="button"
-              onClick={handleMarkAllAsRead}
-              disabled={markAllAsRead.isPending}
-              className="text-sm font-medium text-blue-500 hover:text-blue-600 disabled:opacity-50 dark:text-blue-400 dark:hover:text-blue-300"
-            >
-              {markAllAsRead.isPending ? '처리 중...' : '전체 읽기'}
-            </button>
-          </div>
-        )}
         {isLoading ? (
           <div className="flex flex-col gap-4">
             {[1, 2, 3, 4].map((i) => (
@@ -233,11 +220,24 @@ export default function NotificationsPage() {
             <p>알림이 없습니다.</p>
           </div>
         ) : (
-          <>
+          <div className="flex flex-col gap-2">
+            {/* 전체 읽기: 읽지 않은 알림이 있을 때만 표시 */}
+            {list.length > 0 && hasUnread && (
+              <div className="flex justify-end pt-1 pb-0.5">
+                <button
+                  type="button"
+                  onClick={handleMarkAllAsRead}
+                  disabled={markAllAsRead.isPending}
+                  className="text-sm font-medium text-blue-500 hover:text-blue-600 disabled:opacity-50 dark:text-blue-400 dark:hover:text-blue-300"
+                >
+                  {markAllAsRead.isPending ? '처리 중...' : '전체 읽기'}
+                </button>
+              </div>
+            )}
             {/* 오늘 */}
             {todayList.length > 0 && (
               <>
-                <div className="mt-4 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                <div className="mt-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
                   오늘
                 </div>
                 {todayList.map((item) => (
@@ -325,7 +325,7 @@ export default function NotificationsPage() {
                 ))}
               </>
             )}
-          </>
+          </div>
         )}
         {hasNext && list.length > 0 && (
           <div ref={sentinelRef} className="flex justify-center py-4">

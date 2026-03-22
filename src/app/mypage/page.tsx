@@ -6,8 +6,8 @@ import { useRouter } from 'next/navigation';
 
 import { Chip } from '@heroui/react';
 
-import { formatQnaDateTime } from '@/lib/utils';
 import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api';
+import { formatQnaDateTime } from '@/lib/utils';
 import { useMyProfile } from '@/features/auth/hooks';
 import { useManagedClubs, useMyApplications } from '@/features/club/hooks';
 import { useMyInterests } from '@/features/interest/hooks';
@@ -333,7 +333,9 @@ function QnAListSection() {
   const { data: questionsData, isLoading } = useMyQuestions({ page: 0, size: 20 });
   const list = questionsData?.content ?? [];
   const getItemHref = (qna: (typeof list)[0]) =>
-    qna.clubId ? `/clubs/${qna.clubId}?tab=qna&questionId=${qna.id}` : '/mypage/questions';
+    qna.clubId
+      ? `/clubs/${qna.clubId}?tab=qna&questionId=${qna.id}&from=/mypage`
+      : '/mypage/questions';
 
   return (
     <div className="px-4 py-5">
@@ -354,7 +356,7 @@ function QnAListSection() {
         </div>
       ) : list.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-12 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
-          <p>등록된 질문이 없습니다.</p>
+          <p className="text-sm">등록된 질문이 없습니다.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -426,7 +428,7 @@ function InterestedClubsSection() {
         </div>
       ) : list.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 py-12 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
-          <p>관심 동아리가 없습니다.</p>
+          <p className="text-sm">관심 동아리가 없습니다.</p>
         </div>
       ) : (
         <div className="space-y-3">

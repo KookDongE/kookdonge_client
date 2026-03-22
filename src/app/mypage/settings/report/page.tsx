@@ -24,18 +24,20 @@ const REPORT_REASON_TO_API: Record<ReportReason, ApiReportReason> = {
   etc: 'OTHER',
 };
 
-type ReportTargetType = 'qna' | 'post' | 'comment' | 'club';
+type ReportTargetType = 'qna' | 'qna-answer' | 'post' | 'comment' | 'club';
 
 const REPORT_TARGET_TO_API: Record<ReportTargetType, ReportType> = {
   qna: 'QNA',
+  'qna-answer': 'QNA_ANSWER',
   post: 'COMMUNITY_POST',
   comment: 'COMMUNITY_COMMENT',
   club: 'CLUB',
 };
 
-/** 수정 불가 드롭다운용 구분 라벨 (Q&A / 게시글 / 댓글 / 동아리) */
+/** 수정 불가 드롭다운용 구분 라벨 (Q&A / Q&A 답변 / 게시글 / 댓글 / 동아리) */
 const REPORT_TARGET_LABEL: Record<ReportTargetType, string> = {
   qna: 'Q&A',
+  'qna-answer': 'Q&A 답변',
   post: '게시글',
   comment: '댓글',
   club: '동아리',
@@ -113,6 +115,8 @@ export default function ReportPage() {
             role="combobox"
             aria-label="신고 대상 구분"
             aria-readonly="true"
+            aria-controls="report-target"
+            aria-expanded={false}
             className="max-w-[140px] min-w-[140px] rounded-full border border-zinc-300 bg-zinc-100 px-4 py-2 text-xs text-zinc-600 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
           >
             {targetLabel}
