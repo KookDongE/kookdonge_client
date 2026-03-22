@@ -77,9 +77,6 @@ export default function SplashPage() {
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className="flex flex-col items-center gap-4"
       >
-        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-blue-500 shadow-lg dark:bg-lime-400">
-          <span className="text-4xl font-black text-white dark:text-zinc-900">K</span>
-        </div>
         <h1 className="text-2xl font-black tracking-tight text-blue-500 dark:text-lime-400">
           KookDongE
         </h1>
