@@ -79,9 +79,9 @@ export default function manifest(): MetadataRoute.Manifest {
 
   return {
     id: '/',
-    name: 'KookDongE',
+    name: '국동이',
     short_name: '국동이',
-    description: '국민대 동아리 정보 모음이',
+    description: '국민대의 모든 동아리, 국동이에서 만나보세요!',
     start_url: '/',
     display: 'standalone',
     background_color: '#3B82F6',

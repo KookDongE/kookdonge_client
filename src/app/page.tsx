@@ -78,10 +78,10 @@ export default function SplashPage() {
         className="flex flex-col items-center gap-4"
       >
         <h1 className="text-2xl font-black tracking-tight text-blue-500 dark:text-lime-400">
-          KookDongE
+          국동이
         </h1>
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          국민대의 모든 동아리 정보, 국동이
+          국민대의 모든 동아리, 국동이에서 만나보세요!
         </p>
       </motion.div>
       <motion.div

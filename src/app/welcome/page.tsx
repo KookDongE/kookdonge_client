@@ -45,7 +45,7 @@ export default function WelcomePage() {
           회원가입이 완료되었습니다
         </h1>
         <p className="mb-8 text-sm text-zinc-500 dark:text-zinc-400">
-          KookDongE에서 국민대 동아리 정보를 확인하고
+          국동이에서 국민대 동아리 정보를 확인하고
           <br />
           관심 동아리를 탐색해 보세요.
         </p>

@@ -25,11 +25,11 @@ const iconBase = appBase || '';
 const ogImageUrl = appBase ? `${appBase}/og-image.png` : '/og-image.png';
 
 export const metadata: Metadata = {
-  title: 'KookDongE',
-  description: '국민대 동아리 정보 모음이',
+  title: '국동이',
+  description: '국민대의 모든 동아리, 국동이에서 만나보세요!',
   manifest: '/manifest.webmanifest',
   openGraph: {
-    title: 'KookDongE',
+    title: '국동이',
     description: '국민대의 모든 동아리, 국동이에서 만나보세요!',
     images: [
       {
@@ -42,14 +42,14 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'KookDongE',
+    title: '국동이',
     description: '국민대의 모든 동아리, 국동이에서 만나보세요!',
     images: [ogImageUrl],
   },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'KookDongE',
+    title: '국동이',
   },
   icons: {
     icon: [

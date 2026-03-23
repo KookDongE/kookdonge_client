@@ -41,10 +41,10 @@ export default function LoginPage() {
         className="w-full max-w-sm text-center"
       >
         <h1 className="mb-4 text-3xl font-black tracking-tight text-blue-500 dark:text-lime-400">
-          KookDongE
+          국동이
         </h1>
         <p className="mb-8 text-sm text-zinc-500 dark:text-zinc-400">
-          국동이에서 국민대의 모든 동아리 정보를 확인해보세요!
+          국민대의 모든 동아리, 국동이에서 만나보세요!
         </p>
 
         <motion.button

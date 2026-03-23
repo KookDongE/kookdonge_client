@@ -57,7 +57,7 @@ export function Header() {
           )}
           <Link href="/home" className="flex items-center">
             <span className="text-xl font-black tracking-tight text-blue-500 dark:text-lime-400">
-              KookDongE
+              국동이
             </span>
           </Link>
         </div>
