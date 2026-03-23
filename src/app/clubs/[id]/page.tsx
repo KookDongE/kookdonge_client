@@ -452,7 +452,7 @@ function ClubHeader({
               type="button"
               onClick={handleLikeToggle}
               disabled={isLiking}
-              className={`flex items-center gap-1 rounded-lg px-1.5 py-1 transition-colors active:scale-95 ${
+              className={`flex items-center gap-1 rounded-lg p-1.5 transition-colors active:scale-95 ${
                 club.isLikedByMe
                   ? 'bg-red-100 dark:bg-red-500/20'
                   : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'
@@ -472,7 +472,7 @@ function ClubHeader({
               </span>
             </button>
             <div
-              className="flex items-center gap-1 rounded-lg px-1.5 py-1 text-zinc-500 dark:text-zinc-400"
+              className="flex items-center gap-1 rounded-lg p-1.5 text-zinc-500 dark:text-zinc-400"
               aria-label={`조회수 ${club.totalViewCount}`}
             >
               <EyeIcon className="h-4 w-4 shrink-0" />
