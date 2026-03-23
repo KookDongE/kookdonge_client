@@ -23,8 +23,10 @@ const appBase = typeof appUrl === 'string' ? appUrl.replace(/\/$/, '') : '';
 const iconBase = appBase || '';
 
 const ogImageUrl = appBase ? `${appBase}/og-image.png` : '/og-image.png';
+const metadataBase = new URL(appBase ? `${appBase}/` : 'http://localhost:3000/');
 
 export const metadata: Metadata = {
+  metadataBase,
   title: '국동이',
   description: '국민대의 모든 동아리, 국동이에서 만나보세요!',
   manifest: '/manifest.webmanifest',
@@ -93,7 +95,6 @@ export const metadata: Metadata = {
       },
     ],
   },
-  themeColor: '#3B82F6',
 };
 
 export const viewport: Viewport = {
