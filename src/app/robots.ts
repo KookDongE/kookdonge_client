@@ -7,8 +7,19 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: ['/', '/home', '/clubs/', '/community/', '/community/popular', '/community/free', '/community/promo'],
-        disallow: ['/admin/', '/mypage/', '/callback', '/login/', '/notifications', '/my/'],
+        allow: ['/'],
+        disallow: [
+          '/home',
+          '/clubs/',
+          '/community/',
+          '/admin/',
+          '/mypage/',
+          '/callback',
+          '/login/',
+          '/welcome',
+          '/notifications',
+          '/my/',
+        ],
       },
     ],
     sitemap: `${BASE_URL}/sitemap.xml`,

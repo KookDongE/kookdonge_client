@@ -33,7 +33,7 @@ function WaitingListContent() {
               <button
                 type="button"
                 key={club.clubId}
-                onClick={() => router.push(`/clubs/${club.clubId}`)}
+                onClick={() => club.clubId != null && router.push(`/clubs/${club.clubId}`)}
                 className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-left transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-700/80"
               >
                 <div className="flex items-start gap-3">
