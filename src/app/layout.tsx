@@ -4,6 +4,7 @@ import type { Metadata, Viewport } from 'next';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { Toaster } from 'sonner';
 
+import { GoogleAnalytics } from '@/lib/ga/analytics';
 import { QueryProvider } from '@/lib/query/provider';
 import { ThemeProvider } from '@/lib/theme/provider';
 import { AuthProvider } from '@/features/auth';
@@ -125,6 +126,7 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body className="overflow-x-hidden bg-[var(--background)] text-[var(--foreground)]">
+        <GoogleAnalytics />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <ThemeProvider>
           <NuqsAdapter>
