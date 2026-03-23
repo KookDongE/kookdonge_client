@@ -14,7 +14,8 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "icons:round": "node scripts/round-app-icons.mjs"
   },
   "dependencies": {
     "@heroui/react": "3.0.0-beta.2",
@@ -50,6 +51,7 @@
     "lint-staged": "^16.2.7",
     "prettier": "^3.7.3",
     "prettier-plugin-tailwindcss": "^0.7.1",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

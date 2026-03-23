@@ -22,7 +22,6 @@ if (process.argv.includes('--restore')) {
   let c = fs.readFileSync(swPath, 'utf8');
   c = c.replace(/var firebaseConfig = \{[\s\S]*?\};/, placeholderConfig);
   fs.writeFileSync(swPath, c);
-  console.log('[inject-firebase-sw] Restored placeholders in firebase-messaging-sw.js');
   process.exit(0);
 }
 
@@ -68,4 +67,3 @@ content = content.replace(
   `var firebaseConfig = ${JSON.stringify(config, null, 2)};`
 );
 fs.writeFileSync(swPath, content);
-console.log('[inject-firebase-sw] Updated firebase-messaging-sw.js with env config');

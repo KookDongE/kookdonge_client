@@ -139,7 +139,6 @@ function EditFeedForm({
     } catch (error) {
       const message = error instanceof Error ? error.message : '이미지 업로드에 실패했습니다.';
       alert(message);
-      console.error(error);
     }
     e.target.value = '';
   };

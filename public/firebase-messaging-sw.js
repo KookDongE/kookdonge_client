@@ -41,8 +41,8 @@ try {
     };
     return self.registration.showNotification(title, options);
   });
-} catch (e) {
-  console.warn('[firebase-messaging-sw] init failed', e);
+} catch {
+  /* noop */
 }
 
 // 알림 클릭 시 redirectUrl로 이동. 기존 창이 있으면 포커스 후 해당 URL로 이동, 없으면 새 창.

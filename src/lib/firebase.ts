@@ -92,13 +92,12 @@ export async function getFcmToken(): Promise<GetFcmTokenResult> {
       // 문서가 숨겨진 상태(백그라운드/탭 전환)에서는 브라우저가 권한을 잘못 'denied'로 보고할 수 있음.
       // 이때 permissionDenied로 처리하면 서버의 유효한 FCM 토큰이 web-denied로 덮어써져 백그라운드 푸시가 오지 않게 됨.
       const reportDenied =
-        permission === 'denied' && typeof document !== 'undefined' && document.visibilityState === 'visible';
+        permission === 'denied' &&
+        typeof document !== 'undefined' &&
+        document.visibilityState === 'visible';
       return noToken(reportDenied);
     }
-    const registration = await getServiceWorkerRegistration().catch((e) => {
-      console.error('[FCM] 서비스 워커 등록 실패:', e);
-      return null;
-    });
+    const registration = await getServiceWorkerRegistration().catch(() => null);
     // 재로그인 직후 SW가 아직 activating 상태일 수 있으므로 활성화까지 대기 (표준 API, DOM 타입에 없을 수 있음)
     if (registration && 'ready' in registration && registration.ready) {
       await (registration as { ready: Promise<ServiceWorkerRegistration> }).ready;
@@ -113,8 +112,8 @@ export async function getFcmToken(): Promise<GetFcmTokenResult> {
     let token: string | null = null;
     try {
       token = await tryGetToken();
-    } catch (e) {
-      console.warn('[FCM] getToken 1차 실패, 재시도 대기:', e);
+    } catch {
+      /* noop */
     }
 
     // 토큰 미발급 시 재로그인/모바일 등 타이밍 이슈를 위해 한 번 재시도
@@ -122,15 +121,14 @@ export async function getFcmToken(): Promise<GetFcmTokenResult> {
       await new Promise((r) => setTimeout(r, FCM_TOKEN_RETRY_DELAY_MS));
       try {
         token = await tryGetToken();
-      } catch (e) {
-        console.error('[FCM] getToken 재시도 실패:', e);
+      } catch {
+        /* noop */
       }
     }
 
     if (token) return { token, permissionDenied: false };
     return noToken();
-  } catch (e) {
-    console.error('[FCM] getToken 실패:', e);
+  } catch {
     return noToken();
   }
 }

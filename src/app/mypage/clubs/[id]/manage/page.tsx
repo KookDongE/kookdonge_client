@@ -432,9 +432,8 @@ function ClubManageContent({ clubId }: { clubId: number }) {
         setImage(result[0].fileUrl);
         setProfileFileUuid(result[0].uuid);
       }
-    } catch (error) {
+    } catch {
       alert('이미지 업로드에 실패했습니다.');
-      console.error(error);
     }
   };
 
@@ -470,9 +469,8 @@ function ClubManageContent({ clubId }: { clubId: number }) {
         setContentImage(result[0].fileUrl);
         setContentFileUuid(result[0].uuid);
       }
-    } catch (error) {
+    } catch {
       alert('이미지 업로드에 실패했습니다.');
-      console.error(error);
     }
   };
 

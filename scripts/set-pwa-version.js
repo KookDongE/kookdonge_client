@@ -9,4 +9,3 @@ const path = require('path');
 const outPath = path.join(__dirname, '..', '.pwa-version.json');
 const version = Date.now().toString();
 fs.writeFileSync(outPath, JSON.stringify({ version }, null, 2) + '\n', 'utf-8');
-console.log('[set-pwa-version] PWA version set to', version);
