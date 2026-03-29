@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { useMyProfile } from '@/features/auth/hooks';
+import { AuthAwareLink } from '@/components/common/auth-aware-link';
 import { CommunityHomeSkeleton } from '@/components/common/skeletons';
 import { CommunityBannerCarousel } from '@/components/community/community-banner-carousel';
 import { CommunitySearchInputRow } from '@/components/community/community-search-filter';
@@ -182,7 +183,7 @@ export default function AdminCommunityPage() {
         {/* 내관련글 */}
         <div className="space-y-0.5" aria-label="내관련글">
           {MY_RELATED_ITEMS.map(({ href, label, icon }) => (
-            <Link
+            <AuthAwareLink
               key={href}
               href={href}
               className="flex w-full items-center justify-between gap-3 py-2.5 text-sm font-medium text-zinc-800 transition-colors hover:text-zinc-600 dark:text-zinc-200 dark:hover:text-zinc-400"
@@ -201,7 +202,7 @@ export default function AdminCommunityPage() {
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
-            </Link>
+            </AuthAwareLink>
           ))}
         </div>
       </div>

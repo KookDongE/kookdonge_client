@@ -2,6 +2,7 @@ import { toast } from 'sonner';
 
 import { ResponseDTO } from '@/types/api';
 import { useAuthStore } from '@/features/auth/store';
+import { buildLoginUrl, requiresAuthForPath } from '@/lib/constants/auth-routes';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.kookdonge.co.kr';
 
@@ -13,17 +14,20 @@ function parseJsonResponse<T>(text: string): ResponseDTO<T> {
     : ({} as ResponseDTO<T>);
 }
 
-const PUBLIC_PATHS = ['/', '/login', '/welcome', '/callback'];
-
-function isPublicPath(pathname: string): boolean {
-  return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'));
-}
-
-function redirectToSplashIfNeeded(): void {
+function redirectAfterAuthFailure(): void {
   if (typeof window === 'undefined') return;
-  if (isPublicPath(window.location.pathname)) return;
+  const path = window.location.pathname;
+  const search = window.location.search || '';
+  const returnPath = path + search;
+
   useAuthStore.getState().clearAuth();
-  window.location.replace('/');
+
+  if (!requiresAuthForPath(path)) {
+    toast.error('로그인이 필요합니다.');
+    return;
+  }
+
+  window.location.replace(buildLoginUrl(returnPath));
 }
 
 /** 401 발생 시 Refresh Token으로 재발급 시도. 동시 요청은 하나의 reissue만 수행 */
@@ -155,7 +159,7 @@ export async function apiClient<T>(
         const reissued = await reissueAndWait();
         if (reissued) return apiClient<T>(endpoint, options, true);
       }
-      redirectToSplashIfNeeded();
+      redirectAfterAuthFailure();
     } else {
       toast.error(message || '오류가 발생했습니다');
     }

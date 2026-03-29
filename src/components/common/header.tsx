@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
+import { AuthAwareLink } from '@/components/common/auth-aware-link';
 import { isHeaderHidden, shouldShowBackButton } from '@/lib/constants/routes';
 import { useUnreadCount } from '@/features/notifications/hooks';
 import { BellIcon } from '@/components/icons/notification-icon';
@@ -79,7 +80,7 @@ export function Header() {
             )}
           </button>
         ) : (
-          <Link
+          <AuthAwareLink
             href={(() => {
               const from = getTabFromPathname(path ?? '');
               return from ? `/notifications?from=${encodeURIComponent(from)}` : '/notifications';
@@ -96,7 +97,7 @@ export function Header() {
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}
-          </Link>
+          </AuthAwareLink>
         )}
       </div>
     </header>

@@ -1,29 +1,45 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { motion } from 'framer-motion';
 
+import {
+  getReturnUrlFromSearchParam,
+  setPostLoginRedirect,
+} from '@/lib/constants/auth-routes';
 import { getGoogleAuthUrl, isGoogleOAuthConfigured } from '@/lib/google-oauth';
 import { useAuthStore } from '@/features/auth/store';
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const accessToken = useAuthStore((s) => s.accessToken);
   const isInitialized = useAuthStore((s) => s.isInitialized);
 
-  // 재수화 완료 후 판단: 로그인 상태면 홈으로 (새로고침 시 스플래시→로그인 방지)
+  const returnUrl = getReturnUrlFromSearchParam(searchParams.get('returnUrl'));
+
+  const handleBack = () => {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back();
+    } else {
+      router.replace('/home');
+    }
+  };
+
   useEffect(() => {
     if (!isInitialized) return;
-    if (accessToken) router.replace('/home');
-  }, [isInitialized, accessToken, router]);
+    if (accessToken) router.replace(returnUrl ?? '/home');
+  }, [isInitialized, accessToken, router, returnUrl]);
 
   const handleGoogleLogin = () => {
     if (!isGoogleOAuthConfigured()) {
       alert('Google 로그인이 설정되지 않았습니다. NEXT_PUBLIC_GOOGLE_CLIENT_ID를 확인해 주세요.');
       return;
     }
+    const path = returnUrl ?? '/home';
+    setPostLoginRedirect(path);
     const url = getGoogleAuthUrl();
     if (url) {
       window.location.href = url;
@@ -33,13 +49,36 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex h-dvh min-h-0 flex-col items-center justify-center overflow-hidden bg-[var(--background)] px-6">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-sm text-center"
-      >
+    <div className="relative flex h-dvh min-h-0 flex-col overflow-hidden bg-[var(--background)]">
+      <div className="absolute top-0 left-0 z-10 flex w-full justify-start px-4 pt-[max(1rem,env(safe-area-inset-top))]">
+        <button
+          type="button"
+          onClick={handleBack}
+          className="flex h-11 w-11 items-center justify-center rounded-full text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+          aria-label="뒤로가기"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-6 w-6"
+            aria-hidden
+          >
+            <path d="M15.75 19.5L8.25 12l7.5-7.5" />
+          </svg>
+        </button>
+      </div>
+      <div className="flex flex-1 flex-col items-center justify-center px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-sm text-center"
+        >
         <h1 className="mb-4 text-3xl font-black tracking-tight text-blue-500 dark:text-lime-400">
           KookDongE
         </h1>
@@ -72,7 +111,24 @@ export default function LoginPage() {
           </svg>
           Google로 로그인
         </motion.button>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
+  );
+}
+
+function LoginFallback() {
+  return (
+    <div className="flex h-dvh items-center justify-center bg-[var(--background)]">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-600 dark:border-zinc-600 dark:border-t-zinc-300" />
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginFallback />}>
+      <LoginContent />
+    </Suspense>
   );
 }

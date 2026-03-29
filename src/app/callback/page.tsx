@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { PageCenteredSkeleton } from '@/components/common/skeletons';
 import { useQueryClient } from '@tanstack/react-query';
 
+import { consumePostLoginRedirect } from '@/lib/constants/auth-routes';
 import { getRedirectUri, OAUTH_STATE_KEY } from '@/lib/google-oauth';
 import { authApi } from '@/features/auth/api';
 import { authKeys } from '@/features/auth/hooks';
@@ -123,7 +124,7 @@ function CallbackContent() {
           }
           queryClient.invalidateQueries({ queryKey: authKeys.profile() });
           registerDeviceAfterLogin();
-          setTimeout(() => router.replace('/home'), 200);
+          setTimeout(() => router.replace(consumePostLoginRedirect() ?? '/home'), 200);
         }
       })
       .catch(() => {

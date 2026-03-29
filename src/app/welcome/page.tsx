@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { motion } from 'framer-motion';
 
+import { consumePostLoginRedirect } from '@/lib/constants/auth-routes';
 import { useAuthStore } from '@/features/auth/store';
 
 const WELCOME_SEEN_KEY = 'kookdonge-welcome-seen';
@@ -28,7 +29,7 @@ export default function WelcomePage() {
   }, [isInitialized, accessToken, router]);
 
   const handleConfirm = () => {
-    router.replace('/home');
+    router.replace(consumePostLoginRedirect() ?? '/home');
   };
 
   if (!isInitialized || !accessToken) return null;

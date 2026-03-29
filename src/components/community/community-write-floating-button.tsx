@@ -5,6 +5,9 @@ import { usePathname, useRouter } from 'next/navigation';
 
 import { Button } from '@heroui/react';
 
+import { useAuthStore } from '@/features/auth/store';
+import { useLoginRequiredModalStore } from '@/features/auth/login-required-modal-store';
+
 const WRITE_HREF = '/community/write';
 
 const emptySubscribe = () => () => {};
@@ -13,6 +16,8 @@ const emptySubscribe = () => () => {};
 export function CommunityWriteFloatingButton() {
   const router = useRouter();
   const pathname = usePathname();
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const openLoginModal = useLoginRequiredModalStore((s) => s.open);
   const isClient = useSyncExternalStore(
     emptySubscribe,
     () => true,
@@ -33,7 +38,13 @@ export function CommunityWriteFloatingButton() {
         size="sm"
         className="min-w-0 rounded-full px-4 py-2 text-sm font-semibold"
         variant="primary"
-        onPress={() => router.push(hrefWithReturn)}
+        onPress={() => {
+          if (!accessToken) {
+            openLoginModal(hrefWithReturn);
+            return;
+          }
+          router.push(hrefWithReturn);
+        }}
       >
         글쓰기
       </Button>

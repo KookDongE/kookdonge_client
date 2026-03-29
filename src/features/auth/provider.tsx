@@ -6,6 +6,7 @@ import { registerDeviceWithBackend } from '@/features/device/register-device';
 import { useNotification } from '@/features/device/use-notification';
 
 import { AuthGuard } from './auth-guard';
+import { LoginRequiredModal } from './login-required-modal';
 import { useAuthStore } from './store';
 
 /** 네비게이션 시 AuthProvider 재마운트되어 rehydrate()가 두 번 호출되는 것 방지 */
@@ -65,5 +66,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return <AuthLoadingFallback />;
   }
 
-  return <AuthGuard>{children}</AuthGuard>;
+  return (
+    <>
+      <AuthGuard>{children}</AuthGuard>
+      <LoginRequiredModal />
+    </>
+  );
 }

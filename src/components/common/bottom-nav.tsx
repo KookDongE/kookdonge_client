@@ -1,12 +1,12 @@
 'use client';
 
 import { useCallback, useMemo } from 'react';
-import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { motion } from 'framer-motion';
 
 import { isSystemAdmin, useAuthStore, useMyProfile } from '@/features/auth';
+import { AuthAwareLink } from '@/components/common/auth-aware-link';
 
 type NavItem = {
   href: string;
@@ -231,7 +231,7 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
             const isHomeLink = href === '/home';
 
             return (
-              <Link
+              <AuthAwareLink
                 key={item.href}
                 href={href}
                 onClick={
@@ -267,7 +267,7 @@ export function BottomNav({ showBackButton = false }: { showBackButton?: boolean
                 >
                   {item.label}
                 </span>
-              </Link>
+              </AuthAwareLink>
             );
           })}
         </div>

@@ -1,25 +1,31 @@
 'use client';
 
-import { ReactNode, useEffect } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { ReactNode, useLayoutEffect } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
+import { requiresAuthForPath } from '@/lib/constants/auth-routes';
+
+import { useLoginRequiredModalStore } from './login-required-modal-store';
 import { getStoredTokens, useAuthStore } from './store';
 
-const PUBLIC_PATHS = ['/', '/login', '/welcome', '/callback'];
-
 /**
- * 보호된 라우트에서 accessToken이 null일 때, 한 프레임만 null인 경우를 위해
- * getStoredTokens()로 복구 시도 후, 한 틱 뒤 다시 확인하고 그래도 없을 때만 / 로 보냅니다.
+ * 로그인 필수 경로에 토큰이 없으면 해당 URL로는 머무르지 않고 /home 으로 바꾼 뒤
+ * 로그인 필요 모달을 띄웁니다. (링크는 AuthAwareLink로 선제 차단하는 것을 권장)
  */
 export function AuthGuard({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const accessToken = useAuthStore((s) => s.accessToken);
   const setTokens = useAuthStore((s) => s.setTokens);
+  const openLoginModal = useLoginRequiredModalStore((s) => s.open);
 
-  useEffect(() => {
-    const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'));
-    if (isPublic) return;
+  const returnPath =
+    (pathname ?? '') + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
+
+  useLayoutEffect(() => {
+    if (!pathname) return;
+    if (!requiresAuthForPath(pathname)) return;
     if (accessToken) return;
 
     const stored = getStoredTokens();
@@ -28,17 +34,13 @@ export function AuthGuard({ children }: { children: ReactNode }) {
       return;
     }
 
-    const id = requestAnimationFrame(() => {
-      const tokenNow = useAuthStore.getState().accessToken;
-      if (tokenNow) return;
-      router.replace('/');
-    });
-    return () => cancelAnimationFrame(id);
-  }, [accessToken, pathname, router, setTokens]);
+    openLoginModal(returnPath);
+    router.replace('/home');
+  }, [accessToken, pathname, returnPath, router, setTokens, openLoginModal]);
 
-  const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'));
-  const shouldRedirect = !accessToken && !isPublic;
-  if (shouldRedirect) {
+  const needsAuth = pathname ? requiresAuthForPath(pathname) : false;
+  const shouldBlock = !accessToken && needsAuth;
+  if (shouldBlock) {
     return null;
   }
   return <>{children}</>;
