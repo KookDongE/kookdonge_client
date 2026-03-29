@@ -14,20 +14,31 @@ function parseJsonResponse<T>(text: string): ResponseDTO<T> {
     : ({} as ResponseDTO<T>);
 }
 
+/**
+ * 재발급 실패 후 401 처리.
+ * - 로그인 필수 화면: 로그인 페이지로 이동
+ * - 공개 화면(동아리 상세·홈 등): 순수 게스트는 토스트 없음(API가 비로그인 조회를 거부해도 ‘로그인 필요’로 오해하지 않도록)
+ * - 공개 화면 + 리프레시 토큰 있음: 세션 만료로 보고 정리 후 안내
+ */
 function redirectAfterAuthFailure(): void {
   if (typeof window === 'undefined') return;
   const path = window.location.pathname;
   const search = window.location.search || '';
   const returnPath = path + search;
+  const refreshToken = useAuthStore.getState().refreshToken;
 
-  useAuthStore.getState().clearAuth();
-
-  if (!requiresAuthForPath(path)) {
-    toast.error('로그인이 필요합니다.');
+  if (requiresAuthForPath(path)) {
+    useAuthStore.getState().clearAuth();
+    window.location.replace(buildLoginUrl(returnPath));
     return;
   }
 
-  window.location.replace(buildLoginUrl(returnPath));
+  if (!refreshToken) {
+    return;
+  }
+
+  useAuthStore.getState().clearAuth();
+  toast.error('세션이 만료되었습니다. 다시 로그인해 주세요.');
 }
 
 /** 401 발생 시 Refresh Token으로 재발급 시도. 동시 요청은 하나의 reissue만 수행 */
