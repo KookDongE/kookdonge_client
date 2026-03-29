@@ -1,24 +1,18 @@
 'use client';
 
 import { Suspense, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 import { motion } from 'framer-motion';
 
-import {
-  getReturnUrlFromSearchParam,
-  setPostLoginRedirect,
-} from '@/lib/constants/auth-routes';
+import { setPostLoginRedirect } from '@/lib/constants/auth-routes';
 import { getGoogleAuthUrl, isGoogleOAuthConfigured } from '@/lib/google-oauth';
 import { useAuthStore } from '@/features/auth/store';
 
 function LoginContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const accessToken = useAuthStore((s) => s.accessToken);
   const isInitialized = useAuthStore((s) => s.isInitialized);
-
-  const returnUrl = getReturnUrlFromSearchParam(searchParams.get('returnUrl'));
 
   const handleBack = () => {
     if (typeof window !== 'undefined' && window.history.length > 1) {
@@ -30,16 +24,15 @@ function LoginContent() {
 
   useEffect(() => {
     if (!isInitialized) return;
-    if (accessToken) router.replace(returnUrl ?? '/home');
-  }, [isInitialized, accessToken, router, returnUrl]);
+    if (accessToken) router.replace('/home');
+  }, [isInitialized, accessToken, router]);
 
   const handleGoogleLogin = () => {
     if (!isGoogleOAuthConfigured()) {
       alert('Google 로그인이 설정되지 않았습니다. NEXT_PUBLIC_GOOGLE_CLIENT_ID를 확인해 주세요.');
       return;
     }
-    const path = returnUrl ?? '/home';
-    setPostLoginRedirect(path);
+    setPostLoginRedirect('/home');
     const url = getGoogleAuthUrl();
     if (url) {
       window.location.href = url;

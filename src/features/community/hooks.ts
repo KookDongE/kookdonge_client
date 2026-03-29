@@ -7,6 +7,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import type { CommunityPostCategory } from '@/types/api';
 
+import { useAuthStore } from '@/features/auth/store';
+
 import * as communityApi from './api';
 import {
   mapCommentResToComment,
@@ -138,9 +140,11 @@ function useSearchPostsQuery(
 /** 내가 작성한 게시글 (CommunityPost[]) */
 export function useMyPosts(params?: { sort?: 'latest' | 'popular' }): CommunityPost[] {
   const { sort = 'latest' } = params ?? {};
+  const accessToken = useAuthStore((s) => s.accessToken);
   const q = useQuery({
     queryKey: communityKeys.myPosts({ page: 0, size: 100, sort: sortParam(sort) }),
     queryFn: () => communityApi.getMyPosts({ page: 0, size: 100, sort: sortParam(sort) }),
+    enabled: !!accessToken,
   });
   const raw = q.data?.content ?? [];
   return raw.map((r) => mapPostResToPost(r, 'free'));
@@ -149,9 +153,11 @@ export function useMyPosts(params?: { sort?: 'latest' | 'popular' }): CommunityP
 /** 내가 저장한 게시글 (CommunityPost[]) */
 export function useSavedPosts(params?: { sort?: 'latest' | 'popular' }): CommunityPost[] {
   const { sort = 'latest' } = params ?? {};
+  const accessToken = useAuthStore((s) => s.accessToken);
   const q = useQuery({
     queryKey: communityKeys.mySaved({ page: 0, size: 100, sort: sortParam(sort) }),
     queryFn: () => communityApi.getMySavedPosts({ page: 0, size: 100, sort: sortParam(sort) }),
+    enabled: !!accessToken,
   });
   const raw = q.data?.content ?? [];
   return raw.map((r) => mapPostResToPost(r, 'free'));
@@ -160,9 +166,11 @@ export function useSavedPosts(params?: { sort?: 'latest' | 'popular' }): Communi
 /** 내가 좋아요한 게시글 (CommunityPost[]) */
 export function useLikedPosts(params?: { sort?: 'latest' | 'popular' }): CommunityPost[] {
   const { sort = 'latest' } = params ?? {};
+  const accessToken = useAuthStore((s) => s.accessToken);
   const q = useQuery({
     queryKey: communityKeys.myLiked({ page: 0, size: 100, sort: sortParam(sort) }),
     queryFn: () => communityApi.getMyLikedPosts({ page: 0, size: 100, sort: sortParam(sort) }),
+    enabled: !!accessToken,
   });
   const raw = q.data?.content ?? [];
   return raw.map((r) => mapPostResToPost(r, 'free'));
@@ -171,9 +179,11 @@ export function useLikedPosts(params?: { sort?: 'latest' | 'popular' }): Communi
 /** 내가 댓글 단 게시글 (CommunityPost[]) */
 export function useCommentedPosts(params?: { sort?: 'latest' | 'popular' }): CommunityPost[] {
   const { sort = 'latest' } = params ?? {};
+  const accessToken = useAuthStore((s) => s.accessToken);
   const q = useQuery({
     queryKey: communityKeys.myCommented({ page: 0, size: 100, sort: sortParam(sort) }),
     queryFn: () => communityApi.getMyCommentedPosts({ page: 0, size: 100, sort: sortParam(sort) }),
+    enabled: !!accessToken,
   });
   const raw = q.data?.content ?? [];
   return raw.map((r) => mapPostResToPost(r, 'free'));
@@ -181,9 +191,11 @@ export function useCommentedPosts(params?: { sort?: 'latest' | 'popular' }): Com
 
 /** 글쓰기 시 선택할 동아리 목록 (GET /api/community/posts/managed-clubs) */
 export function useManagedClubsForPost() {
+  const accessToken = useAuthStore((s) => s.accessToken);
   return useQuery({
     queryKey: communityKeys.managedClubs(),
     queryFn: () => communityApi.getManagedClubsForPost(),
+    enabled: !!accessToken,
   });
 }
 

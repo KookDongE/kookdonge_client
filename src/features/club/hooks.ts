@@ -2,6 +2,8 @@
 
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { useAuthStore } from '@/features/auth/store';
+
 import {
   ClubCategory,
   ClubCreationReq,
@@ -141,9 +143,11 @@ export function useUnlikeClub() {
 }
 
 export function useManagedClubs() {
+  const accessToken = useAuthStore((s) => s.accessToken);
   return useQuery({
     queryKey: [...clubKeys.all, 'managed'],
     queryFn: () => clubApi.getManagedClubs(),
+    enabled: !!accessToken,
   });
 }
 
@@ -217,9 +221,11 @@ export function useUpdateClubDetail() {
 }
 
 export function useLikedClubs() {
+  const accessToken = useAuthStore((s) => s.accessToken);
   return useQuery({
     queryKey: [...clubKeys.all, 'liked'],
     queryFn: () => clubApi.getLikedClubs(),
+    enabled: !!accessToken,
   });
 }
 
@@ -351,17 +357,21 @@ export function useRejectApplication() {
 }
 
 export function useMyApplications() {
+  const accessToken = useAuthStore((s) => s.accessToken);
   return useQuery({
     queryKey: [...clubKeys.all, 'my-applications'],
     queryFn: () => clubApi.getMyApplications(),
+    enabled: !!accessToken,
   });
 }
 
 /** 내 동아리 신청 목록 (전체 필드). GET /api/clubs/requests/my — 상세 페이지용 */
 export function useMyRequests() {
+  const accessToken = useAuthStore((s) => s.accessToken);
   return useQuery({
     queryKey: [...clubKeys.all, 'my-requests'],
     queryFn: () => clubApi.getMyRequests(),
+    enabled: !!accessToken,
   });
 }
 

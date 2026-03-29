@@ -90,7 +90,7 @@ export default function SettingsPage() {
     }
     setLogoutPending(false);
     clearAuth();
-    router.replace('/login');
+    router.replace('/');
   };
 
   const handleWithdraw = async () => {
@@ -100,7 +100,7 @@ export default function SettingsPage() {
       await authApi.withdraw();
       clearAuth();
       if (typeof window !== 'undefined') alert('회원탈퇴가 완료되었습니다.');
-      router.replace('/login');
+      router.replace('/');
     } catch {
       // apiClient에서 toast.error로 서버 메시지 표시
     } finally {

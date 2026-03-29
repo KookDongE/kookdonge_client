@@ -2,6 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { useAuthStore } from '@/features/auth/store';
+
 import { waitingListApi } from './api';
 
 export const waitingListKeys = {
@@ -10,9 +12,11 @@ export const waitingListKeys = {
 };
 
 export function useMyWaitingList() {
+  const accessToken = useAuthStore((s) => s.accessToken);
   return useQuery({
     queryKey: waitingListKeys.mine(),
     queryFn: waitingListApi.getMyWaitingList,
+    enabled: !!accessToken,
   });
 }
 

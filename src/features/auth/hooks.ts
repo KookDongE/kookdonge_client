@@ -14,11 +14,16 @@ export const authKeys = {
 
 export function useMyProfile() {
   const accessToken = useAuthStore((state) => state.accessToken);
-  return useQuery({
+  const query = useQuery({
     queryKey: authKeys.profile(),
     queryFn: authApi.getMyProfile,
     enabled: !!accessToken,
   });
+  /** 비로그인일 때는 프로필 조회를 하지 않으므로 로딩으로 보이면 안 됨(커뮤니티·동아리 공개 화면 스켈레톤 방지) */
+  return {
+    ...query,
+    isLoading: Boolean(accessToken) && query.isLoading,
+  };
 }
 
 /** OAuth 인증 (Google Grant Code). newUser면 registrationToken 반환 → completeRegistration 호출 필요 */

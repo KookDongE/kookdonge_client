@@ -2,6 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { useAuthStore } from '@/features/auth/store';
+
 import { interestApi } from './api';
 
 export const interestKeys = {
@@ -10,9 +12,11 @@ export const interestKeys = {
 };
 
 export function useMyInterests() {
+  const accessToken = useAuthStore((s) => s.accessToken);
   return useQuery({
     queryKey: interestKeys.mine(),
     queryFn: interestApi.getMyInterests,
+    enabled: !!accessToken,
   });
 }
 
