@@ -5,11 +5,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { Button } from '@heroui/react';
+import { Button, Input } from '@heroui/react';
 import { useTheme } from 'next-themes';
 import { createPortal } from 'react-dom';
 
 import { authApi } from '@/features/auth/api';
+import { useMyProfile } from '@/features/auth/hooks';
 import { useAuthStore } from '@/features/auth/store';
 import { deviceApi } from '@/features/device/api';
 import { getOrCreateDeviceId } from '@/features/device/device-id';
@@ -43,9 +44,11 @@ export default function SettingsPage() {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const clearAuth = useAuthStore((state) => state.clearAuth);
+  const { data: profile } = useMyProfile();
   const [confirmModal, setConfirmModal] = useState<ConfirmModal>(null);
   const [withdrawPending, setWithdrawPending] = useState(false);
   const [logoutPending, setLogoutPending] = useState(false);
+  const [withdrawEmail, setWithdrawEmail] = useState('');
 
   // 하위 페이지에서 돌아왔을 때 이전 스크롤 위치 복원 (페이스트·다른 효과 이후에 적용)
   useEffect(() => {
@@ -117,6 +120,10 @@ export default function SettingsPage() {
       setWithdrawPending(false);
     }
   };
+
+  const profileEmail = (profile?.email ?? '').trim();
+  const withdrawEmailMatches =
+    profileEmail.length > 0 && withdrawEmail.trim().toLowerCase() === profileEmail.toLowerCase();
 
   const cycleTheme = () => {
     if (theme === 'dark') setTheme('light');
@@ -291,6 +298,25 @@ export default function SettingsPage() {
               <p className="mb-6 text-sm text-zinc-600 dark:text-zinc-400">
                 정말 회원탈퇴를 하시겠습니까? 탈퇴 후 모든 데이터가 삭제되며 복구할 수 없습니다.
               </p>
+              <div className="mb-6">
+                <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  이메일 확인
+                </label>
+                <Input
+                  type="email"
+                  placeholder="본인 이메일을 입력하세요"
+                  value={withdrawEmail}
+                  onChange={(e) => setWithdrawEmail(e.target.value)}
+                  disabled={withdrawPending}
+                  className="w-full border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                  aria-label="이메일 확인"
+                />
+                <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                  회원탈퇴를 진행하려면{' '}
+                  <span className="font-medium">{profileEmail || '로그인 계정 이메일'}</span>
+                  을(를) 입력해 주세요.
+                </p>
+              </div>
               <div className="flex gap-3">
                 <Button
                   variant="ghost"
@@ -301,10 +327,11 @@ export default function SettingsPage() {
                   취소
                 </Button>
                 <Button
-                  variant="ghost"
-                  className="flex-1 !rounded-lg text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
+                  variant="primary"
+                  className="flex-1 !rounded-lg bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
                   onPress={handleWithdraw}
                   isPending={withdrawPending}
+                  isDisabled={!withdrawEmailMatches || withdrawPending}
                 >
                   회원탈퇴
                 </Button>

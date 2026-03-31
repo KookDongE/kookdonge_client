@@ -295,7 +295,7 @@ function CommentBarPortal({
       )}
       <div className="flex w-full items-end overflow-visible">
         <div className="comment-input-wrap relative flex min-w-0 flex-1 items-end overflow-visible rounded-lg border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
-          {commentText.trim().length === 0 && (
+          {canWrite && commentText.trim().length === 0 && (
             <select
               className="shrink-0 rounded-l-md border-0 bg-transparent py-2.5 pr-4 pl-3 text-sm text-zinc-900 focus:ring-0 focus:outline-none dark:text-zinc-100"
               aria-label="댓글 작성 계정 선택"
@@ -317,7 +317,11 @@ function CommentBarPortal({
           <textarea
             ref={commentTextareaRef}
             placeholder={
-              replyingTo ? `${replyingTo.authorName}에게 답글을 입력하세요` : '댓글을 입력하세요'
+              !canWrite
+                ? '로그인하여 댓글을 입력하세요'
+                : replyingTo
+                  ? `${replyingTo.authorName}에게 답글을 입력하세요`
+                  : '댓글을 입력하세요'
             }
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}

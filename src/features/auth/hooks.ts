@@ -22,6 +22,8 @@ export function useMyProfile() {
   /** 비로그인일 때는 프로필 조회를 하지 않으므로 로딩으로 보이면 안 됨(커뮤니티·동아리 공개 화면 스켈레톤 방지) */
   return {
     ...query,
+    // accessToken이 없으면 (react-query 캐시가 남아있더라도) UI에는 프로필이 없는 것으로 취급
+    data: accessToken ? query.data : undefined,
     isLoading: Boolean(accessToken) && query.isLoading,
   };
 }

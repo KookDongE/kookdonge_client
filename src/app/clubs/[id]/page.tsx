@@ -823,13 +823,6 @@ function ClubQnaTab({
           placeholder="궁금한 점을 질문해주세요"
           value={questionText}
           onChange={(e) => setQuestionText(e.target.value)}
-          disabled={!accessToken}
-          onFocus={() => {
-            if (!accessToken) openLoginModal(returnPath || '/home');
-          }}
-          onClick={() => {
-            if (!accessToken) openLoginModal(returnPath || '/home');
-          }}
           className="min-h-[2.5rem] w-full min-w-0 resize-none border-0 bg-transparent py-2 pr-14 pl-3 shadow-none placeholder:text-zinc-400 hover:shadow-none focus:ring-0 dark:placeholder:text-zinc-500"
         />
         <Button
