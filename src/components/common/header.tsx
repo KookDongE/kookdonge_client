@@ -8,7 +8,6 @@ import { useAuthStore } from '@/features/auth/store';
 import { useUnreadCount } from '@/features/notifications/hooks';
 import { AuthAwareLink } from '@/components/common/auth-aware-link';
 import { BellIcon } from '@/components/icons/notification-icon';
-import { PersonFillIcon } from '@/components/icons/person-fill-icon';
 
 /** 현재 경로가 어느 탭에 속하는지 반환 (알림 페이지로 갈 때 from 쿼리용) */
 function getTabFromPathname(pathname: string): string | null {
@@ -85,14 +84,14 @@ export function Header() {
         ) : !accessToken ? (
           <AuthAwareLink
             href={(() => {
-              // 헤더 우측 아이콘을 '로그인'으로 보이게: 현재 경로로 돌아오도록 returnUrl 지정
+              // 로그인 후 현재 경로로 복귀
               const p = path || '/home';
               return `/login?returnUrl=${encodeURIComponent(p)}`;
             })()}
-            className="relative flex h-10 w-10 items-center justify-center rounded-full text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+            className="touch-btn rounded-xl bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-600 dark:bg-lime-400 dark:text-zinc-900 dark:hover:bg-lime-300"
             aria-label="로그인"
           >
-            <PersonFillIcon className="h-6 w-6" />
+            로그인
           </AuthAwareLink>
         ) : (
           <AuthAwareLink

@@ -270,7 +270,7 @@ function CommentBarPortal({
   if (!container) return null;
 
   const bar = (
-    <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-md -translate-x-1/2 overflow-visible !bg-white px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] dark:!bg-zinc-900">
+    <div className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-md overflow-visible !bg-white px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] dark:!bg-zinc-900">
       {replyingTo && (
         <div className="mb-1 flex items-center justify-between gap-2 rounded-lg bg-zinc-100 px-3 py-1.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
           <span>{replyingTo.authorName}에게 답글 작성</span>
