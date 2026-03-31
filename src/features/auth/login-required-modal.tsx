@@ -1,8 +1,9 @@
 'use client';
 
 import { useCallback } from 'react';
-import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
+
+import { createPortal } from 'react-dom';
 
 import { buildLoginUrl } from '@/lib/constants/auth-routes';
 
@@ -43,7 +44,7 @@ export function LoginRequiredModal() {
           <button
             type="button"
             onClick={close}
-            className="touch-btn flex-1 rounded-xl border border-zinc-300 bg-white py-3 text-sm font-medium text-zinc-800 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
+            className="touch-btn login-required-cancel flex-1 rounded-xl border border-zinc-300 bg-white py-3 text-sm font-medium text-zinc-800 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
           >
             취소
           </button>

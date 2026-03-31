@@ -2,7 +2,7 @@
 
 import { Suspense, use, useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { Button, Dropdown, Input, Tabs, TextArea } from '@heroui/react';
 import { parseAsString, useQueryState } from 'nuqs';
@@ -11,7 +11,9 @@ import { createPortal } from 'react-dom';
 import { ClubCategory, ClubType, College, RecruitmentStatus } from '@/types/api';
 import { formatQnaDateTime, parseApiIsoToDate } from '@/lib/utils';
 import { useMyProfile } from '@/features/auth/hooks';
+import { useLoginRequiredModalStore } from '@/features/auth/login-required-modal-store';
 import { isClubManager, isSystemAdmin } from '@/features/auth/permissions';
+import { useAuthStore } from '@/features/auth/store';
 import { useClubDetail, useDeleteClub, useLikeClub, useUnlikeClub } from '@/features/club/hooks';
 import { useNotification } from '@/features/device/use-notification';
 import { useClubFeeds } from '@/features/feed/hooks';
@@ -152,12 +154,17 @@ function getDisplayName(item: ExternalLinkItem): string {
 
 function ClubHeader({
   clubId,
+  loginReturnPath,
   onNotificationTurnOnRequest,
 }: {
   clubId: number;
+  /** 비로그인 시 로그인 모달 복귀 URL */
+  loginReturnPath: string;
   onNotificationTurnOnRequest?: (clubId: number) => void;
 }) {
   const router = useRouter();
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const openLoginModal = useLoginRequiredModalStore((s) => s.open);
   const { data: profile } = useMyProfile();
   const { data: club, isLoading } = useClubDetail(clubId);
   const deleteClub = useDeleteClub();
@@ -221,7 +228,23 @@ function ClubHeader({
   const status = STATUS_CONFIG[club.recruitmentStatus];
   const isLiking = likeClub.isPending || unlikeClub.isPending;
 
+  const requireAuthOrOpenModal = () => {
+    if (accessToken) return true;
+    openLoginModal(loginReturnPath);
+    return false;
+  };
+
+  const goToReport = () => {
+    const reportPath = `/mypage/settings/report?type=club&id=${clubId}`;
+    if (!accessToken) {
+      openLoginModal(reportPath);
+      return;
+    }
+    router.push(reportPath);
+  };
+
   const handleLikeToggle = () => {
+    if (!requireAuthOrOpenModal()) return;
     if (isLiking) return;
     clearActionMessage();
     if (club.isLikedByMe) {
@@ -232,6 +255,7 @@ function ClubHeader({
   };
 
   const handleInterestedToggle = () => {
+    if (!requireAuthOrOpenModal()) return;
     if (addInterest.isPending || removeInterest.isPending) return;
     clearActionMessage();
     if (isInterestedByMe) {
@@ -244,6 +268,7 @@ function ClubHeader({
   };
 
   const handleNotificationToggle = () => {
+    if (!requireAuthOrOpenModal()) return;
     if (addNotification.isPending || removeNotification.isPending) return;
     clearActionMessage();
     if (isNotificationOn) {
@@ -347,7 +372,7 @@ function ClubHeader({
                           alert('본인은 신고할 수 없습니다.');
                           return;
                         }
-                        router.push(`/mypage/settings/report?type=club&id=${clubId}`);
+                        goToReport();
                       }}
                       textValue="신고"
                     >
@@ -397,10 +422,7 @@ function ClubHeader({
                 </Dropdown.Trigger>
                 <Dropdown.Popover>
                   <Dropdown.Menu>
-                    <Dropdown.Item
-                      onPress={() => router.push(`/mypage/settings/report?type=club&id=${clubId}`)}
-                      textValue="신고하기"
-                    >
+                    <Dropdown.Item onPress={goToReport} textValue="신고하기">
                       신고하기
                     </Dropdown.Item>
                   </Dropdown.Menu>
@@ -727,6 +749,10 @@ function ClubQnaTab({
   onQuestionSubmitted?: () => void;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const openLoginModal = useLoginRequiredModalStore((s) => s.open);
   const { data, isLoading } = useQuestions(clubId, { page: 0, size: 20 });
   const { data: profile } = useMyProfile();
   const createQuestion = useCreateQuestion(clubId);
@@ -737,6 +763,14 @@ function ClubQnaTab({
   const questionMenuRef = useRef<HTMLDivElement>(null);
   const answerMenuRef = useRef<HTMLDivElement>(null);
   const questions = data?.content ?? [];
+
+  const returnPath =
+    (pathname ?? '') + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
+  const requireAuthOrOpenModal = () => {
+    if (accessToken) return true;
+    openLoginModal(returnPath || '/home');
+    return false;
+  };
 
   useEffect(() => {
     if (questionMenuOpenId == null) return;
@@ -759,7 +793,8 @@ function ClubQnaTab({
   }, [answerMenuOpenId]);
 
   const handleSubmit = () => {
-    if (!questionText.trim() || !profile) return;
+    if (!questionText.trim()) return;
+    if (!requireAuthOrOpenModal()) return;
     createQuestion.mutate(
       { question: questionText.trim() },
       {
@@ -788,13 +823,20 @@ function ClubQnaTab({
           placeholder="궁금한 점을 질문해주세요"
           value={questionText}
           onChange={(e) => setQuestionText(e.target.value)}
+          disabled={!accessToken}
+          onFocus={() => {
+            if (!accessToken) openLoginModal(returnPath || '/home');
+          }}
+          onClick={() => {
+            if (!accessToken) openLoginModal(returnPath || '/home');
+          }}
           className="min-h-[2.5rem] w-full min-w-0 resize-none border-0 bg-transparent py-2 pr-14 pl-3 shadow-none placeholder:text-zinc-400 hover:shadow-none focus:ring-0 dark:placeholder:text-zinc-500"
         />
         <Button
           size="sm"
           variant="primary"
           onPress={handleSubmit}
-          isDisabled={!questionText.trim() || !profile || createQuestion.isPending}
+          isDisabled={!questionText.trim() || createQuestion.isPending}
           isPending={createQuestion.isPending}
           className="absolute top-1/2 right-1.5 shrink-0 -translate-y-1/2"
         >
@@ -877,6 +919,7 @@ function ClubQnaTab({
                               alert('본인은 신고할 수 없습니다.');
                               return;
                             }
+                            if (!requireAuthOrOpenModal()) return;
                             router.push(`/mypage/settings/report?type=qna&id=${qna.id}`);
                           }}
                         >
@@ -965,6 +1008,7 @@ function ClubQnaTab({
                                 alert('본인은 신고할 수 없습니다.');
                                 return;
                               }
+                              if (!requireAuthOrOpenModal()) return;
                               router.push(`/mypage/settings/report?type=qna-answer&id=${qna.id}`);
                             }}
                           >
@@ -998,7 +1042,10 @@ function ClubQnaTab({
 
 function ClubDetailContent({ clubId }: { clubId: number }) {
   const { data: club, isLoading: clubLoading, isError: clubError } = useClubDetail(clubId);
+  const pathname = usePathname();
   const searchParams = useSearchParams();
+  const loginReturnPath =
+    (pathname ?? '') + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
   const questionId = searchParams.get('questionId');
   const _from = searchParams.get('from');
   const [tab, setTab] = useQueryState('tab', parseAsString.withDefault('info'));
@@ -1037,7 +1084,11 @@ function ClubDetailContent({ clubId }: { clubId: number }) {
 
   return (
     <div className="min-h-full min-w-0 overflow-x-hidden">
-      <ClubHeader clubId={clubId} onNotificationTurnOnRequest={tryShowNotificationPrompt} />
+      <ClubHeader
+        clubId={clubId}
+        loginReturnPath={loginReturnPath}
+        onNotificationTurnOnRequest={tryShowNotificationPrompt}
+      />
       <Tabs
         selectedKey={tab}
         onSelectionChange={(key) => setTab(key as string)}

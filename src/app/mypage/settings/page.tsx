@@ -89,6 +89,11 @@ export default function SettingsPage() {
       }
     }
     setLogoutPending(false);
+    try {
+      sessionStorage.setItem('kookdonge-suppress-login-required-modal', '1');
+    } catch {
+      // ignore
+    }
     clearAuth();
     router.replace('/');
   };
@@ -98,6 +103,11 @@ export default function SettingsPage() {
     setWithdrawPending(true);
     try {
       await authApi.withdraw();
+      try {
+        sessionStorage.setItem('kookdonge-suppress-login-required-modal', '1');
+      } catch {
+        // ignore
+      }
       clearAuth();
       if (typeof window !== 'undefined') alert('회원탈퇴가 완료되었습니다.');
       router.replace('/');
@@ -209,7 +219,7 @@ export default function SettingsPage() {
             <button
               type="button"
               onClick={() => setConfirmModal('withdraw')}
-              className={`${buttonClass} text-red-600 dark:text-red-400`}
+              className={`${buttonClass} text-zinc-500 hover:text-red-600 dark:text-zinc-500 dark:hover:text-red-400`}
               aria-label="회원탈퇴"
             >
               회원탈퇴
@@ -291,8 +301,8 @@ export default function SettingsPage() {
                   취소
                 </Button>
                 <Button
-                  variant="primary"
-                  className="flex-1 !rounded-lg bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
+                  variant="ghost"
+                  className="flex-1 !rounded-lg text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
                   onPress={handleWithdraw}
                   isPending={withdrawPending}
                 >

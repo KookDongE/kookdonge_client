@@ -2,7 +2,7 @@
 
 import { use, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import Image from 'next/image';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { Spinner } from '@heroui/react';
 import { useQueries, useQueryClient } from '@tanstack/react-query';
@@ -10,7 +10,9 @@ import { createPortal } from 'react-dom';
 
 import type { CommunityAuthorType } from '@/types/api';
 import { useMyProfile } from '@/features/auth/hooks';
+import { useLoginRequiredModalStore } from '@/features/auth/login-required-modal-store';
 import { isClubManager, isSystemAdmin } from '@/features/auth/permissions';
+import { useAuthStore } from '@/features/auth/store';
 import { clubApi, clubKeys } from '@/features/club';
 import {
   communityKeys,
@@ -241,6 +243,8 @@ function CommentBarPortal({
   replyingTo,
   onClearReply,
   onSubmitComment,
+  canWrite,
+  onRequireAuth,
   isCommentSubmitting,
 }: {
   commentText: string;
@@ -252,6 +256,8 @@ function CommentBarPortal({
   replyingTo: { commentId: number; authorName: string } | null;
   onClearReply: () => void;
   onSubmitComment: () => void;
+  canWrite: boolean;
+  onRequireAuth: () => void;
   isCommentSubmitting: boolean;
 }) {
   const isClient = useSyncExternalStore(
@@ -296,6 +302,10 @@ function CommentBarPortal({
               title="계정 선택"
               value={commentAccountKey}
               onChange={(e) => setCommentAccountKey(e.target.value)}
+              disabled={!canWrite || isCommentSubmitting}
+              onClick={() => {
+                if (!canWrite) onRequireAuth();
+              }}
             >
               {commentAccountOptions.map((opt) => (
                 <option key={opt.key} value={opt.key}>
@@ -311,15 +321,22 @@ function CommentBarPortal({
             }
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
+            onFocus={() => {
+              if (!canWrite) onRequireAuth();
+            }}
+            onClick={() => {
+              if (!canWrite) onRequireAuth();
+            }}
             rows={1}
             className="max-h-[7.5rem] min-h-[2.4375rem] min-w-0 flex-1 resize-none overflow-y-auto border-0 bg-transparent px-3 py-[0.5625rem] text-sm leading-normal text-zinc-900 placeholder:text-zinc-400 focus:ring-0 focus:outline-none dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-500"
             aria-label={replyingTo ? '답글 입력' : '댓글 입력'}
             style={{ height: 'auto' }}
+            disabled={!canWrite || isCommentSubmitting}
           />
           <button
             type="button"
             onClick={onSubmitComment}
-            disabled={!commentText.trim() || isCommentSubmitting}
+            disabled={!canWrite || !commentText.trim() || isCommentSubmitting}
             className="comment-send-btn shrink-0 rounded-full !bg-white p-2 text-zinc-600 transition-opacity hover:opacity-80 disabled:opacity-50 dark:!bg-zinc-800 dark:text-zinc-400"
             aria-label="댓글 등록"
           >
@@ -348,8 +365,11 @@ type PageProps = { params: Promise<{ id: string }> };
 
 export default function CommunityPostDetailPage({ params }: PageProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const openLoginModal = useLoginRequiredModalStore((s) => s.open);
   const { data: profile, isLoading: profileLoading } = useMyProfile();
   const { data: managedClubs = [] } = useManagedClubsForPost();
   const { id: idParam } = use(params);
@@ -511,7 +531,16 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
 
   if (!post) return null;
 
+  const returnPath =
+    (pathname ?? '') + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
+  const requireAuthOrOpenModal = () => {
+    if (accessToken) return true;
+    openLoginModal(returnPath || '/community');
+    return false;
+  };
+
   const handleLike = () => {
+    if (!requireAuthOrOpenModal()) return;
     const currentLiked = likedOverride !== null ? likedOverride : (post.liked ?? false);
     if (currentLiked) return; // 한 번 좋아요하면 취소 불가
     if (!confirm('좋아요를 누르시겠습니까?')) return;
@@ -521,6 +550,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
     });
   };
   const handleSave = () => {
+    if (!requireAuthOrOpenModal()) return;
     setSavedOverride((prev) => (prev !== null ? !prev : !(post.saved ?? false)));
     (post.saved ? unsavePostMutation : savePostMutation).mutate(undefined, {
       onError: () => setSavedOverride((prev) => (prev !== null ? !prev : !(post.saved ?? false))),
@@ -554,6 +584,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
     return { authorType: 'USER' };
   };
   const handleSubmitComment = () => {
+    if (!requireAuthOrOpenModal()) return;
     const content = commentText.trim();
     if (!content) return;
     const { authorType, clubId } = resolveAuthorTypeAndClubId(commentAccountKey);
@@ -857,6 +888,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                             className={`flex items-center gap-0.5 rounded p-0.5 transition-opacity hover:opacity-80 ${(commentLikedByMe[root.id] ?? root.liked) ? 'text-red-500 dark:text-red-400' : 'text-zinc-500 dark:text-zinc-500'}`}
                             aria-label={`좋아요 ${commentLikeOverrides[root.id] ?? root.likeCount}개`}
                             onClick={() => {
+                              if (!requireAuthOrOpenModal()) return;
                               if (commentLikedByMe[root.id] ?? root.liked) return;
                               if (!confirm('좋아요를 누르시겠습니까?')) return;
                               setCommentLikedByMe((prev) => ({ ...prev, [root.id]: true }));
@@ -902,6 +934,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                           className="rounded p-0.5 text-zinc-500 transition-colors hover:opacity-80 dark:text-zinc-500"
                           aria-label="답글"
                           onClick={() => {
+                            if (!requireAuthOrOpenModal()) return;
                             setReplyingToCommentId(root.id);
                             commentTextareaRef.current?.scrollIntoView({
                               behavior: 'auto',
@@ -964,6 +997,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                                     alert('본인은 신고할 수 없습니다.');
                                     return;
                                   }
+                                  if (!requireAuthOrOpenModal()) return;
                                   router.push(`/mypage/settings/report?type=comment&id=${root.id}`);
                                 }}
                               >
@@ -1169,6 +1203,7 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
                                               alert('본인은 신고할 수 없습니다.');
                                               return;
                                             }
+                                            if (!requireAuthOrOpenModal()) return;
                                             router.push(
                                               `/mypage/settings/report?type=comment&id=${reply.id}`
                                             );
@@ -1237,6 +1272,8 @@ export default function CommunityPostDetailPage({ params }: PageProps) {
         replyingTo={replyingTo}
         onClearReply={() => setReplyingToCommentId(null)}
         onSubmitComment={handleSubmitComment}
+        canWrite={Boolean(accessToken)}
+        onRequireAuth={() => openLoginModal(returnPath || '/community')}
         isCommentSubmitting={createCommentMutation.isPending}
       />
     </div>

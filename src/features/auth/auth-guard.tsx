@@ -34,6 +34,18 @@ export function AuthGuard({ children }: { children: ReactNode }) {
       return;
     }
 
+    // 사용자가 명시적으로 로그아웃/탈퇴를 눌렀을 때는 모달을 띄우지 않음
+    try {
+      const suppress = sessionStorage.getItem('kookdonge-suppress-login-required-modal') === '1';
+      if (suppress) {
+        sessionStorage.removeItem('kookdonge-suppress-login-required-modal');
+        router.replace('/home');
+        return;
+      }
+    } catch {
+      // ignore
+    }
+
     openLoginModal(returnPath);
     router.replace('/home');
   }, [accessToken, pathname, returnPath, router, setTokens, openLoginModal]);

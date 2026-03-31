@@ -430,6 +430,16 @@ html:not(.dark) .community-detail-header.glass {
   background: rgba(255, 255, 255, 0.9) !important;
 }
 
+/* PWA 앱뷰 라이트 모드: OS 다크(= dark: 미디어)여도 로그인 모달 '취소' 버튼은 라이트 유지 */
+html:not(.dark) .login-required-cancel {
+  background-color: #ffffff !important;
+  color: #27272a !important;
+  border-color: #d4d4d8 !important;
+}
+html:not(.dark) .login-required-cancel:hover {
+  background-color: #fafafa !important;
+}
+
 /* 정책 4페이지: 라이트 모드(html에 .dark 없음)일 때 텍스트·표 항상 밝게 */
 html:not(.dark) .policy-page-force-light {
   color-scheme: light;
