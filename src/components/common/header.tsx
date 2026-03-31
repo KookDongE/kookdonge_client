@@ -88,7 +88,7 @@ export function Header() {
               const p = path || '/home';
               return `/login?returnUrl=${encodeURIComponent(p)}`;
             })()}
-            className="touch-btn rounded-xl bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-600 dark:bg-lime-400 dark:text-zinc-900 dark:hover:bg-lime-300"
+            className="rounded-xl bg-blue-500 px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-600 dark:bg-lime-400 dark:text-zinc-900 dark:hover:bg-lime-300"
             aria-label="로그인"
           >
             로그인
