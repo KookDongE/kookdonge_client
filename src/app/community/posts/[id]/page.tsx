@@ -294,7 +294,7 @@ function CommentBarPortal({
         </div>
       )}
       <div className="flex w-full items-end overflow-visible">
-        <div className="comment-input-wrap relative flex min-w-0 flex-1 items-end overflow-visible rounded-lg bg-white ring-1 ring-zinc-200 ring-inset dark:bg-zinc-800 dark:ring-zinc-700">
+        <div className="comment-input-wrap relative flex min-w-0 flex-1 items-end overflow-visible rounded-lg border border-zinc-200 bg-white before:pointer-events-none before:absolute before:top-0 before:bottom-0 before:left-0 before:w-px before:rounded-l-lg before:bg-zinc-200 before:content-[''] dark:border-zinc-700 dark:bg-zinc-800 dark:before:bg-zinc-700">
           {canWrite && commentText.trim().length === 0 && (
             <select
               className="shrink-0 rounded-l-md border-0 bg-transparent py-2.5 pr-4 pl-3 text-sm text-zinc-900 focus:ring-0 focus:outline-none dark:text-zinc-100"
