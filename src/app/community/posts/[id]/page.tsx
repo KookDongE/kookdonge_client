@@ -294,10 +294,10 @@ function CommentBarPortal({
         </div>
       )}
       <div className="flex w-full items-end overflow-visible">
-        <div className="comment-input-wrap relative flex min-w-0 flex-1 items-end overflow-visible rounded-lg border border-zinc-200 bg-white before:pointer-events-none before:absolute before:top-0 before:bottom-0 before:left-0 before:w-px before:rounded-l-lg before:bg-zinc-200 before:content-[''] dark:border-zinc-700 dark:bg-zinc-800 dark:before:bg-zinc-700">
+        <div className="comment-input-wrap relative flex min-w-0 flex-1 items-end overflow-visible rounded-lg border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
           {canWrite && commentText.trim().length === 0 && (
             <select
-              className="shrink-0 appearance-none border-none bg-transparent py-2.5 pr-4 pl-3 text-sm text-zinc-900 shadow-none outline-none focus:border-none focus:ring-0 focus:outline-none dark:text-zinc-100"
+              className="shrink-0 appearance-none border-none bg-transparent py-2.5 pr-4 pl-3 text-sm text-zinc-900 shadow-none ring-0 outline-none focus:border-none focus:ring-0 focus:outline-none dark:text-zinc-100"
               aria-label="댓글 작성 계정 선택"
               title="계정 선택"
               value={commentAccountKey}
@@ -332,7 +332,7 @@ function CommentBarPortal({
               if (!canWrite) onRequireAuth();
             }}
             rows={1}
-            className="max-h-[7.5rem] min-h-[2.4375rem] min-w-0 flex-1 resize-none overflow-y-auto border-0 bg-transparent px-3 py-[0.5625rem] text-sm leading-normal text-zinc-900 placeholder:text-zinc-400 focus:ring-0 focus:outline-none dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-500"
+            className="max-h-[7.5rem] min-h-[2.4375rem] min-w-0 flex-1 resize-none overflow-y-auto border-none bg-transparent px-3 py-[0.5625rem] text-sm leading-normal text-zinc-900 shadow-none ring-0 outline-none placeholder:text-zinc-400 focus:border-none focus:ring-0 focus:outline-none dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-500"
             aria-label={replyingTo ? '답글 입력' : '댓글 입력'}
             style={{ height: 'auto' }}
             disabled={!canWrite || isCommentSubmitting}
@@ -341,7 +341,7 @@ function CommentBarPortal({
             type="button"
             onClick={onSubmitComment}
             disabled={!canWrite || !commentText.trim() || isCommentSubmitting}
-            className="comment-send-btn shrink-0 rounded-full !bg-white p-2 text-zinc-600 transition-opacity hover:opacity-80 disabled:opacity-50 dark:!bg-zinc-800 dark:text-zinc-400"
+            className="comment-send-btn shrink-0 rounded-full border-none !bg-white p-2 text-zinc-600 shadow-none ring-0 transition-opacity outline-none hover:opacity-80 focus:border-none focus:ring-0 focus:outline-none disabled:opacity-50 dark:!bg-zinc-800 dark:text-zinc-400"
             aria-label="댓글 등록"
           >
             <svg

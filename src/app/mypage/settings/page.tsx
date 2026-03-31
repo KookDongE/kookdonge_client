@@ -226,7 +226,7 @@ export default function SettingsPage() {
             <button
               type="button"
               onClick={() => setConfirmModal('withdraw')}
-              className={`${buttonClass} text-zinc-400 hover:text-red-600 dark:text-zinc-500 dark:hover:text-red-400`}
+              className={`${buttonClass} !text-zinc-400 hover:!text-red-600 dark:!text-zinc-500 dark:hover:!text-red-400`}
               aria-label="회원탈퇴"
             >
               회원탈퇴
