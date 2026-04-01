@@ -104,7 +104,7 @@ function LoginContent() {
             </svg>
             Google로 로그인
           </motion.button>
-          <p className="mt-4 text-center text-xs leading-snug font-semibold text-zinc-700 dark:text-zinc-300">
+          <p className="mt-4 text-center text-xs font-light text-zinc-500 dark:text-zinc-400">
             본 서비스는 국민대학교 계정으로만 이용 가능합니다.
           </p>
         </motion.div>
