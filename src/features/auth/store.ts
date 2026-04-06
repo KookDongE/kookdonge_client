@@ -5,6 +5,9 @@ import { UserProfileRes } from '@/types/api';
 
 export const AUTH_STORAGE_KEY = 'auth-storage';
 
+/** OAuth 콜백 등 수동 localStorage와 동일해야 함. persist 기본 0과 불일치 시 재수화에서 토큰이 버려짐 */
+export const AUTH_STORAGE_VERSION = 1 as const;
+
 type PersistedAuth = {
   state: { accessToken: string | null; refreshToken: string | null };
   version?: number;
@@ -118,6 +121,9 @@ export const useAuthStore = create<AuthState & AuthActions>()(
     }),
     {
       name: AUTH_STORAGE_KEY,
+      version: AUTH_STORAGE_VERSION,
+      /** 이전에 persist 기본 version(0)으로 저장된 토큰 유지 */
+      migrate: (persistedState) => persistedState as PersistedAuthState,
       storage: createJSONStorage(getAuthStorage),
       partialize: (state): PersistedAuthState => ({
         accessToken: state.accessToken,

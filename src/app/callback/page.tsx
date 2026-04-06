@@ -3,16 +3,16 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { PageCenteredSkeleton } from '@/components/common/skeletons';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { getRedirectUri, OAUTH_STATE_KEY } from '@/lib/google-oauth';
 import { authApi } from '@/features/auth/api';
 import { authKeys } from '@/features/auth/hooks';
-import { useAuthStore } from '@/features/auth/store';
+import { AUTH_STORAGE_KEY, AUTH_STORAGE_VERSION, useAuthStore } from '@/features/auth/store';
 import { deviceApi } from '@/features/device/api';
 import { getOrCreateDeviceId } from '@/features/device/device-id';
 import { getPlatform } from '@/features/device/platform';
+import { PageCenteredSkeleton } from '@/components/common/skeletons';
 
 function registerDeviceAfterLogin() {
   const deviceId = getOrCreateDeviceId();
@@ -86,13 +86,13 @@ function CallbackContent() {
                 setTokens(regRes.accessToken, regRes.refreshToken);
                 try {
                   localStorage.setItem(
-                    'auth-storage',
+                    AUTH_STORAGE_KEY,
                     JSON.stringify({
                       state: {
                         accessToken: regRes.accessToken,
                         refreshToken: regRes.refreshToken,
                       },
-                      version: 1,
+                      version: AUTH_STORAGE_VERSION,
                     })
                   );
                 } catch {
@@ -112,10 +112,10 @@ function CallbackContent() {
           setTokens(res.accessToken, res.refreshToken);
           try {
             localStorage.setItem(
-              'auth-storage',
+              AUTH_STORAGE_KEY,
               JSON.stringify({
                 state: { accessToken: res.accessToken, refreshToken: res.refreshToken },
-                version: 1,
+                version: AUTH_STORAGE_VERSION,
               })
             );
           } catch {

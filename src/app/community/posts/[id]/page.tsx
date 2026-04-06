@@ -29,6 +29,13 @@ import {
 } from '@/features/community/hooks';
 import { CommunityPostDetailSkeleton } from '@/components/common/skeletons';
 import { PersonFillIcon } from '@/components/icons/person-fill-icon';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
@@ -295,24 +302,33 @@ function CommentBarPortal({
       )}
       <div className="flex w-full items-end overflow-visible">
         <div className="comment-input-wrap relative flex min-w-0 flex-1 items-end overflow-visible rounded-lg border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
-          {canWrite && commentText.trim().length === 0 && (
-            <select
-              className="shrink-0 appearance-none border-none bg-transparent py-2.5 pr-4 pl-3 text-sm text-zinc-900 shadow-none ring-0 outline-none focus:border-none focus:ring-0 focus:outline-none dark:text-zinc-100"
-              aria-label="댓글 작성 계정 선택"
-              title="계정 선택"
+          {canWrite && commentText.trim().length === 0 && commentAccountOptions.length > 0 && (
+            <Select
               value={commentAccountKey}
-              onChange={(e) => setCommentAccountKey(e.target.value)}
-              disabled={!canWrite || isCommentSubmitting}
-              onClick={() => {
-                if (!canWrite) onRequireAuth();
-              }}
+              onValueChange={setCommentAccountKey}
+              disabled={isCommentSubmitting}
             >
-              {commentAccountOptions.map((opt) => (
-                <option key={opt.key} value={opt.key}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger
+                className="h-auto min-h-0 max-w-[min(140px,45vw)] shrink-0 border-0 bg-transparent py-2.5 pr-1 pl-3 text-sm text-zinc-900 shadow-none ring-0 ring-offset-0 outline-none focus:border-0 focus:ring-0 focus:ring-offset-0 focus:outline-none data-[state=open]:ring-0 dark:bg-transparent dark:text-zinc-100"
+                aria-label="댓글 작성 계정 선택"
+                title="계정 선택"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent
+                position="popper"
+                side="top"
+                align="start"
+                sideOffset={8}
+                collisionPadding={16}
+              >
+                {commentAccountOptions.map((opt) => (
+                  <SelectItem key={opt.key} value={opt.key} textValue={opt.label}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           )}
           <textarea
             ref={commentTextareaRef}
