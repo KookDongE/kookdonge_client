@@ -37,9 +37,9 @@ export const metadata: Metadata = {
     images: [
       {
         url: ogImageUrl,
-        width: 1200,
-        height: 630,
-        alt: '국민대의 모든 동아리, 국동이에서 만나보세요!',
+        width: 1024,
+        height: 581,
+        alt: '국민대의 모든 동아리 정보, 국동이에서 만나보세요!',
       },
     ],
   },
