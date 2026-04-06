@@ -28,7 +28,7 @@ const appBase =
     : rawBase;
 const iconBase = appBase || '';
 
-const ogImageUrl = appBase ? `${appBase}/og-image.png` : '/og-image.png';
+const ogImageUrl = appBase ? `${appBase}/og-share-banner.png` : '/og-share-banner.png';
 const metadataBase = new URL(appBase ? `${appBase}/` : 'http://localhost:3000/');
 const canonicalUrl = appBase ? `${appBase}/` : undefined;
 
@@ -39,6 +39,9 @@ export const metadata: Metadata = {
   manifest: '/manifest.webmanifest',
   alternates: canonicalUrl ? { canonical: canonicalUrl } : undefined,
   openGraph: {
+    type: 'website',
+    locale: 'ko_KR',
+    siteName: '국동이',
     title: '국동이',
     description: '국민대의 모든 동아리, 국동이에서 만나보세요!',
     url: canonicalUrl,
