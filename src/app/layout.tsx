@@ -20,26 +20,37 @@ import { ScrollbarOnScroll } from '@/components/common/scrollbar-on-scroll';
 import '@/styles/globals.css';
 
 const appUrl = typeof process !== 'undefined' ? process.env.NEXT_PUBLIC_APP_URL : undefined;
-const appBase = typeof appUrl === 'string' ? appUrl.replace(/\/$/, '') : '';
+const rawBase = typeof appUrl === 'string' ? appUrl.replace(/\/$/, '') : '';
+/** 로컬이 아닌 배포 URL은 OG/아이콘 절대경로를 https로 통일 (http 공유 시에도 동일 이미지) */
+const appBase =
+  rawBase && rawBase.startsWith('http://') && !/localhost|127\.0\.0\.1/.test(rawBase)
+    ? `https://${rawBase.slice('http://'.length)}`
+    : rawBase;
 const iconBase = appBase || '';
 
-const ogImageUrl = appBase ? `${appBase}/og-image.png` : '/og-image.png';
+const ogImageUrl = appBase ? `${appBase}/og-share-banner.png` : '/og-share-banner.png';
 const metadataBase = new URL(appBase ? `${appBase}/` : 'http://localhost:3000/');
+const canonicalUrl = appBase ? `${appBase}/` : undefined;
 
 export const metadata: Metadata = {
   metadataBase,
   title: '국동이',
   description: '국민대의 모든 동아리, 국동이에서 만나보세요!',
   manifest: '/manifest.webmanifest',
+  alternates: canonicalUrl ? { canonical: canonicalUrl } : undefined,
   openGraph: {
+    type: 'website',
+    locale: 'ko_KR',
+    siteName: '국동이',
     title: '국동이',
     description: '국민대의 모든 동아리, 국동이에서 만나보세요!',
+    url: canonicalUrl,
     images: [
       {
         url: ogImageUrl,
-        width: 1200,
-        height: 630,
-        alt: '국민대의 모든 동아리, 국동이에서 만나보세요!',
+        width: 1024,
+        height: 581,
+        alt: '국민대의 모든 동아리 정보, 국동이에서 만나보세요!',
       },
     ],
   },
