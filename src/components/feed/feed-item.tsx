@@ -26,8 +26,10 @@ type FeedItemProps = {
   isDeleting?: boolean;
 };
 
-const SWIPE_THRESHOLD = 45;
-const SWIPE_VELOCITY = 500;
+const SWIPE_THRESHOLD = 34;
+const SWIPE_VELOCITY = 360;
+const EDGE_DRAG_ELASTIC = 0.22;
+const NORMAL_DRAG_ELASTIC = 0.045;
 /** 이 길이를 넘으면 더보기/접기 노출 (인스타 스타일) */
 const CONTENT_MORE_THRESHOLD = 100;
 
@@ -75,6 +77,7 @@ export const FeedItem = memo(function FeedItem({
   }, []);
 
   const safeIndex = Math.min(currentIndex, Math.max(0, imageUrls.length - 1));
+  const isAtEdge = safeIndex === 0 || safeIndex === imageUrls.length - 1;
 
   const goNext = useCallback(() => {
     setCurrentIndex((prev) => (prev < imageUrls.length - 1 ? prev + 1 : prev));
@@ -205,13 +208,13 @@ export const FeedItem = memo(function FeedItem({
             className="flex h-full"
             style={{ width: `${imageUrls.length * 100}%` }}
             animate={{ x: slideWidth > 0 ? -safeIndex * slideWidth : 0 }}
-            transition={{ type: 'spring', stiffness: 420, damping: 38, mass: 0.7 }}
+            transition={{ type: 'spring', stiffness: 520, damping: 46, mass: 0.78 }}
             drag="x"
             dragConstraints={{
               left: slideWidth > 0 ? -Math.max(0, imageUrls.length - 1) * slideWidth : 0,
               right: 0,
             }}
-            dragElastic={0.03}
+            dragElastic={isAtEdge ? EDGE_DRAG_ELASTIC : NORMAL_DRAG_ELASTIC}
             onDragEnd={handleDragEnd}
           >
             {imageUrls.map((url, i) => (

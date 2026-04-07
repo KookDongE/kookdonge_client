@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { Spinner } from '@heroui/react';
 import { useQueries, useQueryClient } from '@tanstack/react-query';
+import { motion, type PanInfo } from 'framer-motion';
 import { createPortal } from 'react-dom';
 
 import type { CommunityAuthorType } from '@/types/api';
@@ -78,7 +79,10 @@ function isAppView(): boolean {
   return standalone || fullscreen || iosStandalone;
 }
 
-const SWIPE_THRESHOLD = 50;
+const SWIPE_THRESHOLD = 34;
+const SWIPE_VELOCITY = 360;
+const LIGHTBOX_EDGE_DRAG_ELASTIC = 0.24;
+const LIGHTBOX_NORMAL_DRAG_ELASTIC = 0.05;
 
 const DETAIL_BANNER_SRC = '/banner/detail-banner.png';
 
@@ -112,9 +116,10 @@ function ImageLightbox({
   onIndexChange: (index: number) => void;
   onClose: () => void;
 }) {
-  const touchStartX = useRef<number | null>(null);
   /** 로드 완료된 이미지 인덱스 (첫 열기 시 스피너, 넘길 때 이미 로드됐으면 스피너 없음) */
   const [loadedIndices, setLoadedIndices] = useState<Set<number>>(() => new Set());
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const [slideWidth, setSlideWidth] = useState(0);
 
   const goPrev = () => {
     if (currentIndex > 0) onIndexChange(currentIndex - 1);
@@ -123,16 +128,11 @@ function ImageLightbox({
     if (currentIndex < imageUrls.length - 1) onIndexChange(currentIndex + 1);
   };
 
-  const onTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-  const onTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current == null) return;
-    const endX = e.changedTouches[0].clientX;
-    const delta = touchStartX.current - endX;
-    touchStartX.current = null;
-    if (delta > SWIPE_THRESHOLD) goNext();
-    else if (delta < -SWIPE_THRESHOLD) goPrev();
+  const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    const delta = info.offset.x;
+    const velocity = info.velocity.x;
+    if (delta <= -SWIPE_THRESHOLD || velocity <= -SWIPE_VELOCITY) goNext();
+    else if (delta >= SWIPE_THRESHOLD || velocity >= SWIPE_VELOCITY) goPrev();
   };
 
   const markLoaded = (index: number) => {
@@ -142,10 +142,21 @@ function ImageLightbox({
   const currentLoaded = loadedIndices.has(currentIndex);
   const prevIndex = currentIndex - 1;
   const nextIndex = currentIndex + 1;
+  const isAtEdge = currentIndex === 0 || currentIndex === imageUrls.length - 1;
+
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    const update = () => setSlideWidth(el.clientWidth);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col bg-black/90 p-4"
+      className="fixed inset-0 z-50 flex flex-col bg-black p-4"
       role="dialog"
       aria-modal="true"
       aria-label="사진 확대"
@@ -177,11 +188,7 @@ function ImageLightbox({
         </span>
         <div className="w-9" aria-hidden />
       </div>
-      <div
-        className="relative flex min-h-0 flex-1 items-center justify-center gap-2"
-        onTouchStart={onTouchStart}
-        onTouchEnd={onTouchEnd}
-      >
+      <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden">
         {/* 인접 이미지 프리로드: 현재 이미지 로드 완료 후 시작(첫 진입 체감 개선) */}
         {currentLoaded && prevIndex >= 0 && (
           // eslint-disable-next-line @next/next/no-img-element -- 프리로드용
@@ -204,23 +211,46 @@ function ImageLightbox({
           />
         )}
 
-        {/* 현재 이미지: 로드 전엔 스피너, 로드 후 표시 */}
+        {/* 현재 이미지: 로드 전엔 스피너 */}
         {!currentLoaded && (
           <div className="absolute inset-0 flex items-center justify-center text-white" aria-hidden>
             <Spinner size="lg" color="current" />
           </div>
         )}
-        {/* eslint-disable-next-line @next/next/no-img-element -- 라이트박스 동적 URL, 클릭/터치 제스처 */}
-        <img
-          key={currentIndex}
-          src={imageUrls[currentIndex]}
-          alt=""
-          className="max-h-full max-w-full object-contain select-none"
-          style={{ visibility: currentLoaded ? 'visible' : 'hidden' }}
+        <motion.div
+          ref={trackRef}
+          className="flex h-full"
+          style={{ width: `${imageUrls.length * 100}%` }}
+          animate={{ x: slideWidth > 0 ? -currentIndex * slideWidth : 0 }}
+          transition={{ type: 'spring', stiffness: 500, damping: 44, mass: 0.8 }}
+          drag="x"
+          dragConstraints={{
+            left: slideWidth > 0 ? -Math.max(0, imageUrls.length - 1) * slideWidth : 0,
+            right: 0,
+          }}
+          dragElastic={isAtEdge ? LIGHTBOX_EDGE_DRAG_ELASTIC : LIGHTBOX_NORMAL_DRAG_ELASTIC}
+          onDragEnd={handleDragEnd}
           onClick={(e) => e.stopPropagation()}
-          draggable={false}
-          onLoad={() => markLoaded(currentIndex)}
-        />
+        >
+          {imageUrls.map((url, idx) => (
+            <div
+              key={`${url}-${idx}`}
+              className="relative flex h-full shrink-0 items-center justify-center"
+              style={{ width: `${100 / imageUrls.length}%` }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element -- 라이트박스 동적 URL, 스와이프 캐러셀 */}
+              <img
+                src={url}
+                alt=""
+                className="h-full w-full object-contain select-none"
+                style={{ visibility: loadedIndices.has(idx) ? 'visible' : 'hidden' }}
+                draggable={false}
+                loading={idx === currentIndex ? 'eager' : 'lazy'}
+                onLoad={() => markLoaded(idx)}
+              />
+            </div>
+          ))}
+        </motion.div>
       </div>
     </div>
   );
