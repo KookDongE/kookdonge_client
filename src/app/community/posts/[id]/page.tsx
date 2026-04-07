@@ -118,7 +118,7 @@ function ImageLightbox({
 }) {
   /** 로드 완료된 이미지 인덱스 (첫 열기 시 스피너, 넘길 때 이미 로드됐으면 스피너 없음) */
   const [loadedIndices, setLoadedIndices] = useState<Set<number>>(() => new Set());
-  const trackRef = useRef<HTMLDivElement | null>(null);
+  const viewportRef = useRef<HTMLDivElement | null>(null);
   const [slideWidth, setSlideWidth] = useState(0);
 
   const goPrev = () => {
@@ -145,7 +145,7 @@ function ImageLightbox({
   const isAtEdge = currentIndex === 0 || currentIndex === imageUrls.length - 1;
 
   useEffect(() => {
-    const el = trackRef.current;
+    const el = viewportRef.current;
     if (!el) return;
     const update = () => setSlideWidth(el.clientWidth);
     update();
@@ -188,7 +188,10 @@ function ImageLightbox({
         </span>
         <div className="w-9" aria-hidden />
       </div>
-      <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden">
+      <div
+        ref={viewportRef}
+        className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden"
+      >
         {/* 인접 이미지 프리로드: 현재 이미지 로드 완료 후 시작(첫 진입 체감 개선) */}
         {currentLoaded && prevIndex >= 0 && (
           // eslint-disable-next-line @next/next/no-img-element -- 프리로드용
@@ -218,9 +221,8 @@ function ImageLightbox({
           </div>
         )}
         <motion.div
-          ref={trackRef}
           className="flex h-full"
-          style={{ width: `${imageUrls.length * 100}%` }}
+          style={{ width: slideWidth > 0 ? slideWidth * imageUrls.length : '100%' }}
           animate={{ x: slideWidth > 0 ? -currentIndex * slideWidth : 0 }}
           transition={{ type: 'spring', stiffness: 500, damping: 44, mass: 0.8 }}
           drag="x"
@@ -236,7 +238,7 @@ function ImageLightbox({
             <div
               key={`${url}-${idx}`}
               className="relative flex h-full shrink-0 items-center justify-center"
-              style={{ width: `${100 / imageUrls.length}%` }}
+              style={{ width: slideWidth > 0 ? slideWidth : '100%' }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element -- 라이트박스 동적 URL, 스와이프 캐러셀 */}
               <img
