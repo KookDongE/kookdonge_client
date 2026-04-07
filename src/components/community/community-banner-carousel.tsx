@@ -1,111 +1,19 @@
-'use client';
-
-import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 
-const BANNER_IMAGES = ['/banner/1.png', '/banner/2.png', '/banner/3.png'];
-const AUTO_PLAY_MS = 3000;
-const SWIPE_THRESHOLD = 50;
+const BANNER_SRC = '/banner/community-home.png';
 
-/** 마지막 → 첫 장 전환 시에도 우측에서 들어오는 것처럼 보이도록, 첫 장 복제를 끝에 둔 무한 루프 슬라이드 */
-const SLIDES = [...BANNER_IMAGES, BANNER_IMAGES[0]];
-const SLIDE_COUNT = BANNER_IMAGES.length;
-
-const LAST_INDEX = SLIDES.length - 1;
-
+/** 커뮤니티 홈 상단 광고 배너 (2:1 비율은 부모 `aspectRatio: 2/1`에서 유지) */
 export function CommunityBannerCarousel() {
-  const [displayIndex, setDisplayIndex] = useState(0);
-  const [transitionOff, setTransitionOff] = useState(false);
-  const touchStartX = useRef<number | null>(null);
-  const isOnCloneSlide = useRef(false);
-
-  const goPrev = useCallback(() => {
-    setDisplayIndex((i) => (i <= 0 ? SLIDE_COUNT - 1 : i - 1));
-  }, []);
-  const goNext = useCallback(() => {
-    setDisplayIndex((i) => (i < LAST_INDEX ? i + 1 : i));
-  }, []);
-
-  useEffect(() => {
-    isOnCloneSlide.current = displayIndex === LAST_INDEX;
-  }, [displayIndex]);
-
-  const onTransitionEnd = useCallback(() => {
-    if (!isOnCloneSlide.current) return;
-    setTransitionOff(true);
-    setDisplayIndex(0);
-  }, []);
-
-  useEffect(() => {
-    if (!transitionOff) return;
-    const id = requestAnimationFrame(() => {
-      setTransitionOff(false);
-    });
-    return () => cancelAnimationFrame(id);
-  }, [transitionOff]);
-
-  useEffect(() => {
-    const id = setInterval(goNext, AUTO_PLAY_MS);
-    return () => clearInterval(id);
-  }, [goNext]);
-
-  const onTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-  const onTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current == null) return;
-    const endX = e.changedTouches[0].clientX;
-    const delta = touchStartX.current - endX;
-    touchStartX.current = null;
-    if (delta > SWIPE_THRESHOLD) goNext();
-    else if (delta < -SWIPE_THRESHOLD) goPrev();
-  };
-
-  const indicatorIndex = displayIndex === LAST_INDEX ? 0 : displayIndex;
-
   return (
-    <div
-      className="relative h-full w-full touch-pan-y overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800"
-      onTouchStart={onTouchStart}
-      onTouchEnd={onTouchEnd}
-    >
-      <div
-        className="flex h-full w-full ease-out"
-        style={{
-          transform: `translateX(-${displayIndex * 100}%)`,
-          transition: transitionOff ? 'none' : 'transform 500ms ease-out',
-        }}
-        onTransitionEnd={onTransitionEnd}
-      >
-        {SLIDES.map((src, i) => (
-          <div key={i} className="relative h-full min-w-full shrink-0">
-            <Image
-              src={src}
-              alt=""
-              fill
-              className="object-cover"
-              sizes="(max-width: 448px) 100vw, 448px"
-              priority={i === 0}
-            />
-          </div>
-        ))}
-      </div>
-      {/* 인디케이터: 오른쪽 아래, 가로로 긴 둥근 직사각형 점 */}
-      <div className="absolute right-3 bottom-3 flex items-center gap-1.5" aria-hidden>
-        {BANNER_IMAGES.map((_, i) => (
-          <button
-            key={i}
-            type="button"
-            onClick={() => setDisplayIndex(i)}
-            className={`h-1.5 shrink-0 rounded-full transition-all duration-300 ${
-              i === indicatorIndex
-                ? 'w-5 bg-white/95 dark:bg-white/90'
-                : 'w-1.5 bg-white/50 dark:bg-white/40'
-            }`}
-            aria-label={`배너 ${i + 1}`}
-          />
-        ))}
-      </div>
+    <div className="relative h-full w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
+      <Image
+        src={BANNER_SRC}
+        alt="이곳, 배너를 통해 국민대 학생들에게 동아리 행사를 홍보해 보세요. 문의·접수는 국동이 인스타그램 DM"
+        fill
+        className="object-cover"
+        sizes="(max-width: 448px) 100vw, 448px"
+        priority
+      />
     </div>
   );
 }

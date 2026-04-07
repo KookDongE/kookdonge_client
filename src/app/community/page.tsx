@@ -142,7 +142,7 @@ export default function AdminCommunityPage() {
         />
       </div>
 
-      {/* 광고 배너: 가로2 세로1 비율 캐러셀, 3초 자동 전환, 인디케이터 점 */}
+      {/* 광고 배너: 가로2 세로1 비율 */}
       <div className="mb-4 px-4 pt-4">
         <div className="w-full overflow-hidden" style={{ aspectRatio: '2/1' }}>
           <CommunityBannerCarousel />

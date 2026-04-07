@@ -80,25 +80,17 @@ function isAppView(): boolean {
 
 const SWIPE_THRESHOLD = 50;
 
-/** 상세조회 전용 배너 풀 (public/banner의 detail1, 2, 3 중 랜덤 1장) */
-const DETAIL_VIEW_BANNERS = [
-  '/banner/detail1.png',
-  '/banner/detail2.png',
-  '/banner/detail3.png',
-] as const;
+const DETAIL_BANNER_SRC = '/banner/detail-banner.png';
 
-/** 액션 바 ~ 댓글 사이 배너 (상세조회 전용, 풀에서 랜덤 1장) */
+/** 액션 바 ~ 댓글 사이 배너 (상세조회 전용, 1855×380 비율) */
 function PostDetailBanner() {
-  const [src] = useState(
-    () => DETAIL_VIEW_BANNERS[Math.floor(Math.random() * DETAIL_VIEW_BANNERS.length)]
-  );
   return (
     <div
       className="relative -mt-4 aspect-[1855/380] w-full shrink-0 overflow-hidden border-0 bg-zinc-100 outline-none dark:bg-zinc-800/50"
       aria-hidden
     >
       <Image
-        src={src}
+        src={DETAIL_BANNER_SRC}
         alt=""
         fill
         className="object-cover outline-none"
