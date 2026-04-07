@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 
 import { motion, type PanInfo } from 'framer-motion';
@@ -48,6 +48,8 @@ export const FeedItem = memo(function FeedItem({
   const hasMultiple = imageUrls.length > 1;
   const hasNoImage = imageUrls.length === 0 || !imageUrls[0]?.trim();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+  const [slideWidth, setSlideWidth] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [contentExpanded, setContentExpanded] = useState(false);
   /** 로드 실패한 이미지 인덱스 → 회색 배경으로 대체 */
@@ -62,13 +64,25 @@ export const FeedItem = memo(function FeedItem({
     (content.includes('\n') && content.split('\n').length > 3);
   const isContentCollapsed = showMoreToggle && !contentExpanded;
 
+  useEffect(() => {
+    const el = viewportRef.current;
+    if (!el) return;
+    const update = () => setSlideWidth(el.clientWidth);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const safeIndex = Math.min(currentIndex, Math.max(0, imageUrls.length - 1));
+
   const goNext = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % imageUrls.length);
+    setCurrentIndex((prev) => (prev < imageUrls.length - 1 ? prev + 1 : prev));
   }, [imageUrls.length]);
 
   const goPrev = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + imageUrls.length) % imageUrls.length);
-  }, [imageUrls.length]);
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : prev));
+  }, []);
 
   const handleDragEnd = useCallback(
     (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
@@ -183,17 +197,21 @@ export const FeedItem = memo(function FeedItem({
         <div className="relative aspect-square w-full bg-zinc-200 dark:bg-zinc-700" />
       ) : hasMultiple ? (
         <div
+          ref={viewportRef}
           className="relative aspect-square w-full touch-pan-y overflow-hidden bg-zinc-100 select-none dark:bg-zinc-800"
           style={{ touchAction: 'pan-y' }}
         >
           <motion.div
             className="flex h-full"
             style={{ width: `${imageUrls.length * 100}%` }}
-            animate={{ x: `-${currentIndex * (100 / imageUrls.length)}%` }}
+            animate={{ x: slideWidth > 0 ? -safeIndex * slideWidth : 0 }}
             transition={{ type: 'spring', stiffness: 420, damping: 38, mass: 0.7 }}
             drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.06}
+            dragConstraints={{
+              left: slideWidth > 0 ? -Math.max(0, imageUrls.length - 1) * slideWidth : 0,
+              right: 0,
+            }}
+            dragElastic={0.03}
             onDragEnd={handleDragEnd}
           >
             {imageUrls.map((url, i) => (
@@ -230,10 +248,10 @@ export const FeedItem = memo(function FeedItem({
                   setCurrentIndex(i);
                 }}
                 className={`h-1.5 rounded-full transition-all ${
-                  i === currentIndex ? 'w-3 bg-white/90' : 'w-1.5 bg-white/50'
+                  i === safeIndex ? 'w-3 bg-white/90' : 'w-1.5 bg-white/50'
                 } hover:bg-white/80 focus:ring-2 focus:ring-white/50 focus:ring-offset-1 focus:ring-offset-transparent focus:outline-none`}
                 aria-label={`${i + 1}번째 사진으로 이동`}
-                aria-current={i === currentIndex ? 'true' : undefined}
+                aria-current={i === safeIndex ? 'true' : undefined}
               />
             ))}
           </div>

@@ -182,8 +182,8 @@ function ImageLightbox({
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
-        {/* 인접 이미지 프리로드 (넘길 때 로딩 없이 바로 표시) */}
-        {prevIndex >= 0 && (
+        {/* 인접 이미지 프리로드: 현재 이미지 로드 완료 후 시작(첫 진입 체감 개선) */}
+        {currentLoaded && prevIndex >= 0 && (
           // eslint-disable-next-line @next/next/no-img-element -- 프리로드용
           <img
             src={imageUrls[prevIndex]}
@@ -193,7 +193,7 @@ function ImageLightbox({
             onLoad={() => markLoaded(prevIndex)}
           />
         )}
-        {nextIndex < imageUrls.length && (
+        {currentLoaded && nextIndex < imageUrls.length && (
           // eslint-disable-next-line @next/next/no-img-element -- 프리로드용
           <img
             src={imageUrls[nextIndex]}
