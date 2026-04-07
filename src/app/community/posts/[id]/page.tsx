@@ -143,6 +143,8 @@ function ImageLightbox({
   const prevIndex = currentIndex - 1;
   const nextIndex = currentIndex + 1;
   const isAtEdge = currentIndex === 0 || currentIndex === imageUrls.length - 1;
+  const shouldRenderSlide = (idx: number) =>
+    idx === currentIndex || idx === prevIndex || idx === nextIndex;
 
   useEffect(() => {
     const el = viewportRef.current;
@@ -153,6 +155,20 @@ function ImageLightbox({
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (!currentLoaded) return;
+    if (typeof window === 'undefined') return;
+    const preload = (index: number) => {
+      if (index < 0 || index >= imageUrls.length) return;
+      if (loadedIndices.has(index)) return;
+      const img = new window.Image();
+      img.decoding = 'async';
+      img.src = imageUrls[index] ?? '';
+    };
+    preload(prevIndex);
+    preload(nextIndex);
+  }, [currentLoaded, imageUrls, loadedIndices, nextIndex, prevIndex]);
 
   return (
     <div
@@ -189,28 +205,6 @@ function ImageLightbox({
         <div className="w-9" aria-hidden />
       </div>
       <div ref={viewportRef} className="relative min-h-0 flex-1 overflow-hidden">
-        {/* 인접 이미지 프리로드: 현재 이미지 로드 완료 후 시작(첫 진입 체감 개선) */}
-        {currentLoaded && prevIndex >= 0 && (
-          // eslint-disable-next-line @next/next/no-img-element -- 프리로드용
-          <img
-            src={imageUrls[prevIndex]}
-            alt=""
-            className="hidden"
-            loading="eager"
-            onLoad={() => markLoaded(prevIndex)}
-          />
-        )}
-        {currentLoaded && nextIndex < imageUrls.length && (
-          // eslint-disable-next-line @next/next/no-img-element -- 프리로드용
-          <img
-            src={imageUrls[nextIndex]}
-            alt=""
-            className="hidden"
-            loading="eager"
-            onLoad={() => markLoaded(nextIndex)}
-          />
-        )}
-
         {/* 현재 이미지: 로드 전엔 스피너 */}
         {!currentLoaded && (
           <div className="absolute inset-0 flex items-center justify-center text-white" aria-hidden>
@@ -237,16 +231,20 @@ function ImageLightbox({
               className="relative flex h-full shrink-0 items-center justify-center"
               style={{ width: slideWidth > 0 ? slideWidth : '100%' }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element -- 라이트박스 동적 URL, 스와이프 캐러셀 */}
-              <img
-                src={url}
-                alt=""
-                className="h-full w-full object-contain select-none"
-                style={{ visibility: loadedIndices.has(idx) ? 'visible' : 'hidden' }}
-                draggable={false}
-                loading={idx === currentIndex ? 'eager' : 'lazy'}
-                onLoad={() => markLoaded(idx)}
-              />
+              {shouldRenderSlide(idx) ? (
+                <Image
+                  src={url}
+                  alt=""
+                  fill
+                  className="object-contain select-none"
+                  sizes="100vw"
+                  priority={idx === currentIndex}
+                  draggable={false}
+                  onLoadingComplete={() => markLoaded(idx)}
+                />
+              ) : (
+                <div className="h-full w-full" />
+              )}
             </div>
           ))}
         </motion.div>
