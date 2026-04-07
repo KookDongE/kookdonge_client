@@ -188,10 +188,7 @@ function ImageLightbox({
         </span>
         <div className="w-9" aria-hidden />
       </div>
-      <div
-        ref={viewportRef}
-        className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden"
-      >
+      <div ref={viewportRef} className="relative min-h-0 flex-1 overflow-hidden">
         {/* 인접 이미지 프리로드: 현재 이미지 로드 완료 후 시작(첫 진입 체감 개선) */}
         {currentLoaded && prevIndex >= 0 && (
           // eslint-disable-next-line @next/next/no-img-element -- 프리로드용
