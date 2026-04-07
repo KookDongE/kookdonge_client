@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useLayoutEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+
 import { useQueryClient } from '@tanstack/react-query';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 
@@ -67,8 +68,11 @@ export function PullToRefresh({
     setIsRefreshing(true);
     if (pathname) router.replace(pathname, { scroll: false });
     router.refresh();
-    // 풀 리프레시 시 모든 React Query 캐시 무효화 → 현재 페이지 포함 활성 쿼리가 재요청되어 데이터 갱신
-    queryClient.invalidateQueries();
+    /**
+     * `invalidateQueries()` 인자 없이 호출하면 캐시의 모든 쿼리가 무효화되며 병렬 재요청이 폭증함.
+     * PWA·모바일에서 메인 스레드가 멈춘 것처럼 보일 수 있음 → 마운트된(활성) 쿼리만 다시 가져오기.
+     */
+    void queryClient.refetchQueries({ type: 'active' });
     setTimeout(() => setIsRefreshing(false), 800);
   }, [pathname, router, queryClient]);
 
@@ -116,40 +120,40 @@ export function PullToRefresh({
 
   return (
     <PullToRefreshActiveContext.Provider value={isPullActive}>
-    <div
-      ref={scrollRef}
-      data-scroll-container
-      className={`pb-safe h-full overscroll-y-none ${fullScreen || scrollDisabled ? 'no-scrollbar overflow-hidden touch-none overscroll-none' : pathname === '/home' ? 'no-scrollbar overflow-y-auto' : 'overflow-y-auto'}`}
-      style={{ height: contentHeight }}
-      onTouchStart={canPull ? onTouchStart : undefined}
-      onTouchMove={canPull ? onTouchMove : undefined}
-      onTouchEnd={canPull ? onTouchEnd : undefined}
-      onTouchCancel={canPull ? onTouchEnd : undefined}
-    >
-      <motion.div className="min-h-full" style={{ y: smoothY }}>
-        {/* 인디케이터: 당길 때/새로고침 중에만 높이 있음 (예전 UI) */}
-        <div
-          className="flex items-center justify-center overflow-hidden"
-          style={{
-            minHeight: isRefreshing ? INDICATOR_HEIGHT : Math.min(INDICATOR_HEIGHT, pullDistance),
-          }}
-        >
-          {pullDistance > 0 || isRefreshing ? (
-            isRefreshing ? (
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-300 border-t-blue-500 dark:border-zinc-600 dark:border-t-lime-400" />
-            ) : (
-              <span
-                className="text-xs text-zinc-500 dark:text-zinc-400"
-                style={{ opacity: Math.min(1, pullDistance / 36) }}
-              >
-                {pullDistance >= PULL_THRESHOLD ? '놓아서 새로고침' : '당겨서 새로고침'}
-              </span>
-            )
-          ) : null}
-        </div>
-        {children}
-      </motion.div>
-    </div>
+      <div
+        ref={scrollRef}
+        data-scroll-container
+        className={`pb-safe h-full overscroll-y-none ${fullScreen || scrollDisabled ? 'no-scrollbar touch-none overflow-hidden overscroll-none' : pathname === '/home' ? 'no-scrollbar overflow-y-auto' : 'overflow-y-auto'}`}
+        style={{ height: contentHeight }}
+        onTouchStart={canPull ? onTouchStart : undefined}
+        onTouchMove={canPull ? onTouchMove : undefined}
+        onTouchEnd={canPull ? onTouchEnd : undefined}
+        onTouchCancel={canPull ? onTouchEnd : undefined}
+      >
+        <motion.div className="min-h-full" style={{ y: smoothY }}>
+          {/* 인디케이터: 당길 때/새로고침 중에만 높이 있음 (예전 UI) */}
+          <div
+            className="flex items-center justify-center overflow-hidden"
+            style={{
+              minHeight: isRefreshing ? INDICATOR_HEIGHT : Math.min(INDICATOR_HEIGHT, pullDistance),
+            }}
+          >
+            {pullDistance > 0 || isRefreshing ? (
+              isRefreshing ? (
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-300 border-t-blue-500 dark:border-zinc-600 dark:border-t-lime-400" />
+              ) : (
+                <span
+                  className="text-xs text-zinc-500 dark:text-zinc-400"
+                  style={{ opacity: Math.min(1, pullDistance / 36) }}
+                >
+                  {pullDistance >= PULL_THRESHOLD ? '놓아서 새로고침' : '당겨서 새로고침'}
+                </span>
+              )
+            ) : null}
+          </div>
+          {children}
+        </motion.div>
+      </div>
     </PullToRefreshActiveContext.Provider>
   );
 }

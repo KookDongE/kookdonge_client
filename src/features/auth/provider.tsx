@@ -7,7 +7,7 @@ import { useNotification } from '@/features/device/use-notification';
 
 import { AuthGuard } from './auth-guard';
 import { LoginRequiredModal } from './login-required-modal';
-import { useAuthStore } from './store';
+import { AUTH_STORAGE_KEY, getStoredTokens, useAuthStore } from './store';
 
 /** 네비게이션 시 AuthProvider 재마운트되어 rehydrate()가 두 번 호출되는 것 방지 */
 let hasRehydrateBeenCalled = false;
@@ -35,6 +35,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (hasRehydrateBeenCalled) return;
     hasRehydrateBeenCalled = true;
     useAuthStore.persist.rehydrate();
+  }, []);
+
+  /**
+   * 다른 탭에서 재발급으로 refresh가 바뀌면 localStorage만 갱신되고 이 탭 메모리는 옛 토큰을 유지함.
+   * 그 상태로 API → 401 → 재발급 시 무효화된 refresh로 실패 → "세션이 만료"가 반복될 수 있음(storage 이벤트로 동기화).
+   */
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== AUTH_STORAGE_KEY) return;
+      if (!e.newValue) {
+        if (useAuthStore.getState().accessToken) {
+          useAuthStore.getState().clearAuth();
+        }
+        return;
+      }
+      try {
+        const parsed = JSON.parse(e.newValue) as {
+          state?: { accessToken?: string | null; refreshToken?: string | null };
+        };
+        const accessToken = parsed?.state?.accessToken;
+        const refreshToken = parsed?.state?.refreshToken;
+        if (accessToken && refreshToken) {
+          useAuthStore.getState().setTokens(accessToken, refreshToken);
+        }
+      } catch {
+        // ignore
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
+  /** 탭 복귀 시 localStorage와 메모리 불일치 보정(storage 이벤트 누락·엣지 케이스) */
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const syncFromStorage = () => {
+      const stored = getStoredTokens();
+      if (!stored) return;
+      const { accessToken, refreshToken } = useAuthStore.getState();
+      if (stored.accessToken !== accessToken || stored.refreshToken !== refreshToken) {
+        useAuthStore.getState().setTokens(stored.accessToken, stored.refreshToken);
+      }
+    };
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') syncFromStorage();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
   }, []);
 
   // 재수화 후 로그인 상태면 디바이스 등록. Firebase 지원 시 권한 요청 후 FCM 토큰 등록, 미지원 시 web-pending 등록.

@@ -1,7 +1,13 @@
 'use client';
 
 import { getApp, getApps, initializeApp } from 'firebase/app';
-import { getMessaging, getToken, onMessage, type Messaging } from 'firebase/messaging';
+import {
+  getMessaging,
+  getToken,
+  onMessage,
+  type MessagePayload,
+  type Messaging,
+} from 'firebase/messaging';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -133,9 +139,11 @@ export async function getFcmToken(): Promise<GetFcmTokenResult> {
   }
 }
 
-/** 포그라운드에서 Data Message 수신 시 호출될 콜백. 구독 해제 함수 반환. */
+export type { MessagePayload };
+
+/** 포그라운드에서 푸시 수신 시 호출될 콜백. `notification`·`data` 모두 포함된 {@link MessagePayload}. */
 export function subscribeForegroundMessage(
-  callback: (payload: { data?: Record<string, string> }) => void
+  callback: (payload: MessagePayload) => void
 ): (() => void) | null {
   if (typeof window === 'undefined') return null;
   const messagingInstance = getMessagingInstance();
