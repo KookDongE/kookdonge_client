@@ -18,10 +18,10 @@ import { ListCardSkeleton, ProfileSkeleton } from '@/components/common/skeletons
 
 const TYPE_LABEL: Record<ClubType, string> = {
   CENTRAL: '중앙동아리',
+  PROVISIONAL: '준동아리',
   DEPARTMENTAL: '학과동아리',
   ACADEMIC_SOCIETY: '학회',
   CLUB: '소모임',
-  PROVISIONAL: '준동아리',
 };
 
 const COLLEGE_LABEL: Record<College, string> = {

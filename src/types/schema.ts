@@ -12,10 +12,10 @@ export const ClubCategorySchema = z.enum([
 
 export const ClubTypeSchema = z.enum([
   'CENTRAL',
+  'PROVISIONAL',
   'DEPARTMENTAL',
   'ACADEMIC_SOCIETY',
   'CLUB',
-  'PROVISIONAL',
 ]);
 
 export const RecruitmentStatusSchema = z.enum(['RECRUITING', 'SCHEDULED', 'CLOSED']);

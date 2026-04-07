@@ -21,10 +21,10 @@ const CATEGORY_OPTIONS: { value: ClubCategory | 'ALL'; label: string }[] = [
 const TYPE_OPTIONS: { value: ClubType | 'ALL'; label: string }[] = [
   { value: 'ALL', label: '동아리 유형' },
   { value: 'CENTRAL', label: '중앙동아리' },
+  { value: 'PROVISIONAL', label: '준동아리' },
   { value: 'DEPARTMENTAL', label: '과동아리' },
   { value: 'ACADEMIC_SOCIETY', label: '학회' },
   { value: 'CLUB', label: '소모임' },
-  { value: 'PROVISIONAL', label: '준동아리' },
 ];
 
 const COLLEGE_OPTIONS: { value: College | 'ALL'; label: string }[] = [

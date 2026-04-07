@@ -11,10 +11,10 @@ import { FormPageSkeleton } from '@/components/common/skeletons';
 
 const TYPE_OPTIONS: { value: ClubType; label: string }[] = [
   { value: 'CENTRAL', label: '중앙동아리' },
+  { value: 'PROVISIONAL', label: '준동아리' },
   { value: 'DEPARTMENTAL', label: '학과동아리' },
   { value: 'ACADEMIC_SOCIETY', label: '학회' },
   { value: 'CLUB', label: '소모임' },
-  { value: 'PROVISIONAL', label: '준동아리' },
 ];
 
 const COLLEGE_OPTIONS: { value: College; label: string }[] = [
