@@ -4,8 +4,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { useAuthStore } from '@/features/auth/store';
 import { deviceApi } from '@/features/device/api';
 import { getOrCreateDeviceId } from '@/features/device/device-id';
+import { ensureDeviceBeforeNotificationSettingsApi } from '@/features/device/register-device';
 import { useNotification } from '@/features/device/use-notification';
 import { BellIcon } from '@/components/icons/notification-icon';
 
@@ -20,6 +22,7 @@ function getNotificationGuideOs(): 'ios' | 'android' | 'desktop' {
 
 export default function NotificationSettingsPage() {
   const queryClient = useQueryClient();
+  const accessToken = useAuthStore((s) => s.accessToken);
   const deviceId = useMemo(() => (typeof window !== 'undefined' ? getOrCreateDeviceId() : ''), []);
   const [guideOs] = useState(() => getNotificationGuideOs());
   const {
@@ -32,13 +35,18 @@ export default function NotificationSettingsPage() {
 
   const { data: settings, isLoading: isSettingsLoading } = useQuery({
     queryKey: ['notification-settings', deviceId],
-    queryFn: () => deviceApi.getNotificationSettings(deviceId),
-    enabled: Boolean(deviceId),
+    queryFn: async () => {
+      await ensureDeviceBeforeNotificationSettingsApi();
+      return deviceApi.getNotificationSettings(deviceId);
+    },
+    enabled: Boolean(deviceId && accessToken),
   });
 
   const updateSettings = useMutation({
-    mutationFn: (notificationEnabled: boolean) =>
-      deviceApi.updateNotificationSettings(deviceId, { notificationEnabled }),
+    mutationFn: async (notificationEnabled: boolean) => {
+      await ensureDeviceBeforeNotificationSettingsApi();
+      return deviceApi.updateNotificationSettings(deviceId, { notificationEnabled });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notification-settings', deviceId] });
     },

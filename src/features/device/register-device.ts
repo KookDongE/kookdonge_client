@@ -23,3 +23,11 @@ export async function registerDeviceWithBackend(): Promise<void> {
     platform: getPlatform(),
   });
 }
+
+/**
+ * 알림 설정(GET/PATCH)은 서버에 디바이스 행이 있어야 한다.
+ * 로그인 직후 등록과 경합하거나 등록 실패 시에도 설정 화면에서 오류 나지 않도록 API 호출 직전에 사용한다.
+ */
+export async function ensureDeviceBeforeNotificationSettingsApi(): Promise<void> {
+  await registerDeviceWithBackend();
+}
