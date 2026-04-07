@@ -22,6 +22,10 @@ export function useNotifications(page = 0, size = DEFAULT_PAGE_SIZE) {
     queryKey: notificationKeys.list(page, size),
     queryFn: () => notificationApi.getNotifications(page, size),
     enabled: !!accessToken,
+    /** 전역 default(refetchOnWindowFocus: false)를 덮어 탭 복귀 시 목록 갱신 */
+    refetchOnWindowFocus: true,
+    /** FCM이 페이지에 안 올 때(백그라운드·일부 브라우저)에도 목록이 뒤처지지 않게 */
+    refetchInterval: 60_000,
   });
 }
 
@@ -34,6 +38,8 @@ export function useNotificationsInfinite(size = DEFAULT_PAGE_SIZE) {
     getNextPageParam: (lastPage) => (lastPage.hasNext ? (lastPage.page ?? 0) + 1 : undefined),
     initialPageParam: 0,
     enabled: !!accessToken,
+    refetchOnWindowFocus: true,
+    refetchInterval: 60_000,
   });
 }
 
@@ -44,6 +50,8 @@ export function useUnreadCount() {
     queryKey: notificationKeys.unreadCount(),
     queryFn: () => notificationApi.getUnreadCount(),
     enabled: !!accessToken,
+    refetchOnWindowFocus: true,
+    refetchInterval: 60_000,
   });
 }
 

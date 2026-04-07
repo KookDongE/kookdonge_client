@@ -50,7 +50,7 @@ export function FcmForegroundHandler() {
       const now = Date.now();
       const isDuplicate = key === lastKeyRef.current && now - lastTimeRef.current < DEDUPE_MS;
 
-      queryClient.invalidateQueries({ queryKey: notificationKeys.all });
+      void queryClient.refetchQueries({ queryKey: notificationKeys.all, type: 'active' });
 
       if (isDuplicate) return;
 

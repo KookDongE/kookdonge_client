@@ -10,6 +10,7 @@ import { ThemeProvider } from '@/lib/theme/provider';
 import { AuthProvider } from '@/features/auth';
 import { AppBadgeSync } from '@/features/notifications/app-badge-sync';
 import { FcmForegroundHandler } from '@/features/notifications/fcm-foreground-handler';
+import { FcmServiceWorkerMessageBridge } from '@/features/notifications/fcm-sw-message-bridge';
 import { NotificationRefetchOnVisible } from '@/features/notifications/notification-refetch-on-visible';
 import { AppShell } from '@/components/common/app-shell';
 import { FullscreenBodyLock } from '@/components/common/fullscreen-body-lock';
@@ -148,6 +149,7 @@ export default function RootLayout({
                 <FullscreenBodyLock />
                 <PortraitLock />
                 <FcmForegroundHandler />
+                <FcmServiceWorkerMessageBridge />
                 <NotificationRefetchOnVisible />
                 <AppBadgeSync />
                 <div className="app-container mx-auto min-h-dvh max-w-md overflow-x-hidden">

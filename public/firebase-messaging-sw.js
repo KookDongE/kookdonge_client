@@ -39,7 +39,20 @@ try {
       renotify: true,
       data: { url: redirectUrl },
     };
-    return self.registration.showNotification(title, options);
+    var show = self.registration.showNotification(title, options);
+    return show.then(function () {
+      return self.clients
+        .matchAll({ type: 'window', includeUncontrolled: true })
+        .then(function (clients) {
+          clients.forEach(function (client) {
+            try {
+              client.postMessage({ type: 'FCM_PUSH_RECEIVED' });
+            } catch (e) {
+              /* noop */
+            }
+          });
+        });
+    });
   });
 } catch {
   /* noop */
