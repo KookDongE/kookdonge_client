@@ -43,6 +43,7 @@ const TYPE_LABEL: Record<ClubType, string> = {
   DEPARTMENTAL: '학과동아리',
   ACADEMIC_SOCIETY: '학회',
   CLUB: '소모임',
+  PROVISIONAL: '준동아리',
 };
 
 const STATUS_CONFIG: Record<RecruitmentStatus, { label: string; className: string }> = {
@@ -147,7 +148,7 @@ export function ClubCard({
           {club.name}
         </h3>
 
-        <p className="line-clamp-1 min-h-0 shrink overflow-hidden text-xs font-light leading-tight text-zinc-500 dark:text-zinc-400">
+        <p className="line-clamp-1 min-h-0 shrink overflow-hidden text-xs leading-tight font-light text-zinc-500 dark:text-zinc-400">
           {club.introduction || '\u00A0'}
         </p>
       </div>

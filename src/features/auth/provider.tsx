@@ -68,7 +68,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  /** 탭 복귀 시 localStorage와 메모리 불일치 보정(storage 이벤트 누락·엣지 케이스) */
+  /**
+   * 탭·앱 복귀 시 localStorage와 메모리 불일치 보정(storage 이벤트 누락·다른 탭 재발급 등).
+   * PWA/WebView는 visibility보다 focus/pageshow가 먼저 오거나 누락되는 경우가 있어 함께 둔다.
+   * 그렇지 않으면 메모리에 남은 옛 access로 API가 먼저 나가 401→재발급이 꼬이거나 실패해
+   * `세션이 만료되었습니다` 토스트가 날 수 있음.
+   */
   useEffect(() => {
     if (typeof document === 'undefined') return;
     const syncFromStorage = () => {
@@ -83,7 +88,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (document.visibilityState === 'visible') syncFromStorage();
     };
     document.addEventListener('visibilitychange', onVisible);
-    return () => document.removeEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', syncFromStorage);
+    window.addEventListener('pageshow', syncFromStorage);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', syncFromStorage);
+      window.removeEventListener('pageshow', syncFromStorage);
+    };
   }, []);
 
   // 재수화 후 로그인 상태면 디바이스 등록. Firebase 지원 시 권한 요청 후 FCM 토큰 등록, 미지원 시 web-pending 등록.

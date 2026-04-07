@@ -6,8 +6,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@heroui/react';
 
 import type { ClubCategory, ClubType } from '@/types/api';
-import { FormPageSkeleton } from '@/components/common/skeletons';
 import { useMyRequests } from '@/features/club/hooks';
+import { FormPageSkeleton } from '@/components/common/skeletons';
 
 const CATEGORY_LABELS: Record<ClubCategory, string> = {
   PERFORMING_ARTS: '공연',
@@ -24,6 +24,7 @@ const TYPE_LABELS: Record<ClubType, string> = {
   DEPARTMENTAL: '학과동아리',
   ACADEMIC_SOCIETY: '학술동아리',
   CLUB: '동아리',
+  PROVISIONAL: '준동아리',
 };
 
 const STATUS_CHIP_CLASS: Record<string, string> = {
@@ -97,8 +98,7 @@ export default function MyApplicationDetailPage() {
     );
   }
 
-  const labelClass =
-    'mb-2 block text-xs font-normal text-gray-500 dark:text-zinc-400';
+  const labelClass = 'mb-2 block text-xs font-normal text-gray-500 dark:text-zinc-400';
   const valueBoxClass =
     'w-full rounded-lg border border-gray-200 bg-white p-4 text-sm text-gray-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100';
 

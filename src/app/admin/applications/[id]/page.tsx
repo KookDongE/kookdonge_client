@@ -33,6 +33,7 @@ const TYPE_LABELS: Record<ClubType, string> = {
   DEPARTMENTAL: '학과동아리',
   ACADEMIC_SOCIETY: '학술동아리',
   CLUB: '동아리',
+  PROVISIONAL: '준동아리',
 };
 
 const STATUS_CHIP_CLASS: Record<string, string> = {

@@ -325,7 +325,9 @@ function ClubListSection({
     category: category && category !== 'ALL' ? (category as ClubCategory) : undefined,
     type: clubType && clubType !== 'ALL' ? (clubType as ClubType) : undefined,
     college:
-      clubType !== 'CENTRAL' && college && college !== 'ALL' ? (college as College) : undefined,
+      clubType !== 'CENTRAL' && clubType !== 'PROVISIONAL' && college && college !== 'ALL'
+        ? (college as College)
+        : undefined,
     recruitmentStatus: validRecruitmentStatus,
     query: (query && query.trim()) || undefined,
     sort: normalizeSort(sort ?? null),

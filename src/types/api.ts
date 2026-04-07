@@ -39,7 +39,7 @@ export type ClubCategory =
   | 'PHYSICAL_MARTIAL_ARTS'
   | 'ACADEMIC';
 
-export type ClubType = 'CENTRAL' | 'DEPARTMENTAL' | 'ACADEMIC_SOCIETY' | 'CLUB';
+export type ClubType = 'CENTRAL' | 'DEPARTMENTAL' | 'ACADEMIC_SOCIETY' | 'CLUB' | 'PROVISIONAL';
 
 export type RecruitmentStatus = 'RECRUITING' | 'SCHEDULED' | 'CLOSED';
 

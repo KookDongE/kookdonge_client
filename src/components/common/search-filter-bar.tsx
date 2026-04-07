@@ -24,6 +24,7 @@ const TYPE_OPTIONS: { value: ClubType | 'ALL'; label: string }[] = [
   { value: 'DEPARTMENTAL', label: '과동아리' },
   { value: 'ACADEMIC_SOCIETY', label: '학회' },
   { value: 'CLUB', label: '소모임' },
+  { value: 'PROVISIONAL', label: '준동아리' },
 ];
 
 const COLLEGE_OPTIONS: { value: College | 'ALL'; label: string }[] = [
@@ -153,8 +154,8 @@ export function SearchFilterBar({
   const clubTypeVal = clubType ?? 'ALL';
   const collegeVal = college ?? 'ALL';
   const sortVal = sort != null && VALID_SORT_SET.has(sort) ? sort : 'default';
-  /** 과 필터: 중앙동아리 선택 시에만 숨김 (전체/학과동아리/학회/소모임일 때는 항상 노출) */
-  const showCollegeFilter = clubTypeVal !== 'CENTRAL';
+  /** 과 필터: 중앙·준동아리는 단과대 필터 숨김 */
+  const showCollegeFilter = clubTypeVal !== 'CENTRAL' && clubTypeVal !== 'PROVISIONAL';
 
   // URL에 없는 정렬 값이면 기본순으로 정규화
   useEffect(() => {

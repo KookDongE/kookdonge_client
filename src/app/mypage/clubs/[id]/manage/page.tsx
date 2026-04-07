@@ -58,6 +58,7 @@ const TYPE_LABEL: Record<ClubType, string> = {
   DEPARTMENTAL: '학과동아리',
   ACADEMIC_SOCIETY: '학회',
   CLUB: '소모임',
+  PROVISIONAL: '준동아리',
 };
 
 const COLLEGE_LABEL: Record<College, string> = {
