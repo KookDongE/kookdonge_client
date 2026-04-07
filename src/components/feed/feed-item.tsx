@@ -1,7 +1,9 @@
 'use client';
 
-import { memo, useCallback, useRef, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import Image from 'next/image';
+
+import { AnimatePresence, motion } from 'framer-motion';
 
 import { formatTimeAgo } from '@/lib/utils';
 import { DefaultClubImage } from '@/components/common/default-club-image';
@@ -24,7 +26,9 @@ type FeedItemProps = {
   isDeleting?: boolean;
 };
 
-const SWIPE_THRESHOLD = 50;
+const SWIPE_THRESHOLD = 45;
+const SWIPE_VELOCITY = 500;
+const SWIPE_OFFSET = 48;
 /** 이 길이를 넘으면 더보기/접기 노출 (인스타 스타일) */
 const CONTENT_MORE_THRESHOLD = 100;
 
@@ -45,12 +49,11 @@ export const FeedItem = memo(function FeedItem({
   const hasMultiple = imageUrls.length > 1;
   const hasNoImage = imageUrls.length === 0 || !imageUrls[0]?.trim();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState<1 | -1>(1);
   const [menuOpen, setMenuOpen] = useState(false);
   const [contentExpanded, setContentExpanded] = useState(false);
   /** 로드 실패한 이미지 인덱스 → 회색 배경으로 대체 */
   const [failedImageIndices, setFailedImageIndices] = useState<Set<number>>(new Set());
-  const touchStartX = useRef<number>(0);
-  const touchEndX = useRef<number>(0);
 
   const handleImageError = useCallback((index: number) => {
     setFailedImageIndices((prev) => new Set(prev).add(index));
@@ -62,27 +65,32 @@ export const FeedItem = memo(function FeedItem({
   const isContentCollapsed = showMoreToggle && !contentExpanded;
 
   const goNext = useCallback(() => {
+    setDirection(1);
     setCurrentIndex((prev) => (prev + 1) % imageUrls.length);
   }, [imageUrls.length]);
 
   const goPrev = useCallback(() => {
+    setDirection(-1);
     setCurrentIndex((prev) => (prev - 1 + imageUrls.length) % imageUrls.length);
   }, [imageUrls.length]);
 
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartX.current = e.targetTouches[0].clientX;
-  }, []);
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    touchEndX.current = e.targetTouches[0].clientX;
-  }, []);
-
-  const handleTouchEnd = useCallback(() => {
-    const diff = touchStartX.current - touchEndX.current;
-    if (Math.abs(diff) < SWIPE_THRESHOLD) return;
-    if (diff > 0) goNext();
-    else goPrev();
-  }, [goNext, goPrev]);
+  const handleDragEnd = useCallback(
+    (
+      _: MouseEvent | TouchEvent | PointerEvent,
+      info: { offset: { x: number }; velocity: { x: number } }
+    ) => {
+      const offsetX = info.offset.x;
+      const velocityX = info.velocity.x;
+      if (offsetX <= -SWIPE_THRESHOLD || velocityX <= -SWIPE_VELOCITY) {
+        goNext();
+        return;
+      }
+      if (offsetX >= SWIPE_THRESHOLD || velocityX >= SWIPE_VELOCITY) {
+        goPrev();
+      }
+    },
+    [goNext, goPrev]
+  );
 
   return (
     <article
@@ -183,36 +191,41 @@ export const FeedItem = memo(function FeedItem({
       ) : hasMultiple ? (
         <div
           className="relative aspect-square w-full touch-pan-y overflow-hidden bg-zinc-100 select-none dark:bg-zinc-800"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
           style={{ touchAction: 'pan-y' }}
         >
-          {imageUrls.map((url, i) => (
-            <div
-              key={`${feedId}-${i}`}
-              className="absolute inset-0 transition-opacity duration-200"
-              style={{
-                opacity: i === currentIndex ? 1 : 0,
-                pointerEvents: i === currentIndex ? 'auto' : 'none',
+          <AnimatePresence initial={false} custom={direction}>
+            <motion.div
+              key={`${feedId}-${currentIndex}`}
+              className="absolute inset-0"
+              custom={direction}
+              initial={{ x: direction > 0 ? SWIPE_OFFSET : -SWIPE_OFFSET, opacity: 0.92 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: direction > 0 ? -SWIPE_OFFSET : SWIPE_OFFSET, opacity: 0.92 }}
+              transition={{
+                x: { type: 'spring', stiffness: 430, damping: 36, mass: 0.65 },
+                opacity: { duration: 0.14, ease: 'easeOut' },
               }}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.14}
+              onDragEnd={handleDragEnd}
             >
-              {failedImageIndices.has(i) ? (
+              {failedImageIndices.has(currentIndex) ? (
                 <div className="absolute inset-0 bg-zinc-200 dark:bg-zinc-700" />
               ) : (
                 <Image
-                  src={url}
+                  src={imageUrls[currentIndex] ?? ''}
                   alt=""
                   fill
                   className="object-cover"
                   sizes="100vw"
-                  priority={i === 0}
+                  priority={currentIndex === 0}
                   draggable={false}
-                  onError={() => handleImageError(i)}
+                  onError={() => handleImageError(currentIndex)}
                 />
               )}
-            </div>
-          ))}
+            </motion.div>
+          </AnimatePresence>
           {/* 인디케이터: 클릭 시 해당 사진으로 이동 */}
           <div className="absolute right-0 bottom-2 left-0 flex justify-center gap-1.5">
             {imageUrls.map((_, i) => (
