@@ -3,7 +3,7 @@
 import { memo, useCallback, useState } from 'react';
 import Image from 'next/image';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion, type PanInfo } from 'framer-motion';
 
 import { formatTimeAgo } from '@/lib/utils';
 import { DefaultClubImage } from '@/components/common/default-club-image';
@@ -28,7 +28,6 @@ type FeedItemProps = {
 
 const SWIPE_THRESHOLD = 45;
 const SWIPE_VELOCITY = 500;
-const SWIPE_OFFSET = 48;
 /** 이 길이를 넘으면 더보기/접기 노출 (인스타 스타일) */
 const CONTENT_MORE_THRESHOLD = 100;
 
@@ -49,7 +48,6 @@ export const FeedItem = memo(function FeedItem({
   const hasMultiple = imageUrls.length > 1;
   const hasNoImage = imageUrls.length === 0 || !imageUrls[0]?.trim();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [direction, setDirection] = useState<1 | -1>(1);
   const [menuOpen, setMenuOpen] = useState(false);
   const [contentExpanded, setContentExpanded] = useState(false);
   /** 로드 실패한 이미지 인덱스 → 회색 배경으로 대체 */
@@ -65,20 +63,15 @@ export const FeedItem = memo(function FeedItem({
   const isContentCollapsed = showMoreToggle && !contentExpanded;
 
   const goNext = useCallback(() => {
-    setDirection(1);
     setCurrentIndex((prev) => (prev + 1) % imageUrls.length);
   }, [imageUrls.length]);
 
   const goPrev = useCallback(() => {
-    setDirection(-1);
     setCurrentIndex((prev) => (prev - 1 + imageUrls.length) % imageUrls.length);
   }, [imageUrls.length]);
 
   const handleDragEnd = useCallback(
-    (
-      _: MouseEvent | TouchEvent | PointerEvent,
-      info: { offset: { x: number }; velocity: { x: number } }
-    ) => {
+    (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
       const offsetX = info.offset.x;
       const velocityX = info.velocity.x;
       if (offsetX <= -SWIPE_THRESHOLD || velocityX <= -SWIPE_VELOCITY) {
@@ -193,39 +186,39 @@ export const FeedItem = memo(function FeedItem({
           className="relative aspect-square w-full touch-pan-y overflow-hidden bg-zinc-100 select-none dark:bg-zinc-800"
           style={{ touchAction: 'pan-y' }}
         >
-          <AnimatePresence initial={false} custom={direction}>
-            <motion.div
-              key={`${feedId}-${currentIndex}`}
-              className="absolute inset-0"
-              custom={direction}
-              initial={{ x: direction > 0 ? SWIPE_OFFSET : -SWIPE_OFFSET, opacity: 0.92 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: direction > 0 ? -SWIPE_OFFSET : SWIPE_OFFSET, opacity: 0.92 }}
-              transition={{
-                x: { type: 'spring', stiffness: 430, damping: 36, mass: 0.65 },
-                opacity: { duration: 0.14, ease: 'easeOut' },
-              }}
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.14}
-              onDragEnd={handleDragEnd}
-            >
-              {failedImageIndices.has(currentIndex) ? (
-                <div className="absolute inset-0 bg-zinc-200 dark:bg-zinc-700" />
-              ) : (
-                <Image
-                  src={imageUrls[currentIndex] ?? ''}
-                  alt=""
-                  fill
-                  className="object-cover"
-                  sizes="100vw"
-                  priority={currentIndex === 0}
-                  draggable={false}
-                  onError={() => handleImageError(currentIndex)}
-                />
-              )}
-            </motion.div>
-          </AnimatePresence>
+          <motion.div
+            className="flex h-full"
+            style={{ width: `${imageUrls.length * 100}%` }}
+            animate={{ x: `-${currentIndex * (100 / imageUrls.length)}%` }}
+            transition={{ type: 'spring', stiffness: 420, damping: 38, mass: 0.7 }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.06}
+            onDragEnd={handleDragEnd}
+          >
+            {imageUrls.map((url, i) => (
+              <div
+                key={`${feedId}-${i}`}
+                className="relative h-full shrink-0"
+                style={{ width: `${100 / imageUrls.length}%` }}
+              >
+                {failedImageIndices.has(i) ? (
+                  <div className="absolute inset-0 bg-zinc-200 dark:bg-zinc-700" />
+                ) : (
+                  <Image
+                    src={url}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    sizes="100vw"
+                    priority={i === 0}
+                    draggable={false}
+                    onError={() => handleImageError(i)}
+                  />
+                )}
+              </div>
+            ))}
+          </motion.div>
           {/* 인디케이터: 클릭 시 해당 사진으로 이동 */}
           <div className="absolute right-0 bottom-2 left-0 flex justify-center gap-1.5">
             {imageUrls.map((_, i) => (
